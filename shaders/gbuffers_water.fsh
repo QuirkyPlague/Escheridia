@@ -158,7 +158,7 @@ vec3 ambient = vec3(0);
   }
 
   //convert all lighting values into one value
-	lighting = sunlight /3  + skylight/3 + blocklight /3 + ambient/3;
+	lighting = sunlight /3  + skylight/3 + blocklight /3;
 
 
   //final lighting calculation

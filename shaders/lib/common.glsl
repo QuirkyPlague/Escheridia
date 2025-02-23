@@ -54,7 +54,7 @@ const int colortex2Format = RGB16F;
 //Godrays Config
 #define GODRAYS_ENABLE 0 //[0 1]
 #define GODRAYS_SAMPLES 24 //[6 12 18 24 36 128 256 512 1024 2048 4096]
-
+#define GODRAYS_EXPOSURE 0.4 ////[0.0 0.1 0.2 0.3 0.4 0.5 0.6 0.7 0.8 0.9 1.0]
 
 //Bloom Config
 #define DO_BLOOM 1 //[0 1]

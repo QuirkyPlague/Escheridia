@@ -201,7 +201,7 @@ vec3 waterTint = vec3(0.0039, 0.7686, 1.0);
   }
 
   //convert all lighting values into one value
-	lighting = sunlight  + skylight + blocklight + ambient;
+	lighting = sunlight  + skylight * 2 + blocklight + ambient;
 
   if(isEyeInWater == 1)
   {
@@ -215,7 +215,7 @@ vec3 Lo = vec3(0.0);
     {
         // calculate per-light radiance
         float dist    = length(worldLightVector);
-        float attenuation = 1.0 / (dist * dist);
+        float attenuation = 2.1 / (dist * dist);
         vec3 radiance    = sunlight * attenuation;  
         
         vec3 F  = fresnelSchlick(max(dot(halfwayDir, viewDir),0.0), F0);
@@ -240,7 +240,7 @@ vec3 Lo = vec3(0.0);
   
   
     vec3 color2 = lighting + Lo;
-    color2 *= color2 / (color2 + vec3(0.1569, 0.1569, 0.1569));
+    color2 *= color2 / (color2 + vec3(0.0, 0.0, 0.0));
     color2 = pow(color2, vec3(1.0/2.2));
     
     color *= vec4(color2, 1.0);

@@ -42,6 +42,9 @@ option.GODRAYS_ENABLE.comment = Enables screenspace godrays effect §cThis is no
 option.GODRAYS_SAMPLES = Godray sample count
 option.GODRAYS_SAMPLES.comment = Increase the quality of godrays. §cPotentially major performance impact§r
 
+option.GODRAYS_EXPOSURE = Godray brightness
+option.GODRAYS_EXPOSURE.comment = How bright the godrays will be
+
 option.DO_DISTANCE_FOG = Enable distance fog
 option.DO_DISTANCE_FOG.comment = Enable or disable the distance fog effect. §cNo performance impact!§r
     value.DO_DISTANCE_FOG.0  = off

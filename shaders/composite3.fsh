@@ -5,9 +5,9 @@
 uniform sampler2D colortexN;
 
 in vec2 texcoord;
- float exposure = 0.16;
+ float exposure = GODRAYS_EXPOSURE;
  float decay = 1.0;
- float density = 1.0;
+  float density = 1.0;
 float weight = 0.13 * SUN_ILLUMINANCE;
 float wetWeight = 0.65 - weight;
 
@@ -53,7 +53,7 @@ void main() {
 				samples = texture(depthtex0, altCoord).r == 1.0 ? vec3(1.0, 1.0, 1.0) * mix(earlyGodrayColor, moonrayColor, time) : vec3(0.0);
 				weight = 0.08 * MOON_ILLUMINANCE;
 				decay = 1.0;
-				exposure = 0.09;
+				
 			}
 			else if (worldTime >= 1000 && worldTime <  12350) 
 			{
@@ -68,7 +68,7 @@ void main() {
 				 samples = texture(depthtex1, altCoord).r == 1.0 ? mix(vec3(0.0941, 0.0392, 0.8275), godrayColor, waterTint) : vec3(0.0);
 				 weight = 0.3;
 				 decay = 1.0;
-				 exposure = 0.41;
+				 exposure = GODRAYS_EXPOSURE * 1.2;
 			}
 			if(rainStrength <= 1.0 && rainStrength > 0.0)
 			{
