@@ -1,0 +1,65 @@
+option.TONEMAPPING_TYPE = Tonemap operator
+    value.TONEMAPPING_TYPE.0 = Aces Approx
+    value.TONEMAPPING_TYPE.1 = Uncharted 2 
+    value.TONEMAPPING_TYPE.2 = PlaguedTonemap (unfinished)
+    value.TONEMAPPING_TYPE.3 = Gamma Corrected
+
+option.FOG_DENSITY = Fog Distance
+option.FOG_DENSITY.comment = How far away the fog renders from you. the larger the number the farther away it will render
+
+option.WATER_FOG_DENSITY = Water Fog Distance
+option.FOG_DENSITY.comment = How far away the the water fog renders from you. the larger the number the farther away it will render
+
+option.SKY_INTENSITY = Skylight Indirect Contribution
+option.SKY_INTENSITY.comment = How bright the lighting from the sky is. §cNOT RECOMMENDED TO GO ABOVE 5§r
+
+option.LIGHT_INTENSITY = Blocklight brightness
+option.LIGHT_INTENSITY.comment = The brightness of light emitting blocks like torches
+
+option.MOON_ILLUMINANCE = Moon Brightness
+option.MOON_ILLUMINANCE.comment = The total brightness of the moon  
+
+option.SUN_ILLUMINANCE = Sun Brightness
+option.SUN_ILLUMINANCE.comment = The total brightness of the sun. §cNOT RECOMMENDED TO GO ABOVE 5§r 
+
+option.SUN_ROTATION = Sun Angle
+option.SUN_ROTATION.comment = How much the sun is offset from the center
+
+option.SHADOW_SOFTNESS = Shadow softness
+option.SHADOW_SOFTNESS.comment = How smooth or sharp your shadows are. also affects their clarity
+
+option.SHADOW_MAP_RESOLUTION = Shadow resolution
+option.SHADOW_MAP_RESOLUTION.comment = Resolution of the shadowmap. How much detail is in the shadows. §cHigh performance impact§r
+
+option.SHADOW_QUALITY = Shadow Filter Quality
+option.SHADOW_QUALITY.comment = Quality of the shadow filter. §cHigh performance impact§r
+
+option.GODRAYS_ENABLE = Enable Godrays
+option.GODRAYS_ENABLE.comment = Enables screenspace godrays effect §cThis is not volumetric and will have errors when the sun is not on screen§r
+    value.GODRAYS_ENABLE.0  = off
+    value.GODRAYS_ENABLE.1  = on
+
+option.GODRAYS_SAMPLES = Godray sample count
+option.GODRAYS_SAMPLES.comment = Increase the quality of godrays. §cPotentially major performance impact§r
+
+option.DO_DISTANCE_FOG = Enable distance fog
+option.DO_DISTANCE_FOG.comment = Enable or disable the distance fog effect. §cNo performance impact!§r
+    value.DO_DISTANCE_FOG.0  = off
+    value.DO_DISTANCE_FOG.1  = on
+
+option.DO_WATER_FOG = Enable water fog
+option.DO_WATER_FOG.comment = Enable or disable the water fog effect. §cNo performance impact!§r
+    value.DO_WATER_FOG.0  = off
+    value.DO_WATER_FOG.1  = on
+
+    option.DO_AMD_SKY_FIX = Sky Fix (AMD)
+    option.DO_AMD_SKY_FIX.comment = Enables a fix for the sky not rendering on AMD devices. §cIF YOU ARE NOT ON AMD, ITS RECOMMENDED TO LEAVE THIS DISABLED§r
+
+option.BLOOM_ENABLE = Enable Bloom
+option.BLOOM_ENABLE.comment = Enable or disable the bloom effect. §cNo performance impact!§r
+    value.BLOOM_ENABLE.0 = off
+    value.BLOOM_ENABLE.1 = on
+option.BLOOM_INTENSITY = Bloom Intensity
+option.BLOOM_INTENSITY.comment = How strong the bloom effect will be. §cNo performance impact!§r
+option.BLOOM_STRENGTH = Bloom Scatter Amount
+option.BLOOM_STRENGTH.comment = How much the bloom effect is scattered from the center. §cLow Scatter can cause blurry visuals at high intensity settings§r
