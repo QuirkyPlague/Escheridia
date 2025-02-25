@@ -24,7 +24,7 @@ vec3 duskSkyColor = vec3(0.8353, 0.3725, 0.302);
 
 
  float metallic = HARDCODED_METAL;
- float roughness = HARDCODED_ROUGHNESS;
+ vec4 SpecMap = texture(colortex3, texcoord);
 
 //utilities
 vec3 lighting;
@@ -87,17 +87,14 @@ void main() {
   color = texture(colortex0, texcoord);
   
   //idk what this was but i tried it
-  vec3 SpecMap = texture(specular, texcoord).rgb;
-  float smoothMap =   SpecMap.r;
-  float metalMap =  SpecMap.g;
-  vec3 porSubMap = vec3(1.0) * SpecMap.b;
+  
  
-  float perceptualSmoothness = 1.0 - sqrt(roughness);
+  float perceptualSmoothness = 1.0 - sqrt(SpecMap.r);
    
-  roughness = perceptualSmoothness;
+  float roughness = perceptualSmoothness;
 
   //depth calculation
-  float depth = texture(depthtex0, texcoord).r;
+  float depth = texture(depthtex1, texcoord).r;
   if(depth == 1.0)
 			{
         #if DO_AMD_SKY_FIX
@@ -133,7 +130,7 @@ void main() {
   
  
   vec3 F0 = vec3(0.4);
-  F0      = mix(F0, albedo, metallic);
+  F0      = mix(F0, albedo, SpecMap.g);
  
 
 
@@ -215,7 +212,7 @@ vec3 Lo = vec3(0.0);
     {
         // calculate per-light radiance
         float dist    = length(worldLightVector);
-        float attenuation = 2.1 / (dist * dist);
+        float attenuation = PBR_ATTENUATION / (dist * dist);
         vec3 radiance    = sunlight * attenuation;  
         
         vec3 F  = fresnelSchlick(max(dot(halfwayDir, viewDir),0.0), F0);

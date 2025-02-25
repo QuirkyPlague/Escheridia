@@ -8,7 +8,7 @@ in vec2 texcoord;
  float exposure = GODRAYS_EXPOSURE;
  float decay = 1.0;
   float density = 1.0;
-float weight = 0.13 * SUN_ILLUMINANCE;
+float weight = 0.23 * SUN_ILLUMINANCE;
 float wetWeight = 0.65 - weight;
 
 vec3 earlyGodrayColor = vec3(1.0, 0.2353, 0.0627);

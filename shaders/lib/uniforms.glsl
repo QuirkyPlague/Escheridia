@@ -24,6 +24,7 @@ uniform sampler2D shadowcolor0;
 uniform sampler2D shadowcolor1;
 uniform sampler2D noisetex;
 uniform sampler2D specular;
+uniform sampler2D normals;
 uniform int frameCounter;
 
 uniform mat4 gbufferProjectionInverse;
@@ -41,7 +42,7 @@ const float PI = float(3.14159);
 const int noiseTextureResolution = 4096;
 uniform int worldTime;
 uniform int isEyeInWater;
-const float drynessHalfLife = 200.0;
+const float drynessHalfLife = 600.0;
 const float wetnessHalflife = 600.0;
 uniform float wetness;
 uniform float rainStrength;

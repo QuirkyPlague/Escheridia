@@ -58,17 +58,6 @@ vec3 fresnelSchlick(float cosTheta, vec3 F0)
     return F0 + (1.0 - F0) * pow(clamp(1.0 - cosTheta, 0.0, 1.0), 5.0);
 }  
 
-float getRoughness(vec2 coord, sampler2D depthtex, float depth){
-	float roughness = pow(1 - texture(colortex4, coord).r, 2);
-
-	if (depth != texture(depthtex, coord).r){
-		roughness = 0.0025;
-	}
-
-	roughness = (2/roughness)-2;
-
-    return roughness;
-}
 
 vec3 getShadow(vec3 shadowScreenPos)
 {
