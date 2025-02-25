@@ -10,7 +10,7 @@ in vec4 glcolor;
 
 //lighting variables
 vec3 blocklightColor = vec3(0.9059, 0.3608, 0.0863);
- vec3 skylightColor = vec3(0.0353, 0.0902, 0.1412);
+ vec3 skylightColor = vec3(0.0588, 0.102, 0.1451);
  vec3 sunlightColor = vec3(0.9922, 0.8667, 0.5216);
  vec3 morningSunlightColor = vec3(0.9216, 0.4353, 0.2588);
  vec3 moonlightColor = vec3(0.3843, 0.4667, 1.0);
@@ -28,7 +28,7 @@ vec3 duskSkyColor = vec3(0.8353, 0.3725, 0.302);
 
 //utilities
 vec3 lighting;
-vec3 luminance = vec3(0.2125, 0.7154, 0.0721);
+vec3 sunluminance = vec3(0.2125, 0.7154, 0.0721);
 
 const float sunPathRotation = SUN_ROTATION;
 
@@ -48,7 +48,7 @@ uniform float near;
   vec3 viewPos = projectAndDivide(gbufferProjectionInverse, NDCPos);
   vec3 feetPlayerPos = (gbufferModelViewInverse * vec4(viewPos, 1.0)).xyz;
   
-  shadowClipPos = findShadowClipPos(feetPlayerPos);
+  //shadowClipPos = findShadowClipPos(feetPlayerPos);
 
   float noise = IGN(floor(gl_FragCoord.xy), frameCounter);
 
@@ -158,8 +158,8 @@ vec3 waterColor = vec3(0.0392, 0.0784, 0.3137);
 vec3 waterTint = vec3(0.0039, 0.7686, 1.0);
  //Time of day changes
 
-     vec3 sunlight = dot(sunlightColor, luminance) * clamp(dot(normal, worldLightVector * SUN_ILLUMINANCE), 0.0, 3.0) * shadow;
-	   vec3 skylight = skylightColor * lightmap.g * 2* SKY_INTENSITY;
+     vec3 sunlight = dot(sunlightColor, sunluminance) * clamp(dot(normal, worldLightVector * SUN_ILLUMINANCE), 0.0, 3.0) * shadow;
+	   vec3 skylight = skylightColor * lightmap.g * SKY_INTENSITY;
 	   vec3 blocklight = lightmap.r * blocklightColor * LIGHT_INTENSITY;
 	   vec3 ambient = ambientColor / 4;
  
@@ -175,7 +175,7 @@ vec3 waterTint = vec3(0.0039, 0.7686, 1.0);
    else if (worldTime >= 1000 && worldTime < 11500)
   {
      float time = smoothstep(10000, 11500, float(worldTime));
-    sunlight = mix(sunlightColor, duskSunlightColor, time) * clamp(dot(normal, worldLightVector ), 0.0, 3.0) * SUN_ILLUMINANCE * shadow;
+    sunlight = mix(sunlightColor, duskSunlightColor, time) * clamp(dot(normal, worldLightVector ), 0.0, 6.0) * SUN_ILLUMINANCE * shadow;
 	   skylight = mix(skylightColor, duskSkyColor /18, time) * lightmap.g * SKY_INTENSITY;
 	   blocklight = lightmap.r * blocklightColor * LIGHT_INTENSITY;
 	   ambient = ambientColor / 4;
@@ -198,11 +198,11 @@ vec3 waterTint = vec3(0.0039, 0.7686, 1.0);
   }
 
   //convert all lighting values into one value
-	lighting = sunlight  + skylight * 2 + blocklight + ambient;
+	lighting = sunlight  + skylight * 4  + blocklight + ambient;
 
   if(isEyeInWater == 1)
   {
-    lighting = sunlight+ skylight + blocklight + waterTint/2 ;
+    lighting = sunlight+ skylight + blocklight + waterTint ;
     color.rgb *= mix(lighting, waterColor, clamp(waterFactor, 0.1, 3.5));
   }
 

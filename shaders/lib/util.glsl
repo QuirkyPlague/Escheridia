@@ -3,6 +3,7 @@ uniform mat4 gbufferProjection;
 #include "/lib/common.glsl"
 #include "/lib/distort.glsl"
 #include "/lib/postProcessing.glsl"
+#include "/lib/blockIDs.glsl"
 
 vec3 viewSpaceToScreenSpace(vec3 viewPosition) {
 	vec3 screenPosition  = vec3(gbufferProjection[0].x, gbufferProjection[1].y, gbufferProjection[2].z) * viewPosition + gbufferProjection[3].xyz;
@@ -127,6 +128,9 @@ vec2 vogelDisc(int stepIndex, int stepCount, float noise) {
     return r * vec2(cos(theta), sin(theta));
 }
 
-
+float luminance(vec3 color)
+{
+    return dot(color, vec3(0.2126, 0.7152, 0.0722));
+}
 
 

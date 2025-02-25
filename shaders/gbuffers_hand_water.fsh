@@ -17,6 +17,7 @@ in mat3 tbnMatrix;
 in float emission;
 
 
+
 /* RENDERTARGETS: 0,1,2,3,5 */
 layout(location = 0) out vec4 color;
 layout(location = 1) out vec4 lightmapData;
