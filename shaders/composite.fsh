@@ -15,7 +15,7 @@ vec3 blocklightColor = vec3(0.9882, 0.749, 0.6275);
  vec3 morningSunlightColor = vec3(0.9216, 0.4353, 0.2588);
  vec3 moonlightColor = vec3(0.3843, 0.4667, 1.0);
  vec3 nightSkyColor = vec3(0.0588, 0.0902, 0.451);
- vec3 morningSkyColor = vec3(0.7804, 0.5216, 0.2471);
+ vec3 morningSkyColor = vec3(0.2471, 0.6745, 0.7804);
  vec3 ambientColor = vec3(0.0667, 0.0667, 0.0667);
  vec3 nightBlockColor = vec3(0.0745, 0.0706, 0.0431);
  vec3 nightAmbientColor = vec3(0.051, 0.051, 0.051);
@@ -166,7 +166,7 @@ vec3 waterTint = vec3(0.0039, 0.7686, 1.0);
     //smoothstep equation allows interpolation between times of day
     float time = smoothstep(0, 1000, float(worldTime));
     sunlight = mix(morningSunlightColor, sunlight, time) * clamp(dot(normal, worldLightVector * SUN_ILLUMINANCE), 0.0, 3.0) * shadow;
-	  skylight = mix(morningSkyColor / 18, skylightColor, time) * lightmap.g * SKY_INTENSITY;
+	  skylight = mix(morningSkyColor, skylightColor, time) * lightmap.g * SKY_INTENSITY;
 	  blocklight = lightmap.r * blocklightColor * LIGHT_INTENSITY;
 	  ambient = ambientColor / 4;
   }
@@ -174,7 +174,7 @@ vec3 waterTint = vec3(0.0039, 0.7686, 1.0);
   {
      float time = smoothstep(10000, 11500, float(worldTime));
     sunlight = mix(sunlightColor, duskSunlightColor, time) * clamp(dot(normal, worldLightVector ), 0.0, 3.0) * SUN_ILLUMINANCE * shadow;
-	   skylight = mix(skylightColor, duskSkyColor /18, time) * lightmap.g * SKY_INTENSITY;
+	   skylight = mix(skylightColor, duskSkyColor, time) * lightmap.g * SKY_INTENSITY;
 	   blocklight = lightmap.r * blocklightColor * LIGHT_INTENSITY;
 	   ambient = ambientColor / 4;
   }
@@ -182,7 +182,7 @@ vec3 waterTint = vec3(0.0039, 0.7686, 1.0);
   {
      float time = smoothstep(11500, 13000, float(worldTime));
     sunlight = mix(duskSunlightColor, moonlightColor , time) * clamp(dot(normal, worldLightVector * SUN_ILLUMINANCE), 0.0, 3.0) * shadow;
-	   skylight = mix(duskSkyColor/ 18, nightSkyColor , time) * lightmap.g * SKY_INTENSITY;
+	   skylight = mix(duskSkyColor, nightSkyColor , time) * lightmap.g * SKY_INTENSITY;
 	   blocklight = lightmap.r * blocklightColor * LIGHT_INTENSITY;
 	   ambient = mix(ambientColor, nightAmbientColor , time);
   }
