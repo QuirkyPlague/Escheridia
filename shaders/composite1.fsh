@@ -3,7 +3,7 @@
 #include "/lib/util.glsl"
 
 uniform float far;
-vec3 dayDistFogColor = vec3(0.1608, 0.3333, 0.8118);
+vec3 dayDistFogColor = vec3(0.2039, 0.4078, 0.9686);
 vec3 earlyDistFogColor = vec3(0.9647, 0.302, 0.1176);
 vec3 duskDistFogColor = vec3(0.9765, 0.1216, 0.0588);
 vec3 nightDistFogColor = vec3(0.051, 0.051, 0.1451);
@@ -33,7 +33,7 @@ void main() {
 
   // Fog calculations
   float dist = length(viewPos) / far;
-  float fogFactor = exp(-FOG_DENSITY * (1.06 - dist));
+  float fogFactor = exp(-FOG_DENSITY * (1.0 - dist));
   float nightFogFactor = exp(-FOG_DENSITY * (0.133 / dist));
   float rainFogFactor = exp(-FOG_DENSITY * (0.65 - dist));
 
@@ -78,6 +78,6 @@ void main() {
   
   
 
-  color.rgb = mix(color.rgb, fogColor, clamp(fogFactor, 0.0, 7.0));
+  color.rgb = mix(color.rgb, fogColor, clamp(fogFactor, 0.0, 9.0));
 #endif
 }
