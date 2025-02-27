@@ -132,5 +132,31 @@ float luminance(vec3 color)
 {
     return dot(color, vec3(0.2126, 0.7152, 0.0722));
 }
+float HenyeyGreenstein(float g, float costh)
+{
+    return (1.0 - g * g) / (4.0 * PI * pow(1.0 + g * g - 2.0 * g * costh, 3.0/2.0));
+}
 
+vec3 screenSpaceToViewSpace(vec3 screenPosition, mat4 projectionInverse) {
+	screenPosition = screenPosition * 2.0 - 1.0;
+
+	vec3 viewPosition  = vec3(vec2(projectionInverse[0].x, projectionInverse[1].y) * screenPosition.xy + projectionInverse[3].xy, projectionInverse[3].z);
+
+    viewPosition /= projectionInverse[2].w * screenPosition.z + projectionInverse[3].w;
+
+	return viewPosition;
+}
+
+float screenSpaceToViewSpace(float depth, mat4 projectionInverse) {
+	depth = depth * 2.0 - 1.0;
+	return projectionInverse[3].z / (projectionInverse[2].w * depth + projectionInverse[3].w);
+}
+
+vec3 getShadowScreenPos(vec4 shadowClipPos){
+	vec3 shadowScreenPos = distortShadowClipPos(shadowClipPos.xyz); //apply shadow distortion
+  	shadowScreenPos.xyz = shadowScreenPos.xyz * 0.5 + 0.5; //convert from -1 ~ +1 to 0 ~ 1
+
+
+	return shadowScreenPos;
+}
 

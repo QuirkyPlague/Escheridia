@@ -30,14 +30,10 @@ layout(location = 4) out vec4 extractedColor;
 void main() {
 	color = texture(gtexture, texcoord) * glcolor;
 	
-	 vec4 albedo = texture(gtexture, texcoord) * glcolor;
-
-        if (albedo.a < alphaTestRef) {
-            discard;
-        }
+	 
 
 
-        albedo.rgb = pow(albedo.rgb, vec3(2.2));
+       
 
 	lightmapData = vec4(lmcoord, 0.0, 1.0);
 	
@@ -51,15 +47,14 @@ void main() {
 	normalMaps.z = sqrt(1 - dot(normalMaps.xy, normalMaps.xy));
 	vec3 mappedNormal = tbnMatrix * normalMaps;
 	
-	if(blockID == FULL_EMITTER)
-	{
-		color.rgb *= emission * luminance(albedo.rgb);
-	}
-
+	
+	encodedNormal = vec4(normal * 0.5 + 0.5, 1.0);
 
 	encodedNormal = vec4(mappedNormal * 0.5 + 0.5, 1.0);
 
-	extractedColor = color;
+	
 	specMap = texture(specular, texcoord);
 	color.rgb = pow(color.rgb, vec3(2.2));
+
+	
 }

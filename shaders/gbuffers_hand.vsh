@@ -11,7 +11,7 @@ out vec2 texcoord;
 out vec4 glcolor;
 in vec2 mc_Entity;
 out vec3 normal;
-out float emission;
+
 out mat3 tbnMatrix;
 
 void main() {
@@ -27,5 +27,5 @@ void main() {
 	vec3 binormal = mat3(gbufferModelViewInverse) * normalize(cross(tangent, normal) * at_tangent.w);
 	tbnMatrix = mat3(tangent, binormal, normal);
  		
-		emission = at_midBlock.w / 15.0;
+		
 }

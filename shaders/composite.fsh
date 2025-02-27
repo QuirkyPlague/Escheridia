@@ -11,7 +11,7 @@ in vec4 glcolor;
 //lighting variables
 vec3 blocklightColor = vec3(0.9882, 0.749, 0.6275);
  vec3 skylightColor = vec3(0.1451, 0.2235, 0.2863);
- vec3 sunlightColor = vec3(1.0, 0.902, 0.6902);
+ vec3 sunlightColor = vec3(0.9922, 0.8235, 0.6275);
  vec3 morningSunlightColor = vec3(0.9216, 0.4353, 0.2588);
  vec3 moonlightColor = vec3(0.3843, 0.4667, 1.0);
  vec3 nightSkyColor = vec3(0.0588, 0.0902, 0.451);
@@ -88,11 +88,15 @@ void main() {
   
 
  
- 
+ #if DO_RESOURCEPACK_PBR == 1
   float perceptualSmoothness = 1.0 - sqrt(SpecMap.r);
-   
- float roughness = perceptualSmoothness;
+   #else
+    float perceptualSmoothness = 1.0 - sqrt(HARDCODED_ROUGHNESS);
+  #endif
 
+  float roughness = perceptualSmoothness;
+  
+  
   //depth calculation
   float depth = texture(depthtex1, texcoord).r;
   if(depth == 1.0)
@@ -121,16 +125,27 @@ void main() {
 	vec4 shadowClipPos = shadowProjection * vec4(shadowViewPos, 1.0);
   vec3 shadowNDCPos = shadowClipPos.xyz / shadowClipPos.w;
   vec3  albedo = texture(colortex0, texcoord).rgb;
-  
+ 
+
   vec3 lightDir = worldLightVector;
   vec3 viewDir = mat3(gbufferModelViewInverse) * -normalize(projectAndDivide(gbufferProjectionInverse, vec3(texcoord.xy, 0) * 2.0 - 1.0));
 	vec3 halfwayDir = normalize(lightDir + viewDir);
   
- 
+ float metallic = HARDCODED_METAL;
   vec3 F0 = vec3(0.4);
+ #if DO_RESOURCEPACK_PBR == 1
   F0      = mix(F0, albedo, SpecMap.g);
+ #else
+ F0      = mix(F0, albedo, metallic);
+ #endif
+  float emission = SpecMap.a;
+ #if DO_RESOURCEPACK_EMISSION == 1
  
-
+ if (emission >= 0.0 && emission < 1.0)
+	{
+		color += vec4(albedo,1.0) * emission * EMISSION_STRENGTH;
+	}
+#endif
 
   #if DO_SOFT_SHADOW == 1
     vec3 shadow = getSoftShadow(shadowClipPos);
@@ -156,7 +171,7 @@ vec3 waterColor = vec3(0.0392, 0.0784, 0.3137);
 vec3 waterTint = vec3(0.0039, 0.7686, 1.0);
  //Time of day changes
 
-     vec3 sunlight = dot(sunlightColor, sunluminance) * clamp(dot(normal, worldLightVector * SUN_ILLUMINANCE), 0.0, 3.0) * shadow;
+     vec3 sunlight = dot(sunlightColor, sunluminance)  * clamp(dot(normal, worldLightVector * SUN_ILLUMINANCE), 0.0, 3.0) * shadow;
 	   vec3 skylight = skylightColor * lightmap.g * 2* SKY_INTENSITY;
 	   vec3 blocklight = lightmap.r * blocklightColor * LIGHT_INTENSITY;
 	   vec3 ambient = ambientColor / 4;
@@ -183,7 +198,7 @@ vec3 waterTint = vec3(0.0039, 0.7686, 1.0);
      float time = smoothstep(11500, 13000, float(worldTime));
     sunlight = mix(duskSunlightColor, moonlightColor , time) * clamp(dot(normal, worldLightVector * SUN_ILLUMINANCE), 0.0, 3.0) * shadow;
 	   skylight = mix(duskSkyColor, nightSkyColor , time) * lightmap.g * SKY_INTENSITY;
-	   blocklight = lightmap.r * blocklightColor * LIGHT_INTENSITY;
+	   blocklight = lightmap.r * blocklightColor  * LIGHT_INTENSITY;
 	   ambient = mix(ambientColor, nightAmbientColor , time);
   }
    else if (worldTime >= 13000 && worldTime < 24000)
@@ -191,12 +206,12 @@ vec3 waterTint = vec3(0.0039, 0.7686, 1.0);
     float time = smoothstep(23215, 24000, float(worldTime));
     sunlight = mix(moonlightColor  ,morningSunlightColor, time) * clamp(dot(normal, worldLightVector * SUN_ILLUMINANCE), 0.0, 3.0) * shadow;
 	   skylight = mix(nightSkyColor, morningSkyColor, time) * lightmap.g * NIGHT_SKY_INTENSITY;
-	   blocklight = lightmap.r * blocklightColor * LIGHT_INTENSITY;
+	   blocklight = lightmap.r * blocklightColor  * LIGHT_INTENSITY;
 	   ambient = mix(nightAmbientColor, ambientColor , time);
   }
 
   //convert all lighting values into one value
-	lighting = sunlight  + skylight * 2 + blocklight + ambient;
+	lighting = sunlight / 4  + skylight * 2 + blocklight *2 + ambient;
 
   if(isEyeInWater == 1)
   {
@@ -225,8 +240,11 @@ vec3 Lo = vec3(0.0);
 
         vec3 kS = F;
         vec3 kD = vec3(1.0) - kS;
-        kD *= 1.0 - SpecMap.g;	  
-        
+        #if DO_RESOURCEPACK_PBR == 1
+        kD *= 1.0 - SpecMap.g;
+        #else
+         kD *= 1.0 - metallic;
+        #endif
           // add to outgoing radiance Lo
       float NdotL = max(dot(normal, lightDir), 0.0);        
       Lo += (kD * albedo / PI + spec) * radiance * NdotL;
@@ -236,6 +254,7 @@ vec3 Lo = vec3(0.0);
 
     color2 *= color2 / (color2 + vec3(0.0, 0.0, 0.0));
     color2 = pow(color2, vec3(1.0/2.2));
+    
     
     color *= vec4(color2, 1.0);
   //final lighting calculation

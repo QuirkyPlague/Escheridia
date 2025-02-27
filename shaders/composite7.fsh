@@ -14,7 +14,7 @@ layout(location = 0) out vec4 color;
 
 void main() {
 	 #if DO_BLOOM == 1
-     vec2 tex_offset = 1.0 / textureSize(colortex5, 0) ; // gets size of single texel
+     vec2 tex_offset = BLOOM_VARIATIONS / textureSize(colortex5, 0) ; // gets size of single texel
     vec3 result = texture(colortex5, texcoord).rgb * weight[0]; // current fragment's contribution
     if(horizontal)
     {

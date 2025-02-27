@@ -11,7 +11,7 @@ in vec4 glcolor;
 //lighting variables
 vec3 blocklightColor = vec3(0.9059, 0.3608, 0.0863);
  vec3 skylightColor = vec3(0.0588, 0.102, 0.1451);
- vec3 sunlightColor = vec3(0.9922, 0.8667, 0.5216);
+ vec3 sunlightColor = vec3(0.9922, 0.7569, 0.5216);
  vec3 morningSunlightColor = vec3(0.9216, 0.4353, 0.2588);
  vec3 moonlightColor = vec3(0.3843, 0.4667, 1.0);
  vec3 nightSkyColor = vec3(0.0588, 0.0902, 0.451);
@@ -85,11 +85,14 @@ layout(location = 0) out vec4 color;
 
 void main() {
   color = texture(colortex0, texcoord);
+
   
-  //idk what this was but i tried it
-  
- 
+
+ #if DO_RESOURCEPACK_PBR == 1
   float perceptualSmoothness = 1.0 - sqrt(SpecMap.r);
+   #else
+    float perceptualSmoothness = 1.0 - sqrt(HARDCODED_ROUGHNESS);
+  #endif
    
   float roughness = perceptualSmoothness;
 
@@ -128,9 +131,12 @@ void main() {
   vec3 viewDir = mat3(gbufferModelViewInverse) * -normalize(projectAndDivide(gbufferProjectionInverse, vec3(texcoord.xy, 0) * 2.0 - 1.0));
 	vec3 halfwayDir = normalize(lightDir + viewDir);
   
- 
-  vec3 F0 = vec3(0.4);
+ vec3 F0 = vec3(0.4);
+  #if DO_RESOURCEPACK_PBR == 1
   F0      = mix(F0, albedo, SpecMap.g);
+ #else
+ F0      = mix(F0, albedo, metallic);
+ #endif
  
 
 
@@ -198,7 +204,7 @@ vec3 waterTint = vec3(0.0039, 0.7686, 1.0);
   }
 
   //convert all lighting values into one value
-	lighting = sunlight  + skylight * 4  + blocklight + ambient;
+	lighting = sunlight / 4 + skylight * 4  + blocklight * 2 + ambient;
 
   if(isEyeInWater == 1)
   {
@@ -227,7 +233,11 @@ vec3 Lo = vec3(0.0);
 
         vec3 kS = F;
         vec3 kD = vec3(1.0) - kS;
-        kD *= 1.0 - metallic;	  
+          #if DO_RESOURCEPACK_PBR == 1
+        kD *= 1.0 - SpecMap.g;
+        #else
+         kD *= 1.0 - metallic;
+        #endif	  
         
           // add to outgoing radiance Lo
       float NdotL = max(dot(normal, lightDir), 0.0);        

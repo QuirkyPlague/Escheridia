@@ -26,7 +26,8 @@ void main() {
 	color = vec3(0);
 
 	vec2 altCoord = texcoord;
-
+	float p = HenyeyGreenstein(weight, decay);
+	
 	vec3 LightVector = viewSpaceToScreenSpace(shadowLightPosition);
 	LightVector.xy = clamp(LightVector.xy, vec2(-0.5), vec2(1.5));
 	
@@ -83,9 +84,8 @@ void main() {
 			illuminationDecay *= decay;
 			altCoord -= deltaTexCoord;
 	}	
+	
 	color /= GODRAYS_SAMPLES;
 	color *= exposure;
-	
-	
-#endif
+	#endif
 }

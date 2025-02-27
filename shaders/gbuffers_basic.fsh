@@ -45,10 +45,7 @@ void main() {
 	normalMaps.z = sqrt(1 - dot(normalMaps.xy, normalMaps.xy));
 	vec3 mappedNormal = tbnMatrix * normalMaps;
 	
-	if(blockID == FULL_EMITTER)
-	{
-		//color.rgb *= emission * luminance(albedo.rgb);
-	}
+	
 
 
 	
