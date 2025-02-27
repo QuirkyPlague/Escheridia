@@ -67,8 +67,8 @@ void main() {
 			if(isEyeInWater == 1)
 			{
 				 samples = texture(depthtex1, altCoord).r == 1.0 ? mix(vec3(0.0941, 0.0392, 0.8275), godrayColor, waterTint) : vec3(0.0);
-				 weight = 0.3;
-				 decay = 1.0;
+				 
+				
 				 exposure = GODRAYS_EXPOSURE * 1.2;
 			}
 			if(rainStrength <= 1.0 && rainStrength > 0.0)

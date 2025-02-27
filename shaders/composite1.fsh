@@ -66,11 +66,7 @@ void main() {
  
   vec3 currentFogColor = fogColor;
 
-  if(isEyeInWater == 1)
-  {
-    fogFactor = exp(-FOG_DENSITY * (7.0 - dist));
-    color.rgb = mix(color.rgb, fogColor, clamp(fogFactor, 0.0, 7.0));
-  }
+ 
 
   if(rainStrength <= 1.0 && rainStrength > 0.0)
   {

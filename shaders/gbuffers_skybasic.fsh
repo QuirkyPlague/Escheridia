@@ -6,8 +6,8 @@ in vec4 glcolor;
 
 
 vec3 sunCol = vec3(1.0, 0.3, 0.05);
- vec3 fogColor = vec3(0.5882, 0.8941, 0.9059);
- vec3 skyColor = vec3(0.2196, 0.3569, 0.898);
+ vec3 fogColor = vec3(0.6118, 0.9765, 0.9882);
+ vec3 skyColor = vec3(0.2118, 0.3686, 1.0);
  vec3 nightFogColor = vec3(0.0588, 0.149, 0.2078);
  vec3 nightSkyColor = vec3(0.0319, 0.0639, 0.1557);
  vec3 earlyFogColor = vec3(1.0, 0.5765, 0.3137);

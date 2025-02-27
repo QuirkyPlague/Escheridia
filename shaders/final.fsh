@@ -29,28 +29,23 @@ vec3 uncharted2(vec3 y) {
 
 vec3 aces(vec3 v)
 {
-    v *= 1.6f;
-    float a = 2.11f;
-    float b = 1.83f;
-    float c = 1.6f;
-    float d = 1.39f;
-    float e = 4.84f;
-    return clamp((v*(a*v+b))/(v*(c*v+d)+e), 0.0f, 1.0f);
+    v *= 0.6;
+    float a = 1.55;
+    float b = 0.23;
+    float c = 1.43;
+    float d = 1.39;
+    float e = 0.84;
+    return clamp((v*(a*v+b))/(v*(c*v+d)+e), 0.0, 1.0);
+}
+vec3 aces_approx(vec3 y) {
+  const float W = 11.2;
+  float exposureBias = 2.0;
+  vec3 curr = aces(exposureBias * y);
+  vec3 whiteScale = 1.0 / aces(vec3(W));
+  return curr * whiteScale;
 }
 
-vec3 plagued(vec3 x)
-{
-    float A = 1.2;
-    float B = 0.78;
-    float C = 0.7;
-    float D = 0.6;
-    float E = 0.2;
-    float F = 1.0;
-    float G = 1.0;
-    float H = 1.0;
 
-    return ((x * (A / B + x) * (C + D * x) * E) / (A- D));
-}
 
 in vec2 texcoord;
 
@@ -69,13 +64,9 @@ void main() {
     
         color.rgb = uncharted2(pow(color.rgb, exposureCompensation));
     
-    #elif TONEMAPPING_TYPE = 0
+    #elif TONEMAPPING_TYPE == 0
     
-         color.rgb = aces(pow(color.rgb, exposureCompensation));
-    
-    #elif TONEMAPPING_TYPE == 2
-    
-        color.rgb = plagued(pow(color.rgb, exposureCompensation));
+         color.rgb = aces_approx(pow(color.rgb, exposureCompensation));
     #else 
     
         color.rgb = (pow(color.rgb, exposureCompensation));

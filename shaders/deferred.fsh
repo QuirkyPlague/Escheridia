@@ -154,7 +154,7 @@ void main() {
 
   //water extinction
   float dist = length(viewPos) / far;
-  float waterFactor = exp(-WATER_FOG_DENSITY * (0.18 - dist));
+  float waterFactor = exp(-WATER_FOG_DENSITY * (0.88 - dist));
 
   float nearDist = length(viewPos) * near;
   float farWaterFactor = exp(WATER_FOG_DENSITY * (1.0  - dist));
@@ -206,11 +206,7 @@ vec3 waterTint = vec3(0.0039, 0.7686, 1.0);
   //convert all lighting values into one value
 	lighting = sunlight / 4 + skylight * 4  + blocklight * 2 + ambient;
 
-  if(isEyeInWater == 1)
-  {
-    lighting = sunlight+ skylight + blocklight + waterTint ;
-    color.rgb *= mix(lighting, waterColor, clamp(waterFactor, 0.1, 3.5));
-  }
+ 
 
 // reflectance equation
 vec3 Lo = vec3(0.0);
