@@ -50,10 +50,10 @@ void main() {
   #if DO_WATER_FOG == 1
   // Fog calculations
   float dist = length(viewPos) / far;
-  float fogFactor = exp(-WATER_FOG_DENSITY * (0.18 - dist));
-  vec4 fogColor = vec4(0.0078, 0.0667, 0.2745, 1.0);
-  vec4 darkFogColor = vec4(0.0078, 0.0275, 0.1412, 1.0);
-  vec4 distantFogColor = exp(fogColor * (darkFogColor - dist));
+  float fogFactor = exp2(-WATER_FOG_DENSITY * (0.3 - dist));
+  vec4 fogColor = vec4(0.0667, 0.1608, 0.502, 1.0);
+  vec4 darkFogColor = vec4(0.0157, 0.0471, 0.2196, 1.0);
+  vec4 distantFogColor = exp2(fogColor * (darkFogColor - dist));
 
 	if(isEyeInWater == 1)
 	{

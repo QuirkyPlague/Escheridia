@@ -23,6 +23,8 @@ vec3 duskSunlightColor = vec3(0.8784, 0.298, 0.2471);
 vec3 duskSkyColor = vec3(0.8353, 0.3725, 0.302);
 
 
+
+
  vec4 SpecMap = texture(colortex3, texcoord);
 
 
@@ -78,6 +80,10 @@ uniform float near;
 }
 #endif
  
+ 
+  
+
+
 
 /* RENDERTARGETS: 0,4 */
 layout(location = 0) out vec4 color;
@@ -161,7 +167,7 @@ void main() {
 
   //water extinction
   float dist = length(viewPos) / far;
-  float waterFactor = exp(-WATER_FOG_DENSITY * (0.18 - dist));
+  float waterFactor = exp2(-WATER_FOG_DENSITY * (0.18 - dist));
 
   float nearDist = length(viewPos) * near;
   float farWaterFactor = exp(WATER_FOG_DENSITY * (1.0  - dist));
@@ -215,8 +221,8 @@ vec3 waterTint = vec3(0.0039, 0.7686, 1.0);
 
   if(isEyeInWater == 1)
   {
-    lighting = sunlight+ skylight + blocklight + waterTint/2 ;
-    color.rgb *= mix(lighting, waterColor, clamp(waterFactor, 0.1, 3.5));
+    lighting = sunlight+ skylight + blocklight + waterTint;
+    color.rgb *= mix(lighting, waterColor, clamp(waterFactor, 0.0, 1.0));
   }
 
 // reflectance equation

@@ -132,6 +132,7 @@ float luminance(vec3 color)
 {
     return dot(color, vec3(0.2126, 0.7152, 0.0722));
 }
+
 float HenyeyGreenstein(float g, float costh)
 {
     return (1.0 - g * g) / (4.0 * PI * pow(1.0 + g * g - 2.0 * g * costh, 3.0/2.0));
