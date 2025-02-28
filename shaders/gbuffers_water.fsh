@@ -21,13 +21,13 @@ mat3 tbnNormalTangent(vec3 normal, vec3 tangent) {
     return mat3(tangent, bitangent, normal);
 }
 
-/* RENDERTARGETS: 0,1,2,3,5 */
+/* RENDERTARGETS: 0,1,2,3,5,6 */
 layout(location = 0) out vec4 color;
 layout(location = 1) out vec4 lightmapData;
 layout(location = 2) out vec4 encodedNormal;
 layout(location = 3) out vec4 specMap;
 layout(location = 4) out vec4 extractedColor;
-
+layout(location = 5) out vec4 waterMask;
 
 
 void main() {
@@ -45,6 +45,14 @@ void main() {
 	normalmap.z = sqrt(1 - dot(normalmap.xy, normalmap.xy));
 	vec3 mappedNormal = tbnMatrix * normalmap;
 	
+	if(blockID == WATER_ID)
+	{
+		waterMask = vec4(1.0);
+	}
+	else
+	{
+		waterMask = vec4(0.0, 0.0, 0.0, 1.0);
+	}
 
 	encodedNormal = vec4(mappedNormal * 1 + 0.5, 1.0);
 

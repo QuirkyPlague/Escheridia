@@ -26,14 +26,19 @@ vec3 duskSkyColor = vec3(0.8353, 0.3725, 0.302);
 
 
  vec4 SpecMap = texture(colortex3, texcoord);
+ vec4 waterMask = texture(colortex6, texcoord);
 
+  int blockID = int(waterMask) + 100;
+
+  bool isWater = blockID == WATER_ID;
+  bool inWater = isEyeInWater == 1.0;
 
 //utilities
 vec3 lighting;
 vec3 sunluminance = vec3(0.2125, 0.7154, 0.0721);
 
 const float sunPathRotation = SUN_ROTATION;
-
+float waterRoughness = 0.1;
 
 uniform float far;
 uniform float near;
@@ -50,7 +55,10 @@ uniform float near;
   vec3 viewPos = projectAndDivide(gbufferProjectionInverse, NDCPos);
   vec3 feetPlayerPos = (gbufferModelViewInverse * vec4(viewPos, 1.0)).xyz;
   
-  shadowClipPos = findShadowClipPos(feetPlayerPos);
+  
+     shadowClipPos = findShadowClipPos(feetPlayerPos);
+  
+ 
 
   float noise = IGN(floor(gl_FragCoord.xy), frameCounter);
 
@@ -92,13 +100,15 @@ layout(location = 0) out vec4 color;
 void main() {
   color = texture(colortex0, texcoord);
   
-
+ 
  
  #if DO_RESOURCEPACK_PBR == 1
   float perceptualSmoothness = 1.0 - sqrt(SpecMap.r);
    #else
     float perceptualSmoothness = 1.0 - sqrt(HARDCODED_ROUGHNESS);
+    
   #endif
+
 
   float roughness = perceptualSmoothness;
   
@@ -219,11 +229,30 @@ vec3 waterTint = vec3(0.0039, 0.7686, 1.0);
   //convert all lighting values into one value
 	lighting = sunlight / 4  + skylight * 2 + blocklight *2 + ambient;
 
-  if(isEyeInWater == 1)
-  {
+
+    if(!inWater)
+	{
+    if(isWater)
+    {
+    sunlight *= dot(sunlightColor, sunluminance)  * clamp(dot(normal, worldLightVector * SUN_ILLUMINANCE), 0.0, 3.0);
     lighting = sunlight+ skylight + blocklight + waterTint;
     color.rgb *= mix(lighting, waterColor, clamp(waterFactor, 0.0, 1.0));
-  }
+    }
+	}
+
+   if(inWater)
+	{
+    if(!isWater)
+    {
+    sunlight *= dot(sunlightColor, sunluminance)  * clamp(dot(normal, worldLightVector * SUN_ILLUMINANCE), 0.0, 3.0);
+    lighting = sunlight+ skylight + blocklight + waterTint;
+    color.rgb *= mix(lighting, waterColor, clamp(waterFactor, 0.0, 1.0));
+    }
+    else
+    {
+      lighting = lighting;
+    }
+	}
 
 // reflectance equation
 vec3 Lo = vec3(0.0);

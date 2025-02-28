@@ -24,5 +24,6 @@ void main() {
 	vec3 tangent = mat3(gbufferModelViewInverse) * normalize(gl_NormalMatrix * at_tangent.xyz);
 	vec3 binormal = mat3(gbufferModelViewInverse) * normalize(cross(tangent, normal) * at_tangent.w);
 	tbnMatrix = mat3(tangent, binormal, normal);
-
+	
+	blockID = int(mc_Entity.x + 0.5);
 }
