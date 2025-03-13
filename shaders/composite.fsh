@@ -116,10 +116,7 @@ void main() {
     
   #endif
 
-  if(isWater)
-  {
-    perceptualSmoothness = 1.0 - sqrt(0.993);
-  }
+  
 
   float roughness = perceptualSmoothness;
   
@@ -159,9 +156,12 @@ void main() {
 	vec3 halfwayDir = normalize(lightDir + viewDir);
   
  float metallic = HARDCODED_METAL;
+
+ float metalness = SpecMap.g;
+
   vec3 F0 = vec3(0.4);
  #if DO_RESOURCEPACK_PBR == 1
-  F0      = mix(F0, albedo, SpecMap.g);
+  F0      = mix(F0, albedo, metalness);
  #else
  F0      = mix(F0, albedo, metallic);
  #endif
@@ -188,14 +188,15 @@ void main() {
 
   //water extinction
   float dist = length(viewPos) / far;
-  float waterFactor = exp2(-WATER_FOG_DENSITY * (0.18 - dist));
+  float waterFactor = exp2(-WATER_FOG_DENSITY * (0.6 - dist));
 
   float nearDist = length(viewPos) * near;
   float farWaterFactor = exp(WATER_FOG_DENSITY * (1.0  - dist));
 
 //blank variables for lighting
 vec3 waterColor = vec3(0.0392, 0.0784, 0.3137);
-vec3 waterTint = vec3(0.0039, 0.7686, 1.0);
+vec3 waterTint = vec3(0.1804, 1.0, 0.9451);
+
  //Time of day changes
 
      vec3 sunlight = dot(sunlightColor, sunluminance)  * clamp(dot(normal, worldLightVector * SUN_ILLUMINANCE), 0.0, 3.0) * shadow;
@@ -238,7 +239,7 @@ vec3 waterTint = vec3(0.0039, 0.7686, 1.0);
   }
 
   //convert all lighting values into one value
-	lighting = sunlight/4 + skylight * 2 + blocklight *2 + ambient;
+	lighting = sunlight + skylight * 2 + blocklight *2 + ambient;
 
 
     if(!inWater)
@@ -246,8 +247,8 @@ vec3 waterTint = vec3(0.0039, 0.7686, 1.0);
     if(isWater)
     {
     sunlight *= dot(sunlightColor, sunluminance)  * clamp(dot(normal, worldLightVector * SUN_ILLUMINANCE), 0.0, 3.0);
-    lighting = sunlight+ skylight + blocklight + waterTint;
-    color.rgb *= mix(lighting, waterColor, clamp(waterFactor, 0.0, 1.0));
+    lighting = sunlight*6 + skylight + blocklight + ambient + waterTint * 2.5;
+    color.rgb *= mix(lighting, waterColor, clamp(waterFactor, 0.0, 3.0));
     }
 	}
 
@@ -255,14 +256,15 @@ vec3 waterTint = vec3(0.0039, 0.7686, 1.0);
 	{
     if(!isWater)
     {
+  
     sunlight *= dot(sunlightColor, sunluminance)  * clamp(dot(normal, worldLightVector * SUN_ILLUMINANCE), 0.0, 3.0);
-    lighting = sunlight+ skylight + blocklight + waterTint;
+    lighting = sunlight + skylight + blocklight + ambient + waterTint * 2.5;
     color.rgb *= mix(lighting, waterColor, clamp(waterFactor, 0.0, 1.0));
     }
-    else
-    {
-      lighting = lighting;
+    else{
+      color.rgb *= waterTint;
     }
+   
 	}
 
 // reflectance equation
@@ -298,7 +300,7 @@ vec3 Lo = vec3(0.0);
 
   vec3 color2 = lighting + Lo;
 
-    color2 *= color2 / (color2 + vec3(0.0, 0.0, 0.0));
+    color2 *= color2 / (color2 + vec3(1.0, 1.0, 1.0));
     color2 = pow(color2, vec3(1.0/2.2));
     
     

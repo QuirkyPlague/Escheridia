@@ -69,7 +69,7 @@ const bool normalsMipmapEnabled = true;
 //PBR Config
 #define HARDCODED_METAL 0.0 //[0.0 0.1 0.2 0.3 0.4 0.5 0.6 0.7 0.8 0.9 1.0]
 #define HARDCODED_ROUGHNESS 0.6 //[0.0 0.1 0.2 0.3 0.4 0.5 0.6 0.7 0.8 0.9 0.999 1.0]
-#define PBR_ATTENUATION 141
+#define PBR_ATTENUATION 32
 #define DO_RESOURCEPACK_PBR 0 //[0 1]
 #define DO_RESOURCEPACK_EMISSION 0 //[0 1]
 #define EMISSION_STRENGTH 14.0 

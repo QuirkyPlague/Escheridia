@@ -1,6 +1,7 @@
 #version 410 compatibility
 
 #include "/lib/util.glsl"
+
 in vec4 at_tangent;
 out vec2 lmcoord;
 flat out int blockID;
@@ -26,4 +27,5 @@ void main() {
 	tbnMatrix = mat3(tangent, binormal, normal);
 	
 	blockID = int(mc_Entity.x + 0.5);
+	
 }

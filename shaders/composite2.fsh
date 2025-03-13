@@ -41,16 +41,17 @@ void main() {
   #if DO_WATER_FOG == 1
   // Fog calculations
   float dist = length(viewPos) / far;
-  float fogFactor = exp2(-WATER_FOG_DENSITY * (0.6 - dist));
-  vec4 fogColor = vec4(0.0667, 0.1608, 0.502, 1.0);
-  vec4 darkFogColor = vec4(0.0157, 0.0471, 0.2196, 1.0);
+  float fogFactor = exp(-WATER_FOG_DENSITY * (0.8 - dist));
+  vec4 fogColor = vec4(0.0039, 0.1529, 1.0, 1.0);
+  vec4 darkFogColor = vec4(0.0118, 0.1412, 0.1216, 1.0);
   vec4 distantFogColor = exp(fogColor * (darkFogColor - dist));
 
   if(!inWater)
 	{
     if(isWater)
     {
-    fogColor = mix(fogColor, darkFogColor, clamp(distantFogColor, 0.0, 1.0));
+    fogFactor = exp2(-WATER_FOG_DENSITY * (0.4 - dist));
+    fogColor = mix(fogColor, darkFogColor, clamp(distantFogColor, 0.1, 9.0));
     color = mix(color, fogColor, clamp(fogFactor, 0.0, 1.0));
     }
 	}
@@ -59,7 +60,8 @@ void main() {
 	{
     if(!isWater)
     {
-    fogColor = mix(fogColor, darkFogColor, clamp(distantFogColor, 0.0, 1.0));
+    fogFactor = exp2(-WATER_FOG_DENSITY * (0.6 - dist));
+    fogColor = mix(fogColor, darkFogColor, clamp(distantFogColor, 0.0, 9.0));
     color = mix(color, fogColor, clamp(fogFactor, 0.0, 1.0));
     }
 

@@ -16,7 +16,7 @@ vec3 duskGodrayColor = vec3(1.0, 0.0667, 0.0);
 vec3 godrayColor = vec3(0.9882, 0.6824, 0.4314);
 vec3 moonrayColor = vec3(0.1608, 0.2941, 0.9608);
 vec3 rainGodrayColor = vec3(0.5882, 0.5882, 0.5882);
-vec3 waterTint = vec3(0.0, 0.0667, 1.0);
+vec3 waterTint = vec3(0.1804, 1.0, 0.9451);
 
  vec4 waterMask = texture(colortex8, texcoord);
 
@@ -73,13 +73,14 @@ void main() {
 			vec3 currentGodrayColor = samples;
 			if(isWater)
 				{
-					samples = texture(depthtex1, altCoord).r == 0.0 ? mix(vec3(0.0941, 0.0392, 0.8275), godrayColor, waterTint) : vec3(0.0);
+					samples = texture(depthtex1, altCoord).r == 1.0 ? mix(vec3(0.0353, 0.1059, 0.3176), godrayColor, waterTint) : vec3(0.0);
 				 	exposure = GODRAYS_EXPOSURE * 9;
 				} 
 			if(inWater)
 			{
-					samples = texture(depthtex1, altCoord).r == 1.0 ? mix(vec3(0.0941, 0.0392, 0.8275), godrayColor, waterTint) : vec3(0.0);
-				 	exposure = GODRAYS_EXPOSURE * 9;
+					density = 0.8;
+					samples = texture(depthtex1, altCoord).r == 1.0 ? mix(vec3(0.0588, 0.0353, 0.3529), godrayColor, waterTint) : vec3(0.0);
+				 	exposure = GODRAYS_EXPOSURE * 4;
 			}
 
 			if(rainStrength <= 1.0 && rainStrength > 0.0)

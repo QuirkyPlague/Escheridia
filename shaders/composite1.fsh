@@ -33,7 +33,7 @@ void main() {
 
   // Fog calculations
   float dist = length(viewPos) / far;
-  float fogFactor = exp2(-FOG_DENSITY * (1.1 - dist));
+  float fogFactor = exp(-FOG_DENSITY * (1.1 - dist));
   float nightFogFactor = exp(-FOG_DENSITY * (0.133 / dist));
   float rainFogFactor = exp(-FOG_DENSITY * (0.65 - dist));
 

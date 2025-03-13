@@ -32,10 +32,10 @@ layout(location = 4) out vec4 extractedColor;
 
 
 void main() {
-	color = texture(gtexture, texcoord) * glcolor;
+	color = texture(gtexture, texcoord) * glcolor + vec4(1.0, 0.0, 0.0,1.0);
 	
 
-	lightmapData = vec4(lmcoord, 2.0, 16.0);
+	
 	
 	
 	
@@ -45,12 +45,6 @@ void main() {
 	normalMaps.z = sqrt(1 - dot(normalMaps.xy, normalMaps.xy));
 	vec3 mappedNormal = tbnMatrix * normalMaps;
 	
-	
 
-
-	
-
-	//extractedColor = color;
-	specMap = texture(specular, texcoord);
 	color.rgb = pow(color.rgb, vec3(1.0));
 }

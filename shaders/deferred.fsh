@@ -204,7 +204,7 @@ vec3 waterTint = vec3(0.0039, 0.7686, 1.0);
   }
 
   //convert all lighting values into one value
-	lighting = sunlight/4 + skylight * 4  + blocklight * 2 + ambient;
+	lighting = sunlight + skylight * 4  + blocklight * 2 + ambient;
 
  
 
@@ -243,7 +243,7 @@ vec3 Lo = vec3(0.0);
   
   
     vec3 color2 = lighting + Lo;
-    color2 *= color2 / (color2 + vec3(0.0, 0.0, 0.0));
+    color2 *= color2 / (color2 + vec3(1.0, 1.0, 1.0));
     color2 = pow(color2, vec3(1.0/2.2));
     
     color *= vec4(color2, 1.0);
