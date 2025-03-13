@@ -46,6 +46,9 @@ void main() {
 	vec3 mappedNormal = tbnMatrix * normalMaps;
 	
 
+
+
+	
 	encodedNormal = vec4(mappedNormal * 0.5 + 0.5, 1.0);
 
 	extractedColor = color;

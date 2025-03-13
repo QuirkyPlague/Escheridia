@@ -7,7 +7,7 @@ uniform sampler2D colortexN;
 in vec2 texcoord;
  float exposure = GODRAYS_EXPOSURE;
  float decay = 1.0;
-  float density = 1.0;
+  float density = 0.5;
 float weight = 0.23 * SUN_ILLUMINANCE;
 float wetWeight = 0.65 - weight;
 
@@ -17,6 +17,13 @@ vec3 godrayColor = vec3(0.9882, 0.6824, 0.4314);
 vec3 moonrayColor = vec3(0.1608, 0.2941, 0.9608);
 vec3 rainGodrayColor = vec3(0.5882, 0.5882, 0.5882);
 vec3 waterTint = vec3(0.0, 0.0667, 1.0);
+
+ vec4 waterMask = texture(colortex8, texcoord);
+
+  int blockID = int(waterMask) + 100;
+
+  bool isWater = blockID == WATER_ID;
+  bool inWater = isEyeInWater == 1.0;
 
 /* RENDERTARGETS: 7 */
 layout(location = 0) out vec3 color;
@@ -33,8 +40,7 @@ void main() {
 	
 	vec2 deltaTexCoord = (texcoord - (LightVector.xy));
 
-	float decayDist = HenyeyGreenstein(weight, decay);
-	LightVector *= decayDist;
+	
 	deltaTexCoord *= 1.0 / float(GODRAYS_SAMPLES) * density;
 	float illuminationDecay = 2.0;
 
@@ -65,13 +71,17 @@ void main() {
 
 			
 			vec3 currentGodrayColor = samples;
-			if(isEyeInWater == 1)
+			if(isWater)
+				{
+					samples = texture(depthtex1, altCoord).r == 0.0 ? mix(vec3(0.0941, 0.0392, 0.8275), godrayColor, waterTint) : vec3(0.0);
+				 	exposure = GODRAYS_EXPOSURE * 9;
+				} 
+			if(inWater)
 			{
-				 samples = texture(depthtex1, altCoord).r == 1.0 ? mix(vec3(0.0941, 0.0392, 0.8275), godrayColor, waterTint) : vec3(0.0);
-				 
-				
-				 exposure = GODRAYS_EXPOSURE * 1.2;
+					samples = texture(depthtex1, altCoord).r == 1.0 ? mix(vec3(0.0941, 0.0392, 0.8275), godrayColor, waterTint) : vec3(0.0);
+				 	exposure = GODRAYS_EXPOSURE * 9;
 			}
+
 			if(rainStrength <= 1.0 && rainStrength > 0.0)
 			{
 				float dryToWet = smoothstep(0.0, 1.0, float(rainStrength));

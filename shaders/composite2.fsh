@@ -20,7 +20,7 @@ layout(location = 0) out vec4 color;
 void main() {
   color = texture(colortex0, texcoord);
 
-  vec4 waterMask = texture(colortex6, texcoord);
+  vec4 waterMask = texture(colortex8, texcoord);
 
   int blockID = int(waterMask) + 100;
 
@@ -41,7 +41,7 @@ void main() {
   #if DO_WATER_FOG == 1
   // Fog calculations
   float dist = length(viewPos) / far;
-  float fogFactor = exp2(-WATER_FOG_DENSITY * (0.8 - dist));
+  float fogFactor = exp2(-WATER_FOG_DENSITY * (0.6 - dist));
   vec4 fogColor = vec4(0.0667, 0.1608, 0.502, 1.0);
   vec4 darkFogColor = vec4(0.0157, 0.0471, 0.2196, 1.0);
   vec4 distantFogColor = exp(fogColor * (darkFogColor - dist));
@@ -62,11 +62,7 @@ void main() {
     fogColor = mix(fogColor, darkFogColor, clamp(distantFogColor, 0.0, 1.0));
     color = mix(color, fogColor, clamp(fogFactor, 0.0, 1.0));
     }
-    else
-    {
-      fogColor = mix(fogColor, vec4(0.1412, 0.8471, 0.6941, 1.0), clamp(distantFogColor, 0.0, 1.0));
-      color = mix(color, fogColor, clamp(fogFactor, 0.0, 1.0));
-    }
+
    
 	}
   #endif

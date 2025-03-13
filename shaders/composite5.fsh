@@ -19,7 +19,7 @@ void main() {
 			}
 
 	 #if DO_BLOOM == 1
-     float brightness = dot(color.rgb, vec3(0.2125, 0.7154, 0.0721));;
+     float brightness = dot(color.rgb, vec3(0.2157, 0.7216, 0.1294));;
     if(brightness >= 0)
         color = vec4(color.rgb, 1.0);
     else

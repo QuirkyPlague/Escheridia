@@ -48,7 +48,7 @@ uniform float near;
   vec3 viewPos = projectAndDivide(gbufferProjectionInverse, NDCPos);
   vec3 feetPlayerPos = (gbufferModelViewInverse * vec4(viewPos, 1.0)).xyz;
   
-  //shadowClipPos = findShadowClipPos(feetPlayerPos);
+  shadowClipPos = findShadowClipPos(feetPlayerPos);
 
   float noise = IGN(floor(gl_FragCoord.xy), frameCounter);
 
@@ -131,9 +131,9 @@ void main() {
   vec3 viewDir = mat3(gbufferModelViewInverse) * -normalize(projectAndDivide(gbufferProjectionInverse, vec3(texcoord.xy, 0) * 2.0 - 1.0));
 	vec3 halfwayDir = normalize(lightDir + viewDir);
   
- vec3 F0 = vec3(0.4);
+ vec3 F0 = vec3(0.2039, 0.2039, 0.2039);
   #if DO_RESOURCEPACK_PBR == 1
-  F0      = mix(F0, albedo, SpecMap.g);
+  F0      = mix(F0, color.rgb, SpecMap.g);
  #else
  F0      = mix(F0, albedo, metallic);
  #endif
@@ -204,13 +204,13 @@ vec3 waterTint = vec3(0.0039, 0.7686, 1.0);
   }
 
   //convert all lighting values into one value
-	lighting = sunlight / 4 + skylight * 4  + blocklight * 2 + ambient;
+	lighting = sunlight/4 + skylight * 4  + blocklight * 2 + ambient;
 
  
 
 // reflectance equation
 vec3 Lo = vec3(0.0);
-    for(int i = 0; i < 36; ++i) 
+    for(int i = 0; i < SPEC_SAMPLES; ++i) 
     {
         // calculate per-light radiance
         float dist    = length(worldLightVector);
@@ -249,8 +249,5 @@ vec3 Lo = vec3(0.0);
     color *= vec4(color2, 1.0);
   //final lighting calculation
    color.rgb *= lighting;
-     
-  
-  
-      
+
 }

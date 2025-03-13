@@ -26,7 +26,7 @@ vec3 duskSkyColor = vec3(0.8353, 0.3725, 0.302);
 
 
  vec4 SpecMap = texture(colortex3, texcoord);
- vec4 waterMask = texture(colortex6, texcoord);
+ vec4 waterMask = texture(colortex8, texcoord);
 
   int blockID = int(waterMask) + 100;
 
@@ -55,8 +55,15 @@ uniform float near;
   vec3 viewPos = projectAndDivide(gbufferProjectionInverse, NDCPos);
   vec3 feetPlayerPos = (gbufferModelViewInverse * vec4(viewPos, 1.0)).xyz;
   
-  
-     shadowClipPos = findShadowClipPos(feetPlayerPos);
+
+    if(isWater)
+    {
+      shadowClipPos = shadowClipPos;
+    }
+    else 
+    {
+      shadowClipPos = findShadowClipPos(feetPlayerPos);
+    }     
   
  
 
@@ -93,7 +100,7 @@ uniform float near;
 
 
 
-/* RENDERTARGETS: 0,4 */
+/* RENDERTARGETS: 0 */
 layout(location = 0) out vec4 color;
 
 
@@ -109,6 +116,10 @@ void main() {
     
   #endif
 
+  if(isWater)
+  {
+    perceptualSmoothness = 1.0 - sqrt(0.993);
+  }
 
   float roughness = perceptualSmoothness;
   
@@ -227,7 +238,7 @@ vec3 waterTint = vec3(0.0039, 0.7686, 1.0);
   }
 
   //convert all lighting values into one value
-	lighting = sunlight / 4  + skylight * 2 + blocklight *2 + ambient;
+	lighting = sunlight/4 + skylight * 2 + blocklight *2 + ambient;
 
 
     if(!inWater)
@@ -256,7 +267,7 @@ vec3 waterTint = vec3(0.0039, 0.7686, 1.0);
 
 // reflectance equation
 vec3 Lo = vec3(0.0);
-    for(int i = 0; i < 36; ++i) 
+    for(int i = 0; i < SPEC_SAMPLES; ++i) 
     {
         // calculate per-light radiance
         float dist    = length(worldLightVector);
