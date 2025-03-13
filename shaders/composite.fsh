@@ -246,9 +246,9 @@ vec3 waterTint = vec3(0.1804, 1.0, 0.9451);
 	{
     if(isWater)
     {
-    sunlight *= dot(sunlightColor, sunluminance)  * clamp(dot(normal, worldLightVector * SUN_ILLUMINANCE), 0.0, 3.0);
-    lighting = sunlight*6 + skylight + blocklight + ambient + waterTint * 2.5;
-    color.rgb *= mix(lighting, waterColor, clamp(waterFactor, 0.0, 3.0));
+    sunlight *= sunlight  * clamp(dot(normal, worldLightVector * SUN_ILLUMINANCE), 0.0, 3.0);
+    lighting = sunlight + skylight + blocklight + waterTint;
+    color.rgb *= mix(lighting, waterColor, clamp(waterFactor, 0.0, 1.0));
     }
 	}
 
@@ -262,7 +262,7 @@ vec3 waterTint = vec3(0.1804, 1.0, 0.9451);
     color.rgb *= mix(lighting, waterColor, clamp(waterFactor, 0.0, 1.0));
     }
     else{
-      color.rgb *= waterTint;
+      color.rgb *= lighting + waterTint * 2.5;
     }
    
 	}

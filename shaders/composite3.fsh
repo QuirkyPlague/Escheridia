@@ -13,7 +13,7 @@ float wetWeight = 0.65 - weight;
 
 vec3 earlyGodrayColor = vec3(1.0, 0.2353, 0.0627);
 vec3 duskGodrayColor = vec3(1.0, 0.0667, 0.0);
-vec3 godrayColor = vec3(0.9882, 0.6824, 0.4314);
+vec3 godrayColor = vec3(1.0, 0.6039, 0.2784);
 vec3 moonrayColor = vec3(0.1608, 0.2941, 0.9608);
 vec3 rainGodrayColor = vec3(0.5882, 0.5882, 0.5882);
 vec3 waterTint = vec3(0.1804, 1.0, 0.9451);
