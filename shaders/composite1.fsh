@@ -12,7 +12,7 @@ vec3 rainFogColor = vec3(0.5373, 0.5373, 0.5373);
 
 in vec2 texcoord;
 
-
+bool isNight = worldTime >= 13000 && worldTime < 24000;
 
 /* RENDERTARGETS: 0 */
 layout(location = 0) out vec4 color;
@@ -35,7 +35,7 @@ void main() {
   float dist = length(viewPos) / far;
   float fogFactor = exp(-FOG_DENSITY * (1.1 - dist));
   float nightFogFactor = exp(-FOG_DENSITY * (0.133 / dist));
-  float rainFogFactor = exp(-FOG_DENSITY * (0.65 - dist));
+  float rainFogFactor = exp(-FOG_DENSITY * (0.75 - dist));
 
   vec3 fogColor = vec3(0);
 
@@ -68,11 +68,18 @@ void main() {
 
  
 
-  if(rainStrength <= 1.0 && rainStrength > 0.0)
+  if(rainStrength <= 1.0 && rainStrength > 0.0 && !isNight)
   {
     float dryToWet = smoothstep(0.0, 1.0, float(rainStrength));
     fogFactor = mix(fogFactor, rainFogFactor, dryToWet);
     fogColor = mix(currentFogColor, rainFogColor, dryToWet);
+    color.rgb = mix(color.rgb, fogColor, clamp(fogFactor, 0.0, 1.0));
+  }
+  else if(rainStrength <= 1.0 && rainStrength > 0.0 && isNight)
+  {
+    float dryToWet = smoothstep(0.0, 1.0, float(rainStrength));
+    fogFactor = mix(fogFactor, rainFogFactor, dryToWet);
+    fogColor = mix(currentFogColor, rainFogColor, dryToWet) / 18;
     color.rgb = mix(color.rgb, fogColor, clamp(fogFactor, 0.0, 1.0));
   }
   

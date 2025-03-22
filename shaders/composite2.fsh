@@ -12,7 +12,7 @@ uniform float frameTime;
 uniform float waterEnterTime;
 
 in vec2 texcoord;
-
+bool isNight = worldTime >= 13000 && worldTime < 24000;
 
 /* RENDERTARGETS: 0 */
 layout(location = 0) out vec4 color;
@@ -48,11 +48,17 @@ void main() {
 
   if(!inWater)
 	{
-    if(isWater)
+    if(isWater && !isNight)
     {
     fogFactor = exp2(-WATER_FOG_DENSITY * (0.4 - dist));
     fogColor = mix(fogColor, darkFogColor, clamp(distantFogColor, 0.1, 9.0));
-    color = mix(color, fogColor, clamp(fogFactor, 0.0, 1.0));
+    color = mix(color, fogColor, clamp(fogFactor, 0.0, 1.0)) / 3;
+    }
+    else if (isWater && isNight)
+    {
+      fogFactor = exp(-WATER_FOG_DENSITY * (0.4 - dist));
+    fogColor = mix(fogColor, darkFogColor, clamp(distantFogColor, 0.1, 9.0));
+    color = mix(color, fogColor, clamp(fogFactor, 0.0, 1.0)) / 15;
     }
 	}
 
@@ -62,9 +68,21 @@ void main() {
     {
     fogFactor = exp2(-WATER_FOG_DENSITY * (0.6 - dist));
     fogColor = mix(fogColor, darkFogColor, clamp(distantFogColor, 0.0, 9.0));
-    color = mix(color, fogColor, clamp(fogFactor, 0.0, 1.0));
+    color = mix(color, fogColor, clamp(fogFactor, 0.0, 1.0)) / 3;
+    }
+     else if (!isWater && isNight)
+    {
+      fogFactor = exp(-WATER_FOG_DENSITY * (0.4 - dist));
+    fogColor = mix(fogColor, darkFogColor, clamp(distantFogColor, 0.1, 9.0));
+    color = mix(color, fogColor, clamp(fogFactor, 0.0, 1.0)) / 15;
     }
 
+    if(rainStrength <= 1.0 && rainStrength > 0.0)
+  {
+    fogFactor = exp(-WATER_FOG_DENSITY * (0.4 - dist));
+    fogColor = mix(fogColor, darkFogColor, clamp(distantFogColor, 0.1, 9.0));
+    color = mix(color, fogColor, clamp(fogFactor, 0.0, 1.0)) / 15;
+  }
    
 	}
   #endif

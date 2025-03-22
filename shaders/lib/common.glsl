@@ -31,14 +31,14 @@ const bool normalsMipmapEnabled = true;
 #define SUN_ROTATION -30 //[-45 -30 -15 0 15 30 45]
 
 
-#define U2_SHOULDER  0.85
-#define U2_TOE     2.75
-#define U2_LINEAR_STRENGTH 0.76
-#define U2_LINEAR_ANGLE 0.48
-#define U2_TOE_NUMERATOR    0.02
-#define U2_TOE_DENOMINATOR   0.75
+#define U2_SHOULDER_STRENGTH 1.5
+#define U2_LINEAR_STRENGTH   0.42
+#define U2_LINEAR_ANGLE      0.1
+#define U2_TOE_STRENGTH      0.4
+#define U2_TOE_NUMERATOR     0.01
+#define U2_TOE_DENOMINATOR  0.3
 
-#define TONEMAPPING_TYPE 1 //[0 1 2]
+#define TONEMAPPING_TYPE 1 //[0 1 2 3 4]
 
 //shadows
 #define SHADOW_SOFTNESS  2 //[2 3 4 5 6 7 8 9 10]
@@ -69,10 +69,10 @@ const bool normalsMipmapEnabled = true;
 //PBR Config
 #define HARDCODED_METAL 0.0 //[0.0 0.1 0.2 0.3 0.4 0.5 0.6 0.7 0.8 0.9 1.0]
 #define HARDCODED_ROUGHNESS 0.6 //[0.0 0.1 0.2 0.3 0.4 0.5 0.6 0.7 0.8 0.9 0.999 1.0]
-#define PBR_ATTENUATION 32
+#define PBR_ATTENUATION 12
 #define DO_RESOURCEPACK_PBR 0 //[0 1]
 #define DO_RESOURCEPACK_EMISSION 0 //[0 1]
-#define EMISSION_STRENGTH 14.0 
+#define EMISSIVE_MULTIPLIER 1.0 //[1.0 1.5 2.0 2.5 3.0]
 #define SPEC_SAMPLES 1
 
 //Color Grading

@@ -33,13 +33,7 @@ layout(location = 4) out vec4 extractedColor;
 
 void main() {
 	color = texture(gtexture, texcoord) * glcolor + vec4(1.0, 0.0, 0.0,1.0);
-	
 
-	
-	
-	
-	
-	
 	vec3 normalMaps = texture(normals, texcoord).rgb;
 	normalMaps = normalMaps * 2 - 1;
 	normalMaps.z = sqrt(1 - dot(normalMaps.xy, normalMaps.xy));

@@ -1,7 +1,6 @@
 #version 410 compatibility
 
-#include "/lib/util.glsl"
-
+#include "/lib/atmosphere/sky.glsl"
 //vertex variables
 in vec2 texcoord;
 in vec2 lmcoord;
@@ -9,7 +8,7 @@ in vec4 glcolor;
 
 
 //lighting variables
-vec3 blocklightColor = vec3(0.9059, 0.3608, 0.0863);
+vec3 blocklightColor = vec3(0.5922, 0.4627, 0.3961);
  vec3 skylightColor = vec3(0.0588, 0.102, 0.1451);
  vec3 sunlightColor = vec3(0.9922, 0.7569, 0.5216);
  vec3 morningSunlightColor = vec3(0.9216, 0.4353, 0.2588);
@@ -79,6 +78,11 @@ uniform float near;
 #endif
  
 
+
+
+
+ 
+
 /* RENDERTARGETS: 0,4 */
 layout(location = 0) out vec4 color;
 
@@ -100,9 +104,7 @@ void main() {
   float depth = texture(depthtex1, texcoord).r;
   if(depth == 1.0)
 			{
-        #if DO_AMD_SKY_FIX
-        color.rgb += texture(colortex3, texcoord).rgb;
-        #endif
+        color.rgb += applySky(color.rgb) / 2;        
 				 return;
 			}
 
@@ -131,12 +133,14 @@ void main() {
   vec3 viewDir = mat3(gbufferModelViewInverse) * -normalize(projectAndDivide(gbufferProjectionInverse, vec3(texcoord.xy, 0) * 2.0 - 1.0));
 	vec3 halfwayDir = normalize(lightDir + viewDir);
   
- vec3 F0 = vec3(0.2039, 0.2039, 0.2039);
-  #if DO_RESOURCEPACK_PBR == 1
-  F0      = mix(F0, color.rgb, SpecMap.g);
- #else
- F0      = mix(F0, albedo, metallic);
- #endif
+float emission = SpecMap.a;
+ #if DO_RESOURCEPACK_EMISSION == 1
+ 
+ if (emission >= 0.0 && emission < 1.0)
+	{
+		color += vec4(albedo,1.0) * emission * 12 * EMISSIVE_MULTIPLIER;
+	}
+#endif
  
 
 
@@ -204,50 +208,14 @@ vec3 waterTint = vec3(0.0039, 0.7686, 1.0);
   }
 
   //convert all lighting values into one value
-	lighting = sunlight + skylight * 4  + blocklight * 2 + ambient;
+	lighting = sunlight + skylight  + blocklight  + ambient;
 
- 
-
-// reflectance equation
-vec3 Lo = vec3(0.0);
-    for(int i = 0; i < SPEC_SAMPLES; ++i) 
-    {
-        // calculate per-light radiance
-        float dist    = length(worldLightVector);
-        float attenuation = PBR_ATTENUATION / (dist * dist);
-        vec3 radiance    = sunlight * attenuation;  
-        
-        vec3 F  = fresnelSchlick(max(dot(halfwayDir, viewDir),0.0), F0);
-        
-           // cook-torrance brdf
-        float NDF = DistributionGGX(normal, halfwayDir, roughness);       
-        float G   = GeometrySmith(normal, viewDir, lightDir, roughness); 
-
-        vec3 numerator    = NDF * G * F;
-        float denominator = 7 * max(dot(normal, viewDir), 0.0) * max(dot(normal, worldLightVector), 0.0)  + 0.0001;
-        vec3 spec     = numerator / denominator;  
-
-        vec3 kS = F;
-        vec3 kD = vec3(1.0) - kS;
-          #if DO_RESOURCEPACK_PBR == 1
-        kD *= 1.0 - SpecMap.g;
-        #else
-         kD *= 1.0 - metallic;
-        #endif	  
-        
-          // add to outgoing radiance Lo
-      float NdotL = max(dot(normal, lightDir), 0.0);        
-      Lo += (kD * albedo / PI + spec) * radiance * NdotL;
-    }
-
-  
-  
-    vec3 color2 = lighting + Lo;
-    color2 *= color2 / (color2 + vec3(1.0, 1.0, 1.0));
-    color2 = pow(color2, vec3(1.0/2.2));
-    
-    color *= vec4(color2, 1.0);
+if(rainStrength <= 1.0 && rainStrength > 0.0)
+  {
+    float dryToWet = smoothstep(0.0, 1.0, float(rainStrength));
+    lighting = lighting / 4;
+  }
   //final lighting calculation
-   color.rgb *= lighting;
+   color.rgb *= lighting ;
 
 }

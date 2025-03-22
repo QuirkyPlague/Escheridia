@@ -34,8 +34,8 @@ uniform mat4 shadowModelView;
 uniform mat4 shadowProjection;
 uniform vec3 shadowLightPosition;
 uniform mat4 gbufferModelView;
-
-
+uniform vec3 cameraPosition;
+uniform vec3 sunPosition;
 
 uniform float viewWidth;
 uniform float viewHeight;

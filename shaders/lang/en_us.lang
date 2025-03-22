@@ -1,7 +1,9 @@
 option.TONEMAPPING_TYPE = Tonemap operator
     value.TONEMAPPING_TYPE.0 = Aces Approx
     value.TONEMAPPING_TYPE.1 = Uncharted 2 
-    value.TONEMAPPING_TYPE.2 = Gamma Corrected
+    value.TONEMAPPING_TYPE.2 = Reinhard Jodie
+    value.TONEMAPPING_TYPE.3 = AgX
+    value.TONEMAPPING_TYPE.4 = Gamma Corrected
 
 option.FOG_DENSITY = Fog Distance
 option.FOG_DENSITY.comment = How far away the fog renders from you. the larger the number the farther away it will render
@@ -65,3 +67,6 @@ option.BLOOM_INTENSITY = Bloom Intensity
 option.BLOOM_INTENSITY.comment = How strong the bloom effect will be. §cNo performance impact!§r
 option.BLOOM_STRENGTH = Bloom Scatter Amount
 option.BLOOM_STRENGTH.comment = How much the bloom effect is scattered from the center. §cLow Scatter can cause blurry visuals at high intensity settings§r
+
+option.EMISSIVE_MULTIPLIER = Emission Multiplier
+option.EMISSIVE_MULTIPLIER.comment = How much to multiply the strength of emissives by
