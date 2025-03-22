@@ -9,14 +9,14 @@ in vec4 glcolor;
 
 
 //lighting variables
-vec3 blocklightColor = vec3(0.5922, 0.4627, 0.3961);
+vec3 blocklightColor = vec3(0.8118, 0.6314, 0.5412);
  vec3 skylightColor = vec3(0.0588, 0.102, 0.1451);
- vec3 sunlightColor = vec3(0.9922, 0.7569, 0.5216);
+ vec3 sunlightColor = vec3(1.0, 0.8549, 0.6902);
  vec3 morningSunlightColor = vec3(0.9216, 0.4353, 0.2588);
  vec3 moonlightColor = vec3(0.3843, 0.4667, 1.0);
  vec3 nightSkyColor = vec3(0.0588, 0.0902, 0.451);
  vec3 morningSkyColor = vec3(0.7804, 0.5216, 0.2471);
- vec3 ambientColor = vec3(0.0667, 0.0667, 0.0667);
+ vec3 ambientColor = vec3(0.2157, 0.2157, 0.2157);
  vec3 nightBlockColor = vec3(0.0745, 0.0706, 0.0431);
  vec3 nightAmbientColor = vec3(0.051, 0.051, 0.051);
 vec3 duskSunlightColor = vec3(0.8784, 0.298, 0.2471);
@@ -227,12 +227,17 @@ vec3 waterTint = vec3(0.1804, 1.0, 0.9451);
   }
 
   //convert all lighting values into one value
-	lighting = sunlight + skylight + blocklight / 2 + ambient;
+	lighting = sunlight + skylight* 2.5 + blocklight + ambient;
 
  if(rainStrength <= 1.0 && rainStrength > 0.0)
   {
     float dryToWet = smoothstep(0.0, 1.0, float(rainStrength));
-    lighting = lighting / 4;
+    albedo = albedo / 3;
+    float rainRoughness = 0.75;
+    lighting = sunlight /9 + skylight /9 + blocklight / 2 + ambient / 9 + albedo;
+    perceptualSmoothness = 1.0 - sqrt(rainRoughness);
+    roughness = perceptualSmoothness;
+    
   }
 
 vec3 currentSunlight = sunlight;
@@ -289,7 +294,7 @@ vec3 Lo = vec3(0.0);
         // calculate per-light radiance
         float dist    = length(lightDir);
         float attenuation = PBR_ATTENUATION / (dist * dist);
-        vec3 radiance    = currentSunlight * attenuation * vec3(0.9725, 0.6902, 0.4078);  
+        vec3 radiance    = currentSunlight * attenuation * vec3(0.4863, 0.298, 0.1098);  
         
         if(isNight)
         {

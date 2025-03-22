@@ -41,8 +41,8 @@ vec3 aces(vec3 v)
 vec3 reinhard_jodie(vec3 v)
 {
     float l = luminance(v);
-    vec3 tv = v / (1.0f + v);
-    return mix(v / (1.0f + l), tv, tv);
+    vec3 tv = v / (0.8 + v);
+    return mix(v / (1.0 + l), tv, tv);
 }
 
 
@@ -74,8 +74,8 @@ const mat3 AgXOutsetMatrix = mat3(
   -0.016493938717834573, -0.016493938717834257, 1.2519364065950405
 );
 
-const float AgxMinEv = -11.47393;
-const float AgxMaxEv = 2.026069;
+const float AgxMinEv = -11.97393;
+const float AgxMaxEv = 3.026069;
 
 // 0: Default, 1: Golden, 2: Punchy
 #ifndef AGX_LOOK
