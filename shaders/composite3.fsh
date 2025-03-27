@@ -7,8 +7,8 @@ uniform sampler2D colortexN;
 in vec2 texcoord;
  float exposure = GODRAYS_EXPOSURE;
  float decay = 1.0;
-  float density = 0.5;
-float weight = 0.23 * SUN_ILLUMINANCE;
+  float density = 1.0;
+float weight = 0.3 * SUN_ILLUMINANCE;
 float wetWeight = 0.65 - weight;
 
 vec3 earlyGodrayColor = vec3(1.0, 0.2353, 0.0627);
@@ -34,13 +34,24 @@ void main() {
 
 	vec2 altCoord = texcoord;
 	
+	float depth = texture(depthtex1, texcoord).r;
+	//Space Conversions
+	vec3 NDCPos = vec3(texcoord.xy, depth) * 2.0 - 1.0;
+	vec3 viewPos = projectAndDivide(gbufferProjectionInverse, NDCPos);
+	vec3 feetPlayerPos = (gbufferModelViewInverse * vec4(viewPos, 1.0)).xyz;
+ 	vec3 worldPos = feetPlayerPos + cameraPosition;
 	
 	vec3 LightVector = viewSpaceToScreenSpace(shadowLightPosition);
-	LightVector.xy = clamp(LightVector.xy, vec2(-0.5), vec2(1.5));
+	vec3 worldLightVector = mat3(gbufferModelViewInverse) * LightVector;
+	worldLightVector.xy = clamp(worldLightVector.xy, vec2(-0.5), vec2(1.5));
 	
+	
+
 	vec2 deltaTexCoord = (texcoord - (LightVector.xy));
 
-	
+	vec3 V = normalize(cameraPosition - worldPos);
+	vec3 L = normalize(worldLightVector);
+ 	float LdotV	= max(dot(L,V), 0.0);
 	deltaTexCoord *= rcp(GODRAYS_SAMPLES) * density;
 	float illuminationDecay = 1.0;
 
@@ -96,13 +107,14 @@ void main() {
 				 weight = mix(weight, wetWeight, dryToWet);
 			}
 			
-			samples *= illuminationDecay * weight;
-			color += samples;
+			samples *= illuminationDecay * weight ;
+			color += samples ;
 			illuminationDecay *= decay;
 			altCoord -= deltaTexCoord;
 	}	
 
-	color /= GODRAYS_SAMPLES;
-	color *= exposure;
+	color /= GODRAYS_SAMPLES * HG(0.77, LdotV);
+	color *= exposure ;
+
 	#endif
 }

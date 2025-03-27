@@ -1,3 +1,5 @@
+#ifndef POST_PROCESSING_GLSL
+#define POST_PROCESSING_GLSL
 
 uniform float contrast = CONTRAST;
 uniform float saturation = SATURATION;
@@ -36,3 +38,4 @@ vec3 CSB(vec3 color, float brt, float sat, float con)
 	
 	return conColor;
 }
+#endif

@@ -1,3 +1,6 @@
+#ifndef UTIL_GLSL
+#define UTIL_GLSL
+
 uniform mat4 gbufferProjection;
 #include "/lib/uniforms.glsl"
 #include "/lib/common.glsl"
@@ -136,10 +139,21 @@ float luminance(vec3 color)
     return dot(color, vec3(0.2126, 0.7152, 0.0722));
 }
 
-float HenyeyGreenstein(float g, float costh)
+float HG(float g, float cosA)
 {
-    return (1.0 - g * g) / (4.0 * PI * pow(1.0 + g * g - 2.0 * g * costh, 3.0/2.0));
+    // Temporary hotfix for black plague problem
+    // TODO: track down why vectors used to calculate cosA are not normalized (or contain NaNs)
+    cosA = clamp(cosA, -1, 1);
+
+     float g2 = g * g;
+    return ((1.0 - g2) / pow(abs(1.0 + g2 - 2.0*g*cosA), 1.5));
 }
+float CS(float g, float costh)
+{
+    return (3.0 * (1.0 - g * g) * (1.0 + costh * costh)) / (4.0 * PI * 2.0 * (2.0 + g * g) * pow(1.0 + g * g - 2.0 * g * costh, 3.0/2.0));
+}
+
+
 
 vec3 screenSpaceToViewSpace(vec3 screenPosition, mat4 projectionInverse) {
 	screenPosition = screenPosition * 2.0 - 1.0;
@@ -184,7 +198,7 @@ vec4 rcp(in vec4 x) {
     return _rcp(x);
 }
 
-
+#endif
 
 
 

@@ -1,3 +1,5 @@
+#ifndef UNIFORMS_GLSL
+#define UNIFORMS_GLSL
 
 uniform sampler2D colortex0;
 uniform sampler2D colortex1;
@@ -49,3 +51,5 @@ uniform float wetness;
 uniform float rainStrength;
 uniform int moonPhase;
 uniform int renderStage;
+
+#endif

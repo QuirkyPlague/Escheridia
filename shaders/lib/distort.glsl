@@ -1,3 +1,6 @@
+#ifndef DISTORT_GLSL
+#define DISTORT_GLSL
+
 #include "/lib/common.glsl"
 
 
@@ -19,3 +22,4 @@ vec3 distortShadowClipPos(vec3 shadowClipPos){
   shadowClipPos.z *= 0.1; // increases shadow distance on the Z axis, which helps when the sun is very low in the sky
   return shadowClipPos;
 }
+#endif

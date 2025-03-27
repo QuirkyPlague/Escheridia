@@ -8,30 +8,12 @@ uniform float weight[5] = float[] (0.227027 / BLOOM_STRENGTH, 0.1945946/ BLOOM_S
 in vec2 texcoord;
 
 
-/* RENDERTARGETS: 5 */
+
+/* RENDERTARGETS: 0 */
 layout(location = 0) out vec4 color;
 
 
 void main() {
-	 #if DO_BLOOM == 1
-     vec2 tex_offset = BLOOM_VARIATIONS / textureSize(colortex5, 0) ; // gets size of single texel
-    vec3 result = texture(colortex5, texcoord).rgb * weight[0]; // current fragment's contribution
-    if(horizontal)
-    {
-        for(int i = 1; i < 5; ++i)
-        {
-            result += texture(colortex5, texcoord + vec2(tex_offset.x * i, 0.0)).rgb * weight[i];
-            result += texture(colortex5, texcoord - vec2(tex_offset.x * i, 0.0)).rgb * weight[i];
-        }
-    }
-    else
-    {
-        for(int i = 1; i < 5; ++i)
-        {
-            result += texture(colortex5, texcoord + vec2(0.0, tex_offset.y * i)).rgb * weight[i];
-            result += texture(colortex5, texcoord - vec2(0.0, tex_offset.y * i)).rgb * weight[i];
-        }
-    }
-    color = vec4(result, 1.0);
-	#endif
+color = texture(colortex0, texcoord);
+	
 }

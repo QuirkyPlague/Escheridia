@@ -1,12 +1,13 @@
 #version 410 compatibility
 
+#include "/lib/uniforms.glsl"
 out vec2 lmcoord;
 
 out vec2 texcoord;
 out vec4 glcolor;
 
 out vec3 normal;
-uniform mat4 gbufferModelViewInverse;
+
 
 void main() {
 	gl_Position = ftransform();
