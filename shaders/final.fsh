@@ -79,7 +79,7 @@ const float AgxMaxEv = 3.026069;
 
 // 0: Default, 1: Golden, 2: Punchy
 #ifndef AGX_LOOK
-  #define AGX_LOOK 0
+  #define AGX_LOOK 2
 #endif
 
 vec3 agxAscCdl(vec3 color, vec3 slope, vec3 offset, vec3 power, float sat) {
@@ -110,7 +110,7 @@ vec3 agx(vec3 color) {
   vec3 x2 = color * color;
   vec3 x4 = x2 * x2;
   color = + 15.5     * x4 * x2
-          - 40.14    * x4 * color
+          - 40.04    * x4 * color
           + 31.96    * x4
           - 6.868    * x2 * color
           + 0.4298   * x2
@@ -133,7 +133,7 @@ vec3 agx(vec3 color) {
   // sRGB IEC 61966-2-1 2.2 Exponent Reference EOTF Display
   // NOTE: We're linearizing the output here. Comment/adjust when
   // *not* using a sRGB render target
-  color = pow(max(vec3(0.0), color), vec3(2.2)); // From filament: max()
+  color = pow(max(vec3(0.1922, 0.1922, 0.1922), color), vec3(2.2)); // From filament: max()
 
   color = LINEAR_REC2020_TO_LINEAR_SRGB * color; // From three.js
   // Gamut mapping. Simple clamp for now.
