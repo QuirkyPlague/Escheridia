@@ -10,7 +10,7 @@ in vec4 glcolor;
 //lighting variables
 vec3 blocklightColor = vec3(0.8118, 0.6314, 0.5412);
  vec3 skylightColor = vec3(0.0588, 0.102, 0.1451);
- vec3 sunlightColor = vec3(1.0, 0.8549, 0.6902);
+ vec3 sunlightColor = vec3(0.9647, 0.702, 0.4039);
  vec3 morningSunlightColor = vec3(0.9216, 0.4353, 0.2588);
  vec3 moonlightColor = vec3(0.3843, 0.4667, 1.0);
  vec3 nightSkyColor = vec3(0.0588, 0.0902, 0.451);
@@ -138,9 +138,10 @@ float emission = SpecMap.a;
  
  if (emission >= 0.0/255.0 && emission < 255.0/255.0)
 	{
-		color += vec4(albedo,1.0) * emission * 51 * EMISSIVE_MULTIPLIER;
+		color += vec4(albedo,1.0) * emission * 21 * EMISSIVE_MULTIPLIER;
   
 	}
+  
 #endif
  
 
@@ -217,6 +218,6 @@ if(rainStrength <= 1.0 && rainStrength > 0.0)
     lighting = lighting / 4;
   }
   //final lighting calculation
-   color.rgb *= lighting ;
+   //color.rgb *= lighting ;
 
 }

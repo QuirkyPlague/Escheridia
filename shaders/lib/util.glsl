@@ -198,9 +198,34 @@ vec4 rcp(in vec4 x) {
     return _rcp(x);
 }
 
+#define _pow3(x) (x*x*x)
+float pow3(in float x) {
+    return _pow3(x);
+}
+int pow3(in int x) {
+    return _pow3(x);
+}
+vec2 pow3(in vec2 x) {
+    return _pow3(x);
+}
+vec3 pow3(in vec3 x) {
+    return _pow3(x);
+}
+vec4 pow3(in vec4 x) {
+    return _pow3(x);
+}
+
+float cubeLength(vec2 v) {
+    vec2 t = abs(pow3(v));
+    return pow(t.x + t.y, 1.0/3.0);
+}
+
+vec3 getShadowBias(vec3 pos, vec3 worldNormal, float faceNoL){
+	float biasAdjust = log2(max(4.0, shadowDistance - shadowMapResolution * 0.125)) * 0.5;
+
+	float factor = cubeLength(pos.xy) * 0.17 + (1.0 - 0.17);
+
+	return mat3(shadowProjection) * (mat3(shadowModelView) * worldNormal) * factor * biasAdjust;
+}
+
 #endif
-
-
-
-
-

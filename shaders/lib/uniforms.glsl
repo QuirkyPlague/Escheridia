@@ -52,4 +52,7 @@ uniform float rainStrength;
 uniform int moonPhase;
 uniform int renderStage;
 
+const float shadowDistance = 128.0;
+const float shadowFarPlane = 256.0;
+const float shadowDistanceRenderMul = 1.0;
 #endif

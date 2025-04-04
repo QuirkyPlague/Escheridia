@@ -10,13 +10,13 @@ in vec4 glcolor;
 
 //lighting variables
 vec3 blocklightColor = vec3(0.8118, 0.6314, 0.5412);
- vec3 skylightColor = vec3(0.0588, 0.102, 0.1451);
- vec3 sunlightColor = vec3(1.0, 0.8549, 0.6902);
+ vec3 skylightColor = vec3(0.0471, 0.0941, 0.1451);
+ vec3 sunlightColor = vec3(1.0, 0.749, 0.4627);
  vec3 morningSunlightColor = vec3(0.9216, 0.4353, 0.2588);
  vec3 moonlightColor = vec3(0.3843, 0.4667, 1.0);
  vec3 nightSkyColor = vec3(0.0588, 0.0902, 0.451);
  vec3 morningSkyColor = vec3(0.7804, 0.5216, 0.2471);
- vec3 ambientColor = vec3(0.2157, 0.2157, 0.2157);
+ vec3 ambientColor = vec3(0.098, 0.098, 0.098);
  vec3 nightBlockColor = vec3(0.0745, 0.0706, 0.0431);
  vec3 nightAmbientColor = vec3(0.051, 0.051, 0.051);
 vec3 duskSunlightColor = vec3(0.8784, 0.298, 0.2471);
@@ -30,7 +30,7 @@ vec3 duskSkyColor = vec3(0.8353, 0.3725, 0.302);
  vec4 waterMask = texture(colortex8, texcoord);
 vec4 normalMap = texture(colortex2, texcoord);
   int blockID = int(waterMask) + 100;
-
+  
   bool isWater = blockID == WATER_ID;
   bool inWater = isEyeInWater == 1.0;
 
@@ -57,7 +57,7 @@ uniform float near;
   vec3 feetPlayerPos = (gbufferModelViewInverse * vec4(viewPos, 1.0)).xyz;
   
 
-      shadowClipPos = findShadowClipPos(feetPlayerPos);
+shadowClipPos = findShadowClipPos(feetPlayerPos);
         
  
  
@@ -70,14 +70,15 @@ uniform float near;
 
   mat2 rotation = mat2(cosTheta, -sinTheta, sinTheta, cosTheta); // matrix to rotate the offset around the original position by the angle
 
+  
   vec3 shadowAccum = vec3(0.0, 0.0, 0.0); // sum of all shadow samples
   int samples = 0;
-
-  for(float x = -range; x <= range; x += increment){
+ 
+ for(float x = -range; x <= range; x += increment){
     for (float y = -range; y <= range; y+= increment){
       vec2 offset = rotation * vec2(x, y) / shadowMapResolution; // offset in the rotated direction by the specified amount. We divide by the resolution so our offset is in terms of pixels
       vec4 offsetShadowClipPos = shadowClipPos + vec4(offset, 0.0, 0.0); // add offset
-      offsetShadowClipPos.z -= 0.0024; // apply bias 
+      offsetShadowClipPos.z -= 0.001; // apply bias 
       offsetShadowClipPos.xyz = distortShadowClipPos(offsetShadowClipPos.xyz); // apply distortion
       vec3 shadowNDCPos = offsetShadowClipPos.xyz / offsetShadowClipPos.w; // convert to NDC space
       vec3 shadowScreenPos = shadowNDCPos * 0.5 + 0.5; // convert to screen space
@@ -227,7 +228,7 @@ vec3 waterTint = vec3(0.1804, 1.0, 0.9451);
   }
 
   //convert all lighting values into one value
-	lighting = sunlight + skylight* 2.5 + blocklight + ambient;
+	lighting = sunlight + skylight + blocklight + ambient;
 
  if(rainStrength <= 1.0 && rainStrength > 0.0)
   {
@@ -241,12 +242,12 @@ vec3 waterTint = vec3(0.1804, 1.0, 0.9451);
   }
 
 vec3 currentSunlight = sunlight;
-
+vec3 currentSkylight = skylight;
     if(!inWater)
 	{
     if(isWater)
     {
-    sunlight *= currentSunlight  * clamp(dot(normal, worldLightVector * SUN_ILLUMINANCE), 0.0, 3.0);
+    sunlight = currentSunlight  * clamp(dot(normal, worldLightVector * SUN_ILLUMINANCE), 0.0, 3.0) * shadow;
     lighting = sunlight + skylight + blocklight + waterTint;
     color.rgb *= mix(lighting, waterColor, clamp(waterFactor, 0.0, 1.0));
     }
@@ -254,12 +255,13 @@ vec3 currentSunlight = sunlight;
 
    if(inWater)
 	{
-    if(!isWater)
+    if(isWater)
     {
   
-    sunlight *= currentSunlight  * clamp(dot(normal, worldLightVector * SUN_ILLUMINANCE), 0.0, 3.0);
-    lighting = sunlight + skylight + blocklight + ambient + waterTint * 2.5;
-    color.rgb *= mix(lighting, waterColor, clamp(waterFactor, 0.0, 1.0));
+    sunlight = currentSunlight  * clamp(dot(normal, worldLightVector * SUN_ILLUMINANCE), 0.0, 3.0) * shadow;
+    skylight = currentSkylight ;
+    lighting = sunlight * 3 + blocklight + ambient + waterTint * 1.5;
+    color.rgb *= lighting;
     }
     else{
       color.rgb *= lighting + waterTint;
@@ -294,7 +296,7 @@ vec3 Lo = vec3(0.0);
         // calculate per-light radiance
         float dist    = length(lightDir);
         float attenuation = PBR_ATTENUATION / (dist * dist);
-        vec3 radiance    = currentSunlight * attenuation * vec3(0.4863, 0.298, 0.1098);  
+        vec3 radiance    = currentSunlight * attenuation ;  
         
         if(isNight)
         {

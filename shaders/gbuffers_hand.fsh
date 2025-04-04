@@ -29,11 +29,6 @@ layout(location = 4) out vec4 extractedColor;
 
 void main() {
 	color = texture(gtexture, texcoord) * glcolor;
-	
-	 
-
-
-       
 
 	lightmapData = vec4(lmcoord, 0.0, 1.0);
 	

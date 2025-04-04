@@ -74,8 +74,8 @@ const mat3 AgXOutsetMatrix = mat3(
   -0.016493938717834573, -0.016493938717834257, 1.2519364065950405
 );
 
-const float AgxMinEv = -11.97393;
-const float AgxMaxEv = 3.026069;
+const float AgxMinEv = AGX_MIN_EV;
+const float AgxMaxEv = AGX_MAX_EV;
 
 // 0: Default, 1: Golden, 2: Punchy
 #ifndef AGX_LOOK
@@ -123,7 +123,7 @@ vec3 agx(vec3 color) {
     color = agxAscCdl(color, vec3(1.0, 0.9, 0.5), vec3(0.0), vec3(0.8), 1.3);
   #elif AGX_LOOK == 2
     // Punchy
-    color = agxAscCdl(color, vec3(1.0), vec3(0.0), vec3(1.35), 1.4);
+    color = agxAscCdl(color, vec3(1.0), AGX_OFFSET_COLOR, AGX_POWER, AGX_SATURATION);
   #endif
 
   // 3. agxEotf()

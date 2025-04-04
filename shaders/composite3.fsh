@@ -52,6 +52,7 @@ void main() {
 	vec3 V = normalize(cameraPosition - worldPos);
 	vec3 L = normalize(worldLightVector);
  	float LdotV	= max(dot(L,V), 0.0);
+	float VoL = dot(normalize(feetPlayerPos), worldLightVector);
 	deltaTexCoord *= rcp(GODRAYS_SAMPLES) * density;
 	float illuminationDecay = 1.0;
 
@@ -113,7 +114,7 @@ void main() {
 			altCoord -= deltaTexCoord;
 	}	
 
-	color /= GODRAYS_SAMPLES * HG(0.77, LdotV);
+	color /= GODRAYS_SAMPLES * HG(0.45, -VoL);
 	color *= exposure ;
 
 	#endif
