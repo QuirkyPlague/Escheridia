@@ -3,7 +3,7 @@
 out vec2 texcoord;
 out vec4 glcolor;
 
-uniform mat4 gbufferProjectionInverse;
+
 
 void main() {
 	gl_Position = ftransform();

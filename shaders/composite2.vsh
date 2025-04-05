@@ -1,10 +1,10 @@
 #version 410 compatibility
 
-
+#include "/lib/uniforms.glsl"
 
 out vec2 texcoord;
 out vec3 normal;
-uniform mat4 gbufferModelViewInverse;
+
 
 
 void main() {
