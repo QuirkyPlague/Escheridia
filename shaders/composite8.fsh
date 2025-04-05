@@ -1,24 +1,13 @@
 #version 410 compatibility
 
 #include "/lib/util.glsl"
+
 in vec2 texcoord;
-
- float exposure = BLOOM_INTENSITY;
-
-/* RENDERTARGETS: 5 */
+/* RENDERTARGETS: 0 */
 layout(location = 0) out vec4 color;
 
 
 void main() {
-	color = texture(colortex0, texcoord);
-	const float gamma = 1.6;
-    vec3 hdrColor = texture(colortex5, texcoord).rgb;      
-    vec3 bloomColor = texture(colortex5, texcoord).rgb;
-    hdrColor += bloomColor; // additive blending
-    // tone mapping
-    vec3 result = vec3(1.0) - exp(-hdrColor * exposure);
-    // also gamma correct while we're at it       
-    result = pow(result, vec3(1.0 / gamma));
-   color = vec4(result, 1.0);
-   
+color = texture(colortex0, texcoord);
+
 }

@@ -227,5 +227,6 @@ vec3 getShadowBias(vec3 pos, vec3 worldNormal, float faceNoL){
 
 	return mat3(shadowProjection) * (mat3(shadowModelView) * worldNormal) * factor * biasAdjust;
 }
+#define clamp01(x) clamp(x, 0.0, 1.0)
 
 #endif

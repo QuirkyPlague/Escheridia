@@ -12,6 +12,6 @@ color = texture(colortex0, texcoord);
 	
 	
 	#if DO_BLOOM == 1
-	 color.rgb += texture(colortex5, texcoord).rgb;
+	 //color.rgb += texture(colortex5, texcoord).rgb;
    #endif
 }

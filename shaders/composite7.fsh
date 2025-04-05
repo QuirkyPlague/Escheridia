@@ -2,18 +2,12 @@
 
 #include "/lib/util.glsl"
 
-
-uniform bool horizontal;
-uniform float weight[5] = float[] (0.227027 / BLOOM_STRENGTH, 0.1945946/ BLOOM_STRENGTH, 0.1216216 /BLOOM_STRENGTH , 0.054054 /BLOOM_STRENGTH , 0.016216 /BLOOM_STRENGTH);
 in vec2 texcoord;
-
-
-
-/* RENDERTARGETS: 0 */
+/* RENDERTARGETS: 5 */
 layout(location = 0) out vec4 color;
 
 
 void main() {
-color = texture(colortex0, texcoord);
-	
+vec3 bloom = texture(colortex5, texcoord).rgb;
+//color.rgb = mix(color.rgb, bloom, clamp01(0.01 * BLOOM_STRENGTH * 0.1));
 }

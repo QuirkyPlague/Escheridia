@@ -23,7 +23,8 @@ vec3 duskSunlightColor = vec3(0.8784, 0.298, 0.2471);
 vec3 duskSkyColor = vec3(0.8353, 0.3725, 0.302);
 
 
-
+vec3 LightVector = normalize(shadowLightPosition);
+	vec3 worldLightVector = mat3(gbufferModelViewInverse) * LightVector;
 
 
  vec4 SpecMap = texture(colortex3, texcoord);
@@ -57,7 +58,7 @@ uniform float near;
   vec3 feetPlayerPos = (gbufferModelViewInverse * vec4(viewPos, 1.0)).xyz;
   
 
-shadowClipPos = findShadowClipPos(feetPlayerPos);
+  shadowClipPos = findShadowClipPos(feetPlayerPos);
         
  
  
@@ -69,16 +70,16 @@ shadowClipPos = findShadowClipPos(feetPlayerPos);
   float sinTheta = sin(theta);
 
   mat2 rotation = mat2(cosTheta, -sinTheta, sinTheta, cosTheta); // matrix to rotate the offset around the original position by the angle
-
-  
+ vec3 faceNormal;
+   float faceNoL = dot(faceNormal, worldLightVector);
   vec3 shadowAccum = vec3(0.0, 0.0, 0.0); // sum of all shadow samples
   int samples = 0;
- 
+
  for(float x = -range; x <= range; x += increment){
     for (float y = -range; y <= range; y+= increment){
       vec2 offset = rotation * vec2(x, y) / shadowMapResolution; // offset in the rotated direction by the specified amount. We divide by the resolution so our offset is in terms of pixels
       vec4 offsetShadowClipPos = shadowClipPos + vec4(offset, 0.0, 0.0); // add offset
-      offsetShadowClipPos.z -= 0.001; // apply bias 
+      offsetShadowClipPos.z -= 0.0015; // apply bias 
       offsetShadowClipPos.xyz = distortShadowClipPos(offsetShadowClipPos.xyz); // apply distortion
       vec3 shadowNDCPos = offsetShadowClipPos.xyz / offsetShadowClipPos.w; // convert to NDC space
       vec3 shadowScreenPos = shadowNDCPos * 0.5 + 0.5; // convert to screen space
@@ -130,8 +131,7 @@ void main() {
 			}
 
   //Sunlight location
-	vec3 LightVector = normalize(shadowLightPosition);
-	vec3 worldLightVector = mat3(gbufferModelViewInverse) * LightVector;
+	
 
   //Space Conversions
 	vec3 NDCPos = vec3(texcoord.xy, depth) * 2.0 - 1.0;
@@ -228,7 +228,7 @@ vec3 waterTint = vec3(0.1804, 1.0, 0.9451);
   }
 
   //convert all lighting values into one value
-	lighting = sunlight + skylight + blocklight + ambient;
+	lighting = sunlight + skylight * 1.5 + blocklight + ambient;
 
  if(rainStrength <= 1.0 && rainStrength > 0.0)
   {
@@ -238,17 +238,26 @@ vec3 waterTint = vec3(0.1804, 1.0, 0.9451);
     lighting = sunlight /9 + skylight /9 + blocklight / 2 + ambient / 9 + albedo;
     perceptualSmoothness = 1.0 - sqrt(rainRoughness);
     roughness = perceptualSmoothness;
-    
+  }
+   else if(rainStrength >= 1.0 && rainStrength < 0.0)
+  {
+    float wetToDry = smoothstep(1.0, 0.0, float(rainStrength));
+    albedo = albedo;
+    float rainRoughness = roughness;
+    lighting = sunlight  + skylight  + blocklight  + ambient  + albedo;
+    perceptualSmoothness = 1.0 - sqrt(rainRoughness);
+    roughness = perceptualSmoothness;
   }
 
 vec3 currentSunlight = sunlight;
 vec3 currentSkylight = skylight;
-    if(!inWater)
+   
+   if(!inWater)
 	{
     if(isWater)
     {
     sunlight = currentSunlight  * clamp(dot(normal, worldLightVector * SUN_ILLUMINANCE), 0.0, 3.0) * shadow;
-    lighting = sunlight + skylight + blocklight + waterTint;
+    lighting = sunlight  + blocklight + waterTint;
     color.rgb *= mix(lighting, waterColor, clamp(waterFactor, 0.0, 1.0));
     }
 	}

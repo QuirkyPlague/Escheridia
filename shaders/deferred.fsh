@@ -24,7 +24,11 @@ vec3 duskSkyColor = vec3(0.8353, 0.3725, 0.302);
 
  float metallic = HARDCODED_METAL;
  vec4 SpecMap = texture(colortex3, texcoord);
-
+  vec4 waterMask = texture(colortex8, texcoord);
+  int blockID = int(waterMask) + 100;
+  
+  bool isWater = blockID == WATER_ID;
+ bool inWater = isEyeInWater == 1.0;
 //utilities
 vec3 lighting;
 vec3 sunluminance = vec3(0.2125, 0.7154, 0.0721);
@@ -59,6 +63,7 @@ uniform float near;
 
   vec3 shadowAccum = vec3(0.0, 0.0, 0.0); // sum of all shadow samples
   int samples = 0;
+
 
   for(float x = -range; x <= range; x += increment){
     for (float y = -range; y <= range; y+= increment){
@@ -212,11 +217,9 @@ vec3 waterTint = vec3(0.0039, 0.7686, 1.0);
   //convert all lighting values into one value
 	lighting = sunlight + skylight * 2.5  + blocklight  + ambient;
 
-if(rainStrength <= 1.0 && rainStrength > 0.0)
-  {
-    float dryToWet = smoothstep(0.0, 1.0, float(rainStrength));
-    lighting = lighting / 4;
-  }
+
+
+
   //final lighting calculation
    //color.rgb *= lighting ;
 

@@ -175,6 +175,7 @@ void main() {
         color.rgb = (pow(color.rgb, exposureCompensation));
     #endif
    
-   	 color.rgb = CSB(color.rgb, brightness, saturation, contrast);
+   	 
+    color.rgb = CSB(color.rgb, brightness, saturation, contrast);
     
 }
