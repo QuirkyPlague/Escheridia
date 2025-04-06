@@ -109,7 +109,7 @@ void main() {
   float depth = texture(depthtex1, texcoord).r;
   if(depth == 1.0)
 			{
-        color.rgb += applySky(color.rgb) / 2;        
+               
 				 return;
 			}
 
@@ -143,7 +143,7 @@ float emission = SpecMap.a;
  
  if (emission >= 0.0/255.0 && emission < 255.0/255.0)
 	{
-		color += vec4(albedo,1.0) * emission * 21 * EMISSIVE_MULTIPLIER;
+		color += vec4(albedo,1.0) * emission * 15 * EMISSIVE_MULTIPLIER;
   
 	}
   

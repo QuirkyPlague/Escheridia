@@ -25,4 +25,5 @@ void main() {
 	}
 	color.rgb = pow(color.rgb, vec3(2.2));
 	godraySample = color;
+	
 }

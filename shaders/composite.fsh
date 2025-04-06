@@ -1,7 +1,8 @@
 #version 410 compatibility
 
 #include "/lib/util.glsl"
-
+#include "/lib/spaceConversions.glsl"
+#include "/lib/atmosphere/sky.glsl"
 //vertex variables
 in vec2 texcoord;
 in vec2 lmcoord;
@@ -40,7 +41,7 @@ vec3 lighting;
 vec3 sunluminance = vec3(0.2125, 0.7154, 0.0721);
 
 const float sunPathRotation = SUN_ROTATION;
-float waterRoughness = 0.94;
+float waterRoughness = 235.0/255.0;
 
 uniform float far;
 uniform float near;
@@ -92,7 +93,6 @@ uniform float near;
 }
 #endif
  
- bool isNight = worldTime >= 13000 && worldTime < 24000;
   
 
 
@@ -123,10 +123,12 @@ void main() {
  
   
   //depth calculation
-  float depth = texture(depthtex1, texcoord).r;
+  float depth = texture(depthtex0, texcoord).r;
+   float depth1 = texture(depthtex1, texcoord).r;
   if(depth == 1.0)
 			{
-        
+        color.rgb += applySky(color.rgb) / 2;        
+			
 				 return;
 			}
 
@@ -175,7 +177,9 @@ void main() {
   #endif
 
   //water extinction
-  float dist = length(viewPos) / far;
+  float dist0 = length(screenToView(texcoord, depth));
+  float dist1 = length(screenToView(texcoord, depth1));
+  float dist = max(0, dist1 - dist0);
   float waterFactor = exp2(-WATER_FOG_DENSITY * (0.6 - dist));
 
   float nearDist = length(viewPos) * near;
@@ -298,7 +302,7 @@ vec3 F0 = vec3(0.4);
 
 // reflectance equation
 vec3 Lo = vec3(0.0);
-    for(int i = 0; i < SPEC_SAMPLES; ++i) 
+    for(int i = 0; i < 1; ++i) 
     {
        vec3 L = normalize(lightDir);
        vec3 H = normalize(V + L);
@@ -321,7 +325,10 @@ vec3 Lo = vec3(0.0);
         vec3 numerator    = NDF * G * F;
         float denominator = 4.0 * max(dot(normal, V), 0.0) * max(dot(normal, L), 0.0)  + 0.0001;
         vec3 spec     = numerator / denominator;  
-
+        if(isWater)
+        {
+          spec     = numerator / denominator * 32;
+        }
         vec3 kS = F;
         vec3 kD = vec3(1.0) - kS;
         #if DO_RESOURCEPACK_PBR == 1
@@ -332,12 +339,14 @@ vec3 Lo = vec3(0.0);
           // add to outgoing radiance Lo
       float NdotL = max(dot(normal, L), 0.0);        
       Lo += (kD * albedo / PI + spec) * radiance * NdotL;
+      
     }
   vec3 ambient2 = vec3(0.03) * albedo;
   vec3 speculars =  ambient2 + Lo;
 
     speculars = speculars / (speculars + vec3(1.0, 1.0, 1.0));
-    speculars = pow(speculars, vec3(1.0/1.2));
+    speculars = pow(speculars, vec3(1.0/2.2));
+   
     
     
     color += vec4(speculars, 1.0);

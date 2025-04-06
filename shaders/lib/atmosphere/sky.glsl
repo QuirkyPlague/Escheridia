@@ -82,8 +82,6 @@ vec3 calcSkyColor(vec3 pos) {
         return mix(zenithColor, horizonColor, fogify(max(upDot, 0.01), 0.03));
     
 }
-
-
 vec3 screenToView(vec3 screenPos) {
     vec4 ndcPos = vec4(screenPos, 1.0) * 2.0 - 1.0;
     vec4 tmp = gbufferProjectionInverse * ndcPos;
@@ -92,7 +90,7 @@ vec3 screenToView(vec3 screenPos) {
 
 vec3 applySky(vec3 color)
 {
-    vec4 screenPos = vec4(gl_FragCoord.xy / vec2(viewWidth, viewHeight), gl_FragCoord.z, 1.0);
+        vec4 screenPos = vec4(gl_FragCoord.xy / vec2(viewWidth, viewHeight), gl_FragCoord.z, 1.0);
         vec4 viewPos = gbufferProjectionInverse * (screenPos * 2.0 - 1.0);
         viewPos /= viewPos.w;
         vec3 normalViewPos = normalize(viewPos.xyz);

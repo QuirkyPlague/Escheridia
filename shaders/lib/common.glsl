@@ -28,7 +28,7 @@ const bool shadowHardwareFiltering = true;
 #define SUN_ILLUMINANCE 1.0 //[1.0 2.0 3.0 4.0 5.0 10.0 26.0 48.0 126.0]
 #define MOON_ILLUMINANCE 0.5 //[0.5 1.0 1.5 2.0 2.5 3.0]
 #define FOG_DENSITY 5.0 //[3.0 4.0 5.0 6.0 7.0 8.0 9.0]
-#define WATER_FOG_DENSITY 5.0 //[3.0 4.0 5.0 6.0 7.0 8.0 9.0]
+#define WATER_FOG_DENSITY 0.0 //[0.0 0.2 0.4 0.6 0.8 1.0]
 #define LIGHT_INTENSITY 1.0 //[1.0 2.0 3.0 4.0 5.0]
 #define SKY_INTENSITY 1.0 //[1.0 2.0 3.0 4.0 5.0 10.0 25.0]
 #define NIGHT_SKY_INTENSITY 1.0 //[1.0 2.0 3.0 4.0 5.0 10.0 25.0]
@@ -46,7 +46,7 @@ const bool shadowHardwareFiltering = true;
 #define AGX_MIN_EV -14.57393
 #define AGX_MAX_EV 3.026069;
 #define AGX_POWER vec3(1.0)
-#define AGX_OFFSET_COLOR vec3(0.03)
+#define AGX_OFFSET_COLOR vec3(0.0)
 #define TONEMAPPING_TYPE 3 //[0 1 2 3 4]
 
 //shadows
@@ -79,11 +79,12 @@ const bool shadowHardwareFiltering = true;
 //PBR Config
 #define HARDCODED_METAL 0.0 //[0.0 0.1 0.2 0.3 0.4 0.5 0.6 0.7 0.8 0.9 1.0]
 #define HARDCODED_ROUGHNESS 0.6 //[0.0 0.1 0.2 0.3 0.4 0.5 0.6 0.7 0.8 0.9 0.999 1.0]
-#define PBR_ATTENUATION 3
+#define PBR_ATTENUATION 1
 #define DO_RESOURCEPACK_PBR 0 //[0 1]
 #define DO_RESOURCEPACK_EMISSION 0 //[0 1]
 #define EMISSIVE_MULTIPLIER 1.0 //[1.0 1.5 2.0 2.5 3.0]
 #define SPEC_SAMPLES 1
+#define DO_WATER_REFLECTION 1
 
 //Color Grading
 #define BRIGHTNESS 1.0  //[0.0 0.1 0.2 0.3 0.4 0.5 0.6 0.7 0.8 0.9 1.0 1.1 1.2 1.3 1.4 1.5 1.6 1.7 1.8 1.9 2.0]

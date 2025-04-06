@@ -8,6 +8,12 @@ uniform mat4 gbufferProjection;
 #include "/lib/postProcessing.glsl"
 #include "/lib/blockIDs.glsl"
 
+float getDepth(vec2 texcoord)
+{
+    float depth = texture(depthtex0, texcoord).r;
+    return depth;
+}
+
 vec3 viewSpaceToScreenSpace(vec3 viewPosition) {
 	vec3 screenPosition  = vec3(gbufferProjection[0].x, gbufferProjection[1].y, gbufferProjection[2].z) * viewPosition + gbufferProjection[3].xyz;
 	     screenPosition /= -viewPosition.z;
@@ -63,7 +69,7 @@ float GeometrySmith(vec3 N, vec3 V, vec3 L, float roughness)
 vec3 fresnelSchlick(float cosTheta, vec3 F0)
 {
     return F0 + (1.0 - F0) * pow(clamp(1.0 - cosTheta, 0.0, 1.0), 5.0);
-}  
+} 
 
 
 vec3 getShadow(vec3 shadowScreenPos)
