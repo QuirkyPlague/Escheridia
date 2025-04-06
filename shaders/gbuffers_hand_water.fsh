@@ -18,7 +18,7 @@ in float emission;
 
 
 
-/* RENDERTARGETS: 0,1,2,3 */
+/* RENDERTARGETS: 6,1,2,3 */
 layout(location = 0) out vec4 color;
 layout(location = 1) out vec4 lightmapData;
 layout(location = 2) out vec4 encodedNormal;

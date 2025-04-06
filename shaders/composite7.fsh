@@ -3,11 +3,13 @@
 #include "/lib/util.glsl"
 
 in vec2 texcoord;
-/* RENDERTARGETS: 5 */
+/* RENDERTARGETS: 0 */
 layout(location = 0) out vec4 color;
 
 
 void main() {
-vec3 bloom = texture(colortex5, texcoord).rgb;
-//color.rgb = mix(color.rgb, bloom, clamp01(0.01 * BLOOM_STRENGTH * 0.1));
+color = texture(colortex0, texcoord);
+#if DO_BLOOM == 1
+	 color.rgb += texture(colortex5, texcoord).rgb / 3.0;
+   #endif
 }

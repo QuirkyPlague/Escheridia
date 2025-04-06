@@ -1,13 +1,18 @@
 #version 410 compatibility
 
 #include "/lib/uniforms.glsl"
+in vec4 at_tangent;
 out vec2 lmcoord;
+flat out int blockID;
+in vec4 at_midBlock;
+in vec2 mc_midTexCoord;
 
 out vec2 texcoord;
 out vec4 glcolor;
-
+in vec2 mc_Entity;
 out vec3 normal;
-
+out float emission;
+out mat3 tbnMatrix;
 
 void main() {
 	gl_Position = ftransform();
@@ -18,4 +23,7 @@ void main() {
 	normal = gl_NormalMatrix * gl_Normal;
 	normal = mat3(gbufferModelViewInverse) * normal;
 	
+	vec3 tangent = mat3(gbufferModelViewInverse) * normalize(gl_NormalMatrix * at_tangent.xyz);
+	vec3 binormal = normalize(cross(tangent, normal) * at_tangent.w);
+	tbnMatrix = mat3(tangent, binormal, normal);
 }

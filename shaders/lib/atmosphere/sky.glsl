@@ -5,8 +5,8 @@
 #include "/lib/util.glsl"
  bool isNight = worldTime >= 13000 && worldTime < 24000;
 vec3 sunCol = vec3(1.0, 0.3, 0.05);
- vec3 fogColor = vec3(0.6118, 0.9765, 0.9882);
- vec3 skyColor = vec3(0.2118, 0.3686, 1.0);
+vec3 fogColor = vec3(0.8784, 0.9843, 0.9686);
+ vec3 skyColor = vec3(0.1216, 0.2902, 0.9725);
  vec3 nightFogColor = vec3(0.0314, 0.0784, 0.1294);
  vec3 nightskyColor = vec3(0.0039, 0.0078, 0.051);
  vec3 earlyFogColor = vec3(1.0, 0.5765, 0.3137);
@@ -65,21 +65,9 @@ vec3 calcSkyColor(vec3 pos) {
     vec3 currentSkyColor = zenithColor;
     vec3 currentHorizonColor = horizonColor;
 
-    if(rainStrength <= 1.0 && rainStrength > 0.0 && !isNight)
-    {
-        float dryToWet = smoothstep(0.0, 1.0, float(rainStrength));
-        horizonColor = mix(currentHorizonColor, rainFogColor, dryToWet);
-        zenithColor =  mix(currentSkyColor, rainSkyColor, dryToWet);
-    }
-    else if(rainStrength <= 1.0 && rainStrength > 0.0 && isNight)
-    {
-        float dryToWet = smoothstep(0.0, 1.0, float(rainStrength));
-        horizonColor = mix(currentHorizonColor, rainFogColor, dryToWet) / 18;
-        zenithColor =  mix(currentSkyColor, rainSkyColor, dryToWet) / 18;
-    }
 
      float upDot = dot(pos, gbufferModelView[1].xyz); //not much, whats up with you?
-        return mix(zenithColor, horizonColor, fogify(max(upDot, 0.01), 0.03));
+        return mix(zenithColor, horizonColor, fogify(max(upDot, 0.01), 0.01));
     
 }
 vec3 screenToView(vec3 screenPos) {

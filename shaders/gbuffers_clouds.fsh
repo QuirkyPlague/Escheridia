@@ -17,13 +17,15 @@ vec4 earlyCloudColor = vec4(1.0, 0.6, 0.2941, 0.9);
 vec4 nightCloudColor = vec4(0.9451, 0.9451, 0.9451, 0.9);
 vec4 duskCloudColor = vec4(0.9294, 0.3294, 0.0941, 0.9);
 
-/* RENDERTARGETS: 0 */
+/* RENDERTARGETS: 0,1,2 */
 layout(location = 0) out vec4 color;
-
+layout(location = 1) out vec4 lightmapData;
+layout(location = 2) out vec4 encodedNormal;
 
 void main() 
 {
-		if(worldTime >= 0 && worldTime < 1000)
+	
+    if(worldTime >= 0 && worldTime < 1000)
 	  {
       float time = smoothstep(0, 1000, float(worldTime));
       cloudColor = mix(earlyCloudColor, dayCloudColor, time);
@@ -45,8 +47,10 @@ void main()
     }
 	
  
-  color = texture(colortex0, texcoord) * glcolor * cloudColor;
-color.rgb = pow(color.rgb, vec3(2.2));
+lightmapData = vec4(lmcoord, 0.0, 1.0);
+encodedNormal = vec4(normal * 0.5 + 0.5, 1.0);
 
+  	color = texture(colortex0, texcoord) * glcolor * cloudColor;
+color.rgb = pow(color.rgb, vec3(2.2));
 
 }

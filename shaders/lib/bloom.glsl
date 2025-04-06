@@ -3,17 +3,11 @@
 
 #include "/lib/util.glsl"
 
-
-
-
-
-
 vec3 downsampleScreen(sampler2D srcTexture, vec2 texCoord)
 {
-    
-    
-    float x = 1.0 / float(viewWidth * BLOOM_QUALITY);
-    float y = 1.0 / float(viewHeight * BLOOM_QUALITY);
+
+    float x = 1.0 / viewWidth;
+    float y = 1.0/ viewHeight;
 
     // Take 13 samples around current texel:
     // a - b - c

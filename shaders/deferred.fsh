@@ -88,7 +88,7 @@ uniform float near;
 
  
 
-/* RENDERTARGETS: 0,4 */
+/* RENDERTARGETS: 0 */
 layout(location = 0) out vec4 color;
 
 
@@ -109,7 +109,7 @@ void main() {
   float depth = texture(depthtex1, texcoord).r;
   if(depth == 1.0)
 			{
-               
+              
 				 return;
 			}
 
@@ -215,12 +215,12 @@ vec3 waterTint = vec3(0.0039, 0.7686, 1.0);
   }
 
   //convert all lighting values into one value
-	lighting = sunlight + skylight * 2.5  + blocklight  + ambient;
+	lighting = sunlight + skylight  + blocklight  + ambient;
 
 
 
 
   //final lighting calculation
-   //color.rgb *= lighting ;
+  //color.rgb *= lighting ;
 
 }

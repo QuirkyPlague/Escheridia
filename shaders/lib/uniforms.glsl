@@ -41,6 +41,7 @@ uniform vec3 shadowLightPosition;
 uniform mat4 gbufferModelView;
 uniform vec3 cameraPosition;
 uniform vec3 sunPosition;
+uniform vec4 entityColor;
 
 uniform float viewWidth;
 uniform float viewHeight;

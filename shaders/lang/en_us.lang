@@ -8,8 +8,8 @@ option.TONEMAPPING_TYPE = Tonemap operator
 option.FOG_DENSITY = Fog Distance
 option.FOG_DENSITY.comment = How far away the fog renders from you. the larger the number the farther away it will render
 
-option.WATER_FOG_DENSITY = Water Fog Distance
-option.FOG_DENSITY.comment = How far away the the water fog renders from you. the larger the number the farther away it will render
+option.WATER_FOG_DENSITY = Water Fog Density
+option.FOG_DENSITY.comment = How thick the underwater fog is
 
 option.SKY_INTENSITY = Skylight Indirect Contribution
 option.SKY_INTENSITY.comment = How bright the lighting from the sky is. §cNOT RECOMMENDED TO GO ABOVE 5§r

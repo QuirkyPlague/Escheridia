@@ -17,12 +17,11 @@ vec3 blocklightColor = vec3(0.8118, 0.6314, 0.5412);
  vec3 moonlightColor = vec3(0.3843, 0.4667, 1.0);
  vec3 nightSkyColor = vec3(0.0588, 0.0902, 0.451);
  vec3 morningSkyColor = vec3(0.7804, 0.5216, 0.2471);
- vec3 ambientColor = vec3(0.098, 0.098, 0.098);
+ vec3 ambientColor = vec3(0.0353, 0.0353, 0.0353);
  vec3 nightBlockColor = vec3(0.0745, 0.0706, 0.0431);
  vec3 nightAmbientColor = vec3(0.051, 0.051, 0.051);
 vec3 duskSunlightColor = vec3(0.8784, 0.298, 0.2471);
 vec3 duskSkyColor = vec3(0.8353, 0.3725, 0.302);
-
 
 vec3 LightVector = normalize(shadowLightPosition);
 	vec3 worldLightVector = mat3(gbufferModelViewInverse) * LightVector;
@@ -106,33 +105,20 @@ void main() {
   
  
  
- #if DO_RESOURCEPACK_PBR == 1
-
-  float perceptualSmoothness = 1.0 - sqrt(SpecMap.r);
-   #else
-    float perceptualSmoothness = 1.0 - sqrt(HARDCODED_ROUGHNESS);
-    
-  #endif
-
-   if(isWater)
-  {
-    perceptualSmoothness = 1.0 - sqrt(waterRoughness);
-  }
-
-  float roughness = perceptualSmoothness;
+ 
  
   
   //depth calculation
   float depth = texture(depthtex0, texcoord).r;
    float depth1 = texture(depthtex1, texcoord).r;
-  if(depth == 1.0)
+  if(depth1 == 1.0)
 			{
-        color.rgb += applySky(color.rgb) / 2;        
+           color.rgb += applySky(color.rgb) * 0.4;    
 			
 				 return;
 			}
 
-  //Sunlight location
+  
 	
 
   //Space Conversions
@@ -154,10 +140,7 @@ void main() {
  
  float ao = normalMap.b;
 
-  vec3 lightDir = worldLightVector;
-  vec3 viewDir = mat3(gbufferModelViewInverse) * -normalize(projectAndDivide(gbufferProjectionInverse, vec3(texcoord.xy, 0) * 2.0 - 1.0));
-	vec3 halfwayDir = normalize(lightDir + viewDir);
-  
+ 
  float metallic = HARDCODED_METAL;
 
  float metalness = SpecMap.g;
@@ -220,7 +203,7 @@ vec3 waterTint = vec3(0.1804, 1.0, 0.9451);
     sunlight = mix(duskSunlightColor, moonlightColor / 12, time) * clamp(dot(normal, worldLightVector * SUN_ILLUMINANCE), 0.0, 3.0) * shadow;
 	   skylight = mix(duskSkyColor/ 18, nightSkyColor / 14, time) * lightmap.g * SKY_INTENSITY;
 	   blocklight = lightmap.r * blocklightColor * LIGHT_INTENSITY;
-	   ambient = mix(ambientColor, nightAmbientColor /8, time);
+	   ambient = mix(ambientColor, ambientColor, time);
   }
    else if (worldTime >= 13000 && worldTime < 24000)
   {
@@ -228,9 +211,13 @@ vec3 waterTint = vec3(0.1804, 1.0, 0.9451);
     sunlight = mix(moonlightColor /17,morningSunlightColor, time) * clamp(dot(normal, worldLightVector * SUN_ILLUMINANCE), 0.0, 3.0) * shadow;
 	   skylight = mix(nightSkyColor/ 18, morningSkyColor/18, time) * lightmap.g * NIGHT_SKY_INTENSITY;
 	   blocklight = lightmap.r * blocklightColor * LIGHT_INTENSITY;
-	   ambient = mix(nightAmbientColor /8, ambientColor/4 , time);
+	   ambient = mix(ambientColor, ambientColor , time);
   }
-
+  if(lightmap.g <= 0.1)
+  {
+    sunlight = vec3(0.0);
+    skylight = vec3(0.0);
+  }
   //convert all lighting values into one value
 	lighting = sunlight + skylight * 1.5 + blocklight + ambient;
 
@@ -240,53 +227,30 @@ vec3 waterTint = vec3(0.1804, 1.0, 0.9451);
     albedo = albedo / 3;
     float rainRoughness = 0.75;
     lighting = sunlight /9 + skylight /9 + blocklight / 2 + ambient / 9 + albedo;
-    perceptualSmoothness = 1.0 - sqrt(rainRoughness);
-    roughness = perceptualSmoothness;
+    
   }
    else if(rainStrength >= 1.0 && rainStrength < 0.0)
   {
     float wetToDry = smoothstep(1.0, 0.0, float(rainStrength));
     albedo = albedo;
-    float rainRoughness = roughness;
+    
     lighting = sunlight  + skylight  + blocklight  + ambient  + albedo;
-    perceptualSmoothness = 1.0 - sqrt(rainRoughness);
-    roughness = perceptualSmoothness;
+ 
   }
 
 vec3 currentSunlight = sunlight;
 vec3 currentSkylight = skylight;
    
-   if(!inWater)
-	{
-    if(isWater)
-    {
-    sunlight = currentSunlight  * clamp(dot(normal, worldLightVector * SUN_ILLUMINANCE), 0.0, 3.0) * shadow;
-    lighting = sunlight  + blocklight + waterTint;
-    color.rgb *= mix(lighting, waterColor, clamp(waterFactor, 0.0, 1.0));
-    }
-	}
-
-   if(inWater)
-	{
-    if(isWater)
-    {
-  
-    sunlight = currentSunlight  * clamp(dot(normal, worldLightVector * SUN_ILLUMINANCE), 0.0, 3.0) * shadow;
-    skylight = currentSkylight ;
-    lighting = sunlight * 3 + blocklight + ambient + waterTint * 1.5;
-    color.rgb *= lighting;
-    }
-    else{
-      color.rgb *= lighting + waterTint;
-    }
-   
-	}
-
-
-//interpreted from https://learnopengl.com/PBR/Lighting
 vec3 V = normalize(cameraPosition - worldPos);
-
-vec3 F0 = vec3(0.4);
+ vec3 L = normalize(worldLightVector);
+vec3 H = normalize(V + L);
+ vec3 encodedViewNormal = texture(colortex2, texcoord).rgb;
+  vec3 viewNormal = normalize((encodedViewNormal - 0.5) * 2.0); // we normalize to make sure it is of unit length
+  viewNormal = mat3(gbufferModelView) * viewNormal;
+ vec3 viewDir = normalize(viewPos);
+  vec3 reflectedColor = calcSkyColor((reflect(viewDir, viewNormal)));
+vec3 V2 = normalize(-viewDir);
+vec3 F0 = vec3(0.04);
  #if DO_RESOURCEPACK_PBR == 1
   if(SpecMap.g <= 229.0/255.0)
   {
@@ -299,61 +263,39 @@ vec3 F0 = vec3(0.4);
  #else
  F0      = mix(F0, albedo, metallic);
  #endif
+if(SpecMap.r >= 154.0/255.0)  
+{
+  if(SpecMap.g >= 180.0/255.0)
+  {
+     vec3 F  = fresnelSchlick(max(dot(viewNormal, V2),0.0), F0);
+    color.rgb = mix(color.rgb,  lightmap.g * reflectedColor, F);
+  }
+ else
+ {
+    vec3 F  = fresnelSchlick(max(dot(viewNormal, V2),0.0), F0);
+    color.rgb = mix(color.rgb,lightmap.g * 0.4 * reflectedColor, F);
+ }
+ 
+}
 
-// reflectance equation
-vec3 Lo = vec3(0.0);
-    for(int i = 0; i < 1; ++i) 
+
+   if(inWater)
+	{
+    if(isWater)
     {
-       vec3 L = normalize(lightDir);
-       vec3 H = normalize(V + L);
-        // calculate per-light radiance
-        float dist    = length(lightDir);
-        float attenuation = PBR_ATTENUATION / (dist * dist);
-        vec3 radiance    = currentSunlight * attenuation ;  
-        
-        if(isNight)
-        {
-          radiance = currentSunlight * attenuation / 10;
-        }
-
-        vec3 F  = fresnelSchlick(max(dot(H, V),0.0), F0);
-        
-           // cook-torrance brdf
-        float NDF = DistributionGGX(normal, H, roughness);       
-        float G   = GeometrySmith(normal, V, L, roughness); 
-
-        vec3 numerator    = NDF * G * F;
-        float denominator = 4.0 * max(dot(normal, V), 0.0) * max(dot(normal, L), 0.0)  + 0.0001;
-        vec3 spec     = numerator / denominator;  
-        if(isWater)
-        {
-          spec     = numerator / denominator * 32;
-        }
-        vec3 kS = F;
-        vec3 kD = vec3(1.0) - kS;
-        #if DO_RESOURCEPACK_PBR == 1
-        kD *= 1.0 - SpecMap.g;
-        #else
-         kD *= 1.0 - metallic;
-        #endif
-          // add to outgoing radiance Lo
-      float NdotL = max(dot(normal, L), 0.0);        
-      Lo += (kD * albedo / PI + spec) * radiance * NdotL;
-      
+  
+    sunlight = currentSunlight  * clamp(dot(normal, worldLightVector * SUN_ILLUMINANCE), 0.0, 3.0) * shadow;
+    skylight = currentSkylight ;
+    lighting = sunlight * 3 + blocklight + ambient + waterTint * 1.5;
+    
     }
-  vec3 ambient2 = vec3(0.03) * albedo;
-  vec3 speculars =  ambient2 + Lo;
-
-    speculars = speculars / (speculars + vec3(1.0, 1.0, 1.0));
-    speculars = pow(speculars, vec3(1.0/2.2));
+    else if(!isWater){
+    lighting = sunlight + skylight * 1.5 + blocklight + ambient;
+    }
    
-    
-    
-    color += vec4(speculars, 1.0);
+	}
+  
   
    color.rgb *= lighting;
-     
-  
-  
-      
-}
+   
+    }

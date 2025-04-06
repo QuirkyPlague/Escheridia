@@ -31,7 +31,7 @@ layout(location = 5) out vec4 waterMask;
 
 
 void main() {
-	color = texture(gtexture, texcoord) * glcolor * vec4(0.5922, 0.5922, 0.5922, 0.451);
+	color = texture(gtexture, texcoord) * glcolor * 0.2;
 	
 	lightmapData = vec4(lmcoord, 0.0, 1.0);
 	

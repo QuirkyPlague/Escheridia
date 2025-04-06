@@ -1,21 +1,20 @@
 #version 410 compatibility
 
 #include "/lib/util.glsl"
-in vec4 at_tangent;
-out vec2 lmcoord;
-flat out int blockID;
-in vec4 at_midBlock;
-in vec2 mc_midTexCoord;
 
+out vec2 lmcoord;
 out vec2 texcoord;
 out vec4 glcolor;
-in vec2 mc_Entity;
 out vec3 normal;
-out float emission;
-out mat3 tbnMatrix;
+
+
+
 
 void main() {
 	gl_Position = ftransform();
+	texcoord = (gl_TextureMatrix[0] * gl_MultiTexCoord0).xy;
+	lmcoord = (gl_TextureMatrix[1] * gl_MultiTexCoord1).xy;
+	normal = gl_NormalMatrix * gl_Normal; // this gives us the normal in view space
+	normal = mat3(gbufferModelViewInverse) * normal; // this converts the normal to world/player space
 	glcolor = gl_Color;
-
 }

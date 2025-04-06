@@ -9,9 +9,6 @@ layout(location = 0) out vec4 color;
 
 void main() {
 color = texture(colortex0, texcoord);
-	
-	
-	#if DO_BLOOM == 1
-	 //color.rgb += texture(colortex5, texcoord).rgb;
-   #endif
+color.rgb += texture(colortex6, texcoord).rgb;
+
 }

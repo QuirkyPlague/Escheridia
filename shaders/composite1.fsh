@@ -1,18 +1,18 @@
 #version 410 compatibility
 
 #include "/lib/util.glsl"
-
+#include "/lib/atmosphere/sky.glsl"
 uniform float far;
-vec3 dayDistFogColor = vec3(0.6118, 0.9765, 0.9882);
-vec3 earlyDistFogColor = vec3(0.9647, 0.302, 0.1176);
-vec3 duskDistFogColor = vec3(0.9765, 0.1216, 0.0588);
-vec3 nightDistFogColor = vec3(0.051, 0.051, 0.1451);
-vec3 rainFogColor = vec3(0.5373, 0.5373, 0.5373);
+vec3 dayDistFogColor;
+vec3 earlyDistFogColor;
+vec3 duskDistFogColor;
+vec3 nightDistFogColor;
+
 
 
 in vec2 texcoord;
 
-bool isNight = worldTime >= 13000 && worldTime < 24000;
+
 
 /* RENDERTARGETS: 0 */
 layout(location = 0) out vec4 color;
@@ -24,7 +24,7 @@ void main() {
   if(depth == 1.0){
     return;
   }
-
+  vec2 lightmap = texture(colortex1, texcoord).rg;
   #if DO_DISTANCE_FOG == 1
   float farPlane = far * 4;
   
@@ -43,24 +43,24 @@ void main() {
   if(worldTime >= 0 && worldTime < 1000)
 	{
 	 	float time = smoothstep(600, 1000, float(worldTime));
-	 	fogColor = mix(earlyDistFogColor, dayDistFogColor, time);
+	 	fogColor = mix(calcSkyColor(earlyDistFogColor), calcSkyColor(dayDistFogColor), time);
 	}
     else if(worldTime >= 1000 && worldTime < 11500)
      {
         float time = smoothstep(10000, 11500, float(worldTime));
-        fogColor = mix(dayDistFogColor, duskDistFogColor, time);
+        fogColor = mix(calcSkyColor(dayDistFogColor), calcSkyColor(duskDistFogColor), time);
        
     }
     else if(worldTime >= 11500 && worldTime < 13000)
      {
         float time = smoothstep(11900, 13000, float(worldTime));
-        fogColor = mix(duskDistFogColor, nightDistFogColor/2, time);
+        fogColor = mix(calcSkyColor(duskDistFogColor), calcSkyColor(nightDistFogColor), time);
         fogFactor = mix(fogFactor, nightFogFactor, time );
     }
     else if (worldTime >= 13000 && worldTime < 24000)
   {
       float time = smoothstep(23215, 24000, float(worldTime));
-      fogColor = mix(nightDistFogColor/2, earlyDistFogColor, time);
+      fogColor = mix(calcSkyColor(nightDistFogColor), calcSkyColor(earlyDistFogColor), time);
       fogFactor = mix(nightFogFactor, fogFactor, time );
   }
  

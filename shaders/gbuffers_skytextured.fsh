@@ -18,8 +18,6 @@ layout(location = 3) out vec4 godraySample;
 void main() {
 	color = texture(gtexture, texcoord) * glcolor * 2;
 
-	lightmapData = vec4(lmcoord, 0.0, 1.0);
-	encodedNormal = vec4(normal * 0.5 + 0.5, 1.0);
 	if (color.a < alphaTestRef) {
 		discard;
 	}
