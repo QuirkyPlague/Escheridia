@@ -32,7 +32,7 @@ void main() {
   
   float depth = texture(depthtex0, texcoord).r;
   float depth1 = texture(depthtex1, texcoord).r;
-  if(depth1 == 1.0){
+  if(depth == 1.0){
     return;
   }
   vec3 encodedNormal = texture(colortex2, texcoord).rgb;
@@ -93,21 +93,21 @@ vec3 F  = fresnelSchlick(max(dot(normal, V),0.0), F0);
 	}
    if(inWater)
 	{
-    if(!isWater && !isNight)
+    if(!isNight)
     {
     dist = dist0;
     vec3 absorptionFactor = exp(-absorption * WATER_FOG_DENSITY * (dist * 0.25) );
     color.rgb *= absorptionFactor;
-    color.rgb += vec3(0.6471, 0.4784, 0.2824) * inscatteringAmount / absorption * (1.0 - absorptionFactor);
+    color.rgb += vec3(0.1647, 0.1647, 0.1647) * inscatteringAmount / absorption * (1.0 - absorptionFactor);
     }
-    else if(!isWater && isNight)
+    else if( isNight)
     {
     dist = dist0;
     vec3 absorptionFactor = exp(-absorption * WATER_FOG_DENSITY * (dist * 0.25) );
     color.rgb *= absorptionFactor;
     color.rgb += vec3(0.6471, 0.4784, 0.2824) * inscatteringAmount / absorption * (1.0 - absorptionFactor) * 0.4;
     }
-    
+  
 	}
   #endif
 

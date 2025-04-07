@@ -41,7 +41,7 @@ vec3 sampleGodrays(vec3 godraySample, vec2 texcoord)
     //calculation of the sun position
     vec3 lightVector = viewSpaceToScreenSpace(shadowLightPosition);
     vec3 worldLightVector = mat3(gbufferModelViewInverse) * lightVector;
-    worldLightVector.xy = clamp(worldLightVector.xy, vec2(-0.5), vec2(1.0));
+    worldLightVector.xy = clamp(worldLightVector.xy, vec2(-1.5), vec2(1.5));
 	vec2 deltaTexCoord = (texcoord - (lightVector.xy)); 
     float VoL = dot(normalize(feetPlayerPos), worldLightVector);
 

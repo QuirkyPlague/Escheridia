@@ -43,7 +43,7 @@ const bool shadowHardwareFiltering = true;
 #define AGX_SATURATION 1.3
 #define AGX_MIN_EV -14.57393
 #define AGX_MAX_EV 2.526069;
-#define AGX_POWER vec3(1.1)
+#define AGX_POWER vec3(1.3)
 #define AGX_OFFSET_COLOR vec3(0.0)
 #define TONEMAPPING_TYPE 3 //[0 1 2 3 4]
 
