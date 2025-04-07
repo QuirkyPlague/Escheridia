@@ -32,7 +32,7 @@ void main() {
   
   float depth = texture(depthtex0, texcoord).r;
   float depth1 = texture(depthtex1, texcoord).r;
-  if(depth == 1.0){
+  if(depth1 == 1.0){
     return;
   }
   vec3 encodedNormal = texture(colortex2, texcoord).rgb;

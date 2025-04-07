@@ -56,7 +56,7 @@ void main() {
 	}
 
 	encodedNormal = vec4(mappedNormal * 1 + 0.5, 1.0);
-
+	
 	
 	
 	extractedColor = color;

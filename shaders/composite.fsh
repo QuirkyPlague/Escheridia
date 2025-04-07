@@ -27,7 +27,7 @@ vec3 duskSkyColor = vec3(0.8353, 0.3725, 0.302);
 
 vec3 LightVector = normalize(shadowLightPosition);
 	vec3 worldLightVector = mat3(gbufferModelViewInverse) * LightVector;
-
+vec4 waterNormal = texture(colortex15,texcoord);
 
  vec4 SpecMap = texture(colortex3, texcoord);
  vec4 waterMask = texture(colortex8, texcoord);
@@ -120,7 +120,7 @@ void main() {
 				 return;
 			}
 
-  
+ 
 	
 
   //Space Conversions
