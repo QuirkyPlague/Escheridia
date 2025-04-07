@@ -60,7 +60,7 @@ void main() {
     else if (worldTime >= 13000 && worldTime < 24000)
   {
       float time = smoothstep(23215, 24000, float(worldTime));
-      fogColor = mix(calcSkyColor(nightDistFogColor), calcSkyColor(earlyDistFogColor), time);
+      fogColor = mix(calcSkyColor(nightDistFogColor) * 0.6 , calcSkyColor(earlyDistFogColor), time);
       fogFactor = mix(nightFogFactor, fogFactor, time );
   }
  

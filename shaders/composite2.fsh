@@ -96,14 +96,14 @@ vec3 F  = fresnelSchlick(max(dot(normal, V),0.0), F0);
     if(!isWater && !isNight)
     {
     dist = dist0;
-    vec3 absorptionFactor = exp(-absorption * WATER_FOG_DENSITY * (dist * 0.35) );
+    vec3 absorptionFactor = exp(-absorption * WATER_FOG_DENSITY * (dist * 0.25) );
     color.rgb *= absorptionFactor;
     color.rgb += vec3(0.6471, 0.4784, 0.2824) * inscatteringAmount / absorption * (1.0 - absorptionFactor);
     }
     else if(!isWater && isNight)
     {
     dist = dist0;
-    vec3 absorptionFactor = exp(-absorption * WATER_FOG_DENSITY * (dist * 0.35) );
+    vec3 absorptionFactor = exp(-absorption * WATER_FOG_DENSITY * (dist * 0.25) );
     color.rgb *= absorptionFactor;
     color.rgb += vec3(0.6471, 0.4784, 0.2824) * inscatteringAmount / absorption * (1.0 - absorptionFactor) * 0.4;
     }
