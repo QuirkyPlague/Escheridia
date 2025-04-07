@@ -203,7 +203,7 @@ vec3 waterTint = vec3(0.1804, 1.0, 0.9451);
     sunlight = mix(duskSunlightColor, moonlightColor / 12, time) * clamp(dot(normal, worldLightVector * SUN_ILLUMINANCE), 0.0, 3.0) * shadow;
 	   skylight = mix(duskSkyColor/ 18, nightSkyColor / 14, time) * lightmap.g * SKY_INTENSITY;
 	   blocklight = lightmap.r * blocklightColor * LIGHT_INTENSITY;
-	   ambient = mix(ambientColor, ambientColor, time);
+	   ambient = mix(ambientColor, nightAmbientColor /8, time);
   }
    else if (worldTime >= 13000 && worldTime < 24000)
   {
@@ -211,9 +211,9 @@ vec3 waterTint = vec3(0.1804, 1.0, 0.9451);
     sunlight = mix(moonlightColor /17,morningSunlightColor, time) * clamp(dot(normal, worldLightVector * SUN_ILLUMINANCE), 0.0, 3.0) * shadow;
 	   skylight = mix(nightSkyColor/ 18, morningSkyColor/18, time) * lightmap.g * NIGHT_SKY_INTENSITY;
 	   blocklight = lightmap.r * blocklightColor * LIGHT_INTENSITY;
-	   ambient = mix(ambientColor, ambientColor , time);
+	   ambient = mix(nightAmbientColor /8, ambientColor/4 , time);
   }
-  if(lightmap.g <= 0.1)
+  if(lightmap.g <= 0.1 && !inWater)
   {
     sunlight = vec3(0.0);
     skylight = vec3(0.0);
@@ -278,19 +278,15 @@ if(SpecMap.r >= 154.0/255.0)
  
 }
 
-
    if(inWater)
 	{
     if(isWater)
     {
-  
-    sunlight = currentSunlight  * clamp(dot(normal, worldLightVector * SUN_ILLUMINANCE), 0.0, 3.0) * shadow;
-    skylight = currentSkylight ;
-    lighting = sunlight * 3 + blocklight + ambient + waterTint * 1.5;
-    
+    color.rgb *= mix(lighting, waterTint, 1.0);
     }
-    else if(!isWater){
-    lighting = sunlight + skylight * 1.5 + blocklight + ambient;
+    else{
+      lighting = sunlight* 5 + skylight * 1.5 + blocklight + ambient;
+      color.rgb *= lighting;
     }
    
 	}

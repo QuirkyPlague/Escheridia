@@ -60,6 +60,7 @@ void main() {
 
   vec3 absorption = vec3(0.7882, 0.4627, 0.2118);
   vec3 inscatteringAmount = vec3(0.0, 0.0157, 0.0745);
+  vec3 inscatteringAmount2 =vec3(0.0039, 0.0078, 0.0196);
 
   vec3 LightVector = normalize(shadowLightPosition);
 	vec3 worldLightVector = mat3(gbufferModelViewInverse) * LightVector;
@@ -95,17 +96,18 @@ vec3 F  = fresnelSchlick(max(dot(normal, V),0.0), F0);
     if(!isWater && !isNight)
     {
     dist = dist0;
-    vec3 absorptionFactor = exp(-absorption * WATER_FOG_DENSITY * (dist * 0.4) );
+    vec3 absorptionFactor = exp(-absorption * WATER_FOG_DENSITY * (dist * 0.35) );
     color.rgb *= absorptionFactor;
     color.rgb += vec3(0.6471, 0.4784, 0.2824) * inscatteringAmount / absorption * (1.0 - absorptionFactor);
     }
     else if(!isWater && isNight)
     {
     dist = dist0;
-    vec3 absorptionFactor = exp(-absorption * WATER_FOG_DENSITY * (dist * 0.4) );
+    vec3 absorptionFactor = exp(-absorption * WATER_FOG_DENSITY * (dist * 0.35) );
     color.rgb *= absorptionFactor;
     color.rgb += vec3(0.6471, 0.4784, 0.2824) * inscatteringAmount / absorption * (1.0 - absorptionFactor) * 0.4;
     }
+    
 	}
   #endif
 

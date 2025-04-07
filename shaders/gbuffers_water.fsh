@@ -1,7 +1,7 @@
 #version 410 compatibility
 
 #include "/lib/util.glsl"
-
+#include "/lib/water.glsl"
 uniform sampler2D gtexture;
 
 uniform float alphaTestRef = 0.1;
@@ -48,6 +48,7 @@ void main() {
 	if(blockID == WATER_ID)
 	{
 		waterMask = vec4(1.0, 1.0, 1.0, 1.0);
+		
 	}
 	else
 	{

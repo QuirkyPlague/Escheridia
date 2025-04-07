@@ -139,6 +139,7 @@ vec3 H = normalize(V + L);
   vec3 reflectedColor = calcSkyColor((reflect(viewDir, viewNormal)));
 vec3 V2 = normalize(-viewDir);
 vec3 F0 = vec3(0.04);
+ 
  #if DO_RESOURCEPACK_PBR == 1
   if(SpecMap.g <= 229.0/255.0)
   {
@@ -193,7 +194,7 @@ vec3 F0 = vec3(0.04);
 	   blocklight = lightmap.r * blocklightColor * LIGHT_INTENSITY;
 	   ambient = mix(ambientColor, ambientColor , time);
   }
- if(lightmap.g <= 0.1)
+ if(lightmap.g <= 0.1 && !inWater)
   {
     sunlight = vec3(0.0);
     skylight = vec3(0.0);
@@ -201,7 +202,9 @@ vec3 F0 = vec3(0.04);
  vec3 currentSunlight = sunlight;
 vec3 currentSkylight = skylight;
 // reflectance equation
-vec3 Lo = vec3(0.0);
+if(!inWater)
+{
+  vec3 Lo = vec3(0.0);
     for(int i = 0; i < 1; ++i) 
     {
       
@@ -221,10 +224,6 @@ vec3 Lo = vec3(0.0);
         vec3 numerator    = NDF * G * F;
         float denominator = 4.0 * dot(normal, V) * dot(normal, L)  + 0.0001;
         vec3 spec     = numerator / denominator;  
-        if(isWater)
-        {
-          spec     = numerator / denominator;
-        }
         vec3 kS = F;
         vec3 kD = vec3(1.0) - kS;
         #if DO_RESOURCEPACK_PBR == 1
@@ -247,4 +246,6 @@ vec3 Lo = vec3(0.0);
   
    
     }  
+}
+
 }

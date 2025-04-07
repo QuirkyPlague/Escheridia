@@ -75,14 +75,14 @@ vec3 sampleGodrays(vec3 godraySample, vec2 texcoord)
 			vec3 currentGodrayColor = samples;
 			if(isWater)
 				{
-					samples = texture(depthtex1, altCoord).r == 1.0 ? mix(vec3(0.0, 0.4, 1.0), currentGodrayColor, getWaterTint(waterTint)) : vec3(0.0);
+					samples = texture(depthtex1, altCoord).r == 1.0 ? mix(vec3(0.0, 0.4, 1.0), vec3(0.2902, 0.4431, 1.0), getWaterTint(waterTint)) : vec3(0.0);
 				 	exposure = GODRAYS_EXPOSURE;
 				} 
 			if(inWater)
 			{
 					
 					samples = texture(depthtex1, altCoord).r == 1.0 ? mix(vec3(0.2902, 0.4431, 1.0),vec3(0.2902, 0.4431, 1.0) , getWaterTint(waterTint)) : vec3(0.0);
-				 	exposure = GODRAYS_EXPOSURE;
+				 	exposure = GODRAYS_EXPOSURE * 0.6;
 			}
 
 			if(rainStrength <= 1.0 && rainStrength > 0.0 && !isNight)

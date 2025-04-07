@@ -59,6 +59,7 @@ const bool shadowHardwareFiltering = true;
 #define WATER_DENSITY 1.25
 #define WATER_EXTINCTION_MULTIPLIER 1.0
 
+
 //Godrays Config
 #define GODRAYS_ENABLE 0 //[0 1]
 #define GODRAYS_SAMPLES 24 //[6 12 18 24 36 128 256 512 1024 2048 4096]
