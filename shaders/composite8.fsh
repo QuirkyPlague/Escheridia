@@ -138,10 +138,10 @@ vec3 H = normalize(V + L);
  vec3 viewDir = normalize(viewPos);
   vec3 reflectedColor = calcSkyColor((reflect(viewDir, viewNormal)));
 vec3 V2 = normalize(-viewDir);
-vec3 F0 = vec3(0.04);
+vec3 F0 = vec3(0.4);
  
  #if DO_RESOURCEPACK_PBR == 1
-  if(SpecMap.g <= 229.0/255.0)
+  if(SpecMap.g >= 229.0/255.0)
   {
     F0 = vec3(SpecMap.g);
   }
@@ -209,8 +209,8 @@ if(!inWater)
     {
       
         // calculate per-light radiance
-        float dist    = length(worldLightVector);
-        float attenuation = PBR_ATTENUATION / (dist * dist);
+        float dist    = length(L);
+        float attenuation = PBR_ATTENUATION * (dist / dist);
         vec3 radiance    = currentSunlight * attenuation ;  
         
       
@@ -225,7 +225,7 @@ if(!inWater)
         float denominator = 4.0 * dot(normal, V) * dot(normal, L)  + 0.0001;
         vec3 spec     = numerator / denominator;  
         vec3 kS = F;
-        vec3 kD = vec3(1.0) - kS;
+        vec3 kD = vec3(1.0, 1.0, 1.0) - kS;
         #if DO_RESOURCEPACK_PBR == 1
         kD *= 1.0 - SpecMap.g;
         #else
@@ -235,14 +235,14 @@ if(!inWater)
       float NdotL = dot(normal, L);        
       Lo += (kD * albedo / PI + spec) * radiance * NdotL;
     
-    vec3 ambient2 = vec3(0.03) * albedo;
+    vec3 ambient2 = vec3(1.0, 1.0, 1.0) * albedo;
    vec3 speculars =  ambient2 + Lo;
     speculars = speculars / (speculars + vec3(1.0, 1.0, 1.0));
     speculars = pow(speculars, vec3(1.0/2.2));
    
     
     
-    color += vec4(speculars, 1.0);
+    color = vec4(speculars, 1.0);
   
    
     }  

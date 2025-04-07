@@ -79,7 +79,7 @@ vec3 F  = fresnelSchlick(max(dot(normal, V),0.0), F0);
     vec3 absorptionFactor = exp(-absorption * WATER_FOG_DENSITY * (dist * 0.6));
     color.rgb *= absorptionFactor;
     color.rgb += vec3(0.6471, 0.4784, 0.2824) * lightmap.g * inscatteringAmount / absorption * (1.0 - absorptionFactor);
-    color.rgb = mix(color.rgb, lightmap.g * 0.55 * reflectedColor, F) ;
+    color.rgb = mix(color.rgb, lightmap.g * 0.35 * reflectedColor, F) ;
     
     }
     else if(isWater && isNight)

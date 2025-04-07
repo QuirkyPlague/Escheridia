@@ -5,7 +5,7 @@
 const int colortex0Format = RGB16F;
 const int colortex5Format = RGB16F;
 const int colortex1Format = RGB16F;
-const int colortex6Format = RGB16F
+const int colortex6Format = RGB16F;
 const int colortex7Format = RGB16F;
 const int specularFormat = RGB16F;
 const int colortex2Format = RGB16F;
@@ -42,8 +42,8 @@ const bool shadowHardwareFiltering = true;
 
 #define AGX_SATURATION 1.3
 #define AGX_MIN_EV -14.57393
-#define AGX_MAX_EV 3.026069;
-#define AGX_POWER vec3(1.0)
+#define AGX_MAX_EV 2.526069;
+#define AGX_POWER vec3(1.1)
 #define AGX_OFFSET_COLOR vec3(0.0)
 #define TONEMAPPING_TYPE 3 //[0 1 2 3 4]
 
@@ -61,7 +61,7 @@ const bool shadowHardwareFiltering = true;
 
 
 //Godrays Config
-#define GODRAYS_ENABLE 0 //[0 1]
+#define GODRAYS_ENABLE 1 //[0 1]
 #define GODRAYS_SAMPLES 24 //[6 12 18 24 36 128 256 512 1024 2048 4096]
 #define GODRAYS_EXPOSURE 0.4 ////[0.0 0.1 0.2 0.3 0.4 0.5 0.6 0.7 0.8 0.9 1.0]
 
@@ -78,8 +78,8 @@ const bool shadowHardwareFiltering = true;
 //PBR Config
 #define HARDCODED_METAL 0.0 //[0.0 0.1 0.2 0.3 0.4 0.5 0.6 0.7 0.8 0.9 1.0]
 #define HARDCODED_ROUGHNESS 0.6 //[0.0 0.1 0.2 0.3 0.4 0.5 0.6 0.7 0.8 0.9 0.999 1.0]
-#define PBR_ATTENUATION 1.0
-#define DO_RESOURCEPACK_PBR 0 //[0 1]
+#define PBR_ATTENUATION 0.2
+#define DO_RESOURCEPACK_PBR 1 //[0 1]
 #define DO_RESOURCEPACK_EMISSION 0 //[0 1]
 #define EMISSIVE_MULTIPLIER 1.0 //[1.0 1.5 2.0 2.5 3.0]
 #define SPEC_SAMPLES 1

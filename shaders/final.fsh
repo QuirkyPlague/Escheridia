@@ -41,8 +41,8 @@ vec3 aces(vec3 v)
 vec3 reinhard_jodie(vec3 v)
 {
     float l = luminance(v);
-    vec3 tv = v / (0.8 + v);
-    return mix(v / (1.0 + l), tv, tv);
+    vec3 tv = v / (0.65 + v);
+    return mix(v / (0.2 + l), tv, tv);
 }
 
 
@@ -168,7 +168,7 @@ void main() {
     
          color.rgb = aces(color.rgb);
     #elif TONEMAPPING_TYPE == 2
-            color.rgb = reinhard_jodie(pow(color.rgb, exposureCompensation));  
+            color.rgb = reinhard_jodie(color.rgb);  
     #elif TONEMAPPING_TYPE == 3
      color.rgb = agx(color.rgb); 
     #else
