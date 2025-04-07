@@ -9,6 +9,8 @@ in vec2 lmcoord;
 in vec4 glcolor;
 
 
+
+
 //lighting variables
 vec3 blocklightColor = vec3(0.8118, 0.6314, 0.5412);
  vec3 skylightColor = vec3(0.0471, 0.0941, 0.1451);
