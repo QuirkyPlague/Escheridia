@@ -14,7 +14,7 @@ vec4 waterMask = texture(colortex8, texcoord);
 int blockID = int(waterMask) + 100;
   
   bool isWater = blockID == WATER_ID;
-
+ bool inWater = isEyeInWater == 1.0;
 
 /* RENDERTARGETS: 0 */
 layout(location = 0) out vec4 color;
@@ -51,8 +51,9 @@ if(isWater)
   float rainFogFactor = exp(-FOG_DENSITY * (0.75 - dist));
 
   vec3 fogColor = vec3(0);
-
-	//Time of day color changes
+if(!inWater)
+{
+//Time of day color changes
   if(worldTime >= 0 && worldTime < 1000)
 	{
 	 	float time = smoothstep(600, 1000, float(worldTime));
@@ -80,7 +81,7 @@ if(isWater)
   vec3 currentFogColor = fogColor;
 
  
-
+  
   if(rainStrength <= 1.0 && rainStrength > 0.0 && !isNight)
   {
     float dryToWet = smoothstep(0.0, 1.0, float(rainStrength));
@@ -96,5 +97,7 @@ if(isWater)
     color.rgb = mix(color.rgb, fogColor, clamp(fogFactor, 0.0, 1.0));
   }
   color.rgb = mix(color.rgb, fogColor, clamp(fogFactor, 0.0, 9.0));
+}
+	
 #endif
 }

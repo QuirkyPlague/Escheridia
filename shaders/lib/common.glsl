@@ -76,9 +76,9 @@ const bool shadowHardwareFiltering = true;
 #define DO_AMD_SKY_FIX 0 //[0 1]
 
 //PBR Config
-#define HARDCODED_METAL 0.0 //[0.0 0.1 0.2 0.3 0.4 0.5 0.6 0.7 0.8 0.9 1.0]
-#define HARDCODED_ROUGHNESS 0.6 //[0.0 0.1 0.2 0.3 0.4 0.5 0.6 0.7 0.8 0.9 0.999 1.0]
-#define PBR_ATTENUATION 0.2
+#define HARDCODED_METAL 1.0 //[0.0 0.1 0.2 0.3 0.4 0.5 0.6 0.7 0.8 0.9 1.0]
+#define HARDCODED_ROUGHNESS 0.2 //[0.0 0.1 0.2 0.3 0.4 0.5 0.6 0.7 0.8 0.9 0.999 1.0]
+#define PBR_ATTENUATION 1.0
 #define DO_RESOURCEPACK_PBR 1 //[0 1]
 #define DO_RESOURCEPACK_EMISSION 0 //[0 1]
 #define EMISSIVE_MULTIPLIER 1.0 //[1.0 1.5 2.0 2.5 3.0]

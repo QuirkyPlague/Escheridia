@@ -19,11 +19,6 @@ layout(location = 0) out vec4 color;
 layout(location = 1) out vec4 lightmapData;
 layout(location = 2) out vec4 encodedNormal;
 
-
-
-
-
-
 void main() {
 if (renderStage == MC_RENDER_STAGE_STARS) {
         color = glcolor *2 ;

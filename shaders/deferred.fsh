@@ -51,7 +51,6 @@ uniform float near;
   vec3 viewPos = projectAndDivide(gbufferProjectionInverse, NDCPos);
   vec3 feetPlayerPos = (gbufferModelViewInverse * vec4(viewPos, 1.0)).xyz;
   
-  shadowClipPos = findShadowClipPos(feetPlayerPos);
 
   float noise = IGN(floor(gl_FragCoord.xy), frameCounter);
 
@@ -138,16 +137,7 @@ void main() {
   vec3 viewDir = mat3(gbufferModelViewInverse) * -normalize(projectAndDivide(gbufferProjectionInverse, vec3(texcoord.xy, 0) * 2.0 - 1.0));
 	vec3 halfwayDir = normalize(lightDir + viewDir);
   
-float emission = SpecMap.a;
- #if DO_RESOURCEPACK_EMISSION == 1
- 
- if (emission >= 0.0/255.0 && emission < 255.0/255.0)
-	{
-		color += vec4(albedo,1.0) * emission * 15 * EMISSIVE_MULTIPLIER;
-  
-	}
-  
-#endif
+
  
 
 
@@ -215,12 +205,16 @@ vec3 waterTint = vec3(0.0039, 0.7686, 1.0);
   }
 
   //convert all lighting values into one value
-	lighting = sunlight + skylight  + blocklight  + ambient;
+	lighting = sunlight * + skylight  + blocklight  + ambient;
 
 
 
 
   //final lighting calculation
-  //color.rgb *= lighting ;
+  if(isWater)
+  {
+    color.rgb *= lighting ;
+  }
+  
 
 }

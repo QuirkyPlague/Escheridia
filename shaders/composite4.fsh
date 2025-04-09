@@ -2,7 +2,7 @@
 
 #include "/lib/util.glsl"
 
-
+#include "lib/atmosphere/godrays.glsl"
 in vec2 texcoord;
 
 
@@ -11,8 +11,11 @@ layout(location = 0) out vec4 color;
 
 void main() {
 	color = texture(colortex0, texcoord);
-	color.rgb += texture(colortex7, texcoord).rgb;
-	
-
-	
+    
+	#if GODRAYS_ENABLE ==1
+	{
+		color.rgb += texture(colortex7, texcoord).rgb;
+	}
+ #endif
+	 
 }

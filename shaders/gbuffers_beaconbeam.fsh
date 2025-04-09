@@ -28,8 +28,8 @@ color = texture(gtexture, texcoord) * glcolor; // biome tint
 
 if (color.a < 0.1) { // alpha test
   discard; // don't bother writing
+}
 lightmapData = vec4(lmcoord, 0.0, 1.0);
 encodedNormal = vec4(normal * 0.5 + 0.5, 1.0);
-}
 	color.rgb = pow(color.rgb, vec3(2.2));
 }

@@ -53,7 +53,7 @@ void main() {
 	specMap = texture(specular, texcoord);
 	
 	color.rgb = pow(color.rgb, vec3(2.2));
-
+specularLighting *= color;
 	#if DO_RESOURCEPACK_EMISSION == 0
 	
 		color += color * emission * 4.8;
