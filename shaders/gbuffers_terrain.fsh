@@ -17,14 +17,14 @@ in mat3 tbnMatrix;
 in float emission;
 
 
-/* RENDERTARGETS: 0,1,2,3,5,6 */
+/* RENDERTARGETS: 0,1,2,3,5,6,2*/
 layout(location = 0) out vec4 color;
 layout(location = 1) out vec4 lightmapData;
 layout(location = 2) out vec4 encodedNormal;
 layout(location = 3) out vec4 specMap;
 layout(location = 4) out vec4 extractedColor;
 layout(location = 5) out vec4 specularLighting;
-
+layout(location = 6) out vec4 geoNormal;
 
 
 void main() {

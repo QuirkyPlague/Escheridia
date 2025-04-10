@@ -7,8 +7,8 @@
 in vec2 texcoord;
 in vec2 lmcoord;
 in vec4 glcolor;
-
-
+in vec3 normal;
+vec3 geoNormal = texture(colortex2, texcoord).rgb;
 
 
 //lighting variables
@@ -50,7 +50,7 @@ uniform float near;
 #if DO_SOFT_SHADOW == 1
 //soft shadow calculation
   vec3 getSoftShadow(vec4 shadowClipPos){
-  const float range = SHADOW_SOFTNESS / 2; // how far away from the original position we take our samples from
+  const float range = SHADOW_SOFTNESS / 1; // how far away from the original position we take our samples from
   const float increment = range / SHADOW_QUALITY; // distance between each sample
 
   float depth = texture(depthtex0, texcoord).r;
@@ -58,12 +58,10 @@ uniform float near;
   vec3 NDCPos = vec3(texcoord.xy, depth) * 2.0 - 1.0;
   vec3 viewPos = projectAndDivide(gbufferProjectionInverse, NDCPos);
   vec3 feetPlayerPos = (gbufferModelViewInverse * vec4(viewPos, 1.0)).xyz;
-  
+  feetPlayerPos += 0.03 * geoNormal; 
 
-  shadowClipPos = findShadowClipPos(feetPlayerPos);
-        
- 
- 
+  vec4 shadowViewPos = mat4(shadowModelView) * vec4(feetPlayerPos, 1.0);
+  shadowClipPos = mat4(shadowProjection) * shadowViewPos; 
 
   float noise = IGN(floor(gl_FragCoord.xy), frameCounter);
 
@@ -184,7 +182,7 @@ vec3 waterTint = vec3(0.1804, 1.0, 0.9451);
   {
     //smoothstep equation allows interpolation between times of day
     float time = smoothstep(0, 1000, float(worldTime));
-    sunlight = mix(morningSunlightColor, sunlightColor * 1.5, time) * clamp(dot(normal, worldLightVector * SUN_ILLUMINANCE), 0.0, 1.0) * shadow;
+    sunlight = mix(morningSunlightColor, sunlightColor, time) * clamp(dot(normal, worldLightVector * SUN_ILLUMINANCE), 0.0, 1.0) * shadow;
 	  skylight = mix(morningSkyColor * 0.6, skylightColor, time) * lightmap.g * SKY_INTENSITY;
 	  blocklight = lightmap.r * blocklightColor * LIGHT_INTENSITY;
 	  ambient = ambientColor;
@@ -192,7 +190,7 @@ vec3 waterTint = vec3(0.1804, 1.0, 0.9451);
    else if (worldTime >= 1000 && worldTime < 11500)
   {
      float time = smoothstep(10000, 11500, float(worldTime));
-    sunlight = mix(sunlightColor * 1.5, duskSunlightColor, time) * clamp(dot(normal, worldLightVector * SUN_ILLUMINANCE ), 0.0, 1.0)  * shadow;
+    sunlight = mix(sunlightColor, duskSunlightColor, time) * clamp(dot(normal, worldLightVector * SUN_ILLUMINANCE ), 0.0, 1.0)  * shadow;
 	   skylight = mix(skylightColor, duskSkyColor * 0.6, time) * lightmap.g * SKY_INTENSITY;
 	   blocklight = lightmap.r * blocklightColor * LIGHT_INTENSITY;
 	   ambient = ambientColor;
@@ -208,15 +206,19 @@ vec3 waterTint = vec3(0.1804, 1.0, 0.9451);
    else if (worldTime >= 13000 && worldTime < 24000)
   {
     float time = smoothstep(23215, 24000, float(worldTime));
-    sunlight = mix(moonlightColor * 0.4 ,morningSunlightColor, time) * clamp(dot(normal, worldLightVector * SUN_ILLUMINANCE), 0.0, 3.0) * shadow;
-	   skylight = mix(nightSkyColor * 0.02, morningSkyColor * 0.6, time) * lightmap.g * NIGHT_SKY_INTENSITY;
+    sunlight = mix(moonlightColor,morningSunlightColor, time) * clamp(dot(normal, worldLightVector * SUN_ILLUMINANCE), 0.0, 3.0) * shadow;
+	   skylight = mix(nightSkyColor * 0.2, morningSkyColor * 0.6, time) * lightmap.g * NIGHT_SKY_INTENSITY;
 	   blocklight = lightmap.r * blocklightColor * LIGHT_INTENSITY;
 	   ambient = ambientColor;
   }
   
   //convert all lighting values into one value
 	diffuse = sunlight + skylight + blocklight + ambient;
-
+  if(isNight)
+  {
+    vec3 nightLighting = sunlight * 2.4 + skylight + blocklight * 4.4 + ambient;
+    diffuse = nightLighting * 0.08;
+  }
  if(rainStrength <= 1.0 && rainStrength > 0.0)
   {
     float dryToWet = smoothstep(0.0, 1.0, float(rainStrength));
@@ -251,11 +253,11 @@ vec3 F0 = vec3(0.0);
 	{
     if(isWater)
     {
-    color.rgb *= mix(lighting, waterTint, 1.0);
+    color.rgb = diffuse;
     }
     else{
-      lighting = sunlight * 3 + skylight * 3 + blocklight + ambient * 4 * waterTint;
-      color.rgb *= lighting;
+      diffuse = sunlight * 3 + skylight * 3 + blocklight + ambient * 4 * waterTint;
+      color.rgb *= diffuse;
     }
    
 	}
@@ -267,10 +269,8 @@ vec3 F0 = vec3(0.0);
   {
     F0 = color.rgb;
   }
-if(!inWater)
-{
-	
-}
+  
+
   vec3 Lo = vec3(0.0);
     for(int i = 0; i < 1; ++i) 
     {
@@ -281,7 +281,7 @@ if(!inWater)
         vec3 radiance    = currentSunlight * attenuation ;  
         if(isNight)
 		{
-			radiance = radiance * 0.3;
+			radiance = radiance * 0.1;
 		}
       
 
@@ -320,7 +320,7 @@ if(!inWater)
   {
     F0 = vec3(0.02);
     vec3 F  = fresnelSchlick(max(dot(viewNormal, V2),0.0), F0);
-    color.rgb = mix(color.rgb,  lightmap.g * 0.35 * reflectedColor, F);
+    color.rgb = mix(color.rgb,  lightmap.g * 0.25 * reflectedColor, F);
   }
 
 

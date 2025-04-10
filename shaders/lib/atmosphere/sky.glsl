@@ -7,8 +7,8 @@
 vec3 sunCol = vec3(1.0, 0.3, 0.05);
 vec3 fogColor = vec3(0.8784, 0.9843, 0.9686);
  vec3 skyColor = vec3(0.1216, 0.2902, 0.9725);
- vec3 nightFogColor = vec3(0.0314, 0.0784, 0.1294);
- vec3 nightskyColor = vec3(0.0039, 0.0078, 0.051);
+ vec3 nightFogColor = vec3(0.0157, 0.0353, 0.051);
+ vec3 nightskyColor = vec3(0.0, 0.0039, 0.0235);
  vec3 earlyFogColor = vec3(1.0, 0.502, 0.1882);
  vec3 earlySkyColor = vec3(0.3294, 0.898, 1.0);
   vec3 lateFogColor = vec3(1.0, 0.302, 0.1804);

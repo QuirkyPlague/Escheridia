@@ -63,10 +63,12 @@ option.BLOOM_ENABLE = Enable Bloom
 option.BLOOM_ENABLE.comment = Enable or disable the bloom effect. §cNo performance impact!§r
     value.BLOOM_ENABLE.0 = off
     value.BLOOM_ENABLE.1 = on
-option.BLOOM_INTENSITY = Bloom Intensity
+option.BLOOM_INTENSITY = Bloom Exposure
 option.BLOOM_INTENSITY.comment = How strong the bloom effect will be. §cNo performance impact!§r
-option.BLOOM_STRENGTH = Bloom Scatter Amount
-option.BLOOM_STRENGTH.comment = How much the bloom effect is scattered from the center. §cLow Scatter can cause blurry visuals at high intensity settings§r
+option.BLOOM_STRENGTH = Bloom Strength
+option.BLOOM_STRENGTH.comment = Adjust the weighting of the bloom effect §cNo performance impact!§r
+option.BLOOM_RADIUS = Bloom Radius
+option.BLOOM_RADIUS.comment = How large the radius of the bloom effect will be §cNOTE: BLOOM LACKS SMOOTHING, LARGER RADIUS COULD LOOK STRANGE DEPENDING ON THE SITUATION!§r
 
 option.EMISSIVE_MULTIPLIER = Emission Multiplier
 option.EMISSIVE_MULTIPLIER.comment = How much to multiply the strength of emissives by
