@@ -13,15 +13,6 @@ const bool normalsMipmapEnabled = true;
 const bool shadowHardwareFiltering = true;
 */
 
-
-
-
-
-
-
-
-
-
 //lighting
 #define SUN_ILLUMINANCE 1.0 //[1.0 2.0 3.0 4.0 5.0 10.0 26.0 48.0 126.0]
 #define MOON_ILLUMINANCE 0.5 //[0.5 1.0 1.5 2.0 2.5 3.0]
@@ -55,9 +46,6 @@ const bool shadowHardwareFiltering = true;
 
 #define DO_WATER_FOG 1 //[0 1]
 #define DO_DISTANCE_FOG 1 //[0 1]
-
-#define WATER_DENSITY 1.25
-#define WATER_EXTINCTION_MULTIPLIER 1.0
 
 
 //Godrays Config

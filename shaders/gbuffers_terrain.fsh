@@ -56,7 +56,7 @@ void main() {
 specularLighting *= color;
 	#if DO_RESOURCEPACK_EMISSION == 0
 	
-		color += color * emission * 4.8;
+		color += color * emission * 2 * EMISSIVE_MULTIPLIER;
 	
 	#endif
 }
