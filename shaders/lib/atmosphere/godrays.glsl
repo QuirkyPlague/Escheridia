@@ -4,6 +4,7 @@
 #include "/lib/uniforms.glsl"
 #include "/lib/common.glsl"
 #include "/lib/atmosphere/atmosphereColors.glsl"
+#include "/lib/atmosphere/sky.glsl"
 #include "/lib/util.glsl"
 #include "/lib/spaceConversions.glsl"
 
@@ -13,7 +14,7 @@ vec3 sampleGodrays(vec3 godraySample, vec2 texcoord)
     float exposure = GODRAYS_EXPOSURE;
     float decay = 1.0;
     float density = 1.0;
-    float weight = 0.45 * SUN_ILLUMINANCE;
+    float weight = 0.3 * SUN_ILLUMINANCE;
     float wetWeight = 0.65 - weight;
     
     //water masking/night checks
@@ -52,27 +53,7 @@ vec3 sampleGodrays(vec3 godraySample, vec2 texcoord)
 	altCoord -= deltaTexCoord * IGN(gl_FragCoord.xy, frameCounter);
     for(int i = 0; i < GODRAYS_SAMPLES; i++)
 	{
-	    vec3 samples = texture(depthtex0, altCoord).r == 1.0 ? vec3(1.0) * getDayColor(godrayColor) : vec3(0.0);
-        if (worldTime >= 0 && worldTime <  1000) 
-			{
-				float time = smoothstep(500, 1000, float(worldTime));
-				samples = texture(depthtex0, altCoord).r == 1.0 ? mix(getDawnColor(godrayColor), getDayColor(godrayColor), time) : vec3(0.0);
-			}
-            else if (worldTime >= 12350 && worldTime <  23500) 
-			{
-				float time = smoothstep(12350, 13000, float(worldTime));
-				samples = texture(depthtex0, altCoord).r == 1.0 ? vec3(1.0, 1.0, 1.0) * mix(getDawnColor(godrayColor), getNightColor(godrayColor), time) : vec3(0.0);
-				weight = 0.08 * MOON_ILLUMINANCE;
-				decay = 1.0;
-				
-			}
-			else if (worldTime >= 1000 && worldTime <  12350) 
-			{
-				float time = smoothstep(10000, 12350, float(worldTime));
-				samples = texture(depthtex0, altCoord).r == 1.0 ?  mix(getDayColor(godrayColor), getDawnColor(godrayColor), time) : vec3(0.0);
-			}
-
-			
+	    vec3 samples = texture(depthtex0, altCoord).r == 1.0 ? vec3(1.0) * calcSkyColor(godrayColor) : vec3(0.0);
 			vec3 currentGodrayColor = samples;
 			if(isWater)
 				{

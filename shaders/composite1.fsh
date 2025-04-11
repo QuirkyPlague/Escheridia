@@ -107,7 +107,8 @@ void main() {
    float depth1 = texture(depthtex1, texcoord).r;
   if(depth1 == 1.0)
 			{
-				 return;
+				  color.rgb += applySky(color.rgb);
+         return;
 			}
   //Space Conversions
 	vec3 NDCPos = vec3(texcoord.xy, depth) * 2.0 - 1.0;
@@ -255,10 +256,7 @@ vec3 F0 = vec3(0.0);
     {
     color.rgb = diffuse;
     }
-    else{
-      diffuse = sunlight * 3 + skylight * 3 + blocklight + ambient * 4 * waterTint;
-      color.rgb *= diffuse;
-    }
+  
    
 	}
   if(SpecMap.g <= 229.0/255.0)
@@ -320,8 +318,17 @@ vec3 F0 = vec3(0.0);
   {
     F0 = vec3(0.02);
     vec3 F  = fresnelSchlick(max(dot(viewNormal, V2),0.0), F0);
-    color.rgb = mix(color.rgb,  lightmap.g * 0.25 * reflectedColor, F);
+    color.rgb = mix(color.rgb,  lightmap.g * 0.35 * reflectedColor, F);
   }
+
+  //ssr
+  vec3 reflection = vec3(0.0);
+  float maxDistance = 15;
+  float resolution  = 0.3;
+  int   steps       = 10;
+  float thickness   = 0.5;
+
+  
 
 
 }

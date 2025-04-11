@@ -46,38 +46,16 @@ if(isWater)
 
   // Fog calculations
   float dist = length(viewPos) / far;
-  float fogFactor = exp(-FOG_DENSITY * (0.97 - dist));
+  float fogFactor = exp(-FOG_DENSITY * (0.7 - dist));
   float nightFogFactor = exp(-FOG_DENSITY * (0.97 - dist));
   float rainFogFactor = exp(-FOG_DENSITY * (0.75 - dist));
 
-  vec3 fogColor = vec3(0);
+  vec3 fogColor = applySky(dayDistFogColor);
 if(!inWater)
 {
-//Time of day color changes
-  if(worldTime >= 0 && worldTime < 1000)
-	{
-	 	float time = smoothstep(600, 1000, float(worldTime));
-	 	fogColor = mix(calcSkyColor(earlyDistFogColor), calcSkyColor(dayDistFogColor), time);
-	}
-    else if(worldTime >= 1000 && worldTime < 11500)
-     {
-        float time = smoothstep(10000, 11500, float(worldTime));
-        fogColor = mix(calcSkyColor(dayDistFogColor), calcSkyColor(duskDistFogColor), time);
-       
-    }
-    else if(worldTime >= 11500 && worldTime < 13000)
-     {
-        float time = smoothstep(11900, 13000, float(worldTime));
-        fogColor = mix(calcSkyColor(duskDistFogColor), calcSkyColor(nightDistFogColor), time);
-        fogFactor = mix(fogFactor, nightFogFactor, time );
-    }
-    else if (worldTime >= 13000 && worldTime < 24000)
-  {
-      float time = smoothstep(23215, 24000, float(worldTime));
-      fogColor = mix(calcSkyColor(nightDistFogColor) * 4   , calcSkyColor(earlyDistFogColor), time);
-      fogFactor = mix(nightFogFactor, fogFactor, time );
-  }
- 
+  
+	
+
   vec3 currentFogColor = fogColor;
 
  
@@ -86,7 +64,7 @@ if(!inWater)
   {
     float dryToWet = smoothstep(0.0, 1.0, float(rainStrength));
     fogFactor = mix(fogFactor, rainFogFactor, dryToWet);
-    fogColor = mix(currentFogColor, rainFogColor, dryToWet);
+    fogColor = mix(currentFogColor, applySky(rainFogColor), dryToWet);
     color.rgb = mix(color.rgb, fogColor, clamp(fogFactor, 0.0, 1.0));
   }
   else if(rainStrength <= 1.0 && rainStrength > 0.0 && isNight)
@@ -96,7 +74,7 @@ if(!inWater)
     fogColor = mix(currentFogColor, rainFogColor, dryToWet) / 18;
     color.rgb = mix(color.rgb, fogColor, clamp(fogFactor, 0.0, 1.0));
   }
-  color.rgb = mix(color.rgb, fogColor, clamp(fogFactor, 0.0, 9.0));
+  color.rgb = mix(color.rgb, fogColor, clamp(fogFactor, 0.0, 1.0));
 }
 	
 #endif
