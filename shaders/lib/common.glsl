@@ -24,17 +24,17 @@ const bool shadowHardwareFiltering = true;
 #define SUN_ROTATION -30 //[-45 -30 -15 0 15 30 45]
 
 
-#define U2_SHOULDER_STRENGTH 1.7
-#define U2_LINEAR_STRENGTH   0.82
-#define U2_LINEAR_ANGLE      0.3
-#define U2_TOE_STRENGTH      0.3
+#define U2_SHOULDER_STRENGTH 0.6
+#define U2_LINEAR_STRENGTH   0.22
+#define U2_LINEAR_ANGLE      0.7
+#define U2_TOE_STRENGTH      0.9
 #define U2_TOE_NUMERATOR     0.01
-#define U2_TOE_DENOMINATOR  0.4
+#define U2_TOE_DENOMINATOR  0.7
 
 #define AGX_SATURATION 1.3
-#define AGX_MIN_EV -10.57393
-#define AGX_MAX_EV 3.126069;
-#define AGX_POWER vec3(1.7)
+#define AGX_MIN_EV (-14.17393)
+#define AGX_MAX_EV (3.026069)
+#define AGX_POWER vec3(1.15)
 #define AGX_OFFSET_COLOR vec3(0.0)
 #define TONEMAPPING_TYPE 3 //[0 1 2 3 4]
 

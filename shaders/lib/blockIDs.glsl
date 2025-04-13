@@ -3,7 +3,7 @@
 
 #define WATER_ID 101
 
-#define EMITTER 102
+#define SOUL_EMITTER 102
 
 
 

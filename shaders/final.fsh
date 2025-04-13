@@ -6,6 +6,16 @@
 
 uniform float exposure;
 
+float LinearToSrgbBranchingChannel(float lin) {
+    if (lin < 0.00313067)
+        return lin * 12.92;
+    return pow(lin, (1.0 / 2.4)) * 1.055 - 0.055;
+}
+vec3 LinearToSrgb(vec3 lin) {
+    return vec3(LinearToSrgbBranchingChannel(lin.r),
+                  LinearToSrgbBranchingChannel(lin.g),
+                  LinearToSrgbBranchingChannel(lin.b));
+}
 
 vec3 uncharted2Tonemap(vec3 x) {
    float A = U2_SHOULDER_STRENGTH;
@@ -22,27 +32,26 @@ vec3 uncharted2(vec3 y) {
   float exposureBias = 2.0;
   vec3 curr = uncharted2Tonemap(exposureBias * y);
   vec3 whiteScale = 1.0 / uncharted2Tonemap(vec3(W));
-  return curr * whiteScale;
+  return pow(curr * whiteScale, vec3(1.0/2.2));
 }
 
 
 vec3 aces(vec3 v)
 {
-    v *= 0.6;
-     float a = 2.31;
+      float a = 1.28;
     float b = 0.33;
-    float c = 1.85;
-    float d = 0.49;
-    float e = 0.14;
-    return clamp((v*(a*v+b))/(v*(c*v+d)+e), 0.0f, 1.0f);
+    float c = 1.33;
+    float d = 0.99;
+    float e = 0.64;
+    return pow(clamp((v*(a*v+b))/(v*(c*v+d)+e), 0.0f, 1.0f), vec3(1.0/2.2));
 }
 
 
 vec3 reinhard_jodie(vec3 v)
 {
     float l = luminance(v);
-    vec3 tv = v / (0.65 + v);
-    return mix(v / (0.2 + l), tv, tv);
+    vec3 tv = v / (2.1 + v);
+    return pow(mix(v / (0.7 + l), tv, tv), vec3(1.0/2.2));
 }
 
 
@@ -156,9 +165,11 @@ void main() {
 	color = texture(colortex0, texcoord);
     
     vec3 exposureCompensation = vec3 (1.0/2.2);
+    vec4 bloom = texture(colortex5, texcoord);
+   
+   
     
-   
-   
+
     
     #if TONEMAPPING_TYPE == 1
     
@@ -174,8 +185,12 @@ void main() {
     #else
         color.rgb = (pow(color.rgb, exposureCompensation));
     #endif
-   
-   	 
+
+    
+  
+  
+
+
     color.rgb = CSB(color.rgb, brightness, saturation, contrast);
     
 }

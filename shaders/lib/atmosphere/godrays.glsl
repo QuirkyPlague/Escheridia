@@ -25,15 +25,21 @@ vec3 sampleGodrays(vec3 godraySample, vec2 texcoord)
     bool isNight = worldTime >= 13000 && worldTime < 24000;
     
     //space conversions
-    float depth = getDepth(texcoord);
+    float depth = getDepth1(texcoord);
     vec3 ndcPos = getNDC(texcoord, depth);
     vec3 viewPos = getViewPos(ndcPos);
     vec3 feetPlayerPos = getFeetPlayerPos(viewPos);
     vec3 worldPos = getWorldPos(feetPlayerPos);
+ vec3 godrayColor;
+
+	if(depth == 1.0 && !inWater)
+	{
+		discard;
+	}
 
     //blank variables 
     godraySample = vec3(0.0);
-    vec3 godrayColor;
+
     vec3 waterTint;
 
     //alternate texcoord assignment
@@ -53,19 +59,25 @@ vec3 sampleGodrays(vec3 godraySample, vec2 texcoord)
 	altCoord -= deltaTexCoord * IGN(gl_FragCoord.xy, frameCounter);
     for(int i = 0; i < GODRAYS_SAMPLES; i++)
 	{
-	    vec3 samples = texture(depthtex0, altCoord).r == 1.0 ? vec3(1.0) * calcSkyColor(godrayColor) : vec3(0.0);
+	    vec3 samples = texture(depthtex0, altCoord).r == 1.0 ?vec3(1.0) *  calcSkyColor(godrayColor) : vec3(0.0);
 			vec3 currentGodrayColor = samples;
-			if(isWater)
+			if(isWater && !isNight)
 				{
-					samples = texture(depthtex1, altCoord).r == 1.0 ? mix(vec3(0.0, 0.4, 1.0), vec3(0.2902, 0.4431, 1.0), getWaterTint(waterTint)) : vec3(0.0);
+					
+					samples = texture(depthtex1, altCoord).r == 1.0 ? mix(vec3(1.0), calcSkyColor(godrayColor), getWaterTint(waterTint)) : vec3(0.0);
 				 	exposure = GODRAYS_EXPOSURE;
 				} 
+				if(isWater && isNight)
+				{
+					samples = texture(depthtex1, altCoord).r == 1.0 ?vec3(0.0) : vec3(0.0);
+				 	exposure = GODRAYS_EXPOSURE;
+				}
 			#if DO_WATER_FOG == 1
 			if(inWater)
 			{
 					
-					samples = texture(depthtex1, altCoord).r == 1.0 ? mix(vec3(0.2902, 0.4431, 1.0),vec3(0.2902, 0.4431, 1.0) , getWaterTint(waterTint)) : vec3(0.0);
-				 	exposure = GODRAYS_EXPOSURE * 0.6;
+					samples = texture(depthtex1, altCoord).r == 1.0 ? mix(vec3(0.0, 0.2157, 1.0),vec3(0.1059, 0.298, 0.9882) , getWaterTint(waterTint)) : vec3(0.0);
+				 	exposure = GODRAYS_EXPOSURE * 0.4;
 					weight = 0.45 * WATER_FOG_DENSITY;
 			}
 				#endif

@@ -5,7 +5,7 @@ in vec2 texcoord;
 
  float exposure = BLOOM_INTENSITY;
 bool inWater = isEyeInWater == 1.0;
-/* RENDERTARGETS: 5 */
+/* RENDERTARGETS: 0 */
 layout(location = 0) out vec4 color;
 
 
@@ -18,11 +18,11 @@ void main() {
     // tone mapping
     vec3 result = vec3(1.0) - exp(-hdrColor * exposure);
     // also gamma correct while we're at it       
-    result = pow(result, vec3(1.0 / gamma));
+    //result = pow(result, vec3(1.0 / gamma));
    if(inWater)
    {
       exposure = exposure;
    }
-   color = vec4(result, 1.0);
+   //color = vec4(result, 1.0);
    
 }

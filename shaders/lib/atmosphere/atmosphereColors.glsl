@@ -33,7 +33,7 @@ vec3 getRainColor(vec3 color)
 
 vec3 getWaterTint(vec3 color)
 {
-   color = vec3(0.0, 0.1843, 1.0);
+   color = vec3(0.0, 1.0, 0.851);
     return color;
 }
 

@@ -2,6 +2,7 @@
 
 #include "/lib/util.glsl"
 #include "/lib/atmosphere/sky.glsl"
+#include "/lib/spaceConversions.glsl"
 uniform float far;
 vec3 dayDistFogColor;
 vec3 earlyDistFogColor;
@@ -22,21 +23,12 @@ layout(location = 0) out vec4 color;
 void main() {
   color = texture(colortex0, texcoord);
 
-  float depth = texture(depthtex1, texcoord).r;
+ float depth = texture(depthtex0, texcoord).r;
+  float depth1 = texture(depthtex1, texcoord).r;
+ 
  
 
-if(isWater)
-{
-    depth = texture(depthtex0, texcoord).r;
-    if(depth == 0.0){
-    return;
-  }
-}
   
- if(depth == 1.0){
-    return;
-  }
-
   vec2 lightmap = texture(colortex1, texcoord).rg;
   #if DO_DISTANCE_FOG == 1
   float farPlane = far * 4;
@@ -46,20 +38,15 @@ if(isWater)
 
   // Fog calculations
   float dist = length(viewPos) / far;
-  float fogFactor = exp(-FOG_DENSITY * (0.7 - dist));
+  float fogFactor = exp(-FOG_DENSITY * (1.0 - dist));
   float nightFogFactor = exp(-FOG_DENSITY * (0.97 - dist));
   float rainFogFactor = exp(-FOG_DENSITY * (0.75 - dist));
 
   vec3 fogColor = applySky(dayDistFogColor);
 if(!inWater)
 {
-  
-	
-
-  vec3 currentFogColor = fogColor;
-
+ vec3 currentFogColor = fogColor;
  
-  
   if(rainStrength <= 1.0 && rainStrength > 0.0 && !isNight)
   {
     float dryToWet = smoothstep(0.0, 1.0, float(rainStrength));

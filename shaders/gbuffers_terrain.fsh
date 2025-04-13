@@ -52,11 +52,12 @@ void main() {
 	extractedColor = color;
 	specMap = texture(specular, texcoord);
 	
-	color.rgb = pow(color.rgb, vec3(2.2));
+	
 specularLighting *= color;
 	#if DO_RESOURCEPACK_EMISSION == 0
 	
-		color += color * emission * 2 * EMISSIVE_MULTIPLIER;
+		color += color * emission  * EMISSIVE_MULTIPLIER;
 	
 	#endif
+	color.rgb = pow(color.rgb, vec3(2.2));
 }

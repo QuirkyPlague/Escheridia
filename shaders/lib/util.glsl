@@ -13,7 +13,11 @@ float getDepth(vec2 texcoord)
     float depth = texture(depthtex0, texcoord).r;
     return depth;
 }
-
+float getDepth1(vec2 texcoord)
+{
+    float depth = texture(depthtex1, texcoord).r;
+    return depth;
+}
 vec3 viewSpaceToScreenSpace(vec3 viewPosition) {
 	vec3 screenPosition  = vec3(gbufferProjection[0].x, gbufferProjection[1].y, gbufferProjection[2].z) * viewPosition + gbufferProjection[3].xyz;
 	     screenPosition /= -viewPosition.z;

@@ -29,11 +29,7 @@ void main() {
   
   float depth = texture(depthtex0, texcoord).r;
   float depth1 = texture(depthtex1, texcoord).r;
-  if(depth1 == 1.0){
-            
-            
-    return;
-  }
+  
   vec3 encodedNormal = texture(colortex2, texcoord).rgb;
   vec3 normal = normalize((encodedNormal - 0.5) * 2.0); // we normalize to make sure it is of unit length
   normal = mat3(gbufferModelView) * normal;
@@ -63,7 +59,7 @@ vec3 LightVector = normalize(shadowLightPosition);
 	{
     if(isWater && !isNight)
     {
-    vec3 absorptionFactor = exp(-absorption * WATER_FOG_DENSITY * (dist * 0.7));
+    vec3 absorptionFactor = exp(-absorption * WATER_FOG_DENSITY * (dist * 0.9));
     color.rgb *= absorptionFactor;
     color.rgb += vec3(0.6471, 0.4784, 0.2824) * lightmap.g * inscatteringAmount / absorption * (1.0 - absorptionFactor);
     }
@@ -75,24 +71,7 @@ vec3 LightVector = normalize(shadowLightPosition);
    
     }
 	}
-   if(inWater)
-	{
-    if(!isNight)
-    {
-    dist = dist1;
-    vec3 absorptionFactor = exp(-absorption * WATER_FOG_DENSITY * (dist * 0.15) );
-    color.rgb *= absorptionFactor;
-    color.rgb += vec3(0.6471, 0.4784, 0.2824) * inscatteringAmount / absorption * (1.0 - absorptionFactor);
-    }
-    else if( isNight)
-    {
-    dist = dist0;
-    vec3 absorptionFactor = exp(-absorption * WATER_FOG_DENSITY * (dist * 0.35) );
-    color.rgb *= absorptionFactor;
-    color.rgb += vec3(0.0392, 0.0588, 0.2039) * inscatteringAmount2 / absorption * (1.0 - absorptionFactor) * 0.01;
-    }
   
-	}
   #endif
  vec3 F0 = vec3(0.02);
   vec3 L = normalize(worldLightVector);
