@@ -23,6 +23,13 @@ const bool shadowHardwareFiltering = true;
 #define NIGHT_SKY_INTENSITY 1.0 //[1.0 2.0 3.0 4.0 5.0 10.0 25.0]
 #define SUN_ROTATION -30 //[-45 -30 -15 0 15 30 45]
 
+//sun/moon
+#define SUN_R 1.0 //[0.0 0.05 0.1 0.15 0.2 0.25 0.3 0.35 0.4 0.45 0.5 0.55 0.6 0.65 0.7 0.75 0.8 0.85 0.9 0.95 1.0]
+#define SUN_G 1.0 //[0.0 0.05 0.1 0.15 0.2 0.25 0.3 0.35 0.4 0.45 0.5 0.55 0.6 0.65 0.7 0.75 0.8 0.85 0.9 0.95 1.0]
+#define SUN_B 1.0 //[0.0 0.05 0.1 0.15 0.2 0.25 0.3 0.35 0.4 0.45 0.5 0.55 0.6 0.65 0.7 0.75 0.8 0.85 0.9 0.95 1.0]
+#define MOON_R 1.0 //[0.0 0.05 0.1 0.15 0.2 0.25 0.3 0.35 0.4 0.45 0.5 0.55 0.6 0.65 0.7 0.75 0.8 0.85 0.9 0.95 1.0]
+#define MOON_G 1.0 //[0.0 0.05 0.1 0.15 0.2 0.25 0.3 0.35 0.4 0.45 0.5 0.55 0.6 0.65 0.7 0.75 0.8 0.85 0.9 0.95 1.0]
+#define MOON_B 1.0 //[0.0 0.05 0.1 0.15 0.2 0.25 0.3 0.35 0.4 0.45 0.5 0.55 0.6 0.65 0.7 0.75 0.8 0.85 0.9 0.95 1.0]
 
 #define U2_SHOULDER_STRENGTH 0.6
 #define U2_LINEAR_STRENGTH   0.22
@@ -31,10 +38,10 @@ const bool shadowHardwareFiltering = true;
 #define U2_TOE_NUMERATOR     0.01
 #define U2_TOE_DENOMINATOR  0.7
 
-#define AGX_SATURATION 1.3
-#define AGX_MIN_EV (-14.17393)
+#define AGX_SATURATION 1.0
+#define AGX_MIN_EV (-13.17393)
 #define AGX_MAX_EV (3.026069)
-#define AGX_POWER vec3(1.15)
+#define AGX_POWER vec3(1.0)
 #define AGX_OFFSET_COLOR vec3(0.0)
 #define TONEMAPPING_TYPE 3 //[0 1 2 3 4]
 
@@ -51,15 +58,19 @@ const bool shadowHardwareFiltering = true;
 //Godrays Config
 #define GODRAYS_ENABLE 1 //[0 1]
 #define GODRAYS_SAMPLES 24 //[6 12 18 24 36 128 256 512 1024 2048 4096]
-#define GODRAYS_EXPOSURE 0.4 ////[0.0 0.1 0.2 0.3 0.4 0.5 0.6 0.7 0.8 0.9 1.0]
+#define GODRAYS_EXPOSURE 0.4 //[0.0 0.1 0.2 0.3 0.4 0.5 0.6 0.7 0.8 0.9 1.0]
+#define GODRAY_ASYMMETRY 0.75 //[0.0 0.05 0.1 0.15 0.2 0.25 0.3 0.35 0.4 0.45 0.5 0.55 0.6 0.65 0.7 0.75 0.8 0.85 0.9 0.95 1.0]
+#define GODRAY_R 1.0 //[0.0 0.05 0.1 0.15 0.2 0.25 0.3 0.35 0.4 0.45 0.5 0.55 0.6 0.65 0.7 0.75 0.8 0.85 0.9 0.95 1.0]
+#define GODRAY_G 1.0 //[0.0 0.05 0.1 0.15 0.2 0.25 0.3 0.35 0.4 0.45 0.5 0.55 0.6 0.65 0.7 0.75 0.8 0.85 0.9 0.95 1.0]
+#define GODRAY_B 1.0 //[0.0 0.05 0.1 0.15 0.2 0.25 0.3 0.35 0.4 0.45 0.5 0.55 0.6 0.65 0.7 0.75 0.8 0.85 0.9 0.95 1.0]
 
 //Bloom Config
 #define DO_BLOOM 1 //[0 1]
-#define BLOOM_STRENGTH 1.7  //[0.1 0.2 0.3 0.4 0.5 0.6 0.7 0.8 0.9 1.0 1.1 1.2 1.3 1.4 1.5 1.6 1.7 1.8 1.9 2.0 2.1 2.2 2.3 2.4 2.5 2.6 2.7 2.8 2.9 3.0]
-#define BLOOM_THRESHOLD 1.7
+#define BLOOM_STRENGTH 0.7  //[0.1 0.2 0.3 0.4 0.5 0.6 0.7 0.8 0.9 1.0 1.1 1.2 1.3 1.4 1.5 1.6 1.7 1.8 1.9 2.0 2.1 2.2 2.3 2.4 2.5 2.6 2.7 2.8 2.9 3.0]
+#define BLOOM_THRESHOLD 1.0
 #define BLOOM_INTENSITY 1.0//[0.1 0.2 0.3 0.4 0.5 0.6 0.7 0.8 0.9 1.0 1.1 1.2 1.3 1.4 1.5 1.6 1.7 1.8 1.9 2.0]
 #define BLOOM_QUALITY 1.0
-#define BLOOM_RADIUS 2.4 //[0.1 0.2 0.3 0.4 0.5 0.6 0.7 0.8 0.9 1.0 1.1 1.2 1.3 1.4 1.5 1.6 1.7 1.8 1.9 2.0 2.1 2.2 2.3 2.4 2.5 2.6 2.7 2.8 2.9 3.0 3.1 3.2 3.3 3.4 3.5 3.6 3.7 3.8 3.9 4.0]
+#define BLOOM_RADIUS 1.0 //[0.1 0.2 0.3 0.4 0.5 0.6 0.7 0.8 0.9 1.0 1.1 1.2 1.3 1.4 1.5 1.6 1.7 1.8 1.9 2.0 2.1 2.2 2.3 2.4 2.5 2.6 2.7 2.8 2.9 3.0 3.1 3.2 3.3 3.4 3.5 3.6 3.7 3.8 3.9 4.0]
 #define DO_AMD_SKY_FIX 0 //[0 1]
 
 //PBR Config

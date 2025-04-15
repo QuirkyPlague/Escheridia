@@ -37,4 +37,27 @@ vec3 getWaterTint(vec3 color)
     return color;
 }
 
+vec3 godrayRGB(vec3 color)
+{
+    color.r = GODRAY_R;
+    color.b = GODRAY_B;
+    color.g = GODRAY_G;
+    return color;
+}
+
+vec3 sunRGB(vec3 color)
+{
+    color.r = SUN_R;
+    color.b = SUN_B;
+    color.g = SUN_G;
+    return color;
+}
+
+vec3 moonRGB(vec3 color)
+{
+    color.r = MOON_R;
+    color.b = MOON_B;
+    color.g = MOON_G;
+    return color;
+}
 #endif

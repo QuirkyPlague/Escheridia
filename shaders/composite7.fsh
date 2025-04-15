@@ -1,4 +1,4 @@
-#version 410 compatibility
+#version 330 compatibility
 
 #include "/lib/util.glsl"
 
@@ -10,7 +10,7 @@ in vec2 texcoord;
   int blockID = int(waterMask) + 100;
   
   bool isWater = blockID == WATER_ID;
-
+ bool inWater = isEyeInWater == 1.0;
 /* RENDERTARGETS: 5 */
 layout(location = 0) out vec4 color;
 
@@ -18,13 +18,13 @@ layout(location = 0) out vec4 color;
 void main() {
 	  #if DO_BLOOM == 1
      vec2 tex_offset;
-     if(!isWater)
+     if(!inWater)
      {
           tex_offset =  BLOOM_RADIUS  / textureSize(colortex5, 0); // gets size of single texel
      }
      else
      {
-        tex_offset =  1.0  / textureSize(colortex5, 0); // gets size of single texel
+        tex_offset =  1.5 / textureSize(colortex5, 0); // gets size of single texel
      }
     
     vec3 result = texture(colortex5, texcoord).rgb * weight[0]; // current fragment's contribution

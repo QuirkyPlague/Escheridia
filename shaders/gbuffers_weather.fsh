@@ -1,4 +1,4 @@
-#version 410 compatibility
+#version 330 compatibility
 
 
 uniform sampler2D gtexture;
@@ -13,7 +13,7 @@ in vec3 normal;
 
 
 
-/* RENDERTARGETS: 9,1,2 */
+/* RENDERTARGETS: 0,1,2 */
 layout(location = 0) out vec4 color;
 layout(location = 1) out vec4 lightmapData;
 layout(location = 2) out vec4 encodedNormal;

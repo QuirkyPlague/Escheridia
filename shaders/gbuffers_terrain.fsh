@@ -1,4 +1,4 @@
-#version 410 compatibility
+#version 330 compatibility
 
 #include "/lib/util.glsl"
 
@@ -42,7 +42,7 @@ void main() {
 
 	vec3 normalMaps = texture(normals, texcoord).rgb;
 	normalMaps = normalMaps * 2 - 1;
-	normalMaps.z = sqrt(1 - dot(normalMaps.xy, normalMaps.xy));
+	normalMaps.z = sqrt(1.0 - dot(normalMaps.xy, normalMaps.xy));
 	vec3 mappedNormal = tbnMatrix * normalMaps;
 	
 	

@@ -1,4 +1,4 @@
-#version 410 compatibility
+#version 330 compatibility
 
 #include "/lib/util.glsl"
 #include "/lib/spaceConversions.glsl"
@@ -60,7 +60,7 @@ vec3 LightVector = normalize(shadowLightPosition);
     if(!isNight)
     {
     dist = dist0;
-    vec3 absorptionFactor = exp(-absorption * WATER_FOG_DENSITY * (dist * 0.45) );
+    vec3 absorptionFactor = exp(-absorption * WATER_FOG_DENSITY * (dist * 0.25) );
     color.rgb *= absorptionFactor;
     color.rgb += vec3(0.6471, 0.4784, 0.2824) * inscatteringAmount / absorption * (1.0 - absorptionFactor);
     }
@@ -79,7 +79,7 @@ vec3 LightVector = normalize(shadowLightPosition);
   vec3 H = normalize(V + L);
 
 
- if(isWater && !inWater)
+ if(!isWater && inWater)
  {
   #if DO_WATER_FOG == 0 
   color *= vec4(0.149, 0.3373, 0.7098, 1.0);

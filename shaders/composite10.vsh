@@ -1,4 +1,4 @@
-#version 410 compatibility
+#version 330 compatibility
 
 out vec2 texcoord;
 

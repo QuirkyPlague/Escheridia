@@ -1,4 +1,4 @@
-#version 410 compatibility
+#version 330 compatibility
 
 #include "/lib/util.glsl"
 #include "/lib/atmosphere/sky.glsl"
@@ -25,7 +25,10 @@ void main() {
 
  float depth = texture(depthtex0, texcoord).r;
   float depth1 = texture(depthtex1, texcoord).r;
- 
+ if(isNight && depth1 ==1.0 && !isWater)
+ {
+    return;
+ }
  
 
   
@@ -38,15 +41,19 @@ void main() {
 
   // Fog calculations
   float dist = length(viewPos) / far;
-  float fogFactor = exp(-FOG_DENSITY * (1.0 - dist));
-  float nightFogFactor = exp(-FOG_DENSITY * (0.97 - dist));
+  float fogFactor = exp(-FOG_DENSITY * (1.1 - dist));
+  float nightFogFactor = exp(-FOG_DENSITY * (0.67 - dist));
   float rainFogFactor = exp(-FOG_DENSITY * (0.75 - dist));
 
   vec3 fogColor = applySky(dayDistFogColor);
 if(!inWater)
 {
  vec3 currentFogColor = fogColor;
- 
+  if(isNight)
+  {
+    fogFactor = nightFogFactor;
+  }
+
   if(rainStrength <= 1.0 && rainStrength > 0.0 && !isNight)
   {
     float dryToWet = smoothstep(0.0, 1.0, float(rainStrength));

@@ -1,8 +1,10 @@
-#version 410 compatibility
+#version 330 compatibility
 
 #include "/lib/util.glsl"
 #include "/lib/spaceConversions.glsl"
 #include "/lib/atmosphere/sky.glsl"
+#include "/lib/atmosphere/atmosphereColors.glsl"
+
 //vertex variables
 in vec2 texcoord;
 in vec2 lmcoord;
@@ -14,7 +16,7 @@ vec3 geoNormal = texture(colortex2, texcoord).rgb;
 //lighting variables
 vec3 blocklightColor = vec3(1.0, 0.6275, 0.451);
  vec3 skylightColor = vec3(0.0471, 0.0941, 0.1451);
- vec3 sunlightColor = vec3(1.0, 0.749, 0.4627);
+ vec3 sunlightColor= vec3(1.0, 0.749, 0.4627);
  vec3 morningSunlightColor = vec3(0.9216, 0.4353, 0.2588);
  vec3 moonlightColor = vec3(0.102, 0.1569, 0.5098);
  vec3 nightSkyColor = vec3(0.0902, 0.1373, 0.6314);
@@ -27,7 +29,13 @@ vec3 duskSkyColor = vec3(0.8353, 0.3725, 0.302);
 vec3 soulBlockLight = vec3(0.1647, 0.6, 0.7882);
 vec3 LightVector = normalize(shadowLightPosition);
 	vec3 worldLightVector = mat3(gbufferModelViewInverse) * LightVector;
+
+
+
+
+
 vec4 waterNormal = texture(colortex15,texcoord);
+
 
  vec4 SpecMap = texture(colortex3, texcoord);
  vec4 waterMask = texture(colortex8, texcoord);
@@ -38,7 +46,8 @@ vec4 normalMap = texture(colortex2, texcoord);
   bool isWater = blockID == WATER_ID;
 
   bool inWater = isEyeInWater == 1.0;
-
+  
+  
 //utilities
 vec3 lighting;
 vec3 sunluminance = vec3(0.2125, 0.7154, 0.0721);
@@ -60,7 +69,7 @@ uniform float near;
   vec3 NDCPos = vec3(texcoord.xy, depth) * 2.0 - 1.0;
   vec3 viewPos = projectAndDivide(gbufferProjectionInverse, NDCPos);
   vec3 feetPlayerPos = (gbufferModelViewInverse * vec4(viewPos, 1.0)).xyz;
-  feetPlayerPos += 0.09 * geoNormal; 
+  feetPlayerPos += 0.3 * geoNormal; 
 
   vec4 shadowViewPos = mat4(shadowModelView) * vec4(feetPlayerPos, 1.0);
   shadowClipPos = mat4(shadowProjection) * shadowViewPos; 
@@ -80,7 +89,7 @@ uniform float near;
     for (float y = -range; y <= range; y+= increment){
       vec2 offset = rotation * vec2(x, y) / shadowMapResolution; // offset in the rotated direction by the specified amount. We divide by the resolution so our offset is in terms of pixels
       vec4 offsetShadowClipPos = shadowClipPos + vec4(offset, 0.0, 0.0); // add offset
-      offsetShadowClipPos.z -= 0.0015; // apply bias 
+      offsetShadowClipPos.z -= 0.0011; // apply bias 
       offsetShadowClipPos.xyz = distortShadowClipPos(offsetShadowClipPos.xyz); // apply distortion
       vec3 shadowNDCPos = offsetShadowClipPos.xyz / offsetShadowClipPos.w; // convert to NDC space
       vec3 shadowScreenPos = shadowNDCPos * 0.5 + 0.5; // convert to screen space
@@ -104,6 +113,10 @@ layout(location = 0) out vec4 color;
 void main() {
   color = texture(colortex0, texcoord);
 
+  sunlightColor = sunlightColor * sunRGB(sunlightColor);
+  morningSunlightColor = morningSunlightColor * sunRGB(morningSunlightColor);
+  duskSunlightColor = duskSunlightColor * sunRGB(duskSunlightColor);
+  moonlightColor = moonlightColor * moonRGB(moonlightColor);
   //depth calculation
   float depth = texture(depthtex0, texcoord).r;
    float depth1 = texture(depthtex1, texcoord).r;
@@ -159,9 +172,12 @@ float emission = SpecMap.a;
   #if DO_SOFT_SHADOW == 1
     vec3 shadow = getSoftShadow(shadowClipPos);
   #else
-   shadowClipPos = shadowProjection * vec4(shadowViewPos, 1.0);
+  feetPlayerPos += 0.01 * geoNormal; 
 
-  shadowClipPos.z -=  0.001; // bias
+  vec4 shadowViewPos2 = mat4(shadowModelView) * vec4(feetPlayerPos, 1.0);
+  shadowClipPos = mat4(shadowProjection) * shadowViewPos2; 
+
+  shadowClipPos.z -=  0.0001; // bias
   shadowClipPos.xyz = distortShadowClipPos(shadowClipPos.xyz); // distortion
    shadowNDCPos = shadowClipPos.xyz / shadowClipPos.w;
   vec3 shadowScreenPos = shadowNDCPos * 0.5 + 0.5;
@@ -179,8 +195,8 @@ vec3 waterTint = vec3(0.1804, 1.0, 0.9451);
      vec3 sunlight;
     
 	   vec3 skylight;
-	   vec3 blocklight;
-	   vec3 ambient;
+	   vec3 blocklight = lightmap.r * blocklightColor * LIGHT_INTENSITY;
+	  vec3 ambient = ambientColor;
 
 if (worldTime >= 0 && worldTime < 1000)
   {
@@ -188,43 +204,38 @@ if (worldTime >= 0 && worldTime < 1000)
     float time = smoothstep(0, 1000, float(worldTime));
     sunlight = mix(morningSunlightColor * 0.4, sunlightColor, time) * clamp(dot(normal, worldLightVector * SUN_ILLUMINANCE), 0.0, 1.0) * shadow;
 	  skylight = mix(morningSkyColor * 0.01, skylightColor, time) * lightmap.g * SKY_INTENSITY;
-	  blocklight = lightmap.r * blocklightColor * LIGHT_INTENSITY;
-	  ambient = ambientColor;
   }
    else if (worldTime >= 1000 && worldTime < 11500)
   {
      float time = smoothstep(10000, 11500, float(worldTime));
-    sunlight = mix(sunlightColor, duskSunlightColor, time) * clamp(dot(normal, worldLightVector * SUN_ILLUMINANCE ), 0.0, 1.0)  * shadow;
+    sunlight = mix(sunlightColor * 2.3, duskSunlightColor, time) * clamp(dot(normal, worldLightVector * SUN_ILLUMINANCE ), 0.0, 1.0)  * shadow;
 	   skylight = mix(skylightColor, duskSkyColor * 0.6, time) * lightmap.g * SKY_INTENSITY;
-	   blocklight = lightmap.r * blocklightColor * LIGHT_INTENSITY;
-	   ambient = ambientColor;
+	  
   }
   else if (worldTime >= 11500 && worldTime < 13000)
   {
      float time = smoothstep(11500, 13000, float(worldTime));
-    sunlight = mix(duskSunlightColor, moonlightColor * 0.4 , time) * clamp(dot(normal, worldLightVector * SUN_ILLUMINANCE), 0.0, 3.0) * shadow;
+    sunlight = mix(duskSunlightColor, moonlightColor, time) * clamp(dot(normal, worldLightVector * SUN_ILLUMINANCE), 0.0, 3.0) * shadow;
 	   skylight = mix(duskSkyColor * 0.6, nightSkyColor * 0.2, time) * lightmap.g * SKY_INTENSITY;
-	   blocklight = lightmap.r * blocklightColor * LIGHT_INTENSITY;
-	   ambient = ambientColor;
+	  
   }
    else if (worldTime >= 13000 && worldTime < 24000)
   {
     float time = smoothstep(23215, 24000, float(worldTime));
-    sunlight = mix(moonlightColor,morningSunlightColor, time) * clamp(dot(normal, worldLightVector * SUN_ILLUMINANCE), 0.0, 3.0) * shadow;
-	   skylight = mix(nightSkyColor * 0.2, morningSkyColor * 0.6, time) * lightmap.g * NIGHT_SKY_INTENSITY;
-	   blocklight = lightmap.r * blocklightColor * LIGHT_INTENSITY;
-	   ambient = ambientColor;
+    sunlight = mix(moonlightColor, morningSunlightColor, time) * clamp(dot(normal, worldLightVector * MOON_ILLUMINANCE), 0.0, 3.0) * shadow;
+	   skylight = mix(nightSkyColor * 0.6, morningSkyColor * 0.6, time) * lightmap.g * NIGHT_SKY_INTENSITY;
+	  
   }
  
  
 
 
   //convert all lighting values into one value
-	diffuse = sunlight + skylight + blocklight + ambient;
+	diffuse = sunlight + skylight + blocklight + ambient * ao;
   if(isNight)
   {
-    vec3 nightLighting = sunlight * 2.4 + skylight + blocklight * 4.4 + ambient;
-    diffuse = nightLighting * 0.08;
+    vec3 nightLighting = sunlight * 4.8 + skylight + blocklight + ambient;
+    diffuse = nightLighting * 0.34;
   }
  if(rainStrength <= 1.0 && rainStrength > 0.0)
   {
@@ -255,7 +266,7 @@ vec3 H = normalize(V + L);
  vec3 viewDir = normalize(viewPos);
   vec3 reflectedColor = calcSkyColor((reflect(viewDir, viewNormal)));
 vec3 V2 = normalize(-viewDir);
-vec3 F0 = vec3(0.0);
+vec3 F0;
    if(inWater)
 	{
     if(isWater)
@@ -326,6 +337,22 @@ vec3 F0 = vec3(0.0);
     vec3 F  = fresnelSchlick(max(dot(viewNormal, V2),0.0), F0);
     color.rgb = mix(color.rgb,  lightmap.g * 0.26 * reflectedColor, F);
   }
+  else if(isWater && !inWater && isSunrise)
+  {
+    F0 = vec3(0.02);
+    vec3 F  = fresnelSchlick(max(dot(viewNormal, V2),0.0), F0);
+    color.rgb = mix(color.rgb,  lightmap.g * 0.26 * reflectedColor, F);
+  }
+  if(!inWater && !isWater)
+  {
+    if(SpecMap.r >= 145.0/255.0)
+  {
+    
+    vec3 F  = fresnelSchlick(max(dot(viewNormal, V2),0.0), F0);
+    color.rgb = mix(color.rgb,  lightmap.g * 0.26 * reflectedColor, F);
+  }
+  }
+  
 
   //ssr
   vec3 reflection = vec3(0.0);

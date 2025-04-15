@@ -39,12 +39,12 @@ option.GODRAYS_ENABLE = Enable Godrays
 option.GODRAYS_ENABLE.comment = Enables screenspace godrays effect §cThis is not volumetric and will have errors when the sun is not on screen§r
     value.GODRAYS_ENABLE.0  = off
     value.GODRAYS_ENABLE.1  = on
-
 option.GODRAYS_SAMPLES = Godray sample count
 option.GODRAYS_SAMPLES.comment = Increase the quality of godrays. §cPotentially major performance impact§r
-
 option.GODRAYS_EXPOSURE = Godray brightness
 option.GODRAYS_EXPOSURE.comment = How bright the godrays will be
+option.GODRAY_ASYMMETRY = Godray symmetry
+option.GODRAY_ASYMMETRY.comment = How condensed the godrays are to the sun §cHigher values = brighter near the sun§g
 
 option.DO_DISTANCE_FOG = Enable distance fog
 option.DO_DISTANCE_FOG.comment = Enable or disable the distance fog effect. §cNo performance impact!§r

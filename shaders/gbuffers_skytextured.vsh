@@ -1,4 +1,4 @@
-#version 410 compatibility
+#version 330 compatibility
 
 #include "/lib/uniforms.glsl"
 in vec4 at_tangent;

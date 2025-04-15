@@ -1,4 +1,4 @@
-#version 410 compatibility
+#version 330 compatibility
 
 #include "/lib/util.glsl"
 
@@ -13,7 +13,7 @@ void main() {
 	color = texture(colortex0, texcoord);
     
   #if GODRAYS_ENABLE ==1
-	color.rgb += sampleGodrays(color.rgb, texcoord);
+	color.rgb = sampleGodrays(color.rgb, texcoord);
 	#endif
 	 
 }

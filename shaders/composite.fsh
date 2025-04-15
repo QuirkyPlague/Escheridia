@@ -1,4 +1,4 @@
-#version 410 compatibility
+#version 330 compatibility
 
 #include "/lib/util.glsl"
 #include "/lib/spaceConversions.glsl"
@@ -44,7 +44,7 @@ void main() {
 vec3 LightVector = normalize(shadowLightPosition);
 	vec3 worldLightVector = mat3(gbufferModelViewInverse) * LightVector;
   vec3 V = normalize((-viewDir));
- vec3 absorption = vec3(0.8745, 0.5765, 0.349);
+ vec3 absorption = vec3(0.898, 0.5294, 0.2431);
   #if DO_WATER_FOG == 1
   // Fog calculations
   //float dist = length(viewPos) / far;
@@ -52,14 +52,14 @@ vec3 LightVector = normalize(shadowLightPosition);
   float dist1 = length(screenToView(texcoord, depth1));
   float dist = max(0, dist1 - dist0);
 
-  vec3 inscatteringAmount = vec3(0.0118, 0.0275, 0.0706);
+  vec3 inscatteringAmount = vec3(0.0235, 0.0627, 0.1647);
    vec3 inscatteringAmount2 = vec3(0.0431, 0.0627, 0.2471);
 
   if(!inWater)
 	{
     if(isWater && !isNight)
     {
-    vec3 absorptionFactor = exp(-absorption * WATER_FOG_DENSITY * (dist * 0.9));
+    vec3 absorptionFactor = exp(-absorption * WATER_FOG_DENSITY * (dist * 0.75));
     color.rgb *= absorptionFactor;
     color.rgb += vec3(0.6471, 0.4784, 0.2824) * lightmap.g * inscatteringAmount / absorption * (1.0 - absorptionFactor);
     }

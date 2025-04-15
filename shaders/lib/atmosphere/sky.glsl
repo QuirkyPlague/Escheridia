@@ -4,6 +4,7 @@
 
 #include "/lib/util.glsl"
  bool isNight = worldTime >= 13000 && worldTime < 24000;
+ bool isSunrise = worldTime <= 999;
 vec3 sunCol = vec3(1.0, 0.3, 0.05);
 vec3 fogColor = vec3(0.8784, 0.9843, 0.9686);
  vec3 skyColor = vec3(0.1216, 0.2902, 0.9725);
@@ -35,39 +36,49 @@ float fogify(float x, float w) {
 vec3 calcSkyColor(vec3 pos) {
    vec3 horizonColor = fogColor;
    vec3 zenithColor = skyColor;
-   
+     float upDot = dot(pos, gbufferModelView[1].xyz); //not much, whats up with you?
+        vec3 blend;
   
     if(worldTime >= 0 && worldTime < 1000)
     {
         float time = smoothstep(0, 1000, float(worldTime));
         horizonColor = mix(earlyFogColor, fogColor, time);
         zenithColor =  mix(earlySkyColor, skyColor, time);
+        float fogifyBlend = mix(fogify(max(upDot, 0.0), 0.025),fogify(max(upDot, 0.0), 0.005), time);
+        blend = mix(zenithColor, horizonColor, fogifyBlend);
     }
     else if(worldTime >= 1000 && worldTime < 11500)
      {
         float time = smoothstep(10000, 11500, float(worldTime));
         horizonColor = mix(fogColor, earlyFogColor, time);
         zenithColor =  mix(skyColor, earlySkyColor, time);
+          float fogifyBlend = mix(fogify(max(upDot, 0.0), 0.005),fogify(max(upDot, 0.0), 0.035), time);
+        blend = mix(zenithColor, horizonColor, fogifyBlend);
     }
     else if(worldTime >= 11500 && worldTime < 13000)
      {
         float time = smoothstep(11500, 13000, float(worldTime));
         horizonColor = mix(lateFogColor, nightFogColor, time);
         zenithColor =  mix(lateSkyColor, nightskyColor, time);
+        float fogifyBlend = mix(fogify(max(upDot, 0.0), 0.035),fogify(max(upDot, 0.0), 0.015), time);
+        blend = mix(zenithColor, horizonColor, fogifyBlend);
+    
     }
     else if(worldTime >= 13000 && worldTime < 24000)
      {
         float time = smoothstep(23215, 24000, float(worldTime));
         horizonColor = mix(nightFogColor, earlyFogColor, time);
         zenithColor =  mix(nightskyColor, earlySkyColor, time);
+         float fogifyBlend = mix(fogify(max(upDot, 0.0), 0.015),fogify(max(upDot, 0.0), 0.025), time);
+        blend = mix(zenithColor, horizonColor, fogifyBlend);
     }
 
     vec3 currentSkyColor = zenithColor;
     vec3 currentHorizonColor = horizonColor;
+    
 
-
-     float upDot = dot(pos, gbufferModelView[1].xyz); //not much, whats up with you?
-        return mix(zenithColor, horizonColor, fogify(max(upDot, 0.0), 0.005));
+   
+        return blend;
     
 }
 vec3 screenToView(vec3 screenPos) {

@@ -1,5 +1,6 @@
-#version 410 compatibility
+#version 330 compatibility
 
+#include "/lib/atmosphere/sky.glsl"
 #include "/lib/uniforms.glsl"
 uniform sampler2D gtexture;
 
@@ -17,7 +18,11 @@ layout(location = 3) out vec4 godraySample;
 
 void main() {
 	color = texture(gtexture, texcoord) * glcolor * 3.25;
-
+	
+	if(isNight)
+	{
+		color = texture(gtexture, texcoord) * glcolor;
+	}
 	if (color.a < alphaTestRef) {
 		discard;
 	}

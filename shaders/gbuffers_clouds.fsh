@@ -1,7 +1,8 @@
-#version 410 compatibility
+#version 330 compatibility
 
 
 #include "/lib/util.glsl"
+#include "/lib/atmosphere/sky.glsl"
 
 //received vertex variables
 in vec2 texcoord;
@@ -12,7 +13,7 @@ uniform sampler2D gtexture;
 
 //cloud colors
 vec4 cloudColor = vec4 (0.0);
-vec4 dayCloudColor = vec4(1.0, 1.0, 1.0, 0.444);
+vec4 dayCloudColor = vec4(0.8196, 0.8196, 0.8196, 1.0);
 vec4 earlyCloudColor = vec4(1.0, 0.8, 0.6431, 0.9);
 vec4 nightCloudColor = vec4(1.0, 1.0, 1.0, 1.0);
 vec4 duskCloudColor = vec4(1.0, 0.6941, 0.5765, 0.9);
@@ -31,6 +32,6 @@ lightmapData = vec4(lmcoord, 0.0, 1.0);
 encodedNormal = vec4(normal * 0.5 + 0.5, 1.0);
 
   	
-color.rgb = pow(color.rgb, vec3(2.2));
+
 
 }
