@@ -59,4 +59,5 @@ uniform int renderStage;
 const float shadowDistance = 256.0;
 const float shadowFarPlane = 512.0;
 const float shadowDistanceRenderMul = -1.0;
+uniform float far;
 #endif

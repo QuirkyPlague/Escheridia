@@ -7,7 +7,7 @@ in vec3 normal;
 
 
 uniform float near;
-uniform float far;
+
 
 uniform float frameTime;
 uniform float waterEnterTime;

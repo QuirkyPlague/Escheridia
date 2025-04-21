@@ -3,7 +3,7 @@
 #include "/lib/util.glsl"
 #include "/lib/atmosphere/sky.glsl"
 #include "/lib/spaceConversions.glsl"
-uniform float far;
+
 vec3 dayDistFogColor;
 vec3 earlyDistFogColor;
 vec3 duskDistFogColor;

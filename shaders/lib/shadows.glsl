@@ -13,7 +13,7 @@
   vec3 NDCPos = vec3(texcoord.xy, depth) * 2.0 - 1.0;
   vec3 viewPos = projectAndDivide(gbufferProjectionInverse, NDCPos);
   vec3 feetPlayerPos = (gbufferModelViewInverse * vec4(viewPos, 1.0)).xyz;
-  feetPlayerPos += 0.3 * geoNormal; 
+  feetPlayerPos += 0.09 * geoNormal; 
 
   vec4 shadowViewPos = mat4(shadowModelView) * vec4(feetPlayerPos, 1.0);
   shadowClipPos = mat4(shadowProjection) * shadowViewPos; 
@@ -33,7 +33,7 @@
     for (float y = -range; y <= range; y+= increment){
       vec2 offset = rotation * vec2(x, y) / shadowMapResolution; // offset in the rotated direction by the specified amount. We divide by the resolution so our offset is in terms of pixels
       vec4 offsetShadowClipPos = shadowClipPos + vec4(offset, 0.0, 0.0); // add offset
-      offsetShadowClipPos.z -= 0.0011; // apply bias 
+      offsetShadowClipPos.z -= 0.0006; // apply bias 
       offsetShadowClipPos.xyz = distortShadowClipPos(offsetShadowClipPos.xyz); // apply distortion
       vec3 shadowNDCPos = offsetShadowClipPos.xyz / offsetShadowClipPos.w; // convert to NDC space
       vec3 shadowScreenPos = shadowNDCPos * 0.5 + 0.5; // convert to screen space

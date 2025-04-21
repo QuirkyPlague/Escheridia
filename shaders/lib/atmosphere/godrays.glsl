@@ -13,9 +13,9 @@ vec3 sampleGodrays(vec3 godraySample, vec2 texcoord)
 {
     //godray parameters
     float exposure = GODRAYS_EXPOSURE;
-    float decay = 1.0;
+    float decay = 0.97;
     const float density = 1.0;
-    float weight =  0.6 * SUN_ILLUMINANCE;
+    float weight =  0.3 * GODRAY_DENSITY;
     float wetWeight = 0.65 - weight;
     
     //water masking/night checks
@@ -27,21 +27,22 @@ vec3 sampleGodrays(vec3 godraySample, vec2 texcoord)
     
     //space conversions
     float depth = getDepth(texcoord);
+	float depth1 = getTranslucentDepth(texcoord);
     vec3 ndcPos = getNDC(texcoord, depth);
     vec3 viewPos = getViewPos(ndcPos);
     vec3 feetPlayerPos = getFeetPlayerPos(viewPos);
     vec3 worldPos = getWorldPos(feetPlayerPos);
-	if(depth == 1.0)
-	{
-		weight = 0.3;
-	}
+	
 	vec3 godrayColor;
-	 float dist = length(screenToView(texcoord, depth));
-	 vec3 absorption = vec3(0.0824, 0.2353, 0.8549);
+	  float dist0 = length(screenToView(texcoord, depth));
+  		float dist1 = length(screenToView(texcoord, depth1));
+  		float dist = dist0;
+	 vec3 absorption = vec3(0.102, 0.2588, 0.8902);
 	vec3 inscatteringAmount = calcSkyColor(godrayColor);
-	vec3 absorptionFactor = exp(-absorption * GODRAY_DENSITY * (dist * 0.2));
+	vec3 absorptionFactor = exp(-absorption * GODRAY_DENSITY * (dist * 0.14));
     godrayColor *= absorptionFactor;
     godrayColor += vec3(0.6471, 0.4784, 0.2824) * inscatteringAmount / absorption * (1.0 - absorptionFactor);
+	 
 	 
 	vec3 albedo = getAlbedo(texcoord);
 	
@@ -57,13 +58,18 @@ vec3 sampleGodrays(vec3 godraySample, vec2 texcoord)
     //calculation of the sun position
     vec3 sunScreenPos = viewSpaceToScreenSpace(shadowLightPosition);
     vec3 worldLightVector = mat3(gbufferModelViewInverse) * sunScreenPos;
-    sunScreenPos.xy = clamp(sunScreenPos.xy, vec2(-1.5), vec2(1.5));
-	 worldLightVector.xy = clamp(worldLightVector.xy, vec2(-0.5), vec2(1.5));
+    sunScreenPos.xy = clamp(sunScreenPos.xy, vec2(-1.5), vec2(1.0));
+	
 	vec2 deltaTexCoord = (texcoord - (sunScreenPos.xy)); 
-    float VoL = dot(normalize(feetPlayerPos), worldLightVector);
-	float LdotV = clamp(dot(WorldLightVector, V))
+    float VoL = dot(normalize(feetPlayerPos), sunScreenPos);
     deltaTexCoord *= rcp(GODRAYS_SAMPLES) * density;
 	float illuminationDecay = 1.0;
+
+	 if(GODRAY_ASYMMETRY >= 0.65)
+   {
+		weight = 0.12 * GODRAY_DENSITY;
+   }
+	
 
 	altCoord -= deltaTexCoord * IGN(gl_FragCoord.xy, frameCounter);
     for(int i = 0; i < GODRAYS_SAMPLES; i++)
@@ -71,19 +77,19 @@ vec3 sampleGodrays(vec3 godraySample, vec2 texcoord)
 	    vec3 samples = texture(depthtex0, altCoord).r == 1.0 ? godrayRGB(godrayColor) * godrayColor : vec3(0.0);
 			if(isNight)
 			{
-				samples = texture(depthtex0, altCoord).r == 1.0 ?vec3(0.1098, 0.251, 0.5804) *  calcSkyColor(godrayColor) * 4.5: vec3(0.0);
+				vec3 samples = texture(depthtex0, altCoord).r == 1.0 ? godrayRGB(godrayColor) * godrayColor : vec3(0.0);
 			}
 			vec3 currentGodrayColor = samples;
 			if(isWater && !isNight)
 				{
 					
-					samples = texture(depthtex1, altCoord).r == 1.0 ? mix(vec3(1.0), calcSkyColor(godrayColor), getWaterTint(waterTint)) : vec3(0.0);
-				 	exposure = GODRAYS_EXPOSURE;
+					vec3 samples = texture(depthtex0, altCoord).r == 1.0 ? godrayRGB(godrayColor) * godrayColor : vec3(0.0);
+				 	
 				} 
 				if(isWater && isNight)
 				{
 					samples = texture(depthtex1, altCoord).r == 1.0 ? mix(vec3(0.0392, 0.0824, 0.1804), calcSkyColor(godrayColor), vec3(0.0353, 0.1059, 0.2039)) * 0.1 : vec3(0.0);
-				 	exposure = GODRAYS_EXPOSURE;
+				 	
 				}
 			#if DO_WATER_FOG == 1
 			if(inWater)
@@ -112,10 +118,12 @@ vec3 sampleGodrays(vec3 godraySample, vec2 texcoord)
 			illuminationDecay *= decay;
 			altCoord -= deltaTexCoord;
 			if(clamp(altCoord, 0.0, 1.0) != altCoord){
+					weight = 0.1;
 					break;
                 }
     }
-    godraySample /= GODRAYS_SAMPLES * HG(GODRAY_ASYMMETRY, -VoL);
+  
+	godraySample /= GODRAYS_SAMPLES * HG(GODRAY_ASYMMETRY, -VoL);
 	godraySample *= exposure;
 	
 	if(inWater) 

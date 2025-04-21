@@ -44,15 +44,15 @@ if (worldTime >= 0 && worldTime < 1000)
    else if (worldTime >= 1000 && worldTime < 11500)
   {
      float time = smoothstep(10000, 11500, float(worldTime));
-    sunlight = mix(sunlightColor * 2.3, duskSunlightColor, time) * clamp(dot(normal, worldLightVector * SUN_ILLUMINANCE ), 0.0, 1.0)  * shadow;
+    sunlight = mix(sunlightColor * 2.3, duskSunlightColor* 0.4, time) * clamp(dot(normal, worldLightVector * SUN_ILLUMINANCE ), 0.0, 1.0)  * shadow;
 	   skylight = mix(skylightColor, duskSkyColor * 0.6, time) * lightmap.g * SKY_INTENSITY;
 	  
   }
   else if (worldTime >= 11500 && worldTime < 13000)
   {
      float time = smoothstep(11500, 13000, float(worldTime));
-    sunlight = mix(duskSunlightColor, moonlightColor, time) * clamp(dot(normal, worldLightVector * SUN_ILLUMINANCE), 0.0, 3.0) * shadow;
-	   skylight = mix(duskSkyColor * 0.6, nightSkyColor * 0.2, time) * lightmap.g * SKY_INTENSITY;
+    sunlight = mix(duskSunlightColor* 0.4, moonlightColor, time) * clamp(dot(normal, worldLightVector * SUN_ILLUMINANCE), 0.0, 3.0) * shadow;
+	   skylight = mix(duskSkyColor * 0.01, nightSkyColor * 0.2, time) * lightmap.g * SKY_INTENSITY;
 	  
   }
    else if (worldTime >= 13000 && worldTime < 24000)
