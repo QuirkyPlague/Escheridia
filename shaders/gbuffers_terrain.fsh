@@ -59,5 +59,5 @@ specularLighting *= color;
 		color += color * emission  * EMISSIVE_MULTIPLIER;
 	
 	#endif
-	color.rgb = pow(color.rgb, vec3(2.2));
+	
 }

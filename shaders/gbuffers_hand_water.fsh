@@ -38,7 +38,7 @@ void main() {
 	if (color.a < alphaTestRef) {
 		discard;
 	}
-	color.rgb = pow(color.rgb, vec3(2.2));
+	
 	
 	vec3 normalmap = texture(normals, texcoord).rgb;
 	normalmap = normalmap * 2 - 1;

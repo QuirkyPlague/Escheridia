@@ -45,6 +45,7 @@ option.GODRAYS_EXPOSURE = Godray brightness
 option.GODRAYS_EXPOSURE.comment = How bright the godrays will be
 option.GODRAY_ASYMMETRY = Godray symmetry
 option.GODRAY_ASYMMETRY.comment = How condensed the godrays are to the sun §cHigher values = brighter near the sun§g
+option.GODRAY_DENSITY = Godrays Density
 
 option.DO_DISTANCE_FOG = Enable distance fog
 option.DO_DISTANCE_FOG.comment = Enable or disable the distance fog effect. §cNo performance impact!§r

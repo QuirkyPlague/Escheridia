@@ -57,5 +57,5 @@ void main() {
 
 	extractedColor = color;
 	specMap = texture(specular, texcoord);
-	color.rgb = pow(color.rgb, vec3(2.2));
+	
 }

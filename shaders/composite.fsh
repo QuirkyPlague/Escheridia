@@ -19,7 +19,7 @@ layout(location = 0) out vec4 color;
 
 void main() {
   color = texture(colortex0, texcoord);
-
+  color.rgb = pow(color.rgb, vec3(2.2));
   vec4 waterMask = texture(colortex8, texcoord);
  vec2 lightmap = texture(colortex1, texcoord).rg;
   int blockID = int(waterMask) + 100;

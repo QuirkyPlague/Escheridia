@@ -25,7 +25,7 @@ void main() {
 
  float depth = texture(depthtex0, texcoord).r;
   float depth1 = texture(depthtex1, texcoord).r;
- if(isNight && depth1 ==1.0 && !isWater)
+ if( depth1 == 1.0 )
  {
     return;
  }
@@ -45,7 +45,10 @@ void main() {
   float nightFogFactor = exp(-FOG_DENSITY * (0.67 - dist));
   float rainFogFactor = exp(-FOG_DENSITY * (0.75 - dist));
 
-  vec3 fogColor = applySky(dayDistFogColor);
+  vec3 fogColor = applySky(dayDistFogColor, texcoord, depth);
+
+
+
 if(!inWater)
 {
  vec3 currentFogColor = fogColor;
@@ -58,7 +61,7 @@ if(!inWater)
   {
     float dryToWet = smoothstep(0.0, 1.0, float(rainStrength));
     fogFactor = mix(fogFactor, rainFogFactor, dryToWet);
-    fogColor = mix(currentFogColor, applySky(rainFogColor), dryToWet);
+    fogColor = mix(currentFogColor, applySky(rainFogColor, texcoord, depth), dryToWet);
     color.rgb = mix(color.rgb, fogColor, clamp(fogFactor, 0.0, 1.0));
   }
   else if(rainStrength <= 1.0 && rainStrength > 0.0 && isNight)

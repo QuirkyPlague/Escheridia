@@ -3,11 +3,13 @@
 #define SKY_GLSL
 
 #include "/lib/util.glsl"
+#include "/lib/spaceConversions.glsl"
+
  bool isNight = worldTime >= 13000 && worldTime < 24000;
  bool isSunrise = worldTime <= 999;
 vec3 sunCol = vec3(1.0, 0.3, 0.05);
-vec3 fogColor = vec3(0.8784, 0.9843, 0.9686);
- vec3 skyColor = vec3(0.1216, 0.2902, 0.9725);
+vec3 fogColor = vec3(0.4627, 0.8431, 0.9922);
+ vec3 skyColor = vec3(0.0627, 0.3373, 0.9765);
  vec3 nightFogColor = vec3(0.0157, 0.0353, 0.051);
  vec3 nightskyColor = vec3(0.0, 0.0039, 0.0235);
  vec3 earlyFogColor = vec3(1.0, 0.502, 0.1882);
@@ -23,7 +25,7 @@ vec4 starColor = vec4(0.1569, 0.6471, 0.9961, 1.0);
 
 float skySmoothing(vec2 st, float pct)
 {
-    return  smoothstep( pct-0.02, pct, st.y) - smoothstep( pct, pct+0.02, st.y);
+    return  smoothstep( pct-0.04, pct, st.y) - smoothstep( pct, pct+0.04, st.y);
 }
 
 float fogify(float x, float w) {
@@ -81,17 +83,10 @@ vec3 calcSkyColor(vec3 pos) {
         return blend;
     
 }
-vec3 screenToView(vec3 screenPos) {
-    vec4 ndcPos = vec4(screenPos, 1.0) * 2.0 - 1.0;
-    vec4 tmp = gbufferProjectionInverse * ndcPos;
-    return tmp.xyz / tmp.w;
-}
 
-vec3 applySky(vec3 color)
+vec3 applySky(vec3 color, vec2 texcoord, float depth)
 {
-        vec4 screenPos = vec4(gl_FragCoord.xy / vec2(viewWidth, viewHeight), gl_FragCoord.z, 1.0);
-        vec4 viewPos = gbufferProjectionInverse * (screenPos * 2.0 - 1.0);
-        viewPos /= viewPos.w;
+        vec3 viewPos = screenToView(texcoord, depth);
         vec3 normalViewPos = normalize(viewPos.xyz);
 		color = vec3(calcSkyColor(normalize(normalViewPos)));
         return color;

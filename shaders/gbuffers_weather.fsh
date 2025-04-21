@@ -31,5 +31,5 @@ if (color.a < 0.1) { // alpha test
 
 }
 
-	color.rgb = pow(color.rgb, vec3(2.2));
+	
 }
