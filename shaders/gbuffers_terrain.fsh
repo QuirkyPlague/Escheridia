@@ -17,7 +17,7 @@ in mat3 tbnMatrix;
 in float emission;
 
 
-/* RENDERTARGETS: 0,1,2,3,5,6,2*/
+/* RENDERTARGETS: 0,1,2,3,5,6,10*/
 layout(location = 0) out vec4 color;
 layout(location = 1) out vec4 lightmapData;
 layout(location = 2) out vec4 encodedNormal;
@@ -45,9 +45,9 @@ void main() {
 	normalMaps.z = sqrt(1.0 - dot(normalMaps.xy, normalMaps.xy));
 	vec3 mappedNormal = tbnMatrix * normalMaps;
 	
-	
-	
 	encodedNormal = vec4(mappedNormal * 0.5 + 0.5, 1.0);
+
+	geoNormal = vec4(normal * 0.5 + 0.5, 1.0);
 
 	extractedColor = color;
 	specMap = texture(specular, texcoord);

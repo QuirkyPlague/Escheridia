@@ -8,8 +8,8 @@ const vec3 blocklightColor = vec3(1.0, 0.6275, 0.451);
 const  vec3 skylightColor = vec3(0.0471, 0.0941, 0.1451);
 vec3 sunlightColor= vec3(1.0, 0.749, 0.4627);
 vec3 morningSunlightColor = vec3(0.9216, 0.4353, 0.2588);
- vec3 moonlightColor = vec3(0.102, 0.1569, 0.5098);
-const vec3 nightSkyColor = vec3(0.0902, 0.1373, 0.6314);
+ vec3 moonlightColor = vec3(0.0, 0.1333, 1.0);
+const vec3 nightSkyColor = vec3(0.149, 0.2196, 1.0);
  const vec3 morningSkyColor = vec3(0.7804, 0.5216, 0.2471);
  const vec3 ambientColor = vec3(0.0353, 0.0353, 0.0353);
 vec3 duskSunlightColor = vec3(0.8784, 0.298, 0.2471);
@@ -51,15 +51,15 @@ if (worldTime >= 0 && worldTime < 1000)
   else if (worldTime >= 11500 && worldTime < 13000)
   {
      float time = smoothstep(11500, 13000, float(worldTime));
-    sunlight = mix(duskSunlightColor* 0.4, moonlightColor, time) * clamp(dot(normal, worldLightVector * SUN_ILLUMINANCE), 0.0, 3.0) * shadow;
+    sunlight = mix(duskSunlightColor* 0.4, moonlightColor, time) * clamp(dot(normal, worldLightVector * SUN_ILLUMINANCE), 0.0, 1.0) * shadow;
 	   skylight = mix(duskSkyColor * 0.01, nightSkyColor * 0.2, time) * lightmap.g * SKY_INTENSITY;
 	  
   }
    else if (worldTime >= 13000 && worldTime < 24000)
   {
     float time = smoothstep(23215, 24000, float(worldTime));
-    sunlight = mix(moonlightColor, morningSunlightColor, time) * clamp(dot(normal, worldLightVector * MOON_ILLUMINANCE), 0.0, 3.0) * shadow;
-	   skylight = mix(nightSkyColor * 0.6, morningSkyColor * 0.6, time) * lightmap.g * NIGHT_SKY_INTENSITY;
+    sunlight = mix(moonlightColor * 2.4, morningSunlightColor, time) * clamp(dot(normal, worldLightVector * MOON_ILLUMINANCE), 0.0, 1.0) * shadow;
+	   skylight = mix(nightSkyColor * 0.1, morningSkyColor * 0.6, time) * lightmap.g * NIGHT_SKY_INTENSITY;
 	  
   }
   //convert all lighting values into one value

@@ -17,20 +17,20 @@ in mat3 tbnMatrix;
 in float emission;
 
 
-
-/* RENDERTARGETS: 0,1,2,3,5,6 */
+/* RENDERTARGETS: 0,1,2,3,5,6,10*/
 layout(location = 0) out vec4 color;
 layout(location = 1) out vec4 lightmapData;
 layout(location = 2) out vec4 encodedNormal;
 layout(location = 3) out vec4 specMap;
 layout(location = 4) out vec4 extractedColor;
 layout(location = 5) out vec4 specularLighting;
-
-
+layout(location = 6) out vec4 geoNormal;
 
 
 void main() {
 	color = texture(gtexture, texcoord) * glcolor;
+	
+	vec4 albedo = texture(gtexture, texcoord) * glcolor;
 
 	lightmapData = vec4(lmcoord, 0.0, 1.0);
 	
@@ -39,13 +39,15 @@ void main() {
 	}
 	
 	
+
 	vec3 normalMaps = texture(normals, texcoord).rgb;
 	normalMaps = normalMaps * 2 - 1;
-	normalMaps.z = sqrt(1 - dot(normalMaps.xy, normalMaps.xy));
+	normalMaps.z = sqrt(1.0 - dot(normalMaps.xy, normalMaps.xy));
 	vec3 mappedNormal = tbnMatrix * normalMaps;
 	
 	
-	encodedNormal = vec4(normal * 0.5 + 0.5, 1.0);
+
+	geoNormal = vec4(normal * 0.5 + 0.5, 1.0);
 
 	encodedNormal = vec4(mappedNormal * 0.5 + 0.5, 1.0);
 	specularLighting *= color;

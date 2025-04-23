@@ -13,9 +13,9 @@ vec3 sampleGodrays(vec3 godraySample, vec2 texcoord)
 {
     //godray parameters
     float exposure = GODRAYS_EXPOSURE;
-    float decay = 0.97;
+    float decay = 1.0;
     const float density = 1.0;
-    float weight =  0.3 * GODRAY_DENSITY;
+    float weight =  0.45 * GODRAY_DENSITY;
     float wetWeight = 0.65 - weight;
     
     //water masking/night checks
