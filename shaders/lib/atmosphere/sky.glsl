@@ -7,21 +7,17 @@
 
  bool isNight = worldTime >= 13000 && worldTime < 24000;
  bool isSunrise = worldTime <= 999;
-vec3 sunCol = vec3(1.0, 0.3, 0.05);
-vec3 fogColor = vec3(0.4627, 0.8431, 0.9922);
- vec3 skyColor = vec3(0.0627, 0.3373, 0.9765);
- vec3 nightFogColor = vec3(0.0157, 0.0353, 0.051);
- vec3 nightskyColor = vec3(0.0, 0.0039, 0.0235);
- vec3 earlyFogColor = vec3(1.0, 0.502, 0.1882);
- vec3 earlySkyColor = vec3(0.3294, 0.898, 1.0);
-  vec3 lateFogColor = vec3(1.0, 0.302, 0.1804);
- vec3 lateSkyColor = vec3(0.298, 0.5137, 0.6392);
- vec3 MIE_Value = vec3(0.2549, 0.2549, 0.2549);
-vec4 starColor = vec4(0.1569, 0.6471, 0.9961, 1.0);
- vec3 rainFogColor = vec3(0.7373, 0.7373, 0.7373);
- vec3 rainSkyColor = vec3(0.4118, 0.4118, 0.4118);
 
-
+ const vec3 fogColor = vec3(0.7176, 0.9255, 1.0);
+ const vec3 skyColor = vec3(0.0627, 0.3373, 0.9765);
+ const vec3 nightFogColor = vec3(0.0157, 0.0353, 0.051);
+ const vec3 nightskyColor = vec3(0.0, 0.0039, 0.0235);
+ const vec3 earlyFogColor = vec3(1.0, 0.502, 0.1882);
+ const vec3 earlySkyColor = vec3(0.3294, 0.898, 1.0);
+ const vec3 lateFogColor = vec3(1.0, 0.302, 0.1804);
+ const vec3 lateSkyColor = vec3(0.298, 0.5137, 0.6392);
+ const vec3 rainFogColor = vec3(0.7373, 0.7373, 0.7373);
+ const vec3 rainSkyColor = vec3(0.4118, 0.4118, 0.4118);
 
 float skySmoothing(vec2 st, float pct)
 {

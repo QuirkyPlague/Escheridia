@@ -45,7 +45,7 @@ void main() {
   float nightFogFactor = exp(-FOG_DENSITY * (0.67 - dist));
   float rainFogFactor = exp(-FOG_DENSITY * (0.75 - dist));
 
-  vec3 fogColor = applySky(dayDistFogColor, texcoord, depth);
+  vec3 fogColor = applySky(dayDistFogColor, texcoord, depth) * lightmap.g;
 
 
 

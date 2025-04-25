@@ -167,6 +167,9 @@ vec3 change_luminance(vec3 c_in, float l_out)
     return c_in * (l_out / l_in);
 }
 
+
+
+
 #define _rcp(x) (1.0 / x)
 float rcp(in float x) {
     return _rcp(x);

@@ -37,11 +37,11 @@ vec3 sampleGodrays(vec3 godraySample, vec2 texcoord)
 	  float dist0 = length(screenToView(texcoord, depth));
   		float dist1 = length(screenToView(texcoord, depth1));
   		float dist = dist0;
-	 vec3 absorption = vec3(0.102, 0.2588, 0.8902);
+	 vec3 absorption = vec3(0.4, 0.5137, 0.9647);
 	vec3 inscatteringAmount = calcSkyColor(godrayColor);
-	vec3 absorptionFactor = exp(-absorption * GODRAY_DENSITY * (dist * 0.14));
+	vec3 absorptionFactor = exp(-absorption * GODRAY_DENSITY * (dist * 0.014));
     godrayColor *= absorptionFactor;
-    godrayColor += vec3(0.6471, 0.4784, 0.2824) * inscatteringAmount / absorption * (1.0 - absorptionFactor);
+    godrayColor +=  inscatteringAmount / absorption * (1.0 - absorptionFactor);
 	 
 	 
 	vec3 albedo = getAlbedo(texcoord);
@@ -77,7 +77,7 @@ vec3 sampleGodrays(vec3 godraySample, vec2 texcoord)
 	    vec3 samples = texture(depthtex0, altCoord).r == 1.0 ? godrayRGB(godrayColor) * godrayColor : vec3(0.0);
 			if(isNight)
 			{
-				vec3 samples = texture(depthtex0, altCoord).r == 1.0 ? godrayRGB(godrayColor) * godrayColor : vec3(0.0);
+				vec3 samples = texture(depthtex0, altCoord).r == 1.0 ? godrayRGB(godrayColor) * vec3(0.2706, 0.3843, 0.9529) : vec3(0.0);
 			}
 			vec3 currentGodrayColor = samples;
 			if(isWater && !isNight)
@@ -122,7 +122,9 @@ vec3 sampleGodrays(vec3 godraySample, vec2 texcoord)
 					break;
                 }
     }
-  
+	
+	
+
 	godraySample /= GODRAYS_SAMPLES * HG(GODRAY_ASYMMETRY, -VoL);
 	godraySample *= exposure;
 	

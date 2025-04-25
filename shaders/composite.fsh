@@ -30,6 +30,11 @@ void main() {
   float depth = texture(depthtex0, texcoord).r;
   float depth1 = texture(depthtex1, texcoord).r;
   
+    if(depth1 == 1.0)
+			{
+				  color.rgb += applySky(color.rgb, texcoord, depth);
+         
+			}
   vec3 encodedNormal = texture(colortex2, texcoord).rgb;
   vec3 normal = normalize((encodedNormal - 0.5) * 2.0); // we normalize to make sure it is of unit length
   normal = mat3(gbufferModelView) * normal;
@@ -55,29 +60,33 @@ vec3 LightVector = normalize(shadowLightPosition);
   vec3 inscatteringAmount = vec3(0.0235, 0.0627, 0.1647);
    vec3 inscatteringAmount2 = vec3(0.0431, 0.0627, 0.2471);
 
+  
+ 
+  
   if(!inWater)
 	{
     if(isWater && !isNight)
     {
-    vec3 absorptionFactor = exp(-absorption * WATER_FOG_DENSITY * (dist * 0.75));
+    vec3 absorptionFactor = exp(-absorption * WATER_FOG_DENSITY * (dist * 0.45));
     color.rgb *= absorptionFactor;
     color.rgb += vec3(0.6471, 0.4784, 0.2824) * lightmap.g * inscatteringAmount / absorption * (1.0 - absorptionFactor);
     }
     else if(isWater && isNight)
     {
-      vec3 absorptionFactor = exp(-absorption * WATER_FOG_DENSITY * (dist * 0.7));
+      vec3 absorptionFactor = exp(-absorption * WATER_FOG_DENSITY * (dist * 0.4));
     color.rgb *= absorptionFactor;
-    color.rgb += vec3(0.0588, 0.1608, 0.3765) * lightmap.g * inscatteringAmount * 0.6 / absorption * (1.0 - absorptionFactor);
+    color.rgb += vec3(0.0588, 0.1608, 0.3765) * lightmap.g * inscatteringAmount * 0.2 / absorption * (1.0 - absorptionFactor);
    
     }
 	}
   
   #endif
- vec3 F0 = vec3(0.02);
+ 
   vec3 L = normalize(worldLightVector);
   vec3 H = normalize(V + L);
 
-vec3 F  = fresnelSchlick(max(dot(normal, V),0.0), F0);
+
+ 
  if(isWater && !inWater)
  {
   #if DO_WATER_FOG == 0 
@@ -87,8 +96,13 @@ vec3 F  = fresnelSchlick(max(dot(normal, V),0.0), F0);
   {
     color *= vec4(0.149, 0.3373, 0.7098, 1.0);
   }
-  
-
  }
- 
+  
+   if(isWater && !inWater)
+  {
+   vec3 F0 = vec3(0.02);
+    vec3 F  = fresnelSchlick(max(dot(normal, V),0.0), F0);
+    color.rgb = mix(color.rgb, lightmap.g *  0.26 * reflectedColor, F);
+  }
+
 }

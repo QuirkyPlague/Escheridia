@@ -24,9 +24,9 @@ vec3 uncharted2(vec3 y) {
 #elif TONEMAPPING_TYPE == 0
 vec3 aces(vec3 v)
 {
-    float a = 2.28;
-    float b = 0.013;
-    float c = 1.33;
+    float a = 1.45;
+    float b = 0.213;
+    float c = 2.33;
     float d = 1.39;
     float e = 0.94;
     return pow(clamp((v*(a*v+b))/(v*(c*v+d)+e), 0.0f, 1.0f), vec3(1.0/2.2));
