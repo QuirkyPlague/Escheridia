@@ -43,7 +43,7 @@ void main() {
 vec3 LightVector = normalize(shadowLightPosition);
 	vec3 worldLightVector = mat3(gbufferModelViewInverse) * LightVector;
   vec3 V = normalize((-viewDir));
- vec3 absorption = vec3(0.7882, 0.8118, 0.1255);
+ vec3 absorption = vec3(0.302, 0.1098, 0.0314) * 2.0;
   #if DO_WATER_FOG == 1
   // Fog calculations
   //float dist = length(viewPos) / far;
@@ -51,7 +51,7 @@ vec3 LightVector = normalize(shadowLightPosition);
   float dist1 = length(screenToView(texcoord, depth1));
   float dist = max(0, dist1 - dist0);
 
-  vec3 inscatteringAmount = vec3(0.0275, 0.0431, 0.0941);
+  vec3 inscatteringAmount = vec3(0.01, 0.03, 0.08);
    vec3 inscatteringAmount2 = vec3(0.0667, 0.1373, 0.7686);
 
    if(inWater)
@@ -68,7 +68,7 @@ vec3 LightVector = normalize(shadowLightPosition);
     dist = dist0;
     vec3 absorptionFactor = exp(-absorption * WATER_FOG_DENSITY * (dist * 0.35) );
     color.rgb *= absorptionFactor;
-    color.rgb += vec3(0.0392, 0.0588, 0.2039) * inscatteringAmount2 / absorption * (1.0 - absorptionFactor) * 0.01;
+    color.rgb += vec3(0.0392, 0.0588, 0.2039) * inscatteringAmount / absorption * (1.0 - absorptionFactor) * 0.01;
     }
   
 	}
