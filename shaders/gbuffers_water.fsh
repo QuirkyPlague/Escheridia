@@ -121,7 +121,8 @@ geoNormal = vec4(normal * 0.5 + 0.5, 1.0);
   {
     F0 = albedo.rgb;
   }
-    
+  vec3 F  = fresnelSchlick(max(dot(H, V),0.0), F0);
+    color.a *= float(1.0 - F);
   //final lighting calculation
   vec3 shadow = getSoftShadow(shadowClipPos, texcoord, geoNormal.rgb, feetPlayerPos);
   vec3 diffuse;

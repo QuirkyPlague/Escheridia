@@ -2,12 +2,32 @@
 #define BLOOM_GLSL
 
 #include "/lib/util.glsl"
+vec3 powVec3(vec3 v, float p)
+{
+    return vec3(pow(v.x, p), pow(v.y, p), pow(v.z, p));
+}
 
-vec3 downsampleScreen(sampler2D srcTexture, vec2 texCoord)
+vec3 toSRGB(vec3 v) { return powVec3(v, 1.0/2.2); }
+
+float RGBToLuminance(vec3 col)
+{
+    return dot(col, vec3(0.2126f, 0.7152f, 0.0722f));
+}
+
+float karisAverage(vec3 col)
+{
+    // Formula is 1 / (1 + luma)
+    float luma = RGBToLuminance(toSRGB(col)) * 0.25f;
+    return 1.0f / (1.0f + luma);
+}
+
+
+
+vec3 downsampleScreen(sampler2D srcTexture, vec2 texCoord, bool doKarisAverage)
 {
 
-    float x = 1.0 / viewWidth;
-    float y = 1.0/ viewHeight;
+     float x = 1.0 / float(viewWidth * BLOOM_QUALITY);
+  float y = 1.0 / float(viewHeight * BLOOM_QUALITY);
 
     // Take 13 samples around current texel:
     // a - b - c
@@ -47,11 +67,25 @@ vec3 downsampleScreen(sampler2D srcTexture, vec2 texCoord)
     // to effectively yield this sum. We get:
     // 0.125*5 + 0.03125*4 + 0.0625*4 = 1
     vec3 dsample;
-    dsample = e*0.125;
-    dsample += (a+c+g+i)*0.03125;
-    dsample += (b+d+f+h)*0.0625;
-    dsample += (j+k+l+m)*0.125;
-    
+    if(doKarisAverage){
+    vec3 group0 = (a+b+d+e) * (0.124/4.0);
+    vec3 group1 = (b+c+e+f) * (0.124/4.0);
+    vec3 group2 = (d+e+g+h) * (0.125/4.0);
+    vec3 group3 = (e+f+h+i) * (0.125/4.0);
+    vec3 group4 = (j+k+l+m) * (0.5/4.0);
+
+    group0 *= karisAverage(group0);
+    group1 *= karisAverage(group1);
+    group2 *= karisAverage(group2);
+    group3 *= karisAverage(group3);
+    group4 *= karisAverage(group4);
+    dsample = group0 + group1 + group2 + group3 + group4;
+  } else {
+    dsample = e * 0.125;
+    dsample += (a+c+g+i) * 0.03125;
+    dsample += (b+d+f+h) * 0.0625;
+    dsample += (j+k+l+m) * 0.125;
+  }
     return dsample;
 }
 
@@ -88,6 +122,7 @@ vec3 upSample(sampler2D srcTexture,vec2 texCoord)
     upsample *= 1.0 / 16.0;
     return upsample;
 }
+
 
 
 

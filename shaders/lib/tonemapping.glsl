@@ -3,22 +3,25 @@
  
  
  #if TONEMAPPING_TYPE == 1
-vec3 uncharted2Tonemap(vec3 x) {
-   float A = U2_SHOULDER_STRENGTH;
-   float B = U2_LINEAR_STRENGTH;
-   float C = U2_LINEAR_ANGLE;
-   float D = U2_TOE_STRENGTH;
-   float E = U2_TOE_NUMERATOR;
-   float F = U2_TOE_DENOMINATOR;
-  return ((x * (A * x + C * B) + D * E) / (x * (A * x + B) + D * F)) - E / F;
+vec3 uncharted2Tonemap(vec3 x)
+{
+    float A = 0.15f;
+    float B = 0.50f;
+    float C = 0.10f;
+    float D = 0.20f;
+    float E = 0.02f;
+    float F = 0.30f;
+    return ((x*(A*x+C*B)+D*E)/(x*(A*x+B)+D*F))-E/F;
 }
 
-vec3 uncharted2(vec3 y) {
-  const float W = 11.2;
-  float exposureBias = 2.0;
-  vec3 curr = uncharted2Tonemap(exposureBias * y);
-  vec3 whiteScale = 1.0 / uncharted2Tonemap(vec3(W));
-  return pow(curr * whiteScale, vec3(1.0/2.2));
+vec3 uncharted2(vec3 v)
+{
+    float exposure_bias = 2.0f;
+    vec3 curr = uncharted2Tonemap(v * exposure_bias);
+
+    vec3 W = vec3(11.2f);
+    vec3 white_scale = vec3(1.0f) / uncharted2Tonemap(W);
+    return pow(curr * white_scale, vec3(1.0/2.2));
 }
 
 #elif TONEMAPPING_TYPE == 0
@@ -35,9 +38,9 @@ vec3 aces(vec3 v)
 #elif TONEMAPPING_TYPE == 2
 vec3 reinhard_jodie(vec3 v)
 {
-    float l = luminance(v);
-    vec3 tv = v / (2.1 + v);
-    return pow(mix(v / (0.7 + l), tv, tv), vec3(1.0/2.2));
+     float l = luminance(v);
+    vec3 tv = v / (1.0f + v);
+    return pow(mix(v / (1.0f + l), tv, tv), vec3(1.0/2.2));
 }
 
 #elif TONEMAPPING_TYPE == 3

@@ -79,9 +79,27 @@ vec3 fresnelSchlick(float cosTheta, vec3 F0)
 {
     return F0 + (1.0 - F0) * pow(clamp(1.0 - cosTheta, 0.0, 1.0), 5.0);
 } 
+float f0_to_ior(float f0) {
+	float sqrt_f0 = sqrt(f0) * 0.99999;
+	return (1.0 + sqrt_f0) / (1.0 - sqrt_f0);
+}
 
+vec3 fresnel_dielectric_n(float cos_theta, float n) {
+	float g_sq = sqrt(n) + sqrt(cos_theta) - 1.0;
 
+	if (g_sq < 0.0) return vec3(1.0); // Imaginary g => TIR
 
+	float g = sqrt(g_sq);
+	float a = g - cos_theta;
+	float b = g + cos_theta;
+
+	return vec3(0.5 * sqrt(a / b) * (1.0 + sqrt((b * cos_theta - 1.0) / (a * cos_theta + 1.0))));
+}
+
+vec3 fresnel_dielectric(float cos_theta, float f0) {
+	float n = f0_to_ior(f0);
+	return fresnel_dielectric_n(cos_theta, n);
+}
 
 //fetch noise tex
 vec4 getNoise(vec2 coord)

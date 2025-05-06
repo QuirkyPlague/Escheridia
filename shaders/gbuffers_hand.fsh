@@ -51,7 +51,7 @@ void main() {
 
 	encodedNormal = vec4(mappedNormal * 0.5 + 0.5, 1.0);
 	specularLighting *= color;
-	
+	extractedColor = color;
 	specMap = texture(specular, texcoord);
 	
 

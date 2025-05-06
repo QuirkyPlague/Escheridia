@@ -121,18 +121,9 @@ void main() {
   lighting = albedo * diffuse + speculars + emissive;
   color.rgb = lighting;
   
-  //reflections
-  if(lightmap.g <= 0.2)
-  {
-    reflectedColor = albedo;
-  }
+ 
 
-  if(isWater && !inWater)
-  {
-    F0 = vec3(0.02);
-    vec3 F  = fresnelSchlick(max(dot(viewNormal, V2),0.0), F0);
-    color.rgb = mix(color.rgb, 0.26 * reflectedColor, F);
-  }
+ 
   
   
 }

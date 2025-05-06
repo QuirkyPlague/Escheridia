@@ -5,9 +5,6 @@
 #include "/lib/spaceConversions.glsl"
 
 vec3 dayDistFogColor;
-vec3 earlyDistFogColor;
-vec3 duskDistFogColor;
-vec3 nightDistFogColor;
 in vec2 texcoord;
 
 vec4 waterMask = texture(colortex8, texcoord);
@@ -25,7 +22,7 @@ void main() {
 
  float depth = texture(depthtex0, texcoord).r;
   float depth1 = texture(depthtex1, texcoord).r;
- if( depth1 == 1.0 )
+ if( depth == 1.0 )
  {
     return;
  }
@@ -45,8 +42,11 @@ void main() {
   float nightFogFactor = exp(-FOG_DENSITY * (0.67 - dist));
   float rainFogFactor = exp(-FOG_DENSITY * (0.75 - dist));
 
-  vec3 fogColor = applySky(dayDistFogColor, texcoord, depth) * lightmap.g;
-
+  vec3 fogColor = applySky(dayDistFogColor, texcoord, depth) * 2.1;
+if(isNight)
+{
+  fogColor = applySky(dayDistFogColor, texcoord, depth);
+}
 
 
 if(!inWater)
