@@ -17,6 +17,6 @@ layout(location = 0) out vec4 color;
 void main() {
 	 color = texture(colortex0, texcoord);
    #if DO_BLOOM == 1
-     color.rgb += downsampleScreen(colortex5,texcoord, true);
+     color.rgb += downsampleScreen(colortex5,texcoord);
    #endif
 }

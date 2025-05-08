@@ -48,7 +48,7 @@ vec3 getShadow(vec3 shadowScreenPos)
   vec4 shadowViewPos = mat4(shadowModelView) * vec4(feetPlayerPos, 1.0);
     
   shadowClipPos = mat4(shadowProjection) * shadowViewPos; 
-  vec3 shadowClipNormal = mat3(shadowProjection) * (mat3(shadowModelView) * geoNormal) * 0.35;
+  vec3 shadowClipNormal = mat3(shadowProjection) * (mat3(shadowModelView) * geoNormal) * 0.13;
   shadowClipPos.w = 0.0;
   shadowClipPos += vec4(shadowClipNormal, 1.0);
   

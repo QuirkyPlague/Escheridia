@@ -28,6 +28,7 @@ void main() {
   return;
  }
 
+
   
   vec2 lightmap = texture(colortex1, texcoord).rg;
   #if DO_DISTANCE_FOG == 1
@@ -40,8 +41,8 @@ void main() {
   float dist = length(viewPos) / far;
   float fogFactor = exp(-FOG_DENSITY * (1.1 - dist));
   float nightFogFactor = exp(-FOG_DENSITY * (0.87 - dist));
-  float rainFogFactor = exp(-FOG_DENSITY * (0.75 - dist));
-
+  float rainFogFactor = exp(-FOG_DENSITY * (0.55 - dist));
+vec3 rainFogColor = vec3(0.4);
   vec3 distFog = applySky(dayDistFogColor, texcoord, depth) *1.5;
 if(isNight)
 {

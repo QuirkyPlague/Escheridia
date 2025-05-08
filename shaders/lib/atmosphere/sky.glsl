@@ -16,7 +16,7 @@
  const vec3 earlySkyColor = vec3(0.3294, 0.898, 1.0);
  const vec3 lateFogColor = vec3(1.0, 0.302, 0.1804);
  const vec3 lateSkyColor = vec3(0.298, 0.5137, 0.6392);
- const vec3 rainFogColor = vec3(0.7373, 0.7373, 0.7373);
+ const vec3 rainHorizonColor = vec3(0.7373, 0.7373, 0.7373);
  const vec3 rainSkyColor = vec3(0.4118, 0.4118, 0.4118);
 
 float skySmoothing(vec2 st, float pct)
@@ -71,9 +71,25 @@ vec3 calcSkyColor(vec3 pos) {
         blend = mix(zenithColor, horizonColor, fogifyBlend);
     }
 
-    vec3 currentSkyColor = zenithColor;
+    vec3 currentZenithColor = zenithColor;
     vec3 currentHorizonColor = horizonColor;
-    
+
+     if(rainStrength <= 1.0 && rainStrength > 0.0 && !isNight)
+  {
+    float dryToWet = smoothstep(0.0, 1.0, float(rainStrength));
+    zenithColor = mix(currentZenithColor, rainSkyColor, dryToWet);
+    horizonColor = mix(currentHorizonColor, rainHorizonColor, dryToWet);
+    float fogifyBlend = mix(fogify(max(upDot, 0.0), 0.015),fogify(max(upDot, 0.0), 0.025), dryToWet);
+    blend = mix(zenithColor, horizonColor, fogifyBlend);
+  }
+  else if(rainStrength <= 1.0 && rainStrength > 0.0 && isNight)
+  {
+     float dryToWet = smoothstep(0.0, 1.0, float(rainStrength));
+    zenithColor = mix(currentZenithColor, rainSkyColor, dryToWet) * 0.3;
+    horizonColor = mix(currentHorizonColor, rainHorizonColor, dryToWet) * 0.3;
+    float fogifyBlend = mix(fogify(max(upDot, 0.0), 0.015),fogify(max(upDot, 0.0), 0.025), dryToWet);
+    blend = mix(zenithColor, horizonColor, fogifyBlend);
+  }
 
    
         return blend;

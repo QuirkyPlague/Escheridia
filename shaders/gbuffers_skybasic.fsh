@@ -23,15 +23,15 @@ in vec3 viewPos;
 in vec3 feetPlayerPos;
 in mat3 tbnMatrix;
  const vec3 fogColor = vec3(0.7333, 0.9647, 1.0);
- const vec3 skyColor = vec3(0.1451, 0.6, 0.9725);
+ const vec3 skyColor = vec3(0.2078, 0.5373, 0.8039);
  const vec3 nightFogColor = vec3(0.0941, 0.1843, 0.3373);
  const vec3 nightskyColor = vec3(0.0235, 0.051, 0.2039);
  const vec3 earlyFogColor = vec3(0.8941, 0.5922, 0.4039);
  const vec3 earlySkyColor = vec3(0.2275, 0.7216, 0.8118);
  const vec3 lateFogColor = vec3(0.6588, 0.2549, 0.1098);
  const vec3 lateSkyColor = vec3(0.2706, 0.451, 0.5529);
- const vec3 rainFogColor = vec3(0.7373, 0.7373, 0.7373);
- const vec3 rainSkyColor = vec3(0.4118, 0.4118, 0.4118);
+ const vec3 rainHorizonColor = vec3(0.9294, 0.9294, 0.9294);
+ const vec3 rainSkyColor = vec3(0.6627, 0.6627, 0.6627);
 
 float skySmoothing(vec2 st, float pct)
 {
@@ -84,9 +84,25 @@ vec3 calcSkyColor(vec3 pos) {
          float fogifyBlend = mix(fogify(max(upDot, 0.0), 0.015),fogify(max(upDot, 0.0), 0.025), time);
         blend = mix(zenithColor, horizonColor, fogifyBlend);
     }
-
-    vec3 currentSkyColor = zenithColor;
+    vec3 currentZenithColor = zenithColor;
     vec3 currentHorizonColor = horizonColor;
+  if(rainStrength <= 1.0 && rainStrength > 0.0 && !isNight)
+  {
+    float dryToWet = smoothstep(0.0, 1.0, float(rainStrength));
+    zenithColor = mix(currentZenithColor, rainSkyColor, dryToWet);
+    horizonColor = mix(currentHorizonColor, rainHorizonColor, dryToWet);
+    float fogifyBlend = mix(fogify(max(upDot, 0.0), 0.015),fogify(max(upDot, 0.0), 0.025), dryToWet);
+    blend = mix(zenithColor, horizonColor, fogifyBlend);
+  }
+  else if(rainStrength <= 1.0 && rainStrength > 0.0 && isNight)
+  {
+     float dryToWet = smoothstep(0.0, 1.0, float(rainStrength));
+    zenithColor = mix(currentZenithColor, rainSkyColor, dryToWet) * 0.3;
+    horizonColor = mix(currentHorizonColor, rainHorizonColor, dryToWet) * 0.3;
+    float fogifyBlend = mix(fogify(max(upDot, 0.0), 0.015),fogify(max(upDot, 0.0), 0.025), dryToWet);
+    blend = mix(zenithColor, horizonColor, fogifyBlend);
+  }
+    
     
 
    

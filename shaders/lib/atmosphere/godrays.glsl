@@ -100,18 +100,6 @@ vec3 sampleGodrays(vec3 godraySample, vec2 texcoord)
 					weight = 0.65 * WATER_FOG_DENSITY;
 			}
 				#endif
-			if(rainStrength <= 1.0 && rainStrength > 0.0 && !isNight)
-			{
-				float dryToWet = smoothstep(0.0, 1.0, float(rainStrength));
-				samples = texture(depthtex0, altCoord).r == 1.0 ? mix(currentGodrayColor, getRainColor(godrayColor), dryToWet) : vec3(0.0);
-				 weight = mix(weight, wetWeight, dryToWet);
-			}
-			else if(rainStrength <= 1.0 && rainStrength > 0.0 && isNight)
-			{
-				float dryToWet = smoothstep(0.0, 1.0, float(rainStrength));
-				samples = texture(depthtex0, altCoord).r == 1.0 ? mix(currentGodrayColor, getRainColor(godrayColor) / 4, dryToWet) : vec3(0.0);
-				 weight = mix(weight, wetWeight, dryToWet);
-			}
 			
 			samples *= illuminationDecay * weight ;
 			godraySample += samples;

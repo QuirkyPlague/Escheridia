@@ -68,7 +68,7 @@ vec3 LightVector = normalize(shadowLightPosition);
     dist = dist0;
     vec3 absorptionFactor = exp(-absorption * WATER_FOG_DENSITY * (dist * 0.35) );
     color.rgb *= absorptionFactor;
-    color.rgb += vec3(0.0392, 0.0588, 0.2039) * inscatteringAmount / absorption * (1.0 - absorptionFactor) * 0.01;
+    color.rgb += vec3(0.102, 0.149, 0.5059) * inscatteringAmount / absorption * (1.0 - absorptionFactor) * 0.1;
     }
   
 	}
