@@ -40,35 +40,55 @@ vec3 getShadow(vec3 shadowScreenPos)
 
 #if DO_SOFT_SHADOW == 1
 //soft shadow calculation
-  vec3 getSoftShadow(vec4 shadowClipPos, vec2 texcoord, vec3 geoNormal, vec3 feetPlayerPos){
- 
-  
-  vec3 shadowClipNormal = mat3(shadowProjection) * (mat3(shadowModelView) * geoNormal) * 0.4;
+  vec3 getSoftShadow(vec4 shadowClipPos, vec2 texcoord, vec3 geoNormal, vec3 feetPlayerPos, vec3 shadowScreenPos){
 
-  //feetPlayerPos += 0.09 * geoNormal; 
-  vec4 shadowViewPos = mat4(shadowModelView) * vec4(feetPlayerPos, 1.0);
+
   
+     feetPlayerPos += 0.09 * geoNormal; 
+  vec4 shadowViewPos = mat4(shadowModelView) * vec4(feetPlayerPos, 1.0);
+    
   shadowClipPos = mat4(shadowProjection) * shadowViewPos; 
+  vec3 shadowClipNormal = mat3(shadowProjection) * (mat3(shadowModelView) * geoNormal) * 0.35;
   shadowClipPos.w = 0.0;
   shadowClipPos += vec4(shadowClipNormal, 1.0);
-    vec3 shadowNDCPos = shadowClipPos.xyz / shadowClipPos.w; // convert to NDC space
-      vec3 shadowScreenPos = shadowNDCPos * 0.5 + 0.5; // convert to screen space
+  
+ 
+
+
   float noise = IGN(floor(gl_FragCoord.xy), frameCounter);
 
   vec3 shadowAccum = vec3(0.0, 0.0, 0.0); // sum of all shadow samples
-   float sampleRadius = SHADOW_SOFTNESS * 0.0007;
+  float sampleRadius = SHADOW_SOFTNESS * 0.0007;
+   float minRadius = 0.0;
+   float maxRadius = 0.2;
+  int blockerAmount = 0;
+  float blockerRadius = 0.0;
+  float sunSize = 1.0;
+  float estPenum;
+     float shadowMap = step(shadowScreenPos.z, texture(shadowtex0, shadowScreenPos.xy).r);
+     
+     if(shadowMap < shadowScreenPos.z)
+     {
+        blockerRadius +=  (shadowScreenPos.z - shadowMap);
+        blockerAmount += 1;
+         estPenum += (blockerRadius - blockerAmount) * sunSize;
+         estPenum /= blockerAmount;
+     }
   
+ 
+ //sampleRadius += mix(minRadius, maxRadius, estPenum);
+
    
  for(int i = 0; i < SHADOW_SAMPLES; i++){
       vec2 offset = vogelDisc(i, SHADOW_SAMPLES, noise) * sampleRadius; 
       vec4 offsetShadowClipPos = shadowClipPos + vec4(offset, 0.0, 0.0); // add offset
       offsetShadowClipPos.xyz = distortShadowClipPos(offsetShadowClipPos.xyz); // apply distortion
-      vec3 shadowNDCPos = offsetShadowClipPos.xyz / offsetShadowClipPos.w; // convert to NDC space
-      vec3 shadowScreenPos = shadowNDCPos * 0.5 + 0.5; // convert to screen space
-      shadowAccum += getShadow(shadowScreenPos); // take shadow sample
+       vec3 shadowNDCPos = offsetShadowClipPos.xyz / offsetShadowClipPos.w; // convert to NDC space
+       vec3 shadowScreenPos2 = shadowNDCPos * 0.5 + 0.5; // convert to screen space
+      shadowAccum += getShadow(shadowScreenPos2); // take shadow sample
     
   }
- return shadowAccum / float(SHADOW_SAMPLES); // divide sum by count, getting average shadow
+  return shadowAccum / float(SHADOW_SAMPLES); // divide sum by count, getting average shadow
 }
 #endif
 

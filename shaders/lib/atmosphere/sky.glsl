@@ -8,10 +8,10 @@
  bool isNight = worldTime >= 13000 && worldTime < 24000;
  bool isSunrise = worldTime <= 999;
 
- const vec3 fogColor = vec3(0.7176, 0.9255, 1.0);
- const vec3 skyColor = vec3(0.0627, 0.3373, 0.9765);
- const vec3 nightFogColor = vec3(0.0157, 0.0353, 0.051);
- const vec3 nightskyColor = vec3(0.0, 0.0039, 0.0235);
+ const vec3 horizColor = vec3(0.7333, 0.9647, 1.0);
+ const vec3 zenColor = vec3(0.1451, 0.6, 0.9725);
+ const vec3 nightFogColor = vec3(0.0392, 0.0471, 0.1294);
+ const vec3 nightskyColor = vec3(0.0039, 0.0118, 0.0549);
  const vec3 earlyFogColor = vec3(1.0, 0.502, 0.1882);
  const vec3 earlySkyColor = vec3(0.3294, 0.898, 1.0);
  const vec3 lateFogColor = vec3(1.0, 0.302, 0.1804);
@@ -32,24 +32,24 @@ float fogify(float x, float w) {
 
 
 vec3 calcSkyColor(vec3 pos) {
-   vec3 horizonColor = fogColor;
-   vec3 zenithColor = skyColor;
+   vec3 horizonColor = horizColor;
+   vec3 zenithColor = zenColor;
      float upDot = dot(pos, gbufferModelView[1].xyz); //not much, whats up with you?
         vec3 blend;
   
     if(worldTime >= 0 && worldTime < 1000)
     {
         float time = smoothstep(0, 1000, float(worldTime));
-        horizonColor = mix(earlyFogColor, fogColor, time);
-        zenithColor =  mix(earlySkyColor, skyColor, time);
+        horizonColor = mix(earlyFogColor, horizColor, time);
+        zenithColor =  mix(earlySkyColor, zenColor, time);
         float fogifyBlend = mix(fogify(max(upDot, 0.0), 0.025),fogify(max(upDot, 0.0), 0.005), time);
         blend = mix(zenithColor, horizonColor, fogifyBlend);
     }
     else if(worldTime >= 1000 && worldTime < 11500)
      {
         float time = smoothstep(10000, 11500, float(worldTime));
-        horizonColor = mix(fogColor, earlyFogColor, time);
-        zenithColor =  mix(skyColor, earlySkyColor, time);
+        horizonColor = mix(horizColor, earlyFogColor, time);
+        zenithColor =  mix(zenColor, earlySkyColor, time);
           float fogifyBlend = mix(fogify(max(upDot, 0.0), 0.005),fogify(max(upDot, 0.0), 0.035), time);
         blend = mix(zenithColor, horizonColor, fogifyBlend);
     }

@@ -110,7 +110,7 @@ void main() {
   }
     
   //final lighting calculation
-  vec3 shadow = getSoftShadow(shadowClipPos, texcoord, geometryNormal, feetPlayerPos);
+  vec3 shadow = getSoftShadow(shadowClipPos, texcoord, geometryNormal, feetPlayerPos, shadowScreenPos);
   vec3 diffuse;
   vec3 sunlight;
   vec3 lighting;

@@ -17,7 +17,7 @@ layout(location = 2) out vec4 encodedNormal;
 layout(location = 3) out vec4 godraySample;
 
 void main() {
-	color = texture(gtexture, texcoord) * glcolor * 1.9;
+	color = texture(gtexture, texcoord) * glcolor * 1.5;
 	
 	if (color.a < alphaTestRef) {
 		discard;

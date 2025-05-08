@@ -30,11 +30,7 @@ void main() {
   float depth = texture(depthtex0, texcoord).r;
   float depth1 = texture(depthtex1, texcoord).r;
   
-    if(depth1 == 1.0)
-			{
-				  color.rgb += applySky(color.rgb, texcoord, depth);
-         
-			}
+   
   vec3 encodedNormal = texture(colortex2, texcoord).rgb;
   vec3 normal = normalize((encodedNormal - 0.5) * 2.0); // we normalize to make sure it is of unit length
   normal = mat3(gbufferModelView) * normal;
@@ -49,7 +45,7 @@ void main() {
 vec3 LightVector = normalize(shadowLightPosition);
 	vec3 worldLightVector = mat3(gbufferModelViewInverse) * LightVector;
   vec3 V = normalize((-viewDir));
- vec3 absorption = vec3(0.302, 0.1608, 0.0314);
+ vec3 absorption = vec3(0.8157, 0.4471, 0.102);
   #if DO_WATER_FOG == 1
   // Fog calculations
   //float dist = length(viewPos) / far;
@@ -57,7 +53,7 @@ vec3 LightVector = normalize(shadowLightPosition);
   float dist1 = length(screenToView(texcoord, depth1));
   float dist = max(0, dist1 - dist0);
 
-  vec3 inscatteringAmount = vec3(0.01, 0.03, 0.08);
+  vec3 inscatteringAmount = vec3(0.01, 0.05, 0.03);
    vec3 inscatteringAmount2 = vec3(0.0431, 0.0627, 0.2471);
 
   
@@ -73,7 +69,7 @@ vec3 LightVector = normalize(shadowLightPosition);
     }
     else if(isWater && isNight)
     {
-      vec3 absorptionFactor = exp(-absorption * WATER_FOG_DENSITY * (dist * 0.4));
+      vec3 absorptionFactor = exp(-absorption * WATER_FOG_DENSITY * (dist * 0.6));
     color.rgb *= absorptionFactor;
     color.rgb += vec3(0.0588, 0.1608, 0.3765) * lightmap.g * inscatteringAmount * 0.2 / absorption * (1.0 - absorptionFactor);
    
@@ -102,7 +98,7 @@ vec3 LightVector = normalize(shadowLightPosition);
   {
    vec3 F0 = vec3(0.02);
     vec3 F  = fresnelSchlick(max(dot(normal, V),0.0), F0);
-    color.rgb = mix(color.rgb, lightmap.g *  0.26 * reflectedColor, F);
+    color.rgb = mix(color.rgb, lightmap.g *  0.66 * reflectedColor, F);
   }
 
 }

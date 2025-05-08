@@ -22,11 +22,11 @@ void main() {
 
  float depth = texture(depthtex0, texcoord).r;
   float depth1 = texture(depthtex1, texcoord).r;
- if( depth == 1.0 )
+
+ if(depth ==1.0)
  {
-    return;
+  return;
  }
- 
 
   
   vec2 lightmap = texture(colortex1, texcoord).rg;
@@ -39,19 +39,19 @@ void main() {
   // Fog calculations
   float dist = length(viewPos) / far;
   float fogFactor = exp(-FOG_DENSITY * (1.1 - dist));
-  float nightFogFactor = exp(-FOG_DENSITY * (0.67 - dist));
+  float nightFogFactor = exp(-FOG_DENSITY * (0.87 - dist));
   float rainFogFactor = exp(-FOG_DENSITY * (0.75 - dist));
 
-  vec3 fogColor = applySky(dayDistFogColor, texcoord, depth) * 2.1;
+  vec3 distFog = applySky(dayDistFogColor, texcoord, depth) *1.5;
 if(isNight)
 {
-  fogColor = applySky(dayDistFogColor, texcoord, depth);
+  distFog = applySky(dayDistFogColor, texcoord, depth) * 0.4;
 }
 
 
 if(!inWater)
 {
- vec3 currentFogColor = fogColor;
+ vec3 currentFogColor = distFog;
   if(isNight)
   {
     fogFactor = nightFogFactor;
@@ -61,17 +61,17 @@ if(!inWater)
   {
     float dryToWet = smoothstep(0.0, 1.0, float(rainStrength));
     fogFactor = mix(fogFactor, rainFogFactor, dryToWet);
-    fogColor = mix(currentFogColor, applySky(rainFogColor, texcoord, depth), dryToWet);
-    color.rgb = mix(color.rgb, fogColor, clamp(fogFactor, 0.0, 1.0));
+    distFog = mix(currentFogColor, applySky(rainFogColor, texcoord, depth), dryToWet);
+    color.rgb = mix(color.rgb, distFog, clamp(fogFactor, 0.0, 1.0));
   }
   else if(rainStrength <= 1.0 && rainStrength > 0.0 && isNight)
   {
     float dryToWet = smoothstep(0.0, 1.0, float(rainStrength));
     fogFactor = mix(fogFactor, rainFogFactor, dryToWet);
-    fogColor = mix(currentFogColor, rainFogColor, dryToWet) / 18;
-    color.rgb = mix(color.rgb, fogColor, clamp(fogFactor, 0.0, 1.0));
+    distFog = mix(currentFogColor, rainFogColor, dryToWet) / 18;
+    color.rgb = mix(color.rgb, distFog, clamp(fogFactor, 0.0, 1.0));
   }
-  color.rgb = mix(color.rgb, fogColor, clamp(fogFactor, 0.0, 1.0));
+  color.rgb = mix(color.rgb, distFog, clamp(fogFactor, 0.0, 1.0));
 }
 	
 #endif
