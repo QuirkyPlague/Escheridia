@@ -1,0 +1,6 @@
+#ifndef UNIFORMS_GLSL
+#define UNIFORMS_GLSL
+
+
+
+#endif //UNIFORMS_GLSL
