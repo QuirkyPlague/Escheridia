@@ -7,73 +7,72 @@
 vec3 dayDistFogColor;
 in vec2 texcoord;
 
-vec4 waterMask = texture(colortex8, texcoord);
+vec4 waterMask=texture(colortex8,texcoord);
 
-int blockID = int(waterMask) + 100;
-  
-  bool isWater = blockID == WATER_ID;
- bool inWater = isEyeInWater == 1.0;
+int blockID=int(waterMask)+100;
+
+bool isWater=blockID==WATER_ID;
+bool inWater=isEyeInWater==1.;
 
 /* RENDERTARGETS: 0 */
-layout(location = 0) out vec4 color;
+layout(location=0)out vec4 color;
 
-void main() {
-  color = texture(colortex0, texcoord);
-
- float depth = texture(depthtex0, texcoord).r;
-  float depth1 = texture(depthtex1, texcoord).r;
-
- if(depth ==1.0)
- {
-  return;
- }
-
-
+void main(){
+  color=texture(colortex0,texcoord);
   
-  vec2 lightmap = texture(colortex1, texcoord).rg;
-  #if DO_DISTANCE_FOG == 1
-  float farPlane = far * 4;
+  float depth=texture(depthtex0,texcoord).r;
+  float depth1=texture(depthtex1,texcoord).r;
   
-  vec3 NDCPos = vec3(texcoord.xy, depth) * 2.0 - 1.0;
-  vec3 viewPos = projectAndDivide(gbufferProjectionInverse, NDCPos);
+  if(depth==1.)
+  {
+    return;
+  }
+  
+  vec2 lightmap=texture(colortex1,texcoord).rg;
+  #if DO_DISTANCE_FOG==1
+  
 
+  vec3 NDCPos=vec3(texcoord.xy,depth)*2.-1.;
+  vec3 viewPos=projectAndDivide(gbufferProjectionInverse,NDCPos);
+  
   // Fog calculations
-  float dist = length(viewPos) / far;
-  float fogFactor = exp(-FOG_DENSITY * (1.1 - dist));
-  float nightFogFactor = exp(-FOG_DENSITY * (0.87 - dist));
-  float rainFogFactor = exp(-FOG_DENSITY * (0.55 - dist));
-vec3 rainFogColor = vec3(0.4);
-  vec3 distFog = applySky(dayDistFogColor, texcoord, depth) *1.5;
-if(isNight)
-{
-  distFog = applySky(dayDistFogColor, texcoord, depth) * 0.4;
-}
+  float dist=length(viewPos)/far;
+  float fogFactor=exp(-FOG_DENSITY*(1.1-dist));
+  float nightFogFactor=exp(-FOG_DENSITY*(.87-dist));
+  float rainFogFactor=exp(-FOG_DENSITY*(.55-dist));
+  vec3 rainFogColor=vec3(.4);
 
+  vec3 scatterColor;
+  vec3 absorption=vec3(1.,1.,1.);
+  scatterColor=applySky(scatterColor,texcoord,depth);
 
-if(!inWater)
-{
- vec3 currentFogColor = distFog;
-  if(isNight)
+  
+  if(!inWater)
   {
-    fogFactor = nightFogFactor;
+    
+    if(isNight)
+    {
+      fogFactor=nightFogFactor;
+      scatterColor *= 0.5;
+    }
+    
+    if(rainStrength<=1.&&rainStrength>0.&&!isNight)
+    {
+      float dryToWet=smoothstep(0.,1.,float(rainStrength));
+      fogFactor=mix(fogFactor,rainFogFactor,dryToWet);
+      scatterColor = mix(scatterColor, vec3(0.4784, 0.4784, 0.4784), dryToWet);
+    }
+    else if(rainStrength<=1.&&rainStrength>0.&&isNight)
+    {
+      float dryToWet=smoothstep(0.,1.,float(rainStrength));
+      fogFactor=mix(fogFactor,rainFogFactor,dryToWet);
+      scatterColor = mix(scatterColor, vec3(0.1647, 0.1647, 0.1647), dryToWet);
+    }
+    
+    vec3 absorptionFactor=exp2(-absorption*fogFactor);
+    color.rgb*=absorptionFactor;
+    color.rgb+=scatterColor/absorption*(1.-absorptionFactor);
   }
-
-  if(rainStrength <= 1.0 && rainStrength > 0.0 && !isNight)
-  {
-    float dryToWet = smoothstep(0.0, 1.0, float(rainStrength));
-    fogFactor = mix(fogFactor, rainFogFactor, dryToWet);
-    distFog = mix(currentFogColor, applySky(rainFogColor, texcoord, depth), dryToWet);
-    color.rgb = mix(color.rgb, distFog, clamp(fogFactor, 0.0, 1.0));
-  }
-  else if(rainStrength <= 1.0 && rainStrength > 0.0 && isNight)
-  {
-    float dryToWet = smoothstep(0.0, 1.0, float(rainStrength));
-    fogFactor = mix(fogFactor, rainFogFactor, dryToWet);
-    distFog = mix(currentFogColor, rainFogColor, dryToWet) / 18;
-    color.rgb = mix(color.rgb, distFog, clamp(fogFactor, 0.0, 1.0));
-  }
-  color.rgb = mix(color.rgb, distFog, clamp(fogFactor, 0.0, 1.0));
-}
-	
-#endif
+  
+  #endif
 }

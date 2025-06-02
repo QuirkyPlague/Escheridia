@@ -33,10 +33,8 @@ vec3 getShadow(vec3 shadowScreenPos)
   we use 1 - the alpha to get how much light is let through
   and multiply that light by the color of the caster
   */
-	return shadowColor.rgb * (1.0 - shadowColor.a);
+	return shadowColor.rgb * (1.0 - shadowColor.a) * 6;
 }
-
-
 
 #if DO_SOFT_SHADOW == 1
 //soft shadow calculation
@@ -45,6 +43,7 @@ vec3 getShadow(vec3 shadowScreenPos)
 
   
      feetPlayerPos += 0.09 * geoNormal; 
+
   vec4 shadowViewPos = mat4(shadowModelView) * vec4(feetPlayerPos, 1.0);
     
   shadowClipPos = mat4(shadowProjection) * shadowViewPos; 
@@ -58,7 +57,7 @@ vec3 getShadow(vec3 shadowScreenPos)
   float noise = IGN(floor(gl_FragCoord.xy), frameCounter);
 
   vec3 shadowAccum = vec3(0.0, 0.0, 0.0); // sum of all shadow samples
-  float sampleRadius = SHADOW_SOFTNESS * 0.0007;
+  float sampleRadius = SHADOW_SOFTNESS * 0.0004;
    float minRadius = 0.0;
    float maxRadius = 0.2;
   int blockerAmount = 0;
@@ -67,13 +66,17 @@ vec3 getShadow(vec3 shadowScreenPos)
   float estPenum;
      float shadowMap = step(shadowScreenPos.z, texture(shadowtex0, shadowScreenPos.xy).r);
      
-     if(shadowMap < shadowScreenPos.z)
+    
+       if(shadowMap < shadowScreenPos.z)
      {
         blockerRadius +=  (shadowScreenPos.z - shadowMap);
-        blockerAmount += 1;
+        blockerAmount ++;
          estPenum += (blockerRadius - blockerAmount) * sunSize;
          estPenum /= blockerAmount;
+      
      }
+     
+    
   
  
  //sampleRadius += mix(minRadius, maxRadius, estPenum);

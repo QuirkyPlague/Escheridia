@@ -12,7 +12,7 @@
 vec3 sampleGodrays(vec3 godraySample, vec2 texcoord)
 {
     //godray parameters
-    float exposure = GODRAYS_EXPOSURE;
+    float exposure = 0.5;
     float decay = 1.0;
     const float density = 1.0;
     float weight =  0.45 * GODRAY_DENSITY;
@@ -38,7 +38,7 @@ vec3 sampleGodrays(vec3 godraySample, vec2 texcoord)
   		float dist1 = length(screenToView(texcoord, depth1));
   		float dist = dist0;
 	 vec3 absorption = vec3(0.4, 0.5137, 0.9647);
-	vec3 inscatteringAmount = calcSkyColor(godrayColor);
+	vec3 inscatteringAmount = calcSkyColor(godrayColor) * 0.6;
 	vec3 absorptionFactor = exp(-absorption * GODRAY_DENSITY * (dist * 0.014));
     godrayColor *= absorptionFactor;
     godrayColor +=  inscatteringAmount / absorption * (1.0 - absorptionFactor);
@@ -58,12 +58,13 @@ vec3 sampleGodrays(vec3 godraySample, vec2 texcoord)
     //calculation of the sun position
     vec3 sunScreenPos = viewSpaceToScreenSpace(shadowLightPosition);
     vec3 worldLightVector = mat3(gbufferModelViewInverse) * sunScreenPos;
-    sunScreenPos.xy = clamp(sunScreenPos.xy, vec2(-1.5), vec2(1.0));
+    sunScreenPos.xy = clamp(sunScreenPos.xy, vec2(-1.5), vec2(1.5));
 	
 	vec2 deltaTexCoord = (texcoord - (sunScreenPos.xy)); 
     float VoL = dot(normalize(feetPlayerPos), sunScreenPos);
     deltaTexCoord *= rcp(GODRAYS_SAMPLES) * density;
 	float illuminationDecay = 1.0;
+	vec3 waterScatter = WATER_SCATTERING;
 
 	 if(GODRAY_ASYMMETRY >= 0.65)
    {
@@ -80,24 +81,13 @@ vec3 sampleGodrays(vec3 godraySample, vec2 texcoord)
 				vec3 samples = texture(depthtex0, altCoord).r == 1.0 ? godrayRGB(godrayColor) * vec3(0.2706, 0.3843, 0.9529) : vec3(0.0);
 			}
 			vec3 currentGodrayColor = samples;
-			if(isWater && !isNight)
-				{
-					
-					vec3 samples = texture(depthtex0, altCoord).r == 1.0 ? godrayRGB(godrayColor) * godrayColor : vec3(0.0);
-				 	
-				} 
-				if(isWater && isNight)
-				{
-					samples = texture(depthtex1, altCoord).r == 1.0 ? mix(vec3(0.0392, 0.0824, 0.1804), calcSkyColor(godrayColor), vec3(0.0353, 0.1059, 0.2039)) * 0.1 : vec3(0.0);
-				 	
-				}
+		
 			#if DO_WATER_FOG == 1
 			if(inWater)
 			{
 					
-					samples = texture(depthtex1, altCoord).r == 1.0 ? mix(vec3(0.0, 0.2157, 1.0),vec3(0.1059, 0.298, 0.9882) , getWaterTint(waterTint)) : vec3(0.0);
-				 	exposure = GODRAYS_EXPOSURE * 0.4;
-					weight = 0.65 * WATER_FOG_DENSITY;
+					samples = texture(depthtex1, altCoord).r == 1.0 ? waterScatter : vec3(0.0);;
+					weight = 1.0 * WATER_FOG_DENSITY;
 			}
 				#endif
 			
@@ -119,7 +109,7 @@ vec3 sampleGodrays(vec3 godraySample, vec2 texcoord)
 	if(inWater) 
 	{
 		#if DO_WATER_FOG == 1
-		godraySample = godraySample;
+		godraySample /= GODRAYS_SAMPLES * HG(0.77, -VoL);
 		#else
 		godraySample = vec3(0.0);
 		#endif

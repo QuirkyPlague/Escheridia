@@ -22,12 +22,12 @@ in vec3 modelPos;
 in vec3 viewPos;
 in vec3 feetPlayerPos;
 in mat3 tbnMatrix;
- const vec3 fogColor = vec3(0.7333, 0.9647, 1.0);
- const vec3 skyColor = vec3(0.2078, 0.5373, 0.8039);
+ const vec3 fogColor = vec3(0.8706, 0.949, 1.0) * 1.5;
+ const vec3 skyColor = vec3(0.4275, 0.7569, 0.9922) * 1.4;
  const vec3 nightFogColor = vec3(0.0941, 0.1843, 0.3373);
  const vec3 nightskyColor = vec3(0.0235, 0.051, 0.2039);
- const vec3 earlyFogColor = vec3(0.8941, 0.5922, 0.4039);
- const vec3 earlySkyColor = vec3(0.2275, 0.7216, 0.8118);
+ const vec3 earlyFogColor = vec3(0.8941, 0.5922, 0.4039) * 1.4;
+ const vec3 earlySkyColor = vec3(0.2275, 0.7216, 0.8118)* 1.2;
  const vec3 lateFogColor = vec3(0.6588, 0.2549, 0.1098);
  const vec3 lateSkyColor = vec3(0.2706, 0.451, 0.5529);
  const vec3 rainHorizonColor = vec3(0.9294, 0.9294, 0.9294);
@@ -56,7 +56,7 @@ vec3 calcSkyColor(vec3 pos) {
         float time = smoothstep(0, 1000, float(worldTime));
         horizonColor = mix(earlyFogColor, fogColor, time);
         zenithColor =  mix(earlySkyColor, skyColor, time);
-        float fogifyBlend = mix(fogify(max(upDot, 0.0), 0.025),fogify(max(upDot, 0.0), 0.015), time);
+        float fogifyBlend = mix(fogify(max(upDot, 0.0), 0.025),fogify(max(upDot, 0.0), 0.005), time);
         blend = mix(zenithColor, horizonColor, fogifyBlend);
     }
     else if(worldTime >= 1000 && worldTime < 11500)
@@ -64,7 +64,7 @@ vec3 calcSkyColor(vec3 pos) {
         float time = smoothstep(10000, 11500, float(worldTime));
         horizonColor = mix(fogColor, earlyFogColor, time);
         zenithColor =  mix(skyColor, earlySkyColor, time);
-          float fogifyBlend = mix(fogify(max(upDot, 0.0), 0.015),fogify(max(upDot, 0.0), 0.025), time);
+          float fogifyBlend = mix(fogify(max(upDot, 0.0), 0.024),fogify(max(upDot, 0.0), 0.025), time);
         blend = mix(zenithColor, horizonColor, fogifyBlend);
     }
     else if(worldTime >= 11500 && worldTime < 13000)

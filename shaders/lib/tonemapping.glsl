@@ -5,12 +5,12 @@
  #if TONEMAPPING_TYPE == 1
 vec3 uncharted2Tonemap(vec3 x)
 {
-    float A = 0.15f;
-    float B = 0.50f;
-    float C = 0.10f;
-    float D = 0.20f;
+    float A = 0.035f;
+    float B = 0.03f;
+    float C = 0.30f;
+    float D = 1.80f;
     float E = 0.02f;
-    float F = 0.30f;
+    float F = 0.20f;
     return ((x*(A*x+C*B)+D*E)/(x*(A*x+B)+D*F))-E/F;
 }
 
@@ -27,11 +27,12 @@ vec3 uncharted2(vec3 v)
 #elif TONEMAPPING_TYPE == 0
 vec3 aces(vec3 v)
 {
-    float a = 1.45;
-    float b = 0.213;
-    float c = 2.33;
-    float d = 1.39;
-    float e = 0.94;
+    
+    float a = 1.05;
+    float b = 0.113;
+    float c = 1.0;
+    float d = 1.29;
+    float e = 2.0;
     return pow(clamp((v*(a*v+b))/(v*(c*v+d)+e), 0.0f, 1.0f), vec3(1.0/2.2));
 }
 

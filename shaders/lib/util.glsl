@@ -79,35 +79,6 @@ vec3 fresnelSchlick(float cosTheta, vec3 F0)
 {
     return F0 + (1.0 - F0) * pow(clamp(1.0 - cosTheta, 0.0, 1.0), 5.0);
 } 
-float f0_to_ior(float f0) {
-	float sqrt_f0 = sqrt(f0) * 0.99999;
-	return (1.0 + sqrt_f0) / (1.0 - sqrt_f0);
-}
-
-vec3 fresnel_dielectric_n(float cos_theta, float n) {
-	float g_sq = sqrt(n) + sqrt(cos_theta) - 1.0;
-
-	if (g_sq < 0.0) return vec3(1.0); // Imaginary g => TIR
-
-	float g = sqrt(g_sq);
-	float a = g - cos_theta;
-	float b = g + cos_theta;
-
-	return vec3(0.5 * sqrt(a / b) * (1.0 + sqrt((b * cos_theta - 1.0) / (a * cos_theta + 1.0))));
-}
-
-vec3 fresnel_dielectric(float cos_theta, float f0) {
-	float n = f0_to_ior(f0);
-	return fresnel_dielectric_n(cos_theta, n);
-}
-
-//fetch noise tex
-vec4 getNoise(vec2 coord)
-{
-  ivec2 screenCoord = ivec2(coord * vec2(viewWidth, viewHeight)); // exact pixel coordinate onscreen
-  ivec2 noiseCoord = screenCoord % noiseTextureResolution; // wrap to range of noiseTextureResolution
-  return texelFetch(noisetex, noiseCoord, 0);
-}
 
 vec3 projectAndDivide(mat4 projectionMatrix, vec3 position)
  {
@@ -149,12 +120,6 @@ float HG(float g, float cosA)
      float g2 = g * g;
     return ((1.0 - g2) / pow(abs(1.0 + g2 - 2.0*g*cosA), 1.5));
 }
-float CS(float g, float costh)
-{
-    return (3.0 * (1.0 - g * g) * (1.0 + costh * costh)) / (4.0 * PI * 2.0 * (2.0 + g * g) * pow(1.0 + g * g - 2.0 * g * costh, 3.0/2.0));
-}
-
-
 
 vec3 screenSpaceToViewSpace(vec3 screenPosition, mat4 projectionInverse) {
 	screenPosition = screenPosition * 2.0 - 1.0;
@@ -178,15 +143,6 @@ vec3 getShadowScreenPos(vec4 shadowClipPos){
 
 	return shadowScreenPos;
 }
-
-vec3 change_luminance(vec3 c_in, float l_out)
-{
-    float l_in = luminance(c_in);
-    return c_in * (l_out / l_in);
-}
-
-
-
 
 #define _rcp(x) (1.0 / x)
 float rcp(in float x) {

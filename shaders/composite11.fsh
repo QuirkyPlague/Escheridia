@@ -2,6 +2,7 @@
 
 #include "/lib/util.glsl"
 #include "/lib/bloom.glsl"
+#include "/lib/FXAA.glsl"
 
   bool inWater = isEyeInWater == 1.0;
 in vec2 texcoord;
@@ -9,12 +10,12 @@ in vec2 texcoord;
 layout(location = 0) out vec4 color;
 
 void main() {
-	color = texture(colortex0, texcoord);
-	#if GODRAYS_ENABLE ==1
-	{
-		color.rgb += texture(colortex7, texcoord).rgb;
-	}
- #endif
 	
+	 color = texture(colortex0, texcoord);
+    
+	#if DO_FXAA
+      color.rgb = FXAA(texture(colortex0, texcoord).rgb, colortex0, texcoord);
+	  
+	#endif
 	
 }

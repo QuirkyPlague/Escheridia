@@ -58,7 +58,7 @@ void main() {
 		float perceptualSmoothness = 1.0 - sqrt(waterRoughness);
     waterMask = vec4(1.0, 1.0, 1.0, 1.0);
     roughness = perceptualSmoothness;
-    color = color * 0.7;
+    color.a *= 0.1;
 	}
 	else
 	{
@@ -122,7 +122,7 @@ geoNormal = vec4(normal * 0.5 + 0.5, 1.0);
     F0 = albedo.rgb;
   }
   vec3 F  = fresnelSchlick(max(dot(H, V),0.0), F0);
-    color.a *= float(1.0 - F);
+  color.a *= float(1.0 - F);
   //final lighting calculation
   vec3 shadow = getSoftShadow(shadowClipPos, texcoord, geoNormal.rgb, feetPlayerPos, shadowScreenPos);
   vec3 diffuse;

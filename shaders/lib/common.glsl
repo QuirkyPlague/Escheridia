@@ -9,7 +9,7 @@ const int colortex6Format = RGB16F;
 const int colortex7Format = RGB16F;
 const int specularFormat = RGB16F;
 const int colortex2Format = RGB16F;
-const bool colortex5MipmapEnabled = true;
+const bool colortex0MipmapEnabled = true;
 const bool shadowHardwareFiltering = true;
 */
 
@@ -39,10 +39,10 @@ const bool shadowHardwareFiltering = true;
 #define U2_TOE_NUMERATOR     0.21
 #define U2_TOE_DENOMINATOR  0.7
 
-#define AGX_SATURATION 1.3
-#define AGX_MIN_EV (-13.17393)
+#define AGX_SATURATION 1.34
+#define AGX_MIN_EV (-12.17393)
 #define AGX_MAX_EV (4.026069)
-#define AGX_POWER vec3(1.0)
+#define AGX_POWER vec3(1.2)
 #define AGX_OFFSET_COLOR vec3(0.0)
 #define TONEMAPPING_TYPE 3 //[0 1 2 3]
 
@@ -55,7 +55,8 @@ const bool shadowHardwareFiltering = true;
 
 #define DO_WATER_FOG 1 //[0 1]
 #define DO_DISTANCE_FOG 1 //[0 1]
-
+#define WATER_EXTINCTION vec3(0.9098, 0.6745, 0.3882);
+#define WATER_SCATTERING vec3(0.0235, 0.0627, 0.1333);
 
 //Godrays Config
 #define GODRAYS_ENABLE 1 //[0 1]
@@ -93,4 +94,8 @@ const bool shadowHardwareFiltering = true;
 
 //SSR 
 #define SSR_STEPS 12
+
+//FXAA
+#define DO_FXAA 1 //[0 1]
+
 #endif

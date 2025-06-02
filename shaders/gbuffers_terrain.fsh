@@ -27,6 +27,7 @@ layout(location = 5) out vec4 specularLighting;
 layout(location = 6) out vec4 geoNormal;
 
 
+
 void main() {
 	color = texture(gtexture, texcoord) * glcolor;
 	
@@ -41,7 +42,7 @@ void main() {
 	
 
 	vec3 normalMaps = texture(normals, texcoord).rgb;
-	normalMaps = normalMaps * 2 - 1;
+	normalMaps = normalMaps * 2.0 - 1.0;
 	normalMaps.z = sqrt(1.0 - dot(normalMaps.xy, normalMaps.xy));
 	vec3 mappedNormal = tbnMatrix * normalMaps;
 	

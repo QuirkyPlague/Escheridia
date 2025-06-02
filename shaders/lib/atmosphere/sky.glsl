@@ -8,16 +8,16 @@
  bool isNight = worldTime >= 13000 && worldTime < 24000;
  bool isSunrise = worldTime <= 999;
 
- const vec3 horizColor = vec3(0.7333, 0.9647, 1.0);
- const vec3 zenColor = vec3(0.1451, 0.6, 0.9725);
- const vec3 nightFogColor = vec3(0.0392, 0.0471, 0.1294);
- const vec3 nightskyColor = vec3(0.0039, 0.0118, 0.0549);
- const vec3 earlyFogColor = vec3(1.0, 0.502, 0.1882);
- const vec3 earlySkyColor = vec3(0.3294, 0.898, 1.0);
- const vec3 lateFogColor = vec3(1.0, 0.302, 0.1804);
- const vec3 lateSkyColor = vec3(0.298, 0.5137, 0.6392);
- const vec3 rainHorizonColor = vec3(0.7373, 0.7373, 0.7373);
- const vec3 rainSkyColor = vec3(0.4118, 0.4118, 0.4118);
+ const vec3 horizColor = vec3(0.8706, 0.949, 1.0) * 3.5;
+ const vec3 zenColor = vec3(0.4275, 0.7569, 0.9922) * 1.2;
+ const vec3 nightFogColor = vec3(0.0941, 0.1843, 0.3373);
+ const vec3 nightskyColor = vec3(0.0235, 0.051, 0.2039);
+ const vec3 earlyFogColor = vec3(0.8941, 0.5922, 0.4039) * 1.2;
+ const vec3 earlySkyColor = vec3(0.2275, 0.7216, 0.8118);
+ const vec3 lateFogColor = vec3(0.6588, 0.2549, 0.1098);
+ const vec3 lateSkyColor = vec3(0.2706, 0.451, 0.5529);
+ const vec3 rainHorizonColor = vec3(0.9294, 0.9294, 0.9294);
+ const vec3 rainSkyColor = vec3(0.6627, 0.6627, 0.6627);
 
 float skySmoothing(vec2 st, float pct)
 {
@@ -42,7 +42,7 @@ vec3 calcSkyColor(vec3 pos) {
         float time = smoothstep(0, 1000, float(worldTime));
         horizonColor = mix(earlyFogColor, horizColor, time);
         zenithColor =  mix(earlySkyColor, zenColor, time);
-        float fogifyBlend = mix(fogify(max(upDot, 0.0), 0.025),fogify(max(upDot, 0.0), 0.005), time);
+        float fogifyBlend = mix(fogify(max(upDot, 0.0), 0.025),fogify(max(upDot, 0.0), 0.024), time);
         blend = mix(zenithColor, horizonColor, fogifyBlend);
     }
     else if(worldTime >= 1000 && worldTime < 11500)
@@ -50,7 +50,7 @@ vec3 calcSkyColor(vec3 pos) {
         float time = smoothstep(10000, 11500, float(worldTime));
         horizonColor = mix(horizColor, earlyFogColor, time);
         zenithColor =  mix(zenColor, earlySkyColor, time);
-          float fogifyBlend = mix(fogify(max(upDot, 0.0), 0.005),fogify(max(upDot, 0.0), 0.035), time);
+          float fogifyBlend = mix(fogify(max(upDot, 0.0), 0.024),fogify(max(upDot, 0.0), 0.035), time);
         blend = mix(zenithColor, horizonColor, fogifyBlend);
     }
     else if(worldTime >= 11500 && worldTime < 13000)
