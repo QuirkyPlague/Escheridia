@@ -1,11 +1,12 @@
 #version 330 compatibility
 
+#include "/lib/uniforms.glsl"
+
+
 uniform sampler2D gtexture;
 
 in vec2 texcoord;
 in vec4 glcolor;
-
-
 
 layout(location = 0) out vec4 color;
 
@@ -14,4 +15,5 @@ void main() {
   if(color.a < 0.1){
     discard;
   }
+   
 }

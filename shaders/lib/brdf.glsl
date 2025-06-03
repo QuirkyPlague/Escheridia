@@ -1,6 +1,7 @@
 #ifndef BRDF_GLSL
 #define BRDF_GLSL
 
+
 vec3 brdf(vec3 albedo, vec3 F0, vec3 L, vec3 currentSunlight,vec3 N, vec3 H,vec3 V, float roughness, vec4 SpecMap)
 {
   vec3 Lo = vec3(0.0);

@@ -1,8 +1,8 @@
 #version 330 compatibility
 
 #include "/lib/util.glsl"
-#include "/lib/spaceConversions.glsl"
-#include "/lib/atmosphere/sky.glsl"
+#include "/lib/atmosphere/skyColor.glsl"
+#include "/lib/blockID.glsl"
 in vec3 normal;
 
 uniform float near;
@@ -17,7 +17,7 @@ layout(location=0)out vec4 color;
 
 void main(){
   color=texture(colortex0,texcoord);
-  vec4 waterMask=texture(colortex8,texcoord);
+  vec4 waterMask=texture(colortex4,texcoord);
   vec2 lightmap=texture(colortex1,texcoord).rg;
   int blockID=int(waterMask)+100;
   
@@ -35,14 +35,8 @@ void main(){
   vec3 viewDir=normalize(viewPos);
   vec3 reflectedColor=calcSkyColor((reflect(viewDir,normal)));
   
-  vec3 feetPlayerPos=getFeetPlayerPos(viewPos);
-  vec3 worldPos=getWorldPos(feetPlayerPos);
-  
-  vec3 LightVector=normalize(shadowLightPosition);
-  vec3 worldLightVector=mat3(gbufferModelViewInverse)*LightVector;
-  vec3 V=normalize((-viewDir));
-  
-  #if DO_WATER_FOG==1
+;
+
   // Fog calculations
   //float dist = length(viewPos) / far;
   float dist0=length(screenToView(texcoord,depth));
@@ -51,41 +45,17 @@ void main(){
   
   vec3 absorption= WATER_EXTINCTION;
   vec3 inscatteringAmount= WATER_SCATTERING;
-
+  inscatteringAmount *= 0.1;
   
   if(inWater)
   {
-    if(!isNight)
-    {
       dist=dist0;
-      vec3 absorptionFactor=exp(-absorption*WATER_FOG_DENSITY*(dist*.34));
+      vec3 absorptionFactor=exp(-absorption*WATER_FOG_DENSITY*(dist*.24));
       color.rgb*=absorptionFactor;
       color.rgb+=vec3(.6471,.4784,.2824)*inscatteringAmount/absorption*(1.-absorptionFactor);
-    }
-    else if(isNight)
-    {
-      dist=dist0;
-      vec3 absorptionFactor=exp(-absorption*WATER_FOG_DENSITY*(dist*.35));
-      color.rgb*=absorptionFactor;
-      color.rgb+=vec3(.102,.149,.5059)*inscatteringAmount/absorption*(1.-absorptionFactor)*.1;
-    }
     
   }
-  #endif
-  vec3 F0=vec3(.02);
-  vec3 L=normalize(worldLightVector);
-  vec3 H=normalize(V+L);
-  
-  if(!isWater&&inWater)
-  {
-    #if DO_WATER_FOG==0
-    color*=vec4(.149,.3373,.7098,1.);
-    #endif
-    if(WATER_FOG_DENSITY==0.)
-    {
-      color*=vec4(.149,.3373,.7098,1.);
-    }
-    
-  }
+
+
   
 }

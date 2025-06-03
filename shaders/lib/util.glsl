@@ -1,28 +1,50 @@
 #ifndef UTIL_GLSL
 #define UTIL_GLSL
 
-uniform mat4 gbufferProjection;
-#include "/lib/uniforms.glsl"
 #include "/lib/common.glsl"
-#include "/lib/distort.glsl"
-#include "/lib/postProcessing.glsl"
-#include "/lib/blockIDs.glsl"
+#include "/lib/uniforms.glsl"
 
-float getDepth(vec2 texcoord)
+vec3 projectAndDivide(mat4 projectionMatrix, vec3 position)
 {
-    float depth = texture(depthtex0, texcoord).r;
-    return depth;
+  vec4 homPos = projectionMatrix * vec4(position, 1.0);
+  return homPos.xyz / homPos.w;
 }
-float getTranslucentDepth(vec2 texcoord)
+
+float IGN(vec2 coord)
 {
-    float depth = texture(depthtex1, texcoord).r;
-    return depth;
+    return fract(52.9829189f * fract(0.06711056f * coord.x + 0.00583715f* coord.y));
 }
-float getOpaqueDepth(vec2 texcoord)
+
+float IGN(vec2 coord, int frame)
 {
-    float depth = texture(depthtex2, texcoord).r;
-    return depth;
+    return  IGN(coord + 5.588238 * (frame & 63));
 }
+
+vec2 vogelDisc(int stepIndex, int stepCount, float noise) {
+    float rotation = noise * 2 * PI;
+    const float goldenAngle = 2.4;
+
+    float r = sqrt(stepIndex + 0.5) / sqrt(float(stepCount));
+    float theta = stepIndex * goldenAngle + rotation;
+
+    return r * vec2(cos(theta), sin(theta));
+}
+
+vec3 screenSpaceToViewSpace(vec3 screenPosition, mat4 projectionInverse) {
+	screenPosition = screenPosition * 2.0 - 1.0;
+
+	vec3 viewPosition  = vec3(vec2(projectionInverse[0].x, projectionInverse[1].y) * screenPosition.xy + projectionInverse[3].xy, projectionInverse[3].z);
+
+    viewPosition /= projectionInverse[2].w * screenPosition.z + projectionInverse[3].w;
+
+	return viewPosition;
+}
+
+float screenSpaceToViewSpace(float depth, mat4 projectionInverse) {
+	depth = depth * 2.0 - 1.0;
+	return projectionInverse[3].z / (projectionInverse[2].w * depth + projectionInverse[3].w);
+}
+
 vec3 viewSpaceToScreenSpace(vec3 viewPosition) {
 	vec3 screenPosition  = vec3(gbufferProjection[0].x, gbufferProjection[1].y, gbufferProjection[2].z) * viewPosition + gbufferProjection[3].xyz;
 	     screenPosition /= -viewPosition.z;
@@ -33,13 +55,25 @@ float viewSpaceToScreenSpace(float depth, mat4 projection) {
 	return ((projection[2].z * depth + projection[3].z) / -depth) * 0.5 + 0.5;
 }
 
-vec4 findShadowClipPos(vec3 feetPlayerPos)
+float HG(float g, float cosA)
 {
-  vec4 shadowViewPos = shadowModelView * vec4(feetPlayerPos, 1.0);
-  vec4 shadowClipPos = shadowProjection * shadowViewPos;
-  return shadowClipPos;
+    
+    cosA = clamp(cosA, -1, 1);
+
+     float g2 = g * g;
+    return ((1.0 - g2) / pow(abs(1.0 + g2 - 2.0*g*cosA), 1.5));
+}
+vec3 screenToView(vec2 texcoord, float depth)
+{
+    vec3 ndcPos = vec3(texcoord.xy, depth) * 2.0 - 1.0;
+    vec3 viewPos = projectAndDivide(gbufferProjectionInverse, ndcPos);
+    return viewPos;
 }
 
+float luminance(vec3 color)
+{
+    return dot(color, vec3(0.2126, 0.7152, 0.0722));
+}
 
 float DistributionGGX(vec3 N, vec3 H, float roughness)
 {
@@ -80,87 +114,4 @@ vec3 fresnelSchlick(float cosTheta, vec3 F0)
     return F0 + (1.0 - F0) * pow(clamp(1.0 - cosTheta, 0.0, 1.0), 5.0);
 } 
 
-vec3 projectAndDivide(mat4 projectionMatrix, vec3 position)
- {
-  vec4 homPos = projectionMatrix * vec4(position, 1.0);
-  return homPos.xyz / homPos.w;
-}
-
-float IGN(vec2 coord)
-{
-    return fract(52.9829189f * fract(0.06711056f * coord.x + 0.00583715f* coord.y));
-}
-
-float IGN(vec2 coord, int frame)
-{
-    return  IGN(coord + 5.588238 * (frame & 63));
-}
-
-vec2 vogelDisc(int stepIndex, int stepCount, float noise) {
-    float rotation = noise * 2 * PI;
-    const float goldenAngle = 2.4;
-
-    float r = sqrt(stepIndex + 0.5) / sqrt(float(stepCount));
-    float theta = stepIndex * goldenAngle + rotation;
-
-    return r * vec2(cos(theta), sin(theta));
-}
-
-float luminance(vec3 color)
-{
-    return dot(color, vec3(0.2126, 0.7152, 0.0722));
-}
-
-float HG(float g, float cosA)
-{
-    // Temporary hotfix for black plague problem
-    // TODO: track down why vectors used to calculate cosA are not normalized (or contain NaNs)
-    cosA = clamp(cosA, -1, 1);
-
-     float g2 = g * g;
-    return ((1.0 - g2) / pow(abs(1.0 + g2 - 2.0*g*cosA), 1.5));
-}
-
-vec3 screenSpaceToViewSpace(vec3 screenPosition, mat4 projectionInverse) {
-	screenPosition = screenPosition * 2.0 - 1.0;
-
-	vec3 viewPosition  = vec3(vec2(projectionInverse[0].x, projectionInverse[1].y) * screenPosition.xy + projectionInverse[3].xy, projectionInverse[3].z);
-
-    viewPosition /= projectionInverse[2].w * screenPosition.z + projectionInverse[3].w;
-
-	return viewPosition;
-}
-
-float screenSpaceToViewSpace(float depth, mat4 projectionInverse) {
-	depth = depth * 2.0 - 1.0;
-	return projectionInverse[3].z / (projectionInverse[2].w * depth + projectionInverse[3].w);
-}
-
-vec3 getShadowScreenPos(vec4 shadowClipPos){
-	vec3 shadowScreenPos = distortShadowClipPos(shadowClipPos.xyz); //apply shadow distortion
-  	shadowScreenPos.xyz = shadowScreenPos.xyz * 0.5 + 0.5; //convert from -1 ~ +1 to 0 ~ 1
-
-
-	return shadowScreenPos;
-}
-
-#define _rcp(x) (1.0 / x)
-float rcp(in float x) {
-    return _rcp(x);
-}
-vec2 rcp(in vec2 x) {
-    return _rcp(x);
-}
-vec3 rcp(in vec3 x) {
-    return _rcp(x);
-}
-vec4 rcp(in vec4 x) {
-    return _rcp(x);
-}
-
-
-
-
-
-
-#endif
+#endif //UTIL_GLSL

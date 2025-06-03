@@ -1,129 +1,78 @@
 #version 330 compatibility
 
-//includes
-#include "/lib/util.glsl"
-#include "/lib/spaceConversions.glsl"
-#include "/lib/atmosphere/sky.glsl"
-#include "/lib/shadows.glsl"
+#include "/lib/uniforms.glsl"
+#include "/lib/lighting/lighting.glsl"
+#include "/lib/shadows/distort.glsl"
+#include "/lib/shadows/drawShadows.glsl"
+#include "/lib/shadows/softShadows.glsl"
 #include "/lib/brdf.glsl"
-#include "/lib/lighting.glsl"
-
-//vertex variables
 in vec2 texcoord;
-in vec2 lmcoord;
-in vec4 glcolor;
-in vec3 normal;
-vec3 geoNormal = texture(colortex10, texcoord).rgb;
-
-//texture assignments and crucial bools
-vec4 SpecMap = texture(colortex3, texcoord);
-vec4 waterMask = texture(colortex8, texcoord);
-vec4 normalMap = texture(colortex2, texcoord);
-int blockID = int(waterMask) + 100;
-bool isWater = blockID == WATER_ID;
-bool inWater = isEyeInWater == 1.0;  
-
-const float sunPathRotation = SUN_ROTATION;
-
-
+vec4 SpecMap = texture(colortex5, texcoord);
 
 /* RENDERTARGETS: 0 */
 layout(location = 0) out vec4 color;
 
 void main() {
-  color = texture(colortex0, texcoord);
+	color = texture(colortex0, texcoord);
 
-  vec3 LightVector = normalize(shadowLightPosition);
-	vec3 worldLightVector = mat3(gbufferModelViewInverse) * LightVector;
-
-  //depth calculation
-  float depth = texture(depthtex0, texcoord).r;
-   float depth1 = texture(depthtex1, texcoord).r;
-
-  if(depth == 1.0)
-  {
-    return;
-  }
-  //Space Conversions
-	vec3 NDCPos = getNDC(texcoord, depth);
-	vec3 viewPos = getViewPos(NDCPos);
-	vec3 feetPlayerPos = getFeetPlayerPos(viewPos);
-  vec3 worldPos = getWorldPos(feetPlayerPos);
-	
-  //lightmap
-  vec2 lightmap = texture(colortex1, texcoord).rg;
-  vec2 lightmap2 = texture(colortex1, texcoord).rg; // only need r and g component
-	
-  //normal
-  vec3 encodedNormal = normalMap.rgb;
-	vec3 normal = normalize((encodedNormal - 0.5) * 2.0); // we normalize to make sure it is out of unit length
-	vec3 geometryNormal = normalize((geoNormal - 0.5) * 2.0); // we normalize to make sure it is out of unit length
-
-  //shadows
-  vec3 shadowViewPos = (shadowModelView * vec4(feetPlayerPos, 1.0)).xyz;
-	vec4 shadowClipPos = shadowProjection * vec4(shadowViewPos, 1.0);
-  vec3 shadowNDCPos = shadowClipPos.xyz / shadowClipPos.w;
-  vec3 shadowScreenPos = shadowNDCPos * 0.5 + 0.5; // convert to screen space
-  
-  //assign texture mappings
-  vec3  albedo = texture(colortex0, texcoord).rgb;
-  float ao = normalMap.b;
-  float roughness;
-  float perceptualSmoothness;
- roughness = pow(1.0 - SpecMap.r, 2.0);
- 
-
- float emission = SpecMap.a;
-
- vec3 emissive;
- //calculate lab emission
- #if DO_RESOURCEPACK_EMISSION == 1
- 
- if (emission >= 0.0/255.0 && emission < 255.0/255.0)
+	float depth = texture(depthtex0, texcoord).r;
+	if (depth == 1.0) 
 	{
-		emissive += albedo * emission  * 5.0 * EMISSIVE_MULTIPLIER;
+  		return;
+	}
+	
+
+	vec2 lightmap = texture(colortex1, texcoord).rg; // we only need the r and g components
+	vec3 encodedNormal = texture(colortex2, texcoord).rgb;
+	vec3 normal = normalize((encodedNormal - 0.5) * 2.0); // we normalize to make sure it is of unit length
+
+	vec3 NDCPos = vec3(texcoord.xy, depth) * 2.0 - 1.0;
+	vec3 viewPos = projectAndDivide(gbufferProjectionInverse, NDCPos);
+	vec3 feetPlayerPos = (gbufferModelViewInverse * vec4(viewPos, 1.0)).xyz;
+	vec3 worldPos = cameraPosition + feetPlayerPos;
+	vec3 shadowViewPos = (shadowModelView * vec4(feetPlayerPos, 1.0)).xyz;
+	vec4 shadowClipPos = shadowProjection * vec4(shadowViewPos, 1.0);
+
+	vec3 shadow = getSoftShadow(shadowClipPos, feetPlayerPos, normal);
+
+
+
+	vec3 lightVector = normalize(shadowLightPosition);
+	vec3 worldLightVector = mat3(gbufferModelViewInverse) * lightVector;
+
+	float roughness;
+ 	roughness = pow(1.0 - SpecMap.r, 2.0);
+	
+	float emission = SpecMap.a;
+	vec3 emissive;
+	vec3 albedo = texture(colortex0,texcoord).rgb;
+	if (emission >= 0.0/255.0 && emission < 255.0/255.0)
+	{
+		emissive += albedo * emission  * 2.0 * EMISSIVE_MULTIPLIER;
   
 	}
-#endif
 
+	vec3 V = normalize(cameraPosition - worldPos);
+  	vec3 L = normalize(worldLightVector);
+  	vec3 H = normalize(V + L);
 
-//calculations for reflections
-  vec3 V = normalize(cameraPosition - worldPos);
-  vec3 L = normalize(worldLightVector);
-  vec3 H = normalize(V + L);
-  vec3 encodedViewNormal = texture(colortex2, texcoord).rgb;
-  vec3 viewNormal = normalize((encodedViewNormal - 0.5) * 2.0); 
-  viewNormal = mat3(gbufferModelView) * viewNormal;
-  vec3 viewDir = normalize(viewPos);
-  vec3 reflectedColor = calcSkyColor((reflect(viewDir, viewNormal)));
-  vec3 V2 = normalize(-viewDir);
+	vec3 F0;
+  	if(SpecMap.g <= 229.0/255.0)
+  	{
+    	F0 = vec3(SpecMap.g);
+  	}
+  		else
+  	{
+    	F0 = albedo;
+  	}
 
-//calculate F0
-  vec3 F0;
-  if(SpecMap.g <= 229.0/255.0)
-  {
-    F0 = vec3(SpecMap.g);
-  }
-  else
-  {
-    F0 = albedo;
-  }
-    
-  //final lighting calculation
-  vec3 shadow = getSoftShadow(shadowClipPos, texcoord, geometryNormal, feetPlayerPos, shadowScreenPos);
-  
-  vec3 diffuse;
-  vec3 sunlight;
-  vec3 lighting;
-  vec3 currentSunlight = getCurrentSunlight(sunlight, normal, shadow, worldLightVector);
-  vec3 speculars = brdf(albedo, F0, L, currentSunlight, normal, H, V, roughness, SpecMap);
-   
-  diffuse = getDiffuse(texcoord,lightmap, normal, shadow);
-  lighting = albedo * diffuse + speculars + emissive;
-  color.rgb = lighting;
-  
- 
- 
-  
-  
+	vec3 diffuse = doDiffuse(texcoord, lightmap, normal, worldLightVector, shadow);
+	vec3 sunlight;
+	vec3 currentSunlight = getCurrentSunlight(sunlight, normal, shadow, worldLightVector);
+	vec3 specular = brdf(albedo, F0, L, currentSunlight, normal, H, V, roughness, SpecMap) ;
+	vec3 lighting = albedo * diffuse + specular + emissive;
+	#if LIGHTING_GLSL == 1
+	color.rgb = lighting;
+	#endif
+	
 }
