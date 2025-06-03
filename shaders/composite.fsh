@@ -10,6 +10,7 @@ layout(location = 0) out vec4 color;
 
 void main() {
 	color = texture(colortex0, texcoord);
+	
 	#if GODRAYS_GLSL == 1
 	float depth = texture(depthtex0, texcoord).r;
 	vec3 NDCPos = vec3(texcoord.xy, depth) * 2.0 - 1.0;

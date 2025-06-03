@@ -24,11 +24,15 @@ uniform sampler2D colortex1;
 uniform sampler2D colortex2;
 uniform sampler2D colortex3;
 uniform sampler2D colortex4;
+uniform sampler2D colortex5;
+//depth buffer
 uniform sampler2D depthtex0;
 uniform sampler2D depthtex1;
+//shadow buffer
 uniform sampler2D shadowtex0;
 uniform sampler2D shadowtex1;
 uniform sampler2D shadowcolor0;
+//normal/speculars
 uniform sampler2D normals;
 uniform sampler2D specular;
 
@@ -38,5 +42,8 @@ const float sunPathRotation=SUN_ROTATION;
 uniform float viewWidth;
 uniform float viewHeight;
 uniform float far;
+uniform int isEyeInWater;
+uniform vec3 cameraPosition;
+uniform int worldTime;
 
 #endif //UNIFORMS_GLSL

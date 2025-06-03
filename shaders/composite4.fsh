@@ -1,7 +1,9 @@
 #version 330 compatibility
 
 #include "/lib/uniforms.glsl"
-#include "/lib/atmosphere/godrays.glsl"
+#include "/lib/util.glsl"
+#include "/lib/atmosphere/distanceFog.glsl"
+
 
 in vec2 texcoord;
 
@@ -11,10 +13,14 @@ layout(location = 0) out vec4 color;
 void main() {
 	color = texture(colortex0, texcoord);
 	
+	float depth = texture(depthtex0, texcoord).r;
+	  if(depth==1.)
+  {
+    return;
+  }
+	vec3 NDCPos = vec3(texcoord.xy, depth) * 2.0 - 1.0;
+	vec3 viewPos = projectAndDivide(gbufferProjectionInverse, NDCPos);
 
-	
-	#if GODRAYS_GLSL == 1
-	color.rgb += texture(colortex3, texcoord).rgb;
-	#endif
-	
+	color.rgb = distanceFog(color.rgb, viewPos, texcoord, depth);
+		
 }
