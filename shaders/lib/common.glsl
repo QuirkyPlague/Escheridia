@@ -1,0 +1,8 @@
+#ifndef COMMON_GLSL
+#define COMMON_GLSL
+
+#define SHADOW_SAMPLES 16
+#define SHADOW_SOFTNESS 1.0
+
+#define SUN_ROTATION -30 //[-45 -30 -15 0 15 30 45]
+#endif //COMMON_GLSL
