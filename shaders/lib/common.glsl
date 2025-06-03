@@ -5,4 +5,17 @@
 #define SHADOW_SOFTNESS 1.0
 
 #define SUN_ROTATION -30 //[-45 -30 -15 0 15 30 45]
+
+#define GODRAYS_SAMPLES 16
+
+#define AGX_SATURATION 1.34
+#define AGX_MIN_EV (-16.17393)
+#define AGX_MAX_EV (2.026069)
+#define AGX_POWER vec3(1.2)
+#define AGX_OFFSET_COLOR vec3(0.0)
+#define TONEMAPPING_TYPE 3 //[0 1 2 3]
+
+#define WATER_EXTINCTION vec3(0.8667, 0.6941, 0.4863);
+#define WATER_SCATTERING vec3(0.0078, 0.0157, 0.0314);
+#define WATER_FOG_DENSITY 1.0
 #endif //COMMON_GLSL

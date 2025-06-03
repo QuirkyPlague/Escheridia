@@ -15,4 +15,5 @@ void main() {
 	if (color.a < alphaTestRef) {
 		discard;
 	}
+	
 }

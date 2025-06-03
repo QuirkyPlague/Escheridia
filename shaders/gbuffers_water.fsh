@@ -5,6 +5,7 @@
 #include "/lib/shadows/distort.glsl"
 #include "/lib/shadows/drawShadows.glsl"
 #include "/lib/shadows/softShadows.glsl"
+#include "/lib/blockID.glsl"
 
 uniform sampler2D gtexture;
 
@@ -15,17 +16,28 @@ in vec3 normal;
 in vec3 modelPos;
 in vec3 viewPos;
 in vec3 feetPlayerPos;
-
-/* RENDERTARGETS: 0,1,2 */
+flat in int blockID;
+/* RENDERTARGETS: 0,1,2,4 */
 layout(location = 0) out vec4 color;
 layout(location = 1) out vec4 lightmapData;
 layout(location = 2) out vec4 encodedNormal;
+layout(location = 3) out vec4 waterMask;
 
 void main() {
 	color = texture(gtexture, texcoord) * glcolor;
 	
 	if (color.a < 0.1) {
 		discard;
+	}
+
+	if(blockID == WATER_ID)
+	{
+    waterMask = vec4(1.0, 1.0, 1.0, 1.0);
+    color.a *= 0.1;
+	}
+	else
+	{
+		waterMask = vec4(0.0, 0.0, 0.0, 1.0);
 	}
 
 	lightmapData = vec4(lmcoord, 0.0, 1.0);
