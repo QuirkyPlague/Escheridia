@@ -52,7 +52,7 @@ vec3 calcSkyColor(vec3 pos) {
 	
 	
 	float upDot = dot(pos, gbufferModelView[1].xyz); //not much, what's up with you?
-	return mix(zenith, horizon, fogify(max(upDot, 0.0), 0.15));
+	return mix(zenith, horizon, fogify(max(upDot, 0.0), 0.01));
 }
 
 

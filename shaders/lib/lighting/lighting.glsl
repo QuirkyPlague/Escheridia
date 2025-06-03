@@ -5,7 +5,7 @@
 #include "/lib/util.glsl"
 #include "/lib/atmosphere/skyColor.glsl"
 
-const vec3 blocklightColor = vec3(1.0, 0.6353, 0.4235);
+const vec3 blocklightColor = vec3(0.7882, 0.4863, 0.3098);
 vec3 skylightColor;
 const vec3 sunlightColor= vec3(1.0, 0.749, 0.4627);
 const vec3 morningSunlightColor = vec3(0.9216, 0.4353, 0.2588);
@@ -23,13 +23,13 @@ vec3 doDiffuse(vec2 texcoord, vec2 lightmap, vec3 normal, vec3 sunPos, vec3 shad
     //smoothstep equation allows interpolation between times of day
     float time = smoothstep(0, 1000, float(worldTime));
     sunlight = mix(morningSunlightColor, sunlightColor, time) * clamp(dot(normal, sunPos), 0.0, 1.0) * shadow;
-    skylight *= mix(0.3, 0.5, time);
+    skylight *= mix(0.1, 0.5, time);
   }
    else if (worldTime >= 1000 && worldTime < 11500)
   {
      float time = smoothstep(10000, 11500, float(worldTime));
     sunlight = mix(sunlightColor , morningSunlightColor* 0.4, time) * clamp(dot(normal, sunPos), 0.0, 1.0) * shadow;;
-	  skylight *= mix(0.5, 0.3, time);
+	  skylight *= mix(0.3, 0.3, time);
   }
   else if (worldTime >= 11500 && worldTime < 13000)
   {

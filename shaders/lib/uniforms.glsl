@@ -25,6 +25,7 @@ uniform sampler2D colortex2;
 uniform sampler2D colortex3;
 uniform sampler2D colortex4;
 uniform sampler2D colortex5;
+uniform sampler2D colortex6;
 //depth buffer
 uniform sampler2D depthtex0;
 uniform sampler2D depthtex1;
@@ -45,5 +46,8 @@ uniform float far;
 uniform int isEyeInWater;
 uniform vec3 cameraPosition;
 uniform int worldTime;
+const float shadowDistance = 128.0;
+const float shadowFarPlane = 512.0;
+
 
 #endif //UNIFORMS_GLSL

@@ -33,10 +33,11 @@ void main() {
 	vec3 shadowViewPos = (shadowModelView * vec4(feetPlayerPos, 1.0)).xyz;
 	vec4 shadowClipPos = shadowProjection * vec4(shadowViewPos, 1.0);
 
-	vec3 shadow = getSoftShadow(shadowClipPos, feetPlayerPos, normal);
+	
+	vec3 baseNormal = texture(colortex6, texcoord).rgb;
+	vec3 geoNormal = normalize((baseNormal - 0.5) * 2.0); 
 
-
-
+	vec3 shadow = getSoftShadow(shadowClipPos, feetPlayerPos, geoNormal);
 	vec3 lightVector = normalize(shadowLightPosition);
 	vec3 worldLightVector = mat3(gbufferModelViewInverse) * lightVector;
 

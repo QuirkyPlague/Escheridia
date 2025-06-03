@@ -13,7 +13,7 @@ vec4 shadowViewPos = mat4(shadowModelView) * vec4(feetPlayerPos, 1.0);
   shadowClipPos.w = 0.0;
   shadowClipPos += vec4(shadowClipNormal, 1.0);
 
-    float sampleRadius = SHADOW_SOFTNESS * 0.0004;
+    float sampleRadius = SHADOW_SOFTNESS * 0.0007;
     float noise = IGN(floor(gl_FragCoord.xy), frameCounter);
 
     vec3 shadowAccum = vec3(0.0); // sum of all shadow samples
