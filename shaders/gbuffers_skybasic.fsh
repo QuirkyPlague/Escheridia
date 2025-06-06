@@ -4,8 +4,8 @@
 
 uniform int renderStage;
 
-const vec3 horizonColor = vec3(0.5255, 0.6941, 0.7255);
-const vec3 zenithColor = vec3(0.2039, 0.4392, 0.8157);
+const vec3 horizonColor = vec3(0.5294, 0.6745, 0.702);
+const vec3 zenithColor = vec3(0.3412, 0.4196, 0.6784);
 const vec3 earlyHorizon = vec3(0.5608, 0.3529, 0.2235);
 const vec3 earlyZenith =  vec3(0.1569, 0.4941, 0.5529);
 const vec3 lateHorizon = vec3(0.6588, 0.2549, 0.1098);

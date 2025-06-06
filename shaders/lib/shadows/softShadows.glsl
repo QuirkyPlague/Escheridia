@@ -3,16 +3,20 @@
 
 #include "/lib/util.glsl"
 #include "/lib/common.glsl"
- vec3 getSoftShadow(vec4 shadowClipPos, vec3 feetPlayerPos, vec3 normal)
+ 
+ vec3 getSoftShadow(vec4 shadowClipPos, vec3 feetPlayerPos, vec3 normal, vec2 texcoord, vec3 shadowScreenPos)
  {
-    feetPlayerPos += 0.09 * normal;
-vec4 shadowViewPos = mat4(shadowModelView) * vec4(feetPlayerPos, 1.0);
     
-  shadowClipPos = mat4(shadowProjection) * shadowViewPos; 
-  vec3 shadowClipNormal = mat3(shadowProjection) * (mat3(shadowModelView) * normal) * 0.15;
-  shadowClipPos.w = 0.0;
-  shadowClipPos += vec4(shadowClipNormal, 1.0);
+    feetPlayerPos += 0.09 * normal;
+    vec4 shadowViewPos = mat4(shadowModelView) * vec4(feetPlayerPos, 1.0);
+    
+    shadowClipPos = mat4(shadowProjection) * shadowViewPos; 
+    vec3 shadowClipNormal = mat3(shadowProjection) * (mat3(shadowModelView) * normal) * 0.15;
+    shadowClipPos.w = 0.0;
+    shadowClipPos += vec4(shadowClipNormal, 1.0);
 
+    
+       
     float sampleRadius = SHADOW_SOFTNESS * 0.0007;
     float noise = IGN(floor(gl_FragCoord.xy), frameCounter);
 
@@ -30,6 +34,7 @@ vec4 shadowViewPos = mat4(shadowModelView) * vec4(feetPlayerPos, 1.0);
 
   return shadowAccum / float(SHADOW_SAMPLES); // divide sum by count, getting average shadow
 }
+
 
 
 

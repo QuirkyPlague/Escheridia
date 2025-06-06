@@ -2,11 +2,33 @@
 #define DISTORT_GLSL
 
 #include "/lib/common.glsl"
-
+#include "/lib/uniforms.glsl"
 const bool shadowtex0Nearest = true;
 const bool shadowtex1Nearest = true;
 const bool shadowcolor0Nearest = true;
 
+#define _pow3(x) (x*x*x)
+float pow3(in float x) {
+    return _pow3(x);
+}
+int pow3(in int x) {
+    return _pow3(x);
+}
+vec2 pow3(in vec2 x) {
+    return _pow3(x);
+}
+vec3 pow3(in vec3 x) {
+    return _pow3(x);
+}
+vec4 pow3(in vec4 x) {
+    return _pow3(x);
+}
+
+
+float cubeLength(vec2 v) {
+    vec2 t = abs(pow3(v));
+    return pow(t.x + t.y, 1.0/3.0);
+}
 const int shadowMapResolution = SHADOW_RESOLUTION;
 
 vec3 distortShadowClipPos(vec3 shadowClipPos){
@@ -16,6 +38,13 @@ vec3 distortShadowClipPos(vec3 shadowClipPos){
   shadowClipPos.xy /= distortionFactor;
   shadowClipPos.z *= 0.5; // increases shadow distance on the Z axis, which helps when the sun is very low in the sky
   return shadowClipPos;
+}
+vec3 computeBias(vec3 pos, vec3 worldNormal){
+	float biasAdjust = log2(max(4.0, shadowDistance - shadowMapResolution * 0.125)) * 0.5;
+
+	float factor = cubeLength(pos.xy) * 0.2 + (1.0 - 0.2);
+
+	return mat3(shadowProjection) * (mat3(shadowModelView) * worldNormal) * factor * biasAdjust;
 }
 
 #endif //DISTORT_GLSL

@@ -29,6 +29,7 @@ void main() {
 	normalMaps = normalMaps * 2.0 - 1.0;
 	normalMaps.z = sqrt(1.0 - dot(normalMaps.xy, normalMaps.xy));
 	vec3 mappedNormal = tbnMatrix * normalMaps;
+	
 	geoNormal = vec4(normal * 0.5 + 0.5, 1.0);
 
 	lightmapData = vec4(lmcoord, 0.0, 1.0);

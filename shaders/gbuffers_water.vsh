@@ -13,6 +13,7 @@ out vec3 feetPlayerPos;
 flat out int blockID;
 in vec2 mc_Entity;
 out mat3 tbnMatrix;
+
 void main() {
   	gl_Position = ftransform();
   	texcoord = (gl_TextureMatrix[0] * gl_MultiTexCoord0).xy;

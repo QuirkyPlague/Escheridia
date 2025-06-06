@@ -2,5 +2,6 @@
 #define BLOCKID_GLSL
 
 #define WATER_ID 101
+#define TRANSLUCENT_ID 103
 
 #endif //BLOCKID_GLSL
