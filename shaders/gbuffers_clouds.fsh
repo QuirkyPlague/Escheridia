@@ -19,13 +19,13 @@ in vec3 viewPos;
 in vec3 feetPlayerPos;
 flat in int blockID;
 in mat3 tbnMatrix;
-/* RENDERTARGETS: 0,1,2,4,5,4 */
+
+/* RENDERTARGETS: 0,1,2,4,5 */
 layout(location = 0) out vec4 color;
 layout(location = 1) out vec4 lightmapData;
 layout(location = 2) out vec4 encodedNormal;
 layout(location = 3) out vec4 waterMask;
 layout(location = 4) out vec4 specMap;
-layout(location = 5) out vec4 translucentMask;
 void main() {
 	color = texture(gtexture, texcoord) * glcolor;
 	
@@ -33,19 +33,7 @@ void main() {
 		discard;
 	}
 
-	if(blockID == WATER_ID)
-	{
-    waterMask = vec4(1.0, 1.0, 1.0, 1.0);
-    color.a *= 0.1;
-	}
-	else if(blockID == TRANSLUCENT_ID)
-	{
-		 translucentMask = vec4(1.0, 1.0, 1.0, 1.0);
-	}
-	else
-	{
-		waterMask = vec4(0.0, 0.0, 0.0, 1.0);
-	}
+	
 
 	vec3 normalMaps = texture(normals, texcoord).rgb;
 	normalMaps = normalMaps * 2.0 - 1.0;
@@ -86,8 +74,13 @@ void main() {
 	
 	vec3 shadow = getSoftShadow(shadowClipPos, feetPlayerPos, encodedNormal.rgb, texcoord, shadowScreenPos);
   	vec3 diffuse = doDiffuse(texcoord, lightmapData.rg, encodedNormal.rgb, worldLightVector, shadow);
+	if(isNight)
+	{
+		diffuse *= 2.5;
+	}
 	vec3 sunlight;
 	vec3 currentSunlight = getCurrentSunlight(sunlight, encodedNormal.rgb, shadow, worldLightVector);
+	vec3 specular = brdf(color.rgb, F0, L, currentSunlight, normal, H, V, roughness, specMap);
 	vec3 lighting = color.rgb * diffuse;
 	color = vec4(lighting, color.a);
 

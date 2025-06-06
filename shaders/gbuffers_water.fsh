@@ -19,12 +19,15 @@ in vec3 viewPos;
 in vec3 feetPlayerPos;
 flat in int blockID;
 in mat3 tbnMatrix;
-/* RENDERTARGETS: 0,1,2,4,5 */
+/* RENDERTARGETS: 0,1,2,4,5,7 */
 layout(location = 0) out vec4 color;
 layout(location = 1) out vec4 lightmapData;
 layout(location = 2) out vec4 encodedNormal;
 layout(location = 3) out vec4 waterMask;
 layout(location = 4) out vec4 specMap;
+layout(location = 5) out vec4 translucentMask;
+
+
 void main() {
 	color = texture(gtexture, texcoord) * glcolor;
 	
@@ -37,13 +40,20 @@ void main() {
     waterMask = vec4(1.0, 1.0, 1.0, 1.0);
     color.a *= 0.1;
 	}
+	else if(blockID == TRANSLUCENT_ID)
+	{
+		 translucentMask = vec4(1.0, 1.0, 1.0, 1.0);
+		 
+	}
 	else
 	{
 		waterMask = vec4(0.0, 0.0, 0.0, 1.0);
+		translucentMask = vec4(0.0, 0.0, 0.0, 1.0);
 	}
 
-	vec3 normalMaps = texture(normals, texcoord).rgb;
+	vec3 normalMaps = texture2DLod(normals, texcoord, 0).rgb;
 	normalMaps = normalMaps * 2.0 - 1.0;
+	normalMaps.xy /= (254.0/255.0);
 	normalMaps.z = sqrt(1.0 - dot(normalMaps.xy, normalMaps.xy));
 	vec3 mappedNormal = tbnMatrix * normalMaps;
 
@@ -56,17 +66,13 @@ void main() {
 
 	vec3 shadowViewPos = (shadowModelView * vec4(feetPlayerPos, 1.0)).xyz;
 	vec4 shadowClipPos = shadowProjection * vec4(shadowViewPos, 1.0);
+	vec3 shadowNDCPos = shadowClipPos.xyz / shadowClipPos.w;
+	vec3 shadowScreenPos = shadowNDCPos * 0.5 + 0.5;
 
 	float roughness;
  	roughness = pow(1.0 - specMap.r, 2.0);
 	
-	float emission = specMap.a;
-	vec3 emissive;
-	if (emission >= 0.0/255.0 && emission < 255.0/255.0)
-	{
-		emissive += color.rgb * emission  * 5.0 * EMISSIVE_MULTIPLIER;
-  
-	}
+	
 	vec3 worldPos = cameraPosition + feetPlayerPos;
 	vec3 V = normalize(cameraPosition - worldPos);
   	vec3 L = normalize(worldLightVector);
@@ -83,12 +89,11 @@ void main() {
   	}
 
 	
-	vec3 shadow = getSoftShadow(shadowClipPos, feetPlayerPos, encodedNormal.rgb);
+	vec3 shadow = getSoftShadow(shadowClipPos, feetPlayerPos, encodedNormal.rgb, texcoord, shadowScreenPos);
   	vec3 diffuse = doDiffuse(texcoord, lightmapData.rg, encodedNormal.rgb, worldLightVector, shadow);
 	vec3 sunlight;
 	vec3 currentSunlight = getCurrentSunlight(sunlight, encodedNormal.rgb, shadow, worldLightVector);
-	vec3 specular = brdf(color.rgb, F0, L, currentSunlight, normal, H, V, roughness, specMap);
-	vec3 lighting = color.rgb * diffuse + specular + emissive;
+	vec3 lighting = color.rgb * diffuse;
 	color = vec4(lighting, color.a);
 
 }

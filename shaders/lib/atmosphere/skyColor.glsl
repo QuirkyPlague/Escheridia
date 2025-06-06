@@ -9,8 +9,8 @@ const vec3 earlyHorizon = vec3(0.5608, 0.3529, 0.2235);
 const vec3 earlyZenith =  vec3(0.1569, 0.4941, 0.5529);
 const vec3 lateHorizon = vec3(0.6588, 0.2549, 0.1098);
 const vec3 lateZenith = vec3(0.2706, 0.451, 0.5529);
-const vec3 nightHorizon = vec3(0.0392, 0.0784, 0.1373);
-const vec3 nightZenith = vec3(0.0078, 0.0196, 0.0824);
+const vec3 nightHorizon = vec3(0.0392, 0.0784, 0.1373) * 0.3;
+const vec3 nightZenith = vec3(0.0078, 0.0196, 0.0824)* 0.3;
 vec3 horizon;
 vec3 zenith;
 
@@ -49,7 +49,7 @@ vec3 calcSkyColor(vec3 pos) {
 	
 	
 	float upDot = dot(pos, gbufferModelView[1].xyz); //not much, what's up with you?
-	return mix(zenith, horizon, fogify(max(upDot, 0.0), 0.15));
+	return mix(zenith, horizon, fogify(max(upDot, 0.0), 0.01));
 }
 
 vec3 applySky(vec3 color, vec2 texcoord, float depth)

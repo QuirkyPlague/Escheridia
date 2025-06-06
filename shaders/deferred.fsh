@@ -32,11 +32,13 @@ void main() {
 	vec3 worldPos = cameraPosition + feetPlayerPos;
 	vec3 shadowViewPos = (shadowModelView * vec4(feetPlayerPos, 1.0)).xyz;
 	vec4 shadowClipPos = shadowProjection * vec4(shadowViewPos, 1.0);
+	vec3 shadowNDCPos = shadowClipPos.xyz / shadowClipPos.w;
+	vec3 shadowScreenPos = shadowNDCPos * 0.5 + 0.5;
+	
+	vec3 baseNormal = texture(colortex6, texcoord).rgb;
+	vec3 geoNormal = normalize((baseNormal - 0.5) * 2.0); 
 
-	vec3 shadow = getSoftShadow(shadowClipPos, feetPlayerPos, normal);
-
-
-
+	vec3 shadow = getSoftShadow(shadowClipPos, feetPlayerPos, geoNormal, texcoord, shadowScreenPos);
 	vec3 lightVector = normalize(shadowLightPosition);
 	vec3 worldLightVector = mat3(gbufferModelViewInverse) * lightVector;
 
@@ -48,7 +50,7 @@ void main() {
 	vec3 albedo = texture(colortex0,texcoord).rgb;
 	if (emission >= 0.0/255.0 && emission < 255.0/255.0)
 	{
-		emissive += albedo * emission  * 2.0 * EMISSIVE_MULTIPLIER;
+		emissive += albedo * emission  * 3.0 * EMISSIVE_MULTIPLIER;
   
 	}
 

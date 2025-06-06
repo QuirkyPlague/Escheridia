@@ -111,7 +111,18 @@ float GeometrySmith(vec3 N, vec3 V, vec3 L, float roughness)
 
 vec3 fresnelSchlick(float cosTheta, vec3 F0)
 {
-    return F0 + (1.0 - F0) * pow(clamp(1.0 - cosTheta, 0.0, 1.0), 5.0);
-} 
+    float f = pow(1.0 - cosTheta, 5.0);
+	return f + F0 * (1.0 - f);
+}
+
+vec3 screenSpaceToViewSpace(vec3 screenPosition) {
+	screenPosition = screenPosition * 2.0 - 1.0;
+
+	vec3 viewPosition  = vec3(vec2(gbufferProjectionInverse[0].x, gbufferProjectionInverse[1].y) * screenPosition.xy + gbufferProjectionInverse[3].xy, gbufferProjectionInverse[3].z);
+
+  viewPosition /= gbufferProjectionInverse[2].w * screenPosition.z + gbufferProjectionInverse[3].w;
+
+	return viewPosition;
+}
 
 #endif //UTIL_GLSL
