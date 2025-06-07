@@ -87,13 +87,20 @@ void main() {
   	{
     	F0 = color.rgb;
   	}
-
+	float emission = specMap.a;
+	vec3 emissive;
+	vec3 albedo = texture(colortex0,texcoord).rgb;
+	if (emission >= 0.0/255.0 && emission < 255.0/255.0)
+	{
+		emissive += albedo * emission  * 4.0 * EMISSIVE_MULTIPLIER;
+  
+	}
 	
 	vec3 shadow = getSoftShadow(shadowClipPos, feetPlayerPos, encodedNormal.rgb, texcoord, shadowScreenPos);
   	vec3 diffuse = doDiffuse(texcoord, lightmapData.rg, encodedNormal.rgb, worldLightVector, shadow);
 	vec3 sunlight;
 	vec3 currentSunlight = getCurrentSunlight(sunlight, encodedNormal.rgb, shadow, worldLightVector);
-	vec3 lighting = color.rgb * diffuse;
+	vec3 lighting =  emissive;
 	color = vec4(lighting, color.a);
 
 }

@@ -3,15 +3,17 @@
 
 #include "/lib/util.glsl"
 #include "/lib/common.glsl"
+#include "/lib/shadows/drawShadows.glsl"
+#include "/lib/shadows/distort.glsl"
  
  vec3 getSoftShadow(vec4 shadowClipPos, vec3 feetPlayerPos, vec3 normal, vec2 texcoord, vec3 shadowScreenPos)
  {
     
-    feetPlayerPos += 0.09 * normal;
+    feetPlayerPos += 0.07 * normal;
     vec4 shadowViewPos = mat4(shadowModelView) * vec4(feetPlayerPos, 1.0);
     
     shadowClipPos = mat4(shadowProjection) * shadowViewPos; 
-    vec3 shadowClipNormal = mat3(shadowProjection) * (mat3(shadowModelView) * normal) * 0.15;
+    vec3 shadowClipNormal = mat3(shadowProjection) * (mat3(shadowModelView) * normal) * 0.25;
     shadowClipPos.w = 0.0;
     shadowClipPos += vec4(shadowClipNormal, 1.0);
 

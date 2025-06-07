@@ -7,6 +7,7 @@
 const int colortex0Format = RGB16;
 const int colortex3Format = RGB16;
 const int colortex4Format = RGB16;
+const int colortex8Format = RGB32f;
 */
 
 
@@ -27,6 +28,7 @@ uniform sampler2D colortex4;
 uniform sampler2D colortex5;
 uniform sampler2D colortex6;
 uniform sampler2D colortex7;
+uniform sampler2D colortex8;
 //depth buffer
 uniform sampler2D depthtex0;
 uniform sampler2D depthtex1;
@@ -47,7 +49,8 @@ uniform float far;
 uniform int isEyeInWater;
 uniform vec3 cameraPosition;
 uniform int worldTime;
-const float shadowDistance = 256.0;
+const float shadowDistance = 128.0;
+const float shadowFarPlane = 512.0;
 const float shadowDistanceRenderMul = -1.0;
 
 

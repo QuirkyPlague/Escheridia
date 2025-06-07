@@ -9,9 +9,9 @@ float rgb2luma(vec3 rgb)
 
 float QUALITY[12]=float[12](1.,1.,1.,1.,1.,1.5,2.,2.,2.,2.,4.,8.);
 
-#define EDGE_THRESHOLD_MAX 0.25
+#define EDGE_THRESHOLD_MAX 0.15
 #define EDGE_THRESHOLD_MIN 0.0635
-#define ITERATIONS 12
+#define ITERATIONS 128
 #define SUBPIXEL_QUALITY 1.0
 
 vec3 FXAA(vec3 color, sampler2D cTex, vec2 texcoord)

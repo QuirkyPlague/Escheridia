@@ -8,11 +8,12 @@ vec3 distanceFog(vec3 color, vec3 viewPos,vec2 texcoord, float depth)
 {
 
     vec3 distFog;
-    distFog = applySky(distFog, texcoord, depth) * 0.7;
+    distFog = calcSkyColor(normalize(viewPos));
     float dist = length(viewPos) / far;
-    float fogFactor = exp(-5.0 * (1.2 - dist));
+    float fogFactor = exp(-6.0 * (1.0 - dist));
 
     color = mix(color, distFog, clamp(fogFactor, 0.0, 1.0));
+    
     return color;
 
 }

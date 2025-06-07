@@ -21,7 +21,7 @@ vec3 waterExtinction(vec3 color, vec2 texcoord, vec2 lightmap, float depth, floa
 
     vec3 absorption= WATER_EXTINCTION;
     vec3 inscatteringAmount= WATER_SCATTERING
-    inscatteringAmount *= 0.3;
+    inscatteringAmount *= 0.25;
     vec3 absorptionFactor=exp2(-absorption*WATER_FOG_DENSITY*(dist* .45));
       color.rgb*=absorptionFactor;
       color.rgb+=vec3(.6471,.4784,.2824)*lightmap.g*inscatteringAmount/absorption*(1.-absorptionFactor);
@@ -41,7 +41,7 @@ vec3 waterFog(vec4 color, vec2 texcoord, vec2 lightmap, float depth, float depth
     
     vec3 absorptionFactor=exp(-absorption *WATER_FOG_DENSITY *(dist* .4));
     color.rgb*=absorptionFactor;
-    color.rgb += vec3(.6471,.4784,.2824) *  inscatteringAmount * 0.4 /absorption * (1.0 -absorptionFactor);
+    color.rgb += inscatteringAmount /absorption * (1.0 -absorptionFactor);
 
     
     return color.rgb;

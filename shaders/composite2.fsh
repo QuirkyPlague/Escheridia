@@ -3,12 +3,7 @@
 #include "/lib/util.glsl"
 #include "/lib/atmosphere/skyColor.glsl"
 #include "/lib/blockID.glsl"
-in vec3 normal;
 
-uniform float near;
-
-uniform float frameTime;
-uniform float waterEnterTime;
 
 in vec2 texcoord;
 
@@ -50,9 +45,9 @@ void main(){
   if(inWater)
   {
       dist=dist0;
-      vec3 absorptionFactor=exp(-absorption*WATER_FOG_DENSITY*(dist*.24));
+      vec3 absorptionFactor=exp(-absorption*WATER_FOG_DENSITY*(dist*.44));
       color.rgb*=absorptionFactor;
-      color.rgb+=vec3(.6471,.4784,.2824)*inscatteringAmount/absorption*(1.-absorptionFactor);
+      color.rgb+= inscatteringAmount  /absorption*(1.-absorptionFactor);
     
   }
 

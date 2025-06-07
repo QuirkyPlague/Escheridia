@@ -7,12 +7,7 @@
 
 in vec2 texcoord;
 
-vec4 waterMask=texture(colortex4,texcoord);
-vec4 translucentMask=texture(colortex7,texcoord);
-int blockID=int(waterMask)+100;
-int blockID2=int(translucentMask)+102;
-bool isWater=blockID==WATER_ID;
-bool isTranslucent=blockID2==TRANSLUCENT_ID;
+
 
 /* RENDERTARGETS: 0 */
 layout(location = 0) out vec4 color;
@@ -21,6 +16,12 @@ void main() {
 	color = texture(colortex0, texcoord);
     color.rgb = pow(color.rgb, vec3(2.2));
 	
+	vec4 waterMask=texture(colortex4,texcoord);
+	vec4 translucentMask=texture(colortex7,texcoord);
+	int blockID=int(waterMask)+100;
+	int blockID2=int(translucentMask)+102;
+	bool isWater=blockID==WATER_ID;
+	bool isTranslucent=blockID2==TRANSLUCENT_ID;
 	vec2 lightmap = texture(colortex1, texcoord).rg; // we only need the r and g components
 	vec3 encodedNormal=texture(colortex2,texcoord).rgb;
   	
@@ -38,10 +39,6 @@ void main() {
 	if(isWater && !inWater && !isTranslucent)
 	{
 		color.rgb = waterExtinction(color.rgb, texcoord, lightmap, depth, depth1);
-		vec3 F0=vec3(.02);
-    	vec3 F=fresnelSchlick(max(dot(normal,V),0.),F0);
-		reflectedColor=calcSkyColor((reflect(viewDir,normal))) * 0.2;
-		
 	}        
 
 }

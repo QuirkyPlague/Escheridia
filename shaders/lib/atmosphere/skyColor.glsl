@@ -2,15 +2,16 @@
 #define SKY_COLOR_GLSL
 
 #include "/lib/uniforms.glsl"
+#include "/lib/util.glsl"
 
-const vec3 horizonColor = vec3(0.5255, 0.6941, 0.7255);
-const vec3 zenithColor = vec3(0.2039, 0.4392, 0.8157);
-const vec3 earlyHorizon = vec3(0.5608, 0.3529, 0.2235);
-const vec3 earlyZenith =  vec3(0.1569, 0.4941, 0.5529);
+const vec3 horizonColor = vec3(0.3294, 0.6353, 0.702);
+const vec3 zenithColor = vec3(0.1373, 0.298, 0.5608);
+const vec3 earlyHorizon = vec3(0.4314, 0.2745, 0.0);
+const vec3 earlyZenith =  vec3(0.0431, 0.3647, 0.3765);
 const vec3 lateHorizon = vec3(0.6588, 0.2549, 0.1098);
 const vec3 lateZenith = vec3(0.2706, 0.451, 0.5529);
-const vec3 nightHorizon = vec3(0.0392, 0.0784, 0.1373) * 0.3;
-const vec3 nightZenith = vec3(0.0078, 0.0196, 0.0824)* 0.3;
+const vec3 nightHorizon = vec3(0.0235, 0.1059, 0.2392);
+const vec3 nightZenith = vec3(0.0078, 0.0235, 0.1137); 
 vec3 horizon;
 vec3 zenith;
 
@@ -46,18 +47,11 @@ vec3 calcSkyColor(vec3 pos) {
    	zenith = mix(nightZenith, earlyZenith,time);
 	  
   }
-	
-	
+	 horizon = pow(horizon, vec3(2.2));
+	 zenith = pow(zenith, vec3(2.2));
 	float upDot = dot(pos, gbufferModelView[1].xyz); //not much, what's up with you?
-	return mix(zenith, horizon, fogify(max(upDot, 0.0), 0.01));
+	return mix(zenith, horizon, fogify(max(upDot, 0.0), 0.02));
 }
 
-vec3 applySky(vec3 color, vec2 texcoord, float depth)
-{
-        vec3 viewPos = screenToView(texcoord, depth);
-        vec3 normalViewPos = normalize(viewPos.xyz);
-		color = vec3(calcSkyColor(normalize(normalViewPos)));
-        return color;
-}
 
 #endif //SKY_COLOR_GLSL
