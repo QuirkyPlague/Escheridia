@@ -38,7 +38,7 @@ void main() {
 	if(blockID == WATER_ID)
 	{
     waterMask = vec4(1.0, 1.0, 1.0, 1.0);
-    color.a *= 0.1;
+    color.a *= 0.5;
 	}
 	else if(blockID == TRANSLUCENT_ID)
 	{
