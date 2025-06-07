@@ -2,7 +2,8 @@
 
 #include "/lib/uniforms.glsl"
 #include "/lib/FXAA.glsl" 
-
+#include "/lib/atmosphere/godrays.glsl"
+#include "/lib/atmosphere/distanceFog.glsl"
 in vec2 texcoord;
 
 
@@ -13,7 +14,16 @@ void main() {
 	color = texture(colortex0, texcoord);
 	
 	
-	color.rgb = FXAA(texture(colortex0, texcoord).rgb, colortex0, texcoord);
+	
+	float depth = texture(depthtex0, texcoord).r;
+	  if(depth==1.)
+  {
+    return;
+  }
+	vec3 NDCPos = vec3(texcoord.xy, depth) * 2.0 - 1.0;
+	vec3 viewPos = projectAndDivide(gbufferProjectionInverse, NDCPos);
+
+	color.rgb = distanceFog(color.rgb, viewPos, texcoord, depth);
 	
 	
 }

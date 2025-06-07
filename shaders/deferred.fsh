@@ -67,14 +67,14 @@ void main() {
   	{
     	F0 = albedo;
   	}
-
+	bool isMetal = SpecMap.g >= 230.0/255.0;
 	vec3 diffuse = doDiffuse(texcoord, lightmap, normal, worldLightVector, shadow);
 	vec3 sunlight;
 	vec3 currentSunlight = getCurrentSunlight(sunlight, normal, shadow, worldLightVector);
 	vec3 specular = brdf(albedo, F0, L, currentSunlight, normal, H, V, roughness, SpecMap) ;
-	vec3 lighting = albedo * diffuse + specular + emissive;
+	vec3 lighting = albedo * diffuse * float(!isMetal) + specular + emissive;
 	#if LIGHTING_GLSL == 1
-	color.rgb = lighting;
+	//color.rgb = lighting;
 	#endif
 	
 }

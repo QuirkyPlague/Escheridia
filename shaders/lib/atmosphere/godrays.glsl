@@ -16,7 +16,7 @@ vec3 sampleGodrays(vec3 godraySample, vec2 texcoord, vec3 feetPlayerPos, float d
   
   bool isWater=blockID==WATER_ID;
 	//godray parameters
-    const float exposure = 0.35;
+    const float exposure = 0.55;
     float decay = 1.0;
     const float density = 1.0;
      float weight =  0.12; 
@@ -39,9 +39,9 @@ vec3 sampleGodrays(vec3 godraySample, vec2 texcoord, vec3 feetPlayerPos, float d
 	float dist0 = length(screenToView(texcoord, depth));
 	vec3 godrayColor;
   	float dist = dist0;
-	 vec3 absorption = vec3(0.4, 0.5137, 0.9647);
-	vec3 inscatteringAmount = calcSkyColor(godrayColor) * 0.6;
-	vec3 absorptionFactor = exp(-absorption * 1.0 * (dist * 0.34));
+	 vec3 absorption = vec3(0.1137, 0.3569, 0.9216);
+	vec3 inscatteringAmount = calcSkyColor(godrayColor) * 0.7;
+	vec3 absorptionFactor = exp(-absorption * 1.0 * (dist * 0.84));
     godrayColor *= absorptionFactor;
     godrayColor +=  inscatteringAmount / absorption * (1.0 - absorptionFactor);
 
@@ -52,7 +52,7 @@ vec3 sampleGodrays(vec3 godraySample, vec2 texcoord, vec3 feetPlayerPos, float d
 			if(inWater)
 			{
 				samples = texture(depthtex1, altCoord).r == 1.0 ? vec3(0.0118, 0.0235, 0.0588) : vec3(0.0);
-				weight = 1.0;
+				weight = 0.6;
 			}
 			
 			samples *= illuminationDecay * weight;
