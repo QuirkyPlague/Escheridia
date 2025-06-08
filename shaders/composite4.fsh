@@ -39,7 +39,7 @@ void main() {
 	vec3 encodedNormal = texture(colortex2, texcoord).rgb;
 	vec3 normal = normalize((encodedNormal - 0.5) * 2.0); // we normalize to make sure it is of unit length
 	normal=mat3(gbufferModelView)*normal;
-	vec3 albedo = texture(colortex8,texcoord).rgb;
+	vec3 albedo = texture(colortex0,texcoord).rgb;
 	vec3 N =normalize((encodedNormal - 0.5) * 2.0); // we normalize to make sure it is of unit length
 	vec3 baseNormal = texture(colortex6, texcoord).rgb;
 	vec3 geoNormal = normalize((baseNormal - 0.5) * 2.0); 
@@ -80,7 +80,7 @@ void main() {
 		roughness = 0.05;
 	}
 		
-	bool isMetal = SpecMap.g >= 229.0/255.0;
+	bool isMetal = SpecMap.g >= 230.0/255.0;
 		
 	vec3 sunlight;
 	vec3 currentSunlight = getCurrentSunlight(sunlight, N, shadow, worldLightVector);
@@ -115,6 +115,7 @@ void main() {
 			
 				reflectedColor=calcSkyColor((reflect(normalize(viewPos),normal)));
 				reflectedColor *= lightmap.g;
+				
 		}
 		#else
 				reflectedColor=calcSkyColor((reflect(normalize(viewPos),normal)));
@@ -123,17 +124,23 @@ void main() {
 		#endif
 	 }
 	}
+
+
+
 	
-	vec3 specular = max(brdf(albedo, f0, L, currentSunlight, N, H, V2, roughness, SpecMap), 0.0) * 5 + reflectedColor * F;
+	vec3 specular = max(brdf(albedo, f0, L, currentSunlight, N, H, V2, roughness, SpecMap), 0.0) + reflectedColor * F;
 	
 	
 	if(inWater)
 	{
 		currentSunlight *= WATER_SCATTERING;
-		specular = max(brdf(albedo, f0, L, currentSunlight, N, H, V2, roughness, SpecMap), 0.0) * 5 + reflectedColor * F;
+		specular = max(brdf(albedo, f0, L, currentSunlight, N, H, V2, roughness, SpecMap), 0.0)  + reflectedColor * F;
 	}
 	vec3 lighting =  specular ;
-		
+	if(isMetal)
+	{
+		color.rgb = specular;
+	}
 	color.rgb += lighting;	
 	
 	}

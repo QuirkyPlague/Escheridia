@@ -35,21 +35,7 @@ void main() {
 		discard;
 	}
 
-	if(blockID == WATER_ID)
-	{
-    waterMask = vec4(1.0, 1.0, 1.0, 1.0);
-    color.a *= 0.5;
-	}
-	else if(blockID == TRANSLUCENT_ID)
-	{
-		 translucentMask = vec4(1.0, 1.0, 1.0, 1.0);
-		 
-	}
-	else
-	{
-		waterMask = vec4(0.0, 0.0, 0.0, 1.0);
-		translucentMask = vec4(0.0, 0.0, 0.0, 1.0);
-	}
+	
 
 	vec3 normalMaps = texture2DLod(normals, texcoord, 0).rgb;
 	normalMaps = normalMaps * 2.0 - 1.0;
@@ -101,6 +87,21 @@ void main() {
 	vec3 sunlight;
 	vec3 currentSunlight = getCurrentSunlight(sunlight, encodedNormal.rgb, shadow, worldLightVector);
 	vec3 lighting =  emissive;
-	color = vec4(lighting, color.a);
+	
+	if(blockID == WATER_ID)
+	{
+    waterMask = vec4(1.0, 1.0, 1.0, 1.0);
+    color.a *= 0.5;
+	}
+	else if(blockID == TRANSLUCENT_ID)
+	{
+		 translucentMask = vec4(1.0, 1.0, 1.0, 1.0);
+		 color = vec4(lighting, color.a);
+	}
+	else
+	{
+		waterMask = vec4(0.0, 0.0, 0.0, 1.0);
+		translucentMask = vec4(0.0, 0.0, 0.0, 1.0);
+	}
 
 }

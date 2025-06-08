@@ -32,7 +32,8 @@ void main() {
 	vec3 normal = normalize((encodedNormal - 0.5) * 2.0); // we normalize to make sure it is of unit length
 	vec3 NDCPos=vec3(texcoord.xy,depth)*2.-1.;
  	vec3 viewPos=projectAndDivide(gbufferProjectionInverse,NDCPos);
-  	
+  	vec3 viewDir = normalize(viewPos);
+	vec3 V = normalize(-viewDir);
 
 	vec3 baseNormal = texture(colortex6, texcoord).rgb;
 	vec3 geoNormal = normalize((baseNormal - 0.5) * 2.0); 
@@ -45,15 +46,31 @@ void main() {
 	vec3 shadowScreenPos = shadowNDCPos * 0.5 + 0.5;
 
 	vec3 shadow = getSoftShadow(shadowClipPos, feetPlayerPos, geoNormal, texcoord, shadowScreenPos);
+	vec3 albedo = texture(colortex0,texcoord).rgb;
 
+	vec3  f0;
+	if(SpecMap.g <= 229.0/255.0)
+  	{
+    	f0 = vec3(SpecMap.g);
+  	}
+  	else if(isWater)
+  	{
+    	f0 = vec3(0.02);
+  	}
+	else
+	{
+		f0 = albedo;
+	}
 
-		 
+	vec3 N =normalize((encodedNormal - 0.5) * 2.0);
+	N=mat3(gbufferModelView)*N;
 	vec3 lightVector = normalize(shadowLightPosition);
 	vec3 worldLightVector = mat3(gbufferModelViewInverse) * lightVector;
 
 	vec3 emissive;
-	vec3 albedo = texture(colortex0,texcoord).rgb;
+
 	
+	vec3 F=fresnelSchlick(max(dot(N,V),0.),f0);
 	float emission = SpecMap.a;
 	if (emission >= 0.0/255.0 && emission < 255.0/255.0)
 	{
@@ -64,7 +81,8 @@ void main() {
 	vec3 diffuse = doDiffuse(texcoord, lightmap, normal, worldLightVector, shadow);
 	vec3 sunlight;
 	vec3 currentSunlight = getCurrentSunlight(sunlight, normal, shadow, worldLightVector);
-	vec3 lighting =  diffuse * float(!isMetal) * albedo  + emissive;
+	vec3 lighting =  diffuse   *albedo  + emissive;
+	
 	if(!isTranslucent)
 	{
 		color.rgb = lighting;

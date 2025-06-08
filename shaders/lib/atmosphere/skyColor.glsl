@@ -11,7 +11,7 @@ const vec3 earlyZenith =  vec3(0.0431, 0.3647, 0.3765);
 const vec3 lateHorizon = vec3(0.6588, 0.2549, 0.1098);
 const vec3 lateZenith = vec3(0.2706, 0.451, 0.5529);
 const vec3 nightHorizon = vec3(0.0235, 0.1059, 0.2392);
-const vec3 nightZenith = vec3(0.0078, 0.0235, 0.1137); 
+const vec3 nightZenith = vec3(0.0157, 0.0353, 0.1373); 
 vec3 horizon;
 vec3 zenith;
 
