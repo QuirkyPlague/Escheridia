@@ -5,7 +5,7 @@
 #include "/lib/util.glsl"
 #include "/lib/atmosphere/skyColor.glsl"
 
-const vec3 blocklightColor = vec3(1.0, 0.5961, 0.1333) * 0.8;
+const vec3 blocklightColor = vec3(1.0, 0.7255, 0.4157) * 0.8;
 vec3 skylightColor;
 const vec3 sunlightColor= vec3(1.0, 0.7686, 0.3412);
 const vec3 morningSunlightColor = vec3(0.9216, 0.4353, 0.2588);
