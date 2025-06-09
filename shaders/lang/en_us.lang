@@ -1,0 +1,57 @@
+option.TONEMAPPING_TYPE = Tonemap operator
+    value.TONEMAPPING_TYPE.0 = Aces Approx
+    value.TONEMAPPING_TYPE.1 = Uncharted 2 
+    value.TONEMAPPING_TYPE.2 = Reinhard Jodie
+    value.TONEMAPPING_TYPE.3 = AgX
+
+
+option.WATER_FOG_DENSITY = Water Fog Density
+option.FOG_DENSITY.comment = How thick the underwater fog is
+
+option.SUN_ROTATION = Sun Angle
+option.SUN_ROTATION.comment = How much the sun is offset from the center
+
+option.SHADOW_SOFTNESS = Shadow softness
+option.SHADOW_SOFTNESS.comment = How smooth or sharp your shadows are. also affects their clarity
+
+option.SHADOW_RESOLUTION = Shadow resolution
+option.SHADOW_RESOLUTION.comment = Resolution of the shadowmap. How much detail is in the shadows. §cHigh performance impact§r
+
+option.SHADOW_SAMPLES = Shadow Sample Count
+option.SHADOW_SAMPLES.comment = Increses samples used by the shadow filter §cHigh performance impact§r
+
+option.GODRAYS_GLSL = Enable Godrays
+option.GODRAYS_GLSL.comment = Enables screenspace godrays effect §cThis is not volumetric and will have errors when the sun is not on screen§r
+value.GODRAYS_GLSL.0  = off
+value.GODRAYS_GLSL.1  = on
+option.GODRAYS_SAMPLES = Godray sample count
+option.GODRAYS_SAMPLES.comment = Increase the quality of godrays. §cPotentially major performance impact§r
+option.GODRAY_DENSITY = Godrays Density
+
+option.DISTANCE_FOG_GLSL = Enable distance fog
+option.DISTANCE_FOG_GLSL.comment = Enable or disable the distance fog effect. §cNo performance impact!§r
+    value.DISTANCE_FOG_GLSL.0  = off
+    value.DISTANCE_FOG_GLSL.1  = on
+
+option.WATER_FOG_GLSL = Enable water fog
+option.WATER_FOG_GLSL.comment = Enable or disable the water fog effect. §cNo performance impact!§r
+    value.WATER_FOG_GLSL.0  = off
+    value.WATER_FOG_GLSL.1  = on
+
+option.EMISSIVE_MULTIPLIER = Emission Multiplier
+option.EMISSIVE_MULTIPLIER.comment = How much to multiply the strength of emissives by
+
+option.FXAA_GLSL = FXAA
+option.FXAA_GLSL.comment = Enables the use of Fast Approximate anti aliasing (FXAA)
+    value.FXAA_GLSL.0  = off
+    value.FXAA_GLSL.1  = on
+
+option.LIGHTING_GLSL = Lighting
+option.LIGHTING_GLSL.comment = Enable or disable lighting effects
+    value.LIGHTING_GLSL.0  = off
+    value.LIGHTING_GLSL.1  = on
+
+option.DO_SSR = SSR
+option.DO_SSR.comment = Enables the use of screenspace reflections (SSR)
+    value.DO_SSR.0 = off
+    value.DO_SSR.1 = on

@@ -27,49 +27,13 @@ layout(location = 2) out vec4 encodedNormal;
 
 
 void main() {
-	color = texture(gtexture, texcoord) * glcolor;
+	color.a = 0.8;
+	color = texture(gtexture, texcoord) * glcolor * color.a;
 	
 	if (color.a < 0.1) {
 		discard;
 	}
 
-	vec3 normalMaps = texture2DLod(normals, texcoord, 0).rgb;
-	normalMaps = normalMaps * 2.0 - 1.0;
-	normalMaps.xy /= (254.0/255.0);
-	normalMaps.z = sqrt(1.0 - dot(normalMaps.xy, normalMaps.xy));
-	vec3 mappedNormal = tbnMatrix * normalMaps;
-
-
-	lightmapData = vec4(lmcoord, 0.0, 1.0);
-	encodedNormal = vec4(mappedNormal * 0.5 + 0.5, 1.0);
-
-	vec3 lightVector = normalize(shadowLightPosition);
-	vec3 worldLightVector = mat3(gbufferModelViewInverse) * lightVector;
-
-	vec3 shadowViewPos = (shadowModelView * vec4(feetPlayerPos, 1.0)).xyz;
-	vec4 shadowClipPos = shadowProjection * vec4(shadowViewPos, 1.0);
-	vec3 shadowNDCPos = shadowClipPos.xyz / shadowClipPos.w;
-	vec3 shadowScreenPos = shadowNDCPos * 0.5 + 0.5;
-
-	float roughness;
- 
 	
-	
-	vec3 worldPos = cameraPosition + feetPlayerPos;
-	vec3 V = normalize(cameraPosition - worldPos);
-  	vec3 L = normalize(worldLightVector);
-  	vec3 H = normalize(V + L);
-
-
-	vec3 emissive;
-	vec3 albedo = texture(colortex0,texcoord).rgb;
-	
-	
-	vec3 shadow = getSoftShadow(shadowClipPos, feetPlayerPos, encodedNormal.rgb, texcoord, shadowScreenPos);
-  	vec3 diffuse = doDiffuse(texcoord, lightmapData.rg, encodedNormal.rgb, worldLightVector, shadow);
-	vec3 sunlight;
-	vec3 currentSunlight = getCurrentSunlight(sunlight, encodedNormal.rgb, shadow, worldLightVector);
-	vec3 lighting =  color.rgb * diffuse;
-	color = vec4(lighting, color.a);
 
 }

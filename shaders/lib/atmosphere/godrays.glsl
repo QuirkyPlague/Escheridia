@@ -16,10 +16,10 @@ vec3 sampleGodrays(vec3 godraySample, vec2 texcoord, vec3 feetPlayerPos, float d
   
   bool isWater=blockID==WATER_ID;
 	//godray parameters
-    const float exposure = 0.55;
+    const float exposure = 0.35;
     float decay = 1.0;
     const float density = 1.0;
-     float weight =  0.12; 
+     float weight =  0.12 * GODRAY_DENSITY; 
     
 	//blank variables 
      godraySample = vec3(0.0);
@@ -39,9 +39,15 @@ vec3 sampleGodrays(vec3 godraySample, vec2 texcoord, vec3 feetPlayerPos, float d
 	float dist0 = length(screenToView(texcoord, depth));
 	vec3 godrayColor;
   	float dist = dist0;
-	 vec3 absorption = vec3(0.1137, 0.3569, 0.9216);
-	vec3 inscatteringAmount = calcSkyColor(godrayColor) * 0.7;
-	vec3 absorptionFactor = exp(-absorption * 1.0 * (dist * 0.84));
+	bool isRaining = rainStrength <= 1.0 && rainStrength > 0.0;
+	 vec3 absorption = vec3(0.1373, 0.4706, 0.9098);
+	vec3 inscatteringAmount = calcSkyColor(godrayColor) ;
+	if(isRaining)
+	{
+		float dryToWet = smoothstep(0.0, 1.0, float(rainStrength));
+		absorption = mix(absorption, vec3(1.0), dryToWet);
+	}
+	vec3 absorptionFactor = exp(-absorption  * (dist * 1.0));
     godrayColor *= absorptionFactor;
     godrayColor +=  inscatteringAmount / absorption * (1.0 - absorptionFactor);
 
@@ -64,7 +70,7 @@ vec3 sampleGodrays(vec3 godraySample, vec2 texcoord, vec3 feetPlayerPos, float d
 					break;
                 }
     }
-	godraySample /= GODRAYS_SAMPLES * HG(0.6, -VoL);
+	godraySample /= GODRAYS_SAMPLES * HG(0.7, -VoL);
 	godraySample *= exposure;
 	return godraySample;
 }

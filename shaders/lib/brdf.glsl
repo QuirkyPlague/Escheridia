@@ -28,7 +28,7 @@ vec3 brdf(vec3 albedo, vec3 F0, vec3 L, vec3 currentSunlight,vec3 N, vec3 H,vec3
     float NdotL = clamp(dot(N, L), 0.0, 1.0);        
     Lo = spec * radiance * NdotL;
     
-    vec3 ambient2 = vec3(0.03) * albedo;
+   
     vec3 speculars =   Lo;
     return speculars;
 }

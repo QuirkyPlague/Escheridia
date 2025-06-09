@@ -58,16 +58,17 @@ void main() {
 	vec3 shadow = getSoftShadow(shadowClipPos, feetPlayerPos, geoNormal, texcoord, shadowScreenPos);
 	vec3 lightVector = normalize(shadowLightPosition);
 	vec3 worldLightVector = mat3(gbufferModelViewInverse) * lightVector;
-
+	bool isMetal = SpecMap.g >= 230.0/255.0;
+	bool isOpaque = !isWater;
 	vec3  f0;
-	if(SpecMap.g <= 229.0/255.0)
+	if(!isMetal)
   	{
     	f0 = vec3(SpecMap.g);
   	}
-  	else if(isWater)
-  	{
-    	f0 = vec3(0.02);
-  	}
+	else if(isWater && !isOpaque && !isMetal)
+	{
+		f0 =vec3(0.02);
+	}
 	else
 	{
 		f0 = albedo;
@@ -75,12 +76,12 @@ void main() {
 
 	float roughness;
  	roughness = pow(1.0 - SpecMap.r, 2.0);
-	if(isWater)
+	if(isWater && !isOpaque)
 	{
 		roughness = 0.05;
 	}
 		
-	bool isMetal = SpecMap.g >= 230.0/255.0;
+	
 		
 	vec3 sunlight;
 	vec3 currentSunlight = getCurrentSunlight(sunlight, N, shadow, worldLightVector);
@@ -89,7 +90,7 @@ void main() {
     vec3 reflectedPos = vec3(0.0);
     vec3 reflectedColor = vec3(0.0);
 
-	reflectedPos.xy = clamp(reflectedPos.xy, vec2(-1.5), vec2(1.5));
+	//reflectedPos.xy = clamp(reflectedPos.xy, vec2(-1.5), vec2(1.5));
 	
 	vec3 V= normalize(-viewDir);
 	vec3 F=fresnelSchlick(max(dot(normal,V),0.),f0);
@@ -103,7 +104,10 @@ void main() {
 	bool reflectionHit = true;
 	float jitter = IGN(gl_FragCoord.xy, frameCounter);
 	reflectionHit && raytrace(viewPos, reflectedDir,SSR_STEPS, jitter,  reflectedPos);
-	 if(isWater || SpecMap.r >= 155.0/255.0 )
+	bool isRaining = rainStrength <= 1.0 && rainStrength > 0.0;
+
+	
+	 if(isWater || SpecMap.r >= 155.0/255.0)
 	{
 	 if(reflectionHit)
 	 {
@@ -111,23 +115,41 @@ void main() {
 		reflectedColor = texture(colortex0, reflectedPos.xy).rgb;
 		
 			 if(clamp(reflectedPos.xy, 0.0, 1.0) != reflectedPos.xy && !inWater)
-		{
-			
+			{
+				
 				reflectedColor=calcSkyColor((reflect(normalize(viewPos),normal)));
+				if(isMetal)
+				{
+					reflectedColor *= 0.4;
+				}
 				reflectedColor *= lightmap.g;
 				
-		}
+			}
 		#else
 				reflectedColor=calcSkyColor((reflect(normalize(viewPos),normal)));
-				reflectedColor = color.rgb + (lightmap.g * reflectedColor) * F;
+				reflectedColor = color.rgb + (lightmap.g * reflectedColor);
 		
 		#endif
 	 }
 	}
+if(isRaining)
+	{
+		float dryToWet = smoothstep(0.0, 1.0, float(rainStrength));
+		float currentRoughness = roughness;
+		float wetRoughness = 0.15;
+		roughness = mix(currentRoughness, wetRoughness, dryToWet);
+	}
+	if(roughness <= 0.35 && isRaining)
+	{
+		reflectedColor = texture(colortex0, reflectedPos.xy).rgb;
+		if(lightmap.g <= 0.3)
+		{
+			reflectedColor *= 0;
+		}
+	}
 
+		
 
-
-	
 	vec3 specular = max(brdf(albedo, f0, L, currentSunlight, N, H, V2, roughness, SpecMap), 0.0) + reflectedColor * F;
 	
 	
@@ -141,6 +163,10 @@ void main() {
 	{
 		color.rgb = specular;
 	}
-	color.rgb += lighting;	
+	
+	
+	color.rgb += lighting;
+	
+		
 	
 	}

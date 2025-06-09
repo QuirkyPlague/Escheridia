@@ -19,30 +19,25 @@ in vec3 viewPos;
 in vec3 feetPlayerPos;
 flat in int blockID;
 in mat3 tbnMatrix;
-/* RENDERTARGETS: 0,1,2,4,5,7 */
+/* RENDERTARGETS: 0,1,2,4,5,7,6 */
 layout(location = 0) out vec4 color;
 layout(location = 1) out vec4 lightmapData;
 layout(location = 2) out vec4 encodedNormal;
 layout(location = 3) out vec4 waterMask;
 layout(location = 4) out vec4 specMap;
 layout(location = 5) out vec4 translucentMask;
+layout(location = 6) out vec4 geoNormal;
 
 
 void main() {
 	color = texture(gtexture, texcoord) * glcolor;
 	
-	if (color.a < 0.1) {
-		discard;
-	}
-
-	
-
 	vec3 normalMaps = texture2DLod(normals, texcoord, 0).rgb;
 	normalMaps = normalMaps * 2.0 - 1.0;
 	normalMaps.xy /= (254.0/255.0);
 	normalMaps.z = sqrt(1.0 - dot(normalMaps.xy, normalMaps.xy));
 	vec3 mappedNormal = tbnMatrix * normalMaps;
-
+	geoNormal = vec4(normal * 0.5 + 0.5, 1.0);
 
 	lightmapData = vec4(lmcoord, 0.0, 1.0);
 	encodedNormal = vec4(mappedNormal * 0.5 + 0.5, 1.0);
@@ -81,27 +76,32 @@ void main() {
 		emissive += albedo * emission  * 4.0 * EMISSIVE_MULTIPLIER;
   
 	}
-	
+	vec3 F=fresnelSchlick(max(dot(encodedNormal.rgb,V),0.),F0);
 	vec3 shadow = getSoftShadow(shadowClipPos, feetPlayerPos, encodedNormal.rgb, texcoord, shadowScreenPos);
-  	vec3 diffuse = doDiffuse(texcoord, lightmapData.rg, encodedNormal.rgb, worldLightVector, shadow);
+  	vec3 diffuse = doDiffuse(texcoord, lightmapData.rg, encodedNormal.rgb, worldLightVector, shadow, viewPos);
 	vec3 sunlight;
 	vec3 currentSunlight = getCurrentSunlight(sunlight, encodedNormal.rgb, shadow, worldLightVector);
-	vec3 lighting =  emissive;
+	vec3 specular = max(brdf(albedo, F0, L, currentSunlight, encodedNormal.rgb, H, V, roughness, specMap), 0.0)  * F;
+	vec3 lighting = albedo * diffuse ;
 	
 	if(blockID == WATER_ID)
 	{
     waterMask = vec4(1.0, 1.0, 1.0, 1.0);
-    color.a *= 0.5;
+    color.a *= 0.2;
 	}
 	else if(blockID == TRANSLUCENT_ID)
 	{
 		 translucentMask = vec4(1.0, 1.0, 1.0, 1.0);
-		 color = vec4(lighting, color.a);
+		lighting = emissive;
 	}
 	else
 	{
 		waterMask = vec4(0.0, 0.0, 0.0, 1.0);
 		translucentMask = vec4(0.0, 0.0, 0.0, 1.0);
 	}
-
+	 color = vec4(lighting, color.a);
+	
+	if (color.a < 0.1) {
+		discard;
+	}
 }

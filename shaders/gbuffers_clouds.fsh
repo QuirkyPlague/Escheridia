@@ -3,39 +3,32 @@
 #include "/lib/uniforms.glsl"
 uniform sampler2D gtexture;
 
-
+#include "/lib/util.glsl"
+#include "/lib/atmosphere/skyColor.glsl"
+#include "/lib/blockID.glsl"
 
 in vec2 lmcoord;
 in vec2 texcoord;
 in vec4 glcolor;
 in vec3 normal;
 in mat3 tbnMatrix;
-/* RENDERTARGETS: 0,1,2,3,5,6,8 */
+in vec3 viewPos;
+/* RENDERTARGETS: 0  */
 layout(location = 0) out vec4 color;
-layout(location = 1) out vec4 lightmapData;
-layout(location = 2) out vec4 encodedNormal;
-layout(location = 3) out vec4 godraySample;
-layout(location = 4) out vec4 specMap;
-layout(location = 5) out vec4 geoNormal;
-layout(location = 6) out vec4 albedo;
+
 void main() {
-	color = texture(gtexture, texcoord) * glcolor;
-	albedo = texture(gtexture, texcoord) * glcolor;
-	albedo.rgb = pow(albedo.rgb, vec3(2.2));
+	color.a = 1.0;
+	color = texture(gtexture, texcoord) * glcolor * color.a ;
+	
+	vec4 distFog = color;
+    distFog *= color.a;
+	float farPlane = far * 4.0;
+    float dist = length(viewPos) / far;
+    float fogFactor = exp(-52.0 * (1.0 - dist));
+    float rainFogFactor = exp(-5.0 * (1.0 - dist));
+
+	color = mix(color, distFog, fogFactor);
 	if (color.a < 0.1) {
 		discard;
 	}
-
-	vec3 normalMaps = texture(normals, texcoord).rgb;
-	normalMaps = normalMaps * 2.0 - 1.0;
-	normalMaps.xy /= (254.0/255.0);
-	normalMaps.z = sqrt(1.0 - dot(normalMaps.xy, normalMaps.xy));
-	vec3 mappedNormal = tbnMatrix * normalMaps;
-	
-	geoNormal = vec4(normal * 0.5 + 0.5, 1.0);
-
-	lightmapData = vec4(lmcoord, 0.0, 1.0);
-	encodedNormal = vec4(mappedNormal * 0.5 + 0.5, 1.0);
-	specMap = texture(specular, texcoord);
-	
 }

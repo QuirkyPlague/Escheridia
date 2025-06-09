@@ -5,7 +5,7 @@
 
 /*
 const int colortex0Format = RGB16;
-const int colortex3Format = RGB16;
+const int colortex3Format = RGB32F;
 const int colortex4Format = RGB16;
 const int colortex8Format = RGB32f;
 */
@@ -52,6 +52,9 @@ uniform int worldTime;
 const float shadowDistance = 128.0;
 const float shadowFarPlane = 512.0;
 const float shadowDistanceRenderMul = -1.0;
+uniform float rainStrength;
+const float drynessHalfLife = 3200.0;
+const float wetnessHalflife = 3200.0;
 
 
 #endif //UNIFORMS_GLSL

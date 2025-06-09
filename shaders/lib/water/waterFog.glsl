@@ -1,5 +1,5 @@
 #ifndef WATER_FOG_GLSL
-#define WATER_FOG_GLSL
+#define WATER_FOG_GLSL 1 //[0 1]
 
 #include "/lib/util.glsl"
 #include "/lib/uniforms.glsl"
@@ -24,15 +24,10 @@ vec3 waterExtinction(vec3 color, vec2 texcoord, vec2 lightmap, float depth, floa
     inscatteringAmount *= 0.25;
     
     vec3 absorptionFactor=exp2(-absorption*WATER_FOG_DENSITY*(dist* .45));
-    if(lightmap.g <0.4)
-    {
-        inscatteringAmount *= 11.0;
-        absorption= vec3(0.8471, 0.6078, 0.5294);
-        absorptionFactor=exp2(-absorption*WATER_FOG_DENSITY*(dist* .45));
-    }
-      color.rgb*=absorptionFactor;
-      color.rgb+=vec3(.6471,.4784,.2824)*inscatteringAmount/absorption*(1.-absorptionFactor);
-    return color.rgb;
+  
+      color*=absorptionFactor;
+      color+=vec3(.6471,.4784,.2824)*inscatteringAmount/absorption*(1.-absorptionFactor);
+    return color;
 }
 vec3 waterFog(vec4 color, vec2 texcoord, vec2 lightmap, float depth, float depth1)
 {

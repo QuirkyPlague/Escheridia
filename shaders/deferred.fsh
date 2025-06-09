@@ -7,7 +7,7 @@
 #include "/lib/shadows/softShadows.glsl"
 #include "/lib/brdf.glsl"
 in vec2 texcoord;
-vec4 SpecMap = texture(colortex5, texcoord);
+
 
 /* RENDERTARGETS: 0 */
 layout(location = 0) out vec4 color;
@@ -21,7 +21,7 @@ void main() {
   		return;
 	}
 	
-
+	vec4 SpecMap = texture(colortex5, texcoord);
 	vec2 lightmap = texture(colortex1, texcoord).rg; // we only need the r and g components
 	vec3 encodedNormal = texture(colortex2, texcoord).rgb;
 	vec3 normal = normalize((encodedNormal - 0.5) * 2.0); // we normalize to make sure it is of unit length
@@ -50,7 +50,7 @@ void main() {
 	vec3 albedo = texture(colortex0,texcoord).rgb;
 	if (emission >= 0.0/255.0 && emission < 255.0/255.0)
 	{
-		emissive += albedo * emission  * 3.0 * EMISSIVE_MULTIPLIER;
+		emissive += albedo * emission  * EMISSIVE_MULTIPLIER;
   
 	}
 
@@ -68,13 +68,14 @@ void main() {
     	F0 = albedo;
   	}
 	bool isMetal = SpecMap.g >= 230.0/255.0;
-	vec3 diffuse = doDiffuse(texcoord, lightmap, normal, worldLightVector, shadow);
+	vec3 diffuse = doDiffuse(texcoord, lightmap, normal, worldLightVector, shadow, viewPos);
 	vec3 sunlight;
 	vec3 currentSunlight = getCurrentSunlight(sunlight, normal, shadow, worldLightVector);
 	vec3 specular = brdf(albedo, F0, L, currentSunlight, normal, H, V, roughness, SpecMap) ;
-	vec3 lighting = albedo * diffuse * float(!isMetal) + specular + emissive;
+	vec3 lighting = albedo * diffuse + specular  + emissive;
+	
 	#if LIGHTING_GLSL == 1
-	//color.rgb = lighting;
+	color.rgb = lighting;
 	#endif
 	
 }

@@ -1,5 +1,5 @@
 #ifndef FXAA_GLSL
-#define FXAA_GLSL
+#define FXAA_GLSL 1 //[0 1]
 
 // FXAA 3.11 from http://blog.simonrodriguez.fr/articles/30-07-2016_implementing_fxaa.html
 float rgb2luma(vec3 rgb)

@@ -12,9 +12,11 @@ layout(location = 0) out vec4 color;
 void main() {
 	color = texture(colortex0, texcoord);
 	
-	color.rgb = FXAA(texture(colortex0, texcoord).rgb, colortex0, texcoord);
-	
-	
-	
-	
+	float depth = texture(depthtex0, texcoord).r;
+	if(depth==1.0)
+	{
+		color += texture(colortex8, texcoord);
+		
+	}
+
 }
