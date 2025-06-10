@@ -30,7 +30,6 @@ void main(){
   vec3 viewDir=normalize(viewPos);
   vec3 reflectedColor=calcSkyColor((reflect(viewDir,normal)));
   
-;
 
   // Fog calculations
   //float dist = length(viewPos) / far;
@@ -42,6 +41,7 @@ void main(){
   vec3 inscatteringAmount= WATER_SCATTERING;
   inscatteringAmount *= 0.1;
   
+
   if(inWater)
   {
       dist=dist0;
@@ -50,6 +50,7 @@ void main(){
       color.rgb+= inscatteringAmount  /absorption*(1.-absorptionFactor);
     
   }
+ 
 
 
   

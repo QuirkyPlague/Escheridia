@@ -29,7 +29,7 @@ void main() {
 	feetPlayerPos = (gbufferModelViewInverse * vec4(viewPos, 1.0)).xyz;
 
 	vec3 tangent = mat3(gbufferModelViewInverse) * normalize(gl_NormalMatrix * at_tangent.xyz);
-	vec3 binormal = normalize(cross(tangent, normal) * at_tangent.w);
+	vec3 binormal = cross(tangent, normal) * at_tangent.w;
 	tbnMatrix = mat3(tangent, binormal, normal);
 
 	blockID = int(mc_Entity.x + 0.5);

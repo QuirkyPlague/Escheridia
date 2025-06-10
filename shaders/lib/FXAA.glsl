@@ -1,5 +1,5 @@
 #ifndef FXAA_GLSL
-#define FXAA_GLSL
+#define FXAA_GLSL 1 //[0 1]
 
 // FXAA 3.11 from http://blog.simonrodriguez.fr/articles/30-07-2016_implementing_fxaa.html
 float rgb2luma(vec3 rgb)
@@ -11,7 +11,7 @@ float QUALITY[12]=float[12](1.,1.,1.,1.,1.,1.5,2.,2.,2.,2.,4.,8.);
 
 #define EDGE_THRESHOLD_MAX 0.15
 #define EDGE_THRESHOLD_MIN 0.0635
-#define ITERATIONS 128
+#define ITERATIONS 16
 #define SUBPIXEL_QUALITY 1.0
 
 vec3 FXAA(vec3 color, sampler2D cTex, vec2 texcoord)
