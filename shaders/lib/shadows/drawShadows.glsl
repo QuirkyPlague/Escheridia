@@ -34,7 +34,7 @@ vec3 getShadow(vec3 shadowScreenPos){
   we use 1 - the alpha to get how much light is let through
   and multiply that light by the color of the caster
   */
-  return shadowColor.rgb * (1.0 - shadowColor.a) * 3;
+  return shadowColor.rgb * (3.0 - shadowColor.a);
 }
 
 #endif //DRAWSHADOWS_GLSL

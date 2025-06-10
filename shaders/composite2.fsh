@@ -30,7 +30,6 @@ void main(){
   vec3 viewDir=normalize(viewPos);
   vec3 reflectedColor=calcSkyColor((reflect(viewDir,normal)));
   
-;
 
   // Fog calculations
   //float dist = length(viewPos) / far;

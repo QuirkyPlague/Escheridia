@@ -4,8 +4,8 @@
 
 uniform int renderStage;
 
-const vec3 horizonColor = vec3(0.6353, 0.8314, 0.8706);
-const vec3 zenithColor = vec3(0.4392, 0.6157, 0.7608);
+const vec3 horizonColor = vec3(0.4118, 0.7922, 0.8706);
+const vec3 zenithColor = vec3(0.2471, 0.5255, 0.749);
 const vec3 earlyHorizon = vec3(0.7216, 0.5882, 0.3451);
 const vec3 earlyZenith =  vec3(0.2941, 0.5922, 0.7412);
 const vec3 lateHorizon = vec3(0.7098, 0.4235, 0.3216);
@@ -65,8 +65,7 @@ vec3 calcSkyColor(vec3 pos) {
     horizon = mix(currentHorizonColor, rainHorizon, dryToWet);
   }
     
-	 horizon = pow(horizon, vec3(2.2));
-	 zenith = pow(zenith, vec3(2.2));
+
 	float upDot = dot(pos, gbufferModelView[1].xyz); //not much, what's up with you?
 	return mix(zenith, horizon, fogify(max(upDot, 0.0), 0.02));
 }
@@ -83,6 +82,6 @@ if (renderStage == MC_RENDER_STAGE_STARS) {
 	} else {
 		vec3 pos = viewPos;
 		color = vec4(calcSkyColor(normalize(pos)), 1.0);
-      color.rgb = pow(color.rgb, vec3(2.2));
+      
 	}
 }

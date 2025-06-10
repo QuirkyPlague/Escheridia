@@ -24,6 +24,6 @@
 #define EMISSIVE_MULTIPLIER 1.0 //[0.1 0.2 0.3 0.4 0.5 0.6 0.7 0.8 0.9 1.0 1.1 1.2 1.3 1.4 1.5 1.6 1.7 1.8 1.9 2.0]
 
 #define DO_SSR 1 //[0 1]
-#define SSR_STEPS 8 //[2 4 6 8 10 12 14 16 18 20 22 24]
+#define SSR_STEPS 8 //[2 4 6 8 10 12 14 16 18 20 22 24 28 32 36 40]
 
 #endif //COMMON_GLSL

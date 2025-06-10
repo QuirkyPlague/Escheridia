@@ -19,28 +19,30 @@ in vec3 viewPos;
 in vec3 feetPlayerPos;
 flat in int blockID;
 in mat3 tbnMatrix;
-/* RENDERTARGETS: 0,1,2,4,5,7,6 */
+/* RENDERTARGETS: 0,1,2,4,5,7 */
 layout(location = 0) out vec4 color;
 layout(location = 1) out vec4 lightmapData;
 layout(location = 2) out vec4 encodedNormal;
 layout(location = 3) out vec4 waterMask;
 layout(location = 4) out vec4 specMap;
 layout(location = 5) out vec4 translucentMask;
-layout(location = 6) out vec4 geoNormal;
+
 
 
 void main() {
 	color = texture(gtexture, texcoord) * glcolor;
-	
+	if (color.a < 0.1) {
+		discard;
+	}
 	vec3 normalMaps = texture2DLod(normals, texcoord, 0).rgb;
 	normalMaps = normalMaps * 2.0 - 1.0;
-	normalMaps.xy /= (254.0/255.0);
 	normalMaps.z = sqrt(1.0 - dot(normalMaps.xy, normalMaps.xy));
 	vec3 mappedNormal = tbnMatrix * normalMaps;
-	geoNormal = vec4(normal * 0.5 + 0.5, 1.0);
+
 
 	lightmapData = vec4(lmcoord, 0.0, 1.0);
 	encodedNormal = vec4(mappedNormal * 0.5 + 0.5, 1.0);
+	
 	specMap = texture(specular, texcoord);
 	vec3 lightVector = normalize(shadowLightPosition);
 	vec3 worldLightVector = mat3(gbufferModelViewInverse) * lightVector;
@@ -84,10 +86,13 @@ void main() {
 	vec3 specular = max(brdf(albedo, F0, L, currentSunlight, encodedNormal.rgb, H, V, roughness, specMap), 0.0)  * F;
 	vec3 lighting = albedo * diffuse ;
 	
-	if(blockID == WATER_ID)
+
+	 color = vec4(lighting, color.a);
+		if(blockID == WATER_ID)
 	{
     waterMask = vec4(1.0, 1.0, 1.0, 1.0);
-    color.a *= 0.2;
+    color.a *= 0.0;
+	color = vec4(0.0);
 	}
 	else if(blockID == TRANSLUCENT_ID)
 	{
@@ -99,9 +104,5 @@ void main() {
 		waterMask = vec4(0.0, 0.0, 0.0, 1.0);
 		translucentMask = vec4(0.0, 0.0, 0.0, 1.0);
 	}
-	 color = vec4(lighting, color.a);
 	
-	if (color.a < 0.1) {
-		discard;
-	}
 }

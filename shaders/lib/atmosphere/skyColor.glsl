@@ -4,16 +4,16 @@
 #include "/lib/uniforms.glsl"
 #include "/lib/util.glsl"
 
-const vec3 horizonColor = vec3(0.3294, 0.6353, 0.702);
-const vec3 zenithColor = vec3(0.2627, 0.4353, 0.7098);
-const vec3 earlyHorizon = vec3(0.4314, 0.2745, 0.0);
-const vec3 earlyZenith =  vec3(0.0431, 0.3647, 0.3765);
+const vec3 horizonColor = vec3(0.4588, 0.6667, 0.7137);
+const vec3 zenithColor = vec3(0.2784, 0.4235, 0.651);
+const vec3 earlyHorizon = vec3(0.4902, 0.4196, 0.2667);
+const vec3 earlyZenith =  vec3(0.2549, 0.4667, 0.4745);
 const vec3 lateHorizon = vec3(0.3804, 0.1765, 0.098);
 const vec3 lateZenith = vec3(0.2706, 0.451, 0.5529);
 const vec3 nightHorizon = vec3(0.0353, 0.1059, 0.2118);
 const vec3 nightZenith = vec3(0.0118, 0.0118, 0.0118);
-const vec3 rainHorizon = vec3(0.8157, 0.8157, 0.8157);
-const vec3 rainZenith = vec3(0.5333, 0.5333, 0.5333); 
+vec3 rainHorizon = vec3(0.8157, 0.8157, 0.8157);
+vec3 rainZenith = vec3(0.3725, 0.3725, 0.3725); 
 vec3 horizon;
 vec3 zenith;
 
@@ -55,8 +55,8 @@ vec3 calcSkyColor(vec3 pos) {
     vec3 currentHorizonColor = horizon;
     if(worldTime >= 13000 && worldTime < 24000)
     {
-      currentZenithColor *=  0.03;
-      currentHorizonColor *=  0.03;
+      rainZenith *=  0.1;
+      rainHorizon *=  0.1;
     }
     float dryToWet = smoothstep(0.0, 1.0, float(rainStrength));
     zenith = mix(currentZenithColor, rainZenith, dryToWet);
@@ -66,7 +66,7 @@ vec3 calcSkyColor(vec3 pos) {
 	 horizon = pow(horizon, vec3(2.2));
 	 zenith = pow(zenith, vec3(2.2));
 	float upDot = dot(pos, gbufferModelView[1].xyz); //not much, what's up with you?
-	return mix(zenith, horizon, fogify(max(upDot, 0.0), 0.02));
+	return mix(zenith, horizon, fogify(max(upDot, 0.0), 0.028));
 }
 
 

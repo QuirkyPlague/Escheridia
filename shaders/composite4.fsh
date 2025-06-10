@@ -30,10 +30,12 @@ void main() {
 	vec4 waterMask=texture(colortex4,texcoord);
 	vec4 translucentMask=texture(colortex7,texcoord);
 	int blockID=int(waterMask)+100;
+	int blockID2=int(translucentMask)+102;
+	bool isTranslucent=blockID2==TRANSLUCENT_ID;
 	bool isWater=blockID==WATER_ID;
 	float depth = texture(depthtex0, texcoord).r;
 	
-	if(depth ==1) return;
+	//if(depth ==1) return;
 	//lightmap/normals
 	vec2 lightmap = texture(colortex1, texcoord).rg; // we only need the r and g components
 	vec3 encodedNormal = texture(colortex2, texcoord).rgb;
@@ -65,10 +67,6 @@ void main() {
   	{
     	f0 = vec3(SpecMap.g);
   	}
-	else if(isWater && !isOpaque && !isMetal)
-	{
-		f0 =vec3(0.02);
-	}
 	else
 	{
 		f0 = albedo;
@@ -76,7 +74,7 @@ void main() {
 
 	float roughness;
  	roughness = pow(1.0 - SpecMap.r, 2.0);
-	if(isWater && !isOpaque)
+	if(isWater)
 	{
 		roughness = 0.05;
 	}
@@ -84,13 +82,13 @@ void main() {
 	
 		
 	vec3 sunlight;
-	vec3 currentSunlight = getCurrentSunlight(sunlight, N, shadow, worldLightVector);
+	vec3 currentSunlight = getCurrentSunlight(sunlight, normal, shadow, worldLightVector);
 		
 	vec3 reflectedDir = reflect(viewDir, normal);
     vec3 reflectedPos = vec3(0.0);
     vec3 reflectedColor = vec3(0.0);
 
-	//reflectedPos.xy = clamp(reflectedPos.xy, vec2(-1.5), vec2(1.5));
+	reflectedPos.xy = clamp(reflectedPos.xy, vec2(0.0), vec2(1.0));
 	
 	vec3 V= normalize(-viewDir);
 	vec3 F=fresnelSchlick(max(dot(normal,V),0.),f0);
@@ -107,14 +105,14 @@ void main() {
 	bool isRaining = rainStrength <= 1.0 && rainStrength > 0.0;
 
 	
-	 if(isWater || SpecMap.r >= 155.0/255.0)
+	 if( isWater || SpecMap.r >= 155.0/255.0)
 	{
 	 if(reflectionHit)
 	 {
 		#if DO_SSR == 1
 		reflectedColor = texture(colortex0, reflectedPos.xy).rgb;
 		
-			 if(clamp(reflectedPos.xy, 0.0, 1.0) != reflectedPos.xy && !inWater)
+			 if(clamp(reflectedPos.xy, 0, 1) != reflectedPos.xy && !inWater)
 			{
 				
 				reflectedColor=calcSkyColor((reflect(normalize(viewPos),normal)));
@@ -137,26 +135,48 @@ if(isRaining)
 		float dryToWet = smoothstep(0.0, 1.0, float(rainStrength));
 		float currentRoughness = roughness;
 		float wetRoughness = 0.15;
+		
 		roughness = mix(currentRoughness, wetRoughness, dryToWet);
-	}
-	if(roughness <= 0.35 && isRaining)
-	{
-		reflectedColor = texture(colortex0, reflectedPos.xy).rgb;
-		if(lightmap.g <= 0.3)
-		{
-			reflectedColor *= 0;
+		if(lightmap.g < 0.8785)
+		{ 
+			float reflectedColorFalloff = exp2(5.0 * (0.64 - lightmap.g));
+			currentRoughness = pow(1.0 - SpecMap.r, 2.0);
+			roughness = mix(wetRoughness , currentRoughness, clamp(reflectedColorFalloff, 0, 1) );
+		
 		}
 	}
-
+	
+	#if DO_SSR == 1
+	if(roughness <= 0.31 && isRaining && !isMetal && SpecMap.r <= 155.0/255.0 && !isWater)
+	{
+		
+		reflectedColor = texture(colortex0, reflectedPos.xy).rgb;
+		
+		if(clamp(reflectedPos.xy, -1.0, 1.0) != reflectedPos.xy && !inWater)
+			{
+				
+			 reflectedColor=calcSkyColor((reflect(normalize(viewPos),normal)));
+				reflectedColor * lightmap.g;
+			}
+		if(lightmap.g < 0.9935)
+		{ 
+			float reflectedColorFalloff = exp(-5.512 * (1.214 - lightmap.g));
+			vec3 reflectedSkyColor = calcSkyColor((reflect(normalize(viewPos),normal)));
+			reflectedColor = mix(reflectedSkyColor * 0.0, reflectedColor, clamp(reflectedColorFalloff, 0.0, 1.0) );
+		
+		}
+		
+	}
+#endif
 		
 
-	vec3 specular = max(brdf(albedo, f0, L, currentSunlight, N, H, V2, roughness, SpecMap), 0.0) + reflectedColor * F;
+	vec3 specular = brdf(albedo, f0, L, currentSunlight, N, H, V2, roughness, SpecMap) + reflectedColor * F;
 	
 	
 	if(inWater)
 	{
 		currentSunlight *= WATER_SCATTERING;
-		specular = max(brdf(albedo, f0, L, currentSunlight, N, H, V2, roughness, SpecMap), 0.0)  + reflectedColor * F;
+		specular = brdf(albedo, f0, L, currentSunlight, N, H, V2, roughness, SpecMap)  + reflectedColor * F;
 	}
 	vec3 lighting =  specular ;
 	if(isMetal)

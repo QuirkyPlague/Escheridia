@@ -5,9 +5,8 @@
 
 /*
 const int colortex0Format = RGB16;
-const int colortex3Format = RGB32F;
+const int colortex3Format = RGB16F;
 const int colortex4Format = RGB16;
-const int colortex8Format = RGB32f;
 */
 
 
@@ -29,6 +28,7 @@ uniform sampler2D colortex5;
 uniform sampler2D colortex6;
 uniform sampler2D colortex7;
 uniform sampler2D colortex8;
+uniform sampler2D colortex9;
 //depth buffer
 uniform sampler2D depthtex0;
 uniform sampler2D depthtex1;
@@ -55,6 +55,7 @@ const float shadowDistanceRenderMul = -1.0;
 uniform float rainStrength;
 const float drynessHalfLife = 3200.0;
 const float wetnessHalflife = 3200.0;
+uniform float cloudHeight;
 
 
 #endif //UNIFORMS_GLSL

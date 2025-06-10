@@ -3,7 +3,7 @@
 
 //taken fromn Blemu's training raytracer found at https://gist.github.com/BelmuTM/af0fe99ee5aab386b149a53775fe94a3
 #define BINARY_REFINEMENT 1
-#define BINARY_COUNT 4
+#define BINARY_COUNT 128
 #define BINARY_DECREASE 0.5
 
 vec3 diagonal(mat4 mat) { return vec3(mat[0].x, mat[1].y, mat[2].z);      }
@@ -44,7 +44,7 @@ bool raytrace(vec3 viewPosition, vec3 rayDirection, int stepCount, float jitter,
     for(int i = 0; i <= stepCount && !intersect; i++, rayPosition += rayDirection) {
         // Loop until we reach the max amount of steps OR if an intersection is found, add 1 at each iteration AND march the ray (position += direction)
 
-        if(clamp(rayPosition.xy, 0, 1) != rayPosition.xy) return false;
+        if(clamp(rayPosition.xy, 0, 1) != rayPosition.xy) false;
         // Checking if the ray goes outside of the screen (if clamping the coordinates to [0;1] returns a different value, then we're outside)
         // There's no need to continue ray marching if the ray goes outside of the screen
 
