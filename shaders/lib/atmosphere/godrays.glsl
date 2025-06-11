@@ -52,18 +52,25 @@ vec3 sampleGodrays(vec3 godraySample, vec2 texcoord, vec3 feetPlayerPos, float d
 		float dryToWet = smoothstep(0.0, 1.0, float(rainStrength));
 		absorption = mix(absorption, vec3(0.5765, 0.5765, 0.5765), dryToWet);
 	}
+
+
 	vec3 absorptionFactor = exp(-absorption  * (dist * 1.0));
     godrayColor *= absorptionFactor;
     godrayColor +=  inscatteringAmount / absorption * (1.0 - absorptionFactor);
-
-
+	if(inWater)
+	{
+	absorption = WATER_EXTINCTION;
+	inscatteringAmount = vec3(0.1882, 0.4745, 1.0);
+	absorptionFactor = exp(-absorption  * (dist * 0.2));
+    godrayColor *= absorptionFactor;
+    godrayColor +=  inscatteringAmount / absorption * (1.0 - absorptionFactor);
+	}
     for(int i = 0; i < GODRAYS_SAMPLES; i++)
 	{
 	    vec3 samples = texture(depthtex0, altCoord).r == 1.0 ? godrayColor : vec3(0.0);
 			if(inWater)
 			{
-				samples = texture(depthtex1, altCoord).r == 1.0 ? vec3(0.0118, 0.0235, 0.0588) : vec3(0.0);
-				weight = 0.6;
+				samples = texture(depthtex1, altCoord).r == 1.0 ? godrayColor : vec3(0.0);
 			}
 			
 			samples *= illuminationDecay * weight;
@@ -76,6 +83,10 @@ vec3 sampleGodrays(vec3 godraySample, vec2 texcoord, vec3 feetPlayerPos, float d
                 }
     }
 	godraySample /= GODRAYS_SAMPLES * HG(0.7, -VoL);
+	if(inWater)
+	{
+		godraySample /= GODRAYS_SAMPLES * HG(0.3, -VoL);
+	}
 	godraySample *= exposure;
 	return godraySample;
 }

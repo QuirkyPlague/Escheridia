@@ -37,8 +37,6 @@ vec3 baseNormal = texture(colortex6, texcoord).rgb;
 	vec3 shadowNDCPos = shadowClipPos.xyz / shadowClipPos.w;
 	vec3 shadowScreenPos = shadowNDCPos * 0.5 + 0.5;
 	
-	
-
 	vec3 shadow = getSoftShadow(shadowClipPos, feetPlayerPos, geoNormal, texcoord, shadowScreenPos);
 	vec3 lightVector = normalize(shadowLightPosition);
 	vec3 worldLightVector = mat3(gbufferModelViewInverse) * lightVector;
@@ -73,7 +71,7 @@ vec3 baseNormal = texture(colortex6, texcoord).rgb;
 	vec3 sunlight;
 	vec3 currentSunlight = getCurrentSunlight(sunlight, normal, shadow, worldLightVector);
 	vec3 specular = brdf(albedo, F0, L, currentSunlight, normal, H, V, roughness, SpecMap) ;
-	vec3 lighting = albedo * diffuse  + emissive;
+	vec3 lighting = albedo * diffuse + specular + emissive;
 	
 	#if LIGHTING_GLSL == 1
 	color.rgb = lighting;

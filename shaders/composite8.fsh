@@ -18,6 +18,6 @@ void main() {
 		color += texture(colortex8, texcoord);
 		
 	}
-	color += texture(colortex9, texcoord) * vec4(0.0745, 0.0745, 0.0745, 0.0);
-	
+	color += texture(colortex9, texcoord) * vec4(0.0745, 0.0745, 0.0745, 0.346);
+	color += texture(colortex10, texcoord) * vec4(0.4902, 0.4902, 0.4902, 0.346);
 }
