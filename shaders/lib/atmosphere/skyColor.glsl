@@ -23,7 +23,8 @@ float fogify(float x, float w) {
 }
 
 vec3 calcSkyColor(vec3 pos) {
-	 if (worldTime >= 0 && worldTime < 1000)
+	 bool inWater = isEyeInWater ==1.0;
+   if (worldTime >= 0 && worldTime < 1000)
   {
     //smoothstep equation allows interpolation between times of day
     float time = smoothstep(0, 1000, float(worldTime));
@@ -62,7 +63,7 @@ vec3 calcSkyColor(vec3 pos) {
     zenith = mix(currentZenithColor, rainZenith, dryToWet);
     horizon = mix(currentHorizonColor, rainHorizon, dryToWet);
   }
-    
+  
 	 horizon = pow(horizon, vec3(2.2));
 	 zenith = pow(zenith, vec3(2.2));
 	float upDot = dot(pos, gbufferModelView[1].xyz); //not much, what's up with you?

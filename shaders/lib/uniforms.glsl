@@ -4,9 +4,9 @@
 #include "/lib/common.glsl"
 
 /*
-const int colortex0Format = RGB16;
+const int colortex0Format = RGB16F;
 const int colortex3Format = RGB16F;
-const int colortex4Format = RGB16;
+const int colortex4Format = RGB16F;
 */
 
 
@@ -29,6 +29,7 @@ uniform sampler2D colortex6;
 uniform sampler2D colortex7;
 uniform sampler2D colortex8;
 uniform sampler2D colortex9;
+uniform sampler2D colortex10;
 //depth buffer
 uniform sampler2D depthtex0;
 uniform sampler2D depthtex1;

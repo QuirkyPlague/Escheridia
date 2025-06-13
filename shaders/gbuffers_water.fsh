@@ -30,15 +30,18 @@ layout(location = 5) out vec4 translucentMask;
 
 
 void main() {
+	
 	color = texture(gtexture, texcoord) * glcolor;
 	if (color.a < 0.1) {
 		discard;
 	}
 	vec3 normalMaps = texture2DLod(normals, texcoord, 0).rgb;
 	normalMaps = normalMaps * 2.0 - 1.0;
+	normalMaps.xy /= (254.0/255.0);
 	normalMaps.z = sqrt(1.0 - dot(normalMaps.xy, normalMaps.xy));
 	vec3 mappedNormal = tbnMatrix * normalMaps;
 
+	
 
 	lightmapData = vec4(lmcoord, 0.0, 1.0);
 	encodedNormal = vec4(mappedNormal * 0.5 + 0.5, 1.0);
@@ -84,10 +87,8 @@ void main() {
 	vec3 sunlight;
 	vec3 currentSunlight = getCurrentSunlight(sunlight, encodedNormal.rgb, shadow, worldLightVector);
 	vec3 specular = max(brdf(albedo, F0, L, currentSunlight, encodedNormal.rgb, H, V, roughness, specMap), 0.0)  * F;
-	vec3 lighting = albedo * diffuse ;
+	vec3 lighting = albedo * diffuse + emissive ;
 	
-
-	 color = vec4(lighting, color.a);
 		if(blockID == WATER_ID)
 	{
     waterMask = vec4(1.0, 1.0, 1.0, 1.0);
@@ -104,5 +105,9 @@ void main() {
 		waterMask = vec4(0.0, 0.0, 0.0, 1.0);
 		translucentMask = vec4(0.0, 0.0, 0.0, 1.0);
 	}
+
+
+	 color = vec4(lighting, color.a);
+	
 	
 }

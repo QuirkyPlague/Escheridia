@@ -50,8 +50,10 @@ bool raytrace(vec3 viewPosition, vec3 rayDirection, int stepCount, float jitter,
 
         float depth = texture(depthtex0, rayPosition.xy).r;
         // Sampling the depth at the ray's screen space position
-
+      
         intersect = rayPosition.z > depth;
+       
+        
         // If the ray's depth is bigger than the geometry depth, then our ray has hit the geometry 
     }
 

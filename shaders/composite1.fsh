@@ -12,7 +12,7 @@ layout(location = 0) out vec4 color;
 void main() {
 	color = texture(colortex0, texcoord);
 	float depth = texture(depthtex0, texcoord).r;
-	if(depth ==1) return;
+	
 	
 	vec3 NDCPos = vec3(texcoord.xy, depth) * 2.0 - 1.0;
 	vec3 viewPos = projectAndDivide(gbufferProjectionInverse, NDCPos);
