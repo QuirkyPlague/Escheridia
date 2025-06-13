@@ -16,9 +16,6 @@
 
 in vec2 texcoord;
 
-
-
-
 /* RENDERTARGETS: 0 */
 layout(location = 0) out vec4 color;
 
@@ -56,7 +53,7 @@ color=texture(colortex0,texcoord);
 //lightmap
 	vec2 lightmap=texture(colortex1,texcoord).rg;
 	vec3 albedo = texture(colortex0, texcoord).rgb;
-
+	lightmap = clamp(lightmap, 0, 1);
   	vec3 viewDir=normalize(viewPos);
 
 	vec3 shadowViewPos = (shadowModelView * vec4(feetPlayerPos, 1.0)).xyz;
@@ -133,7 +130,10 @@ color=texture(colortex0,texcoord);
 				{
 					reflectedColor *= lightmap.g;
 				}
-			
+				if(isMetal)
+				{
+					reflectedColor *= 0.4;
+				}
 			
 		}
 			 if(clamp(reflectedPos.xy, 0, 1) != reflectedPos.xy)
@@ -145,7 +145,10 @@ color=texture(colortex0,texcoord);
 					reflectedColor *= lightmap.g;
 				}
 				
-				
+				if(isMetal)
+				{
+					reflectedColor *= 0.4;
+				}
 			}
 		#else
 				reflectedColor=calcSkyColor((reflect(normalize(viewPos),n2)));
@@ -153,6 +156,11 @@ color=texture(colortex0,texcoord);
 		
 		#endif
 	 }
+	}
+	if(isMetal && SpecMap.r < 155.0/255.0 )
+	{
+		reflectedColor=calcSkyColor((reflect(normalize(viewPos),n2)));
+		reflectedColor *= 0.2;
 	}
 if(isRaining)
 	{
@@ -204,16 +212,27 @@ if(isRaining)
 	}
 	vec3 lighting =  specular ;
 	
-	if(isMetal)
+	if(clamp(reflectedPos.xy, 0, 1) == reflectedPos.xy && isMetal)
 	{
 		color.rgb = reflectedColor;
 	}
-	else if(isWater)
+	else if(clamp(reflectedPos.xy, 0, 1) != reflectedPos.xy && isMetal && lightmap.g < 0.55)
+	{
+		color.rgb += reflectedColor;
+	}
+	else if(clamp(reflectedPos.xy, 0, 1) != reflectedPos.xy && isMetal && lightmap.g > 0.74)
+	{
+		color.rgb = reflectedColor;
+	}
+
+
+	if(isWater)
 	{
 		color.rgb+= specular;
 	}
+		
 	else{
-		color.rgb += reflectedColor;
+		color.rgb += specular;
 	}
 	
 	

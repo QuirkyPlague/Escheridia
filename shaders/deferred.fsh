@@ -49,14 +49,14 @@ vec3 baseNormal = texture(colortex6, texcoord).rgb;
 	vec3 albedo = texture(colortex0,texcoord).rgb;
 	if (emission >= 0.0/255.0 && emission < 255.0/255.0)
 	{
-		emissive += albedo * emission   * EMISSIVE_MULTIPLIER;
+		emissive += albedo * emission * 2.5 * EMISSIVE_MULTIPLIER;
   
 	}
 
 	vec3 V = normalize(cameraPosition - worldPos);
   	vec3 L = normalize(worldLightVector);
   	vec3 H = normalize(V + L);
-
+	float ao = normal.b;
 	vec3 F0;
   	if(SpecMap.g <= 229.0/255.0)
   	{

@@ -18,7 +18,7 @@ layout(location = 2) out vec4 encodedNormal;
 void main() {
 	color.a = 1.0;
 	color = texture(gtexture, texcoord) * glcolor *color.a;
-	
+	color *= vec4(1.0, 1.0, 1.0, 0.434);
 	if (color.a < 0.1) {
 		discard;
 	}

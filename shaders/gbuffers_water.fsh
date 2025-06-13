@@ -30,6 +30,7 @@ layout(location = 5) out vec4 translucentMask;
 
 
 void main() {
+	
 	color = texture(gtexture, texcoord) * glcolor;
 	if (color.a < 0.1) {
 		discard;
@@ -86,19 +87,24 @@ void main() {
 	vec3 sunlight;
 	vec3 currentSunlight = getCurrentSunlight(sunlight, encodedNormal.rgb, shadow, worldLightVector);
 	vec3 specular = max(brdf(albedo, F0, L, currentSunlight, encodedNormal.rgb, H, V, roughness, specMap), 0.0)  * F;
-	vec3 lighting = diffuse ;
+	vec3 lighting = albedo * diffuse + emissive ;
 	
-	if(blockID == WATER_ID)
+		if(blockID == WATER_ID)
 	{
     waterMask = vec4(1.0, 1.0, 1.0, 1.0);
     color.a *= 0.0;
 	color = vec4(0.0);
 	}
+	else if(blockID == TRANSLUCENT_ID)
+	{
+		 translucentMask = vec4(1.0, 1.0, 1.0, 1.0);
+		lighting = emissive;
+	}
 	else
 	{
 		waterMask = vec4(0.0, 0.0, 0.0, 1.0);
+		translucentMask = vec4(0.0, 0.0, 0.0, 1.0);
 	}
-
 
 
 	 color = vec4(lighting, color.a);
