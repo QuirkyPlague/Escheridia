@@ -26,4 +26,5 @@
 #define DO_SSR 1 //[0 1]
 #define SSR_STEPS 8 //[2 4 6 8 10 12 14 16 18 20 22 24 28 32 36 40]
 
+#define MIE_SCALE 1.0
 #endif //COMMON_GLSL

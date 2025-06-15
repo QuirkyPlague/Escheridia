@@ -70,5 +70,37 @@ vec3 calcSkyColor(vec3 pos) {
 	return mix(zenith, horizon, fogify(max(upDot, 0.0), 0.028));
 }
 
+vec3 MieScatter(vec3 color, vec3 lightPos, vec3 feetPlayerPos, vec3 viewPos)
+{
+  color = calcSkyColor(normalize(viewPos));
+  bool isNight = worldTime >= 13000 && worldTime < 24000;
+  vec3 mieScatterColor = vec3(0.0588, 0.0353, 0.0039) * MIE_SCALE;
+  if(isNight)
+  {
+    mieScatterColor = vec3(0.0039, 0.0039, 0.0078);
+  }
+  float VoL = dot(normalize(feetPlayerPos), lightPos);
+  
+  color = mix(color * 0.5, mieScatterColor, 0.9);
+  if(isNight)
+  {
+     color = mix(color * 0.6, mieScatterColor, 0.01);
+     color *= HG(0.95, VoL);
+  }
+  else
+  {
+    color *= HG(0.65, VoL);
+  }
+  
+  return color;
+}
+vec4 cloudScatter(vec4 color, vec3 lightPos, vec3 feetPlayerPos, vec3 viewPos)
+{
+  vec4 mieCloudScatter = vec4(0.1216, 0.0706, 0.0235, 1.0);
+  float VoL = dot(normalize(feetPlayerPos), lightPos);
+  color = mix(color, mieCloudScatter, 1.0);
+  color *= HG(0.65, VoL);
+  return color;
 
+}
 #endif //SKY_COLOR_GLSL

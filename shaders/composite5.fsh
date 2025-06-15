@@ -15,6 +15,7 @@ void main() {
 
 	#if GODRAYS_GLSL == 1
 	float depth = texture(depthtex0, texcoord).r;
+	vec3 screenPos = vec3(texcoord.xy, depth);
 	vec3 NDCPos = vec3(texcoord.xy, depth) * 2.0 - 1.0;
 	vec3 viewPos = projectAndDivide(gbufferProjectionInverse, NDCPos);
 	vec3 feetPlayerPos = (gbufferModelViewInverse * vec4(viewPos, 1.0)).xyz;

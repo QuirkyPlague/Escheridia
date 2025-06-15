@@ -41,6 +41,8 @@ color=texture(colortex0,texcoord);
 	vec3 normal=normalize((encodedNormal-.5)*2.);// we normalize to make sure it is out of unit length
 	vec3 n2 =mat3(gbufferModelView)*normal;
 	vec3 geometryNormal=normalize((geoNormal-.5)*2.);// we normalize to make sure it is out of unit length
+	
+	
 	if(depth==1.)
 	{
 		return;

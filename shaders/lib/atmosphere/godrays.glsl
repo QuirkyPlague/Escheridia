@@ -82,7 +82,7 @@ vec3 sampleGodrays(vec3 godraySample, vec2 texcoord, vec3 feetPlayerPos, float d
 					break;
                 }
     }
-	godraySample /= GODRAYS_SAMPLES * HG(0.7, -VoL);
+	godraySample /= GODRAYS_SAMPLES * HG(0.4, -VoL);
 	if(inWater)
 	{
 		godraySample /= GODRAYS_SAMPLES * HG(0.3, -VoL);
