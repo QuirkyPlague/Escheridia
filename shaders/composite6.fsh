@@ -23,7 +23,7 @@ void main() {
 	vec3 NDCPos = vec3(texcoord.xy, depth) * 2.0 - 1.0;
 	vec3 viewPos = projectAndDivide(gbufferProjectionInverse, NDCPos);
 	#if DISTANCE_FOG_GLSL == 1
-	//color.rgb = distanceFog(color.rgb, viewPos, texcoord, depth);
+	color.rgb = distanceFog(color.rgb, viewPos, texcoord, depth);
 	#endif
 	
 	

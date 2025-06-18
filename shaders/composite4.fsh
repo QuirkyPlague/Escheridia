@@ -47,6 +47,8 @@ color=texture(colortex0,texcoord);
 	{
 		return;
 	}
+	
+	
 	//Space Conversions
 	vec3 NDCPos = vec3(texcoord.xy, depth) * 2.0 - 1.0;
 	vec3 viewPos = projectAndDivide(gbufferProjectionInverse, NDCPos);
@@ -63,9 +65,12 @@ color=texture(colortex0,texcoord);
 	vec3 shadowNDCPos = shadowClipPos.xyz / shadowClipPos.w;
 	vec3 shadowScreenPos = shadowNDCPos * 0.5 + 0.5;
 
-	vec3 shadow = getSoftShadow(shadowClipPos, feetPlayerPos, geoNormal, texcoord, shadowScreenPos);
+	vec3 shadow = getSoftShadow(shadowClipPos, feetPlayerPos, geoNormal, texcoord, shadowScreenPos, SpecMap);
 	bool isMetal = SpecMap.g >= 230.0/255.0;
 	bool isOpaque = !isWater;
+	vec3 clouds = texture(colortex10, texcoord).rgb;
+	
+	
 	vec3  f0;
 	if(isMetal)
   	{
@@ -117,7 +122,7 @@ color=texture(colortex0,texcoord);
 	reflectionHit && raytrace(viewPos, reflectedDir,SSR_STEPS, jitter,  reflectedPos);
 	bool isRaining = rainStrength <= 1.0 && rainStrength > 0.0;
 	float skyDepth = 1.0;
-	
+	clouds.z = skyDepth;
 	 if( isWater || SpecMap.r >= 155.0/255.0)
 	{
 	 if(reflectionHit)
@@ -127,7 +132,12 @@ color=texture(colortex0,texcoord);
 		if(reflectedPos.z == skyDepth)
 		{
 			
-			reflectedColor=calcSkyColor((reflect(normalize(viewPos),n2)));
+			vec3 reflectedSkyColor=calcSkyColor((reflect(normalize(viewPos),n2)));
+			vec3 sun = texture(colortex8, texcoord).rgb;
+			sun = screenSpaceToViewSpace(sun);
+			vec3 sunPos = normalize(sun);
+			reflectedColor = reflectedSkyColor;
+		
 			if(!inWater)
 				{
 					reflectedColor *= lightmap.g;

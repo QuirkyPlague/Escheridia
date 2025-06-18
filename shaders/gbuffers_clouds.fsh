@@ -18,15 +18,10 @@ in vec3 feetPlayerPos;
 layout(location = 0) out vec4 color;
 layout(location = 1) out vec4 reflCloud;
 void main() {
-	color.a = 1.0;
+	color.a =0.1;
 	color = texture(gtexture, texcoord) * glcolor ;
 	reflCloud = texture(gtexture, texcoord) * glcolor;
-	vec4 distFog = color;
-    distFog *= color.a;
-	float farPlane = far * 4.0;
-    float dist = length(viewPos) / far;
-    float fogFactor = exp(-5.0 * (1.0 - dist));
-    float rainFogFactor = exp(-5.0 * (1.0 - dist));
+	
 	vec3 LightVector=normalize(shadowLightPosition);
 	vec3 worldLightVector=mat3(gbufferModelViewInverse)*LightVector;
 	reflCloud *= cloudScatter(reflCloud, worldLightVector, feetPlayerPos, viewPos);

@@ -6,7 +6,7 @@
 #include "/lib/shadows/drawShadows.glsl"
 #include "/lib/shadows/distort.glsl"
  
- vec3 getSoftShadow(vec4 shadowClipPos, vec3 feetPlayerPos, vec3 normal, vec2 texcoord, vec3 shadowScreenPos)
+ vec3 getSoftShadow(vec4 shadowClipPos, vec3 feetPlayerPos, vec3 normal, vec2 texcoord, vec3 shadowScreenPos,vec4 specMap)
  {
     
     feetPlayerPos += 0.07 * normal;
@@ -17,11 +17,16 @@
     shadowClipPos.w = 0.0;
     shadowClipPos += vec4(shadowClipNormal, 1.0);
 
-    
+    float sss = specMap.b;
        
     float sampleRadius = SHADOW_SOFTNESS * 0.0007;
     float noise = IGN(floor(gl_FragCoord.xy), frameCounter);
 
+    if(specMap.b > 64.0/255.0 && specMap.b <= 255.0/255.0)
+        {
+          //sampleRadius *= SHADOW_SOFTNESS * sss * 0.45;
+          //shadowClipPos.z -= sss;
+        }
     vec3 shadowAccum = vec3(0.0); // sum of all shadow samples
     for(int i = 0; i < SHADOW_SAMPLES; i++)
     {

@@ -13,7 +13,7 @@ const vec3 moonlightColor = vec3(0.1255, 0.3216, 0.6588);
 const vec3 ambientColor = vec3(0.1216, 0.1216, 0.1216);
 bool isNight = worldTime >= 13000 && worldTime < 24000;
 bool isRaining = rainStrength <= 1.0 && rainStrength > 0.0;
-vec3 doDiffuse(vec2 texcoord, vec2 lightmap, vec3 normal, vec3 sunPos, vec3 shadow, vec3 viewPos)
+vec3 doDiffuse(vec2 texcoord, vec2 lightmap, vec3 normal, vec3 sunPos, vec3 shadow, vec3 viewPos, float sss)
 {
     vec3 blocklight = lightmap.r * blocklightColor;
     vec3 skylight = lightmap.g * skylightColor;
@@ -30,7 +30,15 @@ vec3 doDiffuse(vec2 texcoord, vec2 lightmap, vec3 normal, vec3 sunPos, vec3 shad
    else if (worldTime >= 1000 && worldTime < 11500)
   {
      float time = smoothstep(10000, 11500, float(worldTime));
-    sunlight = mix(sunlightColor, morningSunlightColor* 0.4, time) * clamp(dot(normal, sunPos), 0.0, 1.0) * shadow;
+    if(sss > 64.0/255.0)
+    {
+      sunlight = mix(sunlightColor, morningSunlightColor* 0.4, time) * clamp(dot(-normal, -sunPos), 0.0, sss) * (shadow * sss);
+    }
+    else
+    {
+      sunlight = mix(sunlightColor, morningSunlightColor* 0.4, time) * clamp(dot(normal, sunPos), 0.0, 1.0) * shadow;
+    }
+    
 	
     skylight *= mix(0.4, 0.2, time);
   }
