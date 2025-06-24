@@ -1,4 +1,4 @@
-#version 330 compatibility
+#version 420 compatibility
 
 #include "/lib/uniforms.glsl"
 #include "/lib/FXAA.glsl" 
@@ -28,5 +28,5 @@ void main() {
 		
 	}
 	color += texture(colortex9, texcoord) * vec4(0.1137, 0.1137, 0.1137, 1.0);
-	color += texture(colortex10, texcoord);
+	color += texture(colortex10, texcoord) * vec4(0.4902, 0.4902, 0.4902, 0.614);
 }

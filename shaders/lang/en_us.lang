@@ -20,6 +20,15 @@ option.SHADOW_RESOLUTION.comment = Resolution of the shadowmap. How much detail 
 option.SHADOW_SAMPLES = Shadow Sample Count
 option.SHADOW_SAMPLES.comment = Increses samples used by the shadow filter §cHigh performance impact§r
 
+option.SHADOW_DISTANCE = Shadow distance
+option.SHADOW_DISTANCE.comment = Increase the range of the shadows §cHigh performance impact§r
+    value.SHADOW_DISTANCE.64.0 = 4 chunks
+    value.SHADOW_DISTANCE.128.0 = 8 chunks
+    value.SHADOW_DISTANCE.192.0 = 12 chunks
+    value.SHADOW_DISTANCE.256.0 = 16 chunks
+    value.SHADOW_DISTANCE.384.0 = 24 chunks
+    value.SHADOW_DISTANCE.512.0 = 32 chunks
+    
 option.GODRAYS_GLSL = Enable Godrays
 option.GODRAYS_GLSL.comment = Enables screenspace godrays effect §cThis is not volumetric and will have errors when the sun is not on screen§r
 value.GODRAYS_GLSL.0  = off
@@ -55,3 +64,8 @@ option.DO_SSR = SSR
 option.DO_SSR.comment = Enables the use of screenspace reflections (SSR)
     value.DO_SSR.0 = off
     value.DO_SSR.1 = on
+
+option.HARDCODED_SSS = Use Resourcepack SSS
+option.HARDCODED_SSS.comment = choose whether to use resourcepack subsurface scattering or let the shader handle it
+    value.HARDCODED_SSS.0 = Lab SSS
+    value.HARDCODED_SSS.1 = Hardcoded

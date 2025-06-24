@@ -1,4 +1,4 @@
-#version 330 compatibility
+#version 420 compatibility
 
 #include "/lib/uniforms.glsl"
 #include "/lib/FXAA.glsl" 

@@ -1,4 +1,4 @@
-#version 330 compatibility
+#version 420 compatibility
 
 #include "/lib/uniforms.glsl"
 #include "/lib/atmosphere/godrays.glsl"
@@ -12,12 +12,12 @@ layout(location = 0) out vec4 color;
 void main() {
 	color = texture(colortex0, texcoord);
 	float depth = texture(depthtex0, texcoord).r;
-	
-	
+	if(depth ==1)return;
+	vec2 lightmap =texture(colortex1, texcoord).rg;
 	vec3 NDCPos = vec3(texcoord.xy, depth) * 2.0 - 1.0;
 	vec3 viewPos = projectAndDivide(gbufferProjectionInverse, NDCPos);
 	
 	#if DISTANCE_FOG_GLSL == 1
-	color.rgb = distanceFog(color.rgb, viewPos, texcoord, depth);
+	color.rgb = atmosphericFog(color.rgb, viewPos, texcoord, depth, lightmap);
 	#endif
 }

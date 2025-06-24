@@ -4,14 +4,14 @@
 #include "/lib/uniforms.glsl"
 #include "/lib/util.glsl"
 
-const vec3 horizonColor = vec3(0.4588, 0.6667, 0.7137);
-const vec3 zenithColor = vec3(0.2784, 0.4235, 0.651);
-const vec3 earlyHorizon = vec3(0.4902, 0.4196, 0.2667);
-const vec3 earlyZenith =  vec3(0.2549, 0.4667, 0.4745);
-const vec3 lateHorizon = vec3(0.3804, 0.1765, 0.098);
-const vec3 lateZenith = vec3(0.2706, 0.451, 0.5529);
-const vec3 nightHorizon = vec3(0.0353, 0.1059, 0.2118);
-const vec3 nightZenith = vec3(0.0118, 0.0118, 0.0118);
+const vec3 horizonColor = vec3(0.2784, 0.549, 0.6039);
+const vec3 zenithColor = vec3(0.051, 0.1608, 0.3373);
+const vec3 earlyHorizon = vec3(0.298, 0.1922, 0.0471);
+const vec3 earlyZenith =  vec3(0.0275, 0.3137, 0.4196);
+const vec3 lateHorizon = vec3(0.5451, 0.1804, 0.0078);
+const vec3 lateZenith = vec3(0.0157, 0.0667, 0.0941);
+const vec3 nightHorizon = vec3(0.0196, 0.0392, 0.0627);
+const vec3 nightZenith = vec3(0.0, 0.0039, 0.0157);
 vec3 rainHorizon = vec3(0.8157, 0.8157, 0.8157);
 vec3 rainZenith = vec3(0.3725, 0.3725, 0.3725); 
 vec3 horizon;
@@ -64,8 +64,7 @@ vec3 calcSkyColor(vec3 pos) {
     horizon = mix(currentHorizonColor, rainHorizon, dryToWet);
   }
   
-	 horizon = pow(horizon, vec3(2.2));
-	 zenith = pow(zenith, vec3(2.2));
+	
 	float upDot = dot(pos, gbufferModelView[1].xyz); //not much, what's up with you?
 	return mix(zenith, horizon, fogify(max(upDot, 0.0), 0.028));
 }
@@ -74,32 +73,35 @@ vec3 MieScatter(vec3 color, vec3 lightPos, vec3 feetPlayerPos, vec3 viewPos)
 {
   color = calcSkyColor(normalize(viewPos));
   bool isNight = worldTime >= 13000 && worldTime < 24000;
-  vec3 mieScatterColor = vec3(0.0588, 0.0353, 0.0039) * MIE_SCALE;
+  vec3 mieScatterColor = vec3(0.0606, 0.0431, 0.0275) * MIE_SCALE;
   if(isNight)
   {
-    mieScatterColor = vec3(0.0039, 0.0039, 0.0078);
+    mieScatterColor = vec3(0.00039, 0.00039, 0.00078);
   }
   float VoL = dot(normalize(feetPlayerPos), lightPos);
   
-  color = mix(color * 0.5, mieScatterColor, 0.9);
+  color = mix(color  , mieScatterColor, 0.767);
   if(isNight)
   {
-     color = mix(color * 0.6, mieScatterColor, 0.01);
+     color = mix(color * 1.0, mieScatterColor, 0.01);
      color *= HG(0.95, VoL);
   }
   else
   {
-    color *= HG(0.65, VoL);
+    color *= HG(0.55, VoL);
   }
   
   return color;
 }
 vec4 cloudScatter(vec4 color, vec3 lightPos, vec3 feetPlayerPos, vec3 viewPos)
 {
-  vec4 mieCloudScatter = vec4(0.1216, 0.0706, 0.0235, 1.0);
+  vec4 mieCloudScatter = vec4(0.4314, 0.3098, 0.1647, 1.0);
   float VoL = dot(normalize(feetPlayerPos), lightPos);
-  color = mix(color, mieCloudScatter, 1.0);
-  color *= HG(0.65, VoL);
+  float dist = length(viewPos) / far;
+  float scatterCondense = HG(0.65, VoL);
+  float scatterFactor = exp(15.0 * (1.0 - scatterCondense));
+  color = mix(mieCloudScatter, color, clamp(scatterFactor, 0,1));
+  
   return color;
 
 }

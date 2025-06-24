@@ -1,4 +1,4 @@
-#version 330 compatibility
+#version 420 compatibility
 
 #include "/lib/uniforms.glsl"
 #include "/lib/lighting/lighting.glsl"
@@ -6,6 +6,8 @@
 #include "/lib/shadows/drawShadows.glsl"
 #include "/lib/shadows/softShadows.glsl"
 #include "/lib/brdf.glsl"
+#include "/lib/blockID.glsl"
+
 in vec2 texcoord;
 
 
@@ -22,10 +24,13 @@ void main() {
 	}
 	
 	vec4 SpecMap = texture(colortex5, texcoord);
+	vec4 sssMask = texture(colortex11, texcoord);
+	int blockID=int(sssMask)+103;
+	bool canScatter = blockID == SSS_ID;	
 	vec2 lightmap = texture(colortex1, texcoord).rg; // we only need the r and g components
 	vec3 encodedNormal = texture(colortex2, texcoord).rgb;
 	vec3 normal = normalize((encodedNormal - 0.5) * 2.0); // we normalize to make sure it is of unit length
-vec3 baseNormal = texture(colortex6, texcoord).rgb;
+	vec3 baseNormal = texture(colortex6, texcoord).rgb;
 	vec3 geoNormal = normalize((baseNormal - 0.5) * 2.0); 
 	vec3 NDCPos = vec3(texcoord.xy, depth) * 2.0 - 1.0;
 	vec3 viewPos = projectAndDivide(gbufferProjectionInverse, NDCPos);
@@ -37,7 +42,23 @@ vec3 baseNormal = texture(colortex6, texcoord).rgb;
 	vec3 shadowNDCPos = shadowClipPos.xyz / shadowClipPos.w;
 	vec3 shadowScreenPos = shadowNDCPos * 0.5 + 0.5;
 	
-	vec3 shadow = getSoftShadow(shadowClipPos, feetPlayerPos, geoNormal, texcoord, shadowScreenPos, SpecMap);
+float sss;
+	#if HARDCODED_SSS == 1
+	if(canScatter)
+	{
+		sss = 1.0;
+	}
+	else
+	{
+		sss = 0.0;
+	}
+	
+	#else
+	sss = SpecMap.b;
+	#endif
+
+
+	vec3 shadow = getSoftShadow(shadowClipPos, feetPlayerPos, geoNormal, texcoord, shadowScreenPos);
 	vec3 lightVector = normalize(shadowLightPosition);
 	vec3 worldLightVector = mat3(gbufferModelViewInverse) * lightVector;
 
@@ -67,8 +88,9 @@ vec3 baseNormal = texture(colortex6, texcoord).rgb;
     	F0 = albedo;
   	}
 	bool isMetal = SpecMap.g >= 230.0/255.0;
-	float sss = SpecMap.b;
-	vec3 diffuse = doDiffuse(texcoord, lightmap, normal, worldLightVector, shadow, viewPos, sss);
+	
+
+	vec3 diffuse = doDiffuse(texcoord, lightmap, normal, worldLightVector, shadow, viewPos, sss, feetPlayerPos);
 	vec3 sunlight;
 	vec3 currentSunlight = getCurrentSunlight(sunlight, normal, shadow, worldLightVector);
 	vec3 specular = brdf(albedo, F0, L, currentSunlight, normal, H, V, roughness, SpecMap) ;

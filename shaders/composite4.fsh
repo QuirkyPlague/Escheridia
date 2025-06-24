@@ -65,7 +65,7 @@ color=texture(colortex0,texcoord);
 	vec3 shadowNDCPos = shadowClipPos.xyz / shadowClipPos.w;
 	vec3 shadowScreenPos = shadowNDCPos * 0.5 + 0.5;
 
-	vec3 shadow = getSoftShadow(shadowClipPos, feetPlayerPos, geoNormal, texcoord, shadowScreenPos, SpecMap);
+	vec3 shadow = getSoftShadow(shadowClipPos, feetPlayerPos, geoNormal, texcoord, shadowScreenPos);
 	bool isMetal = SpecMap.g >= 230.0/255.0;
 	bool isOpaque = !isWater;
 	vec3 clouds = texture(colortex10, texcoord).rgb;
@@ -246,10 +246,4 @@ if(isRaining)
 	else{
 		color.rgb += specular;
 	}
-	
-	
-	
-	
-		
-	
 	}

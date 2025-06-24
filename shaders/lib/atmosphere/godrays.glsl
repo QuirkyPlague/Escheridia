@@ -16,7 +16,7 @@ vec3 sampleGodrays(vec3 godraySample, vec2 texcoord, vec3 feetPlayerPos, float d
   bool isNight = worldTime >= 13000 && worldTime < 24000;
   bool isWater=blockID==WATER_ID;
 	//godray parameters
-    const float exposure = 0.35;
+    const float exposure = 0.55;
     float decay = 1.0;
     const float density = 1.0;
      float weight =  0.12 * GODRAY_DENSITY; 

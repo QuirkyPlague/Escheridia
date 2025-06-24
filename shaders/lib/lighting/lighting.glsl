@@ -7,13 +7,13 @@
 
 const vec3 blocklightColor = vec3(0.7882, 0.6196, 0.4235);
 const vec3 skylightColor = vec3(0.4902, 0.7608, 1.0);
-const vec3 sunlightColor= vec3(0.6314, 0.5098, 0.2784);
+const vec3 sunlightColor= vec3(0.6314, 0.5098, 0.2784) * 1.5;
 const vec3 morningSunlightColor = vec3(0.898, 0.6078, 0.3216);
 const vec3 moonlightColor = vec3(0.1255, 0.3216, 0.6588);
-const vec3 ambientColor = vec3(0.1216, 0.1216, 0.1216);
+const vec3 ambientColor = vec3(0.14);
 bool isNight = worldTime >= 13000 && worldTime < 24000;
 bool isRaining = rainStrength <= 1.0 && rainStrength > 0.0;
-vec3 doDiffuse(vec2 texcoord, vec2 lightmap, vec3 normal, vec3 sunPos, vec3 shadow, vec3 viewPos, float sss)
+vec3 doDiffuse(vec2 texcoord, vec2 lightmap, vec3 normal, vec3 sunPos, vec3 shadow, vec3 viewPos, float sss, vec3 feetPlayerPos)
 {
     vec3 blocklight = lightmap.r * blocklightColor;
     vec3 skylight = lightmap.g * skylightColor;
@@ -25,34 +25,60 @@ vec3 doDiffuse(vec2 texcoord, vec2 lightmap, vec3 normal, vec3 sunPos, vec3 shad
     //smoothstep equation allows interpolation between times of day
     float time = smoothstep(0, 1000, float(worldTime));
     sunlight = mix(morningSunlightColor, sunlightColor, time) * clamp(dot(normal, sunPos), 0.0, 1.0) * shadow;
-    skylight *= mix(0.3, 0.4, time);
+      if(sss > 64.0/255.0)
+    {
+      float VoL = dot(normalize(feetPlayerPos), sunPos);
+      
+      vec3 scatterSun = mix(morningSunlightColor, sunlightColor, time) * clamp(dot(normal, -sunPos), 0.0, 1.0) * (shadow * sss * 4);
+      scatterSun*= HG(0.57, VoL);
+      sunlight = mix(sunlight, scatterSun, 0.1);
+    }
+    skylight *= mix(0.2, 0.3, time);
   }
    else if (worldTime >= 1000 && worldTime < 11500)
   {
      float time = smoothstep(10000, 11500, float(worldTime));
+     sunlight = mix(sunlightColor, morningSunlightColor* 0.4, time) * clamp(dot(normal, sunPos), 0.0, 1.0) * shadow;
     if(sss > 64.0/255.0)
     {
-      sunlight = mix(sunlightColor, morningSunlightColor* 0.4, time) * clamp(dot(-normal, -sunPos), 0.0, sss) * (shadow * sss);
+      float VoL = dot(normalize(feetPlayerPos), sunPos);
+      
+      vec3 scatterSun = mix(sunlightColor, morningSunlightColor* 0.4, time) * clamp(dot(normal, -sunPos), 0.0, 1.0) * (shadow * sss * 6);
+      scatterSun*= HG(0.47, VoL);
+      sunlight = mix(sunlight, scatterSun, 0.1);
     }
-    else
-    {
-      sunlight = mix(sunlightColor, morningSunlightColor* 0.4, time) * clamp(dot(normal, sunPos), 0.0, 1.0) * shadow;
-    }
+   
     
 	
-    skylight *= mix(0.4, 0.2, time);
+    skylight *= mix(0.3, 0.2, time);
   }
   else if (worldTime >= 11500 && worldTime < 13000)
   {
      float time = smoothstep(11500, 13000, float(worldTime));
     sunlight = mix(morningSunlightColor, moonlightColor * 0.4, time) * clamp(dot(normal, sunPos), 0.0, 1.0) * shadow;
+      if(sss > 64.0/255.0)
+    {
+      float VoL = dot(normalize(feetPlayerPos), sunPos);
+      
+      vec3 scatterSun = mix(morningSunlightColor, moonlightColor * 0.4, time) * clamp(dot(normal, -sunPos), 0.0, 1.0) * (shadow * sss * 6);
+      scatterSun*= HG(0.47, VoL);
+      sunlight = mix(sunlight, scatterSun, 0.1);
+    }
 	  skylight *= 0.2;
   }
    else if (worldTime >= 13000 && worldTime < 24000)
   {
     float time = smoothstep(23215, 24000, float(worldTime));
-    sunlight = mix(moonlightColor * 0.4 , morningSunlightColor, time) * clamp(dot(normal, sunPos), 0.0, 1.0) * shadow;
-	  skylight *= 0.15;
+    sunlight = mix(moonlightColor * 0.7 , morningSunlightColor, time) * clamp(dot(normal, sunPos), 0.0, 1.0) * shadow;
+    if(sss > 64.0/255.0)
+    {
+      float VoL = dot(normalize(feetPlayerPos), sunPos);
+      
+      vec3 scatterSun = mix(moonlightColor * 0.3 , morningSunlightColor, time) * clamp(dot(normal, -sunPos), 0.0, 1.0) * (shadow * sss * 6);
+      scatterSun*= HG(0.47, VoL);
+      sunlight = mix(sunlight, scatterSun, 0.1);
+    }
+	  skylight *= 0.07;
 	  
   }
     if(isRaining)
@@ -73,7 +99,10 @@ vec3 doDiffuse(vec2 texcoord, vec2 lightmap, vec3 normal, vec3 sunPos, vec3 shad
 
   }
    
-
+if(lightmap.g < 0.2)
+	{
+		sunlight = vec3(0.0);
+	}
     vec3 diffuse =  ambient+ blocklight+ skylight + sunlight;
     return diffuse;
 }

@@ -1,4 +1,4 @@
-#version 330 compatibility
+#version 420 compatibility
 
 #include "/lib/uniforms.glsl"
 uniform sampler2D gtexture;
@@ -24,6 +24,6 @@ void main() {
 	
 	vec3 LightVector=normalize(shadowLightPosition);
 	vec3 worldLightVector=mat3(gbufferModelViewInverse)*LightVector;
-	reflCloud *= cloudScatter(reflCloud, worldLightVector, feetPlayerPos, viewPos);
+	//reflCloud = cloudScatter(reflCloud, worldLightVector, feetPlayerPos, viewPos);
 	
 }

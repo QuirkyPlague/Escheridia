@@ -1,4 +1,4 @@
-#version 330 compatibility
+#version 420 compatibility
 
 out vec4 glcolor;
 out vec3 modelPos;
