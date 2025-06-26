@@ -31,7 +31,10 @@ void main() {
 	if(isWater && !inWater && !isTranslucent)
 	{
 		color.rgb = waterExtinction(color.rgb, texcoord, lightmap, depth, depth1);
-		
-	}        
+	}      
+	if(inWater)
+	{
+		color.rgb = waterFog(color.rgb, texcoord, lightmap, depth, depth1);
+	}  
 
 }
