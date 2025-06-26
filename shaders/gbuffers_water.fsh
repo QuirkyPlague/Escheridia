@@ -1,4 +1,4 @@
-#version 330 compatibility
+#version 420 compatibility
 
 #include "/lib/uniforms.glsl"
 #include "/lib/lighting/lighting.glsl"
@@ -9,7 +9,7 @@
 #include "/lib/blockID.glsl"
 
 uniform sampler2D gtexture;
-
+uniform sampler2D waterNormal;
 in vec2 lmcoord;
 in vec2 texcoord;
 in vec4 glcolor;
@@ -19,14 +19,14 @@ in vec3 viewPos;
 in vec3 feetPlayerPos;
 flat in int blockID;
 in mat3 tbnMatrix;
-/* RENDERTARGETS: 0,1,2,4,5,7 */
+/* RENDERTARGETS: 0,1,2,4,5,7,12 */
 layout(location = 0) out vec4 color;
 layout(location = 1) out vec4 lightmapData;
 layout(location = 2) out vec4 encodedNormal;
 layout(location = 3) out vec4 waterMask;
 layout(location = 4) out vec4 specMap;
 layout(location = 5) out vec4 translucentMask;
-
+layout(location = 6) out vec4 waterNormals;
 
 
 void main() {
@@ -42,7 +42,7 @@ void main() {
 	vec3 mappedNormal = tbnMatrix * normalMaps;
 
 	
-
+	waterNormals = texture(waterNormal, texcoord);
 	lightmapData = vec4(lmcoord, 0.0, 1.0);
 	encodedNormal = vec4(mappedNormal * 0.5 + 0.5, 1.0);
 	
@@ -81,17 +81,20 @@ void main() {
 		emissive += albedo * emission  * 4.0 * EMISSIVE_MULTIPLIER;
   
 	}
+	float sss =specMap.b;
 	vec3 F=fresnelSchlick(max(dot(encodedNormal.rgb,V),0.),F0);
-	vec3 shadow = getSoftShadow(shadowClipPos, feetPlayerPos, encodedNormal.rgb, texcoord, shadowScreenPos);
-  	vec3 diffuse = doDiffuse(texcoord, lightmapData.rg, encodedNormal.rgb, worldLightVector, shadow, viewPos);
+	vec3 shadow = getSoftShadow(shadowClipPos, feetPlayerPos, encodedNormal.rgb, texcoord, shadowScreenPos, sss);
+	
+  	vec3 diffuse = doDiffuse(texcoord, lightmapData.rg, encodedNormal.rgb, worldLightVector, shadow, viewPos, sss, feetPlayerPos);
 	vec3 sunlight;
 	vec3 currentSunlight = getCurrentSunlight(sunlight, encodedNormal.rgb, shadow, worldLightVector);
 	vec3 specular = max(brdf(albedo, F0, L, currentSunlight, encodedNormal.rgb, H, V, roughness, specMap), 0.0)  * F;
 	vec3 lighting = albedo * diffuse + emissive ;
 	
-		if(blockID == WATER_ID)
+	if(blockID == WATER_ID)
 	{
     waterMask = vec4(1.0, 1.0, 1.0, 1.0);
+	waterNormals = vec4(mappedNormal * 0.5 + 0.5, 1.0);
     color.a *= 0.0;
 	color = vec4(0.0);
 	}

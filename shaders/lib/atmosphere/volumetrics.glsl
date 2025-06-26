@@ -1,38 +1,14 @@
-#ifndef SSR_GLSL
-#define SSR_GLSL 
+#ifndef VOLUMETRICS_GLSL
+#define VOLUMETRICS_GLSL
 
-//taken fromn Blemu's training raytracer found at https://gist.github.com/BelmuTM/af0fe99ee5aab386b149a53775fe94a3
-#define BINARY_REFINEMENT 1
-#define BINARY_COUNT 24
-#define BINARY_DECREASE 0.5
 
-vec3 diagonal(mat4 mat) { return vec3(mat[0].x, mat[1].y, mat[2].z);      }
-vec3 projectionOrthogonal(mat4 mat, vec3 v) { return diagonal(mat) * v + mat[3].xyz;  }
 
-vec3 viewToScreen(vec3 viewPos) {
-	return (projectionOrthogonal(gbufferProjection, viewPos) / -viewPos.z) * 0.5 + 0.5;
-}
 
-// Takes the minimum of 3 values
-float minOf(vec3 x) { return min(x.x, min(x.y, x.z)); }
 
-void binarySearch(inout vec3 rayPosition, vec3 rayDirection) {
-    for(int i = 0; i < BINARY_COUNT; i++) {
-        rayPosition += sign(texture(depthtex0, rayPosition.xy).r - rayPosition.z) * rayDirection;
-        // Going back and forth using the delta of the 2 different depths as a parameter for sign()
-        rayDirection *= BINARY_DECREASE;
-        // Decreasing the step length (to slowly tend towards the intersection)
-    }
-}
 
-// The favorite raytracer of your favorite raytracer
-bool raytrace(vec3 viewPosition, vec3 rayDirection, int stepCount, float jitter, out vec3 rayPosition) {
+bool VolumetricLighting(vec3 viewPosition, vec3 rayDirection, int stepCount, float jitter, out vec3 rayPosition) {
     // "out vec3 rayPosition" is our ray's position, we use it as an "out" parameter to be able to output both the intersection check and the hit position
 
-    rayPosition  = viewToScreen(viewPosition);
-    // Starting position in screen space, it's better to perform space conversions OUTSIDE of the loop to increase performance
-    rayDirection  = viewToScreen(viewPosition + rayDirection) - rayPosition;
-    rayDirection *= minOf((sign(rayDirection) - rayPosition) / rayDirection) * (1.0 / stepCount);
     // Calculating the ray's direction in screen space, we multiply it by a "step size" that depends on a few factors from the DDA algorithm
 
     bool intersect = false;
@@ -66,4 +42,4 @@ bool raytrace(vec3 viewPosition, vec3 rayDirection, int stepCount, float jitter,
     // Outputting the boolean
 }
 
-#endif //SSR_GLSL
+#endif

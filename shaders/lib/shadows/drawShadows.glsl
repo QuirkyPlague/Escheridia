@@ -23,7 +23,7 @@ vec3 getShadow(vec3 shadowScreenPos){
 
   if(opaqueShadow == 0.0){
     // there is a shadow cast by something opaque, so we return no sunlight
-    return vec3(0.0);
+    return vec3(0.0, 0.0, 0.0);
   }
 
   // contains the color and alpha (transparency) of the thing casting a shadow

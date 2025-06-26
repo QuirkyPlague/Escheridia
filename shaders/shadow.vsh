@@ -1,4 +1,4 @@
-#version 330 compatibility
+#version 420 compatibility
 
 #include "/lib/shadows/distort.glsl"
 out vec2 texcoord;
