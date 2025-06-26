@@ -42,12 +42,12 @@ color=texture(colortex0,texcoord);
 	vec3 n2 =mat3(gbufferModelView)*normal;
 	vec3 geometryNormal=normalize((geoNormal-.5)*2.);// we normalize to make sure it is out of unit length
 	
+	vec3 worldNormal = decodeNormal(encodedNormal.xy);
+    vec3 normals = mat3(gbufferModelView) * worldNormal;
 	
-	if(depth==1.)
-	{
-		return;
-	}
 	
+	float sss = SpecMap.b;
+
 	
 	//Space Conversions
 	vec3 NDCPos = vec3(texcoord.xy, depth) * 2.0 - 1.0;
@@ -65,7 +65,7 @@ color=texture(colortex0,texcoord);
 	vec3 shadowNDCPos = shadowClipPos.xyz / shadowClipPos.w;
 	vec3 shadowScreenPos = shadowNDCPos * 0.5 + 0.5;
 
-	vec3 shadow = getSoftShadow(shadowClipPos, feetPlayerPos, geoNormal, texcoord, shadowScreenPos);
+	vec3 shadow = getSoftShadow(shadowClipPos, feetPlayerPos, geoNormal, texcoord, shadowScreenPos, sss);
 	bool isMetal = SpecMap.g >= 230.0/255.0;
 	bool isOpaque = !isWater;
 	vec3 clouds = texture(colortex10, texcoord).rgb;
@@ -105,8 +105,11 @@ color=texture(colortex0,texcoord);
 	vec3 reflectedDir = reflect(viewDir, n2);
     vec3 reflectedPos = vec3(0.0);
     vec3 reflectedColor = vec3(0.0);
-
-	reflectedPos.xy = clamp(reflectedPos.xy, vec2(0.0), vec2(1.0));
+if(isWater)
+{
+	reflectedDir = reflect(viewDir, normals);
+}
+	
 	
 	vec3 V= normalize(-viewDir);
 	vec3 F=fresnelSchlick(max(dot(n2,-viewDir),0.),f0);
@@ -122,7 +125,7 @@ color=texture(colortex0,texcoord);
 	reflectionHit && raytrace(viewPos, reflectedDir,SSR_STEPS, jitter,  reflectedPos);
 	bool isRaining = rainStrength <= 1.0 && rainStrength > 0.0;
 	float skyDepth = 1.0;
-	clouds.z = skyDepth;
+	
 	 if( isWater || SpecMap.r >= 155.0/255.0)
 	{
 	 if(reflectionHit)
@@ -132,26 +135,13 @@ color=texture(colortex0,texcoord);
 		if(reflectedPos.z == skyDepth)
 		{
 			
-			vec3 reflectedSkyColor=calcSkyColor((reflect(normalize(viewPos),n2)));
-			vec3 sun = texture(colortex8, texcoord).rgb;
-			sun = screenSpaceToViewSpace(sun);
-			vec3 sunPos = normalize(sun);
-			reflectedColor = reflectedSkyColor;
+			reflectedColor=calcSkyColor((reflect(normalize(viewPos),normals)));
 		
-			if(!inWater)
-				{
-					reflectedColor *= lightmap.g;
-				}
-				if(isMetal)
-				{
-					reflectedColor *= 0.4;
-				}
-			
 		}
 			 if(clamp(reflectedPos.xy, 0, 1) != reflectedPos.xy)
 			{
 				
-				reflectedColor=calcSkyColor((reflect(normalize(viewPos),n2)));
+				reflectedColor=calcSkyColor((reflect(normalize(viewPos),normals)));
 				if(!inWater)
 				{
 					reflectedColor *= lightmap.g;
@@ -163,8 +153,10 @@ color=texture(colortex0,texcoord);
 				}
 			}
 		#else
-				reflectedColor=calcSkyColor((reflect(normalize(viewPos),n2)));
-				reflectedColor = color.rgb + (lightmap.g * reflectedColor);
+				
+				vec3 worldReflectedDir = mat3(gbufferModelViewInverse) * reflectedDir;
+            	vec3 skyReflection = calcSkyColor(worldReflectedDir);
+				reflectedColor = skyReflection;
 		
 		#endif
 	 }

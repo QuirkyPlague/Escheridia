@@ -69,3 +69,8 @@ option.HARDCODED_SSS = Use Resourcepack SSS
 option.HARDCODED_SSS.comment = choose whether to use resourcepack subsurface scattering or let the shader handle it
     value.HARDCODED_SSS.0 = Lab SSS
     value.HARDCODED_SSS.1 = Hardcoded
+
+option.BINARY_REFINEMENT = SSR Mode
+option.BINARY_REFINEMENT.comment = choose quality or performance SSR 
+    value.BINARY_REFINEMENT.0 = Performance
+    value.BINARY_REFINEMENT.1 = Quality

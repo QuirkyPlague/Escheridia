@@ -30,4 +30,6 @@
 
 #define MIE_SCALE 1.0
 #define HARDCODED_SSS 1 //[0 1]
+#define SSS_INTENSITY 0.4 //[0.1 0.25 0.5 0.75 1.0]
+#define SSS_HG 0.4
 #endif //COMMON_GLSL

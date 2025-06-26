@@ -4,14 +4,15 @@
 #include "/lib/uniforms.glsl"
 #include "/lib/util.glsl"
 
-const vec3 horizonColor = vec3(0.2784, 0.549, 0.6039);
-const vec3 zenithColor = vec3(0.051, 0.1608, 0.3373);
+
+const vec3 horizonColor = vec3(0.2275, 0.4549, 0.502);
+const vec3 zenithColor = vec3(0.0275, 0.1765, 0.4118);
 const vec3 earlyHorizon = vec3(0.298, 0.1922, 0.0471);
 const vec3 earlyZenith =  vec3(0.0275, 0.3137, 0.4196);
 const vec3 lateHorizon = vec3(0.5451, 0.1804, 0.0078);
-const vec3 lateZenith = vec3(0.0157, 0.0667, 0.0941);
-const vec3 nightHorizon = vec3(0.0196, 0.0392, 0.0627);
-const vec3 nightZenith = vec3(0.0, 0.0039, 0.0157);
+const vec3 lateZenith = vec3(0.0706, 0.1451, 0.1843);
+const vec3 nightHorizon = vec3(0.0096, 0.0192, 0.0327);
+const vec3 nightZenith = vec3(0.0, 0.00039, 0.00157);
 vec3 rainHorizon = vec3(0.8157, 0.8157, 0.8157);
 vec3 rainZenith = vec3(0.3725, 0.3725, 0.3725); 
 vec3 horizon;
@@ -69,22 +70,24 @@ vec3 calcSkyColor(vec3 pos) {
 	return mix(zenith, horizon, fogify(max(upDot, 0.0), 0.028));
 }
 
-vec3 MieScatter(vec3 color, vec3 lightPos, vec3 feetPlayerPos, vec3 viewPos)
+vec3 MieScatter(vec3 color, vec3 lightPos, vec3 feetPlayerPos, vec3 viewPos, vec3 sunColor)
 {
   color = calcSkyColor(normalize(viewPos));
   bool isNight = worldTime >= 13000 && worldTime < 24000;
-  vec3 mieScatterColor = vec3(0.0606, 0.0431, 0.0275) * MIE_SCALE;
+  
+  
+  vec3 mieScatterColor = vec3(0.0606, 0.0431, 0.0275) * MIE_SCALE * sunColor;
   if(isNight)
   {
-    mieScatterColor = vec3(0.00039, 0.00039, 0.00078);
+    mieScatterColor = vec3(0.00039, 0.00039, 0.00078) * MIE_SCALE * sunColor;
   }
   float VoL = dot(normalize(feetPlayerPos), lightPos);
   
-  color = mix(color  , mieScatterColor, 0.767);
+  color = mix(color * 0.5 , mieScatterColor, 0.652);
   if(isNight)
   {
      color = mix(color * 1.0, mieScatterColor, 0.01);
-     color *= HG(0.95, VoL);
+     color *= HG(0.75, VoL);
   }
   else
   {

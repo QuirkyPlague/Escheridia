@@ -7,7 +7,7 @@
 #include "/lib/atmosphere/skyColor.glsl"
 #include "/lib/water/waterFog.glsl"
 #include "/lib/blockID.glsl" 
-  
+#include "/lib/lighting/lighting.glsl"
  
 vec3 sampleGodrays(vec3 godraySample, vec2 texcoord, vec3 feetPlayerPos, float depth)
 {
@@ -40,8 +40,9 @@ vec3 sampleGodrays(vec3 godraySample, vec2 texcoord, vec3 feetPlayerPos, float d
 	vec3 godrayColor;
   	float dist = dist0;
 	bool isRaining = rainStrength <= 1.0 && rainStrength > 0.0;
-	 vec3 absorption = vec3(0.1373, 0.4706, 0.9098) ;
-	vec3 inscatteringAmount = calcSkyColor(godrayColor) * 0.6 ;
+	 vec3 absorption = vec3(2.0);
+	 vec3 sunColor = currentSunColor(godrayColor);
+	vec3 inscatteringAmount = sunColor;
 	if(isNight)
 	{
 		weight = 0.45;
@@ -54,9 +55,9 @@ vec3 sampleGodrays(vec3 godraySample, vec2 texcoord, vec3 feetPlayerPos, float d
 	}
 
 
-	vec3 absorptionFactor = exp(-absorption  * (dist * 1.0));
+	vec3 absorptionFactor = exp(-absorption  * (dist * 0.8));
     godrayColor *= absorptionFactor;
-    godrayColor +=  inscatteringAmount / absorption * (1.0 - absorptionFactor);
+    godrayColor +=  inscatteringAmount / absorption * (1.0 - clamp(absorptionFactor, 0, 1));
 	if(inWater)
 	{
 	absorption = WATER_EXTINCTION;
@@ -82,7 +83,7 @@ vec3 sampleGodrays(vec3 godraySample, vec2 texcoord, vec3 feetPlayerPos, float d
 					break;
                 }
     }
-	godraySample /= GODRAYS_SAMPLES * HG(0.4, -VoL);
+	godraySample /= GODRAYS_SAMPLES * HG(0.56, -VoL);
 	if(inWater)
 	{
 		godraySample /= GODRAYS_SAMPLES * HG(0.3, -VoL);

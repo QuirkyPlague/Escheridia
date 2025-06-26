@@ -29,9 +29,9 @@ vec3 doDiffuse(vec2 texcoord, vec2 lightmap, vec3 normal, vec3 sunPos, vec3 shad
     {
       float VoL = dot(normalize(feetPlayerPos), sunPos);
       
-      vec3 scatterSun = mix(morningSunlightColor, sunlightColor, time) * clamp(dot(normal, -sunPos), 0.0, 1.0) * (shadow * sss * 4);
-      scatterSun*= HG(0.57, VoL);
-      sunlight = mix(sunlight, scatterSun, 0.1);
+      vec3 scatterSun = mix(morningSunlightColor, sunlightColor, time) *  (shadow * sss);
+      scatterSun*= HG(SSS_HG, VoL);
+      sunlight = mix(sunlight, scatterSun, SSS_INTENSITY);
     }
     skylight *= mix(0.2, 0.3, time);
   }
@@ -43,9 +43,9 @@ vec3 doDiffuse(vec2 texcoord, vec2 lightmap, vec3 normal, vec3 sunPos, vec3 shad
     {
       float VoL = dot(normalize(feetPlayerPos), sunPos);
       
-      vec3 scatterSun = mix(sunlightColor, morningSunlightColor* 0.4, time) * clamp(dot(normal, -sunPos), 0.0, 1.0) * (shadow * sss * 6);
-      scatterSun*= HG(0.47, VoL);
-      sunlight = mix(sunlight, scatterSun, 0.1);
+      vec3 scatterSun = mix(sunlightColor, morningSunlightColor* 0.4, time) * (shadow * sss);
+      scatterSun*= HG(SSS_HG, VoL);
+      sunlight = mix(sunlight, scatterSun, SSS_INTENSITY);
     }
    
     
@@ -60,9 +60,9 @@ vec3 doDiffuse(vec2 texcoord, vec2 lightmap, vec3 normal, vec3 sunPos, vec3 shad
     {
       float VoL = dot(normalize(feetPlayerPos), sunPos);
       
-      vec3 scatterSun = mix(morningSunlightColor, moonlightColor * 0.4, time) * clamp(dot(normal, -sunPos), 0.0, 1.0) * (shadow * sss * 6);
-      scatterSun*= HG(0.47, VoL);
-      sunlight = mix(sunlight, scatterSun, 0.1);
+      vec3 scatterSun = mix(morningSunlightColor, moonlightColor * 0.4, time) * (shadow * sss);
+      scatterSun*= HG(SSS_HG, VoL);
+      sunlight = mix(sunlight, scatterSun, SSS_INTENSITY);
     }
 	  skylight *= 0.2;
   }
@@ -74,11 +74,11 @@ vec3 doDiffuse(vec2 texcoord, vec2 lightmap, vec3 normal, vec3 sunPos, vec3 shad
     {
       float VoL = dot(normalize(feetPlayerPos), sunPos);
       
-      vec3 scatterSun = mix(moonlightColor * 0.3 , morningSunlightColor, time) * clamp(dot(normal, -sunPos), 0.0, 1.0) * (shadow * sss * 6);
-      scatterSun*= HG(0.47, VoL);
-      sunlight = mix(sunlight, scatterSun, 0.1);
+      vec3 scatterSun = mix(moonlightColor * 0.3 , morningSunlightColor, time) * (shadow * sss);
+      scatterSun*= HG(SSS_HG, VoL);
+      sunlight = mix(sunlight, scatterSun, SSS_INTENSITY);
     }
-	  skylight *= 0.07;
+	  skylight *= 0.1;
 	  
   }
     if(isRaining)
@@ -118,17 +118,17 @@ vec3 getCurrentSunlight(vec3 sunlight, vec3 normal,vec3 shadow, vec3 sunPos)
    else if (worldTime >= 1000 && worldTime < 11500)
   {
      float time = smoothstep(10000, 11500, float(worldTime));
-    sunlight = mix(sunlightColor * 1.4, morningSunlightColor* 0.4, time) * clamp(dot(normal, sunPos), 0.0, 1.0) * shadow;;
+    sunlight = mix(sunlightColor * 1.4, morningSunlightColor* 0.4, time) * clamp(dot(normal, sunPos), 0.0, 1.0) * shadow;
   }
   else if (worldTime >= 11500 && worldTime < 13000)
   {
      float time = smoothstep(11500, 13000, float(worldTime));
-    sunlight = mix(morningSunlightColor, moonlightColor * 0.1, time) * clamp(dot(normal, sunPos), 0.0, 1.0) * shadow;;
+    sunlight = mix(morningSunlightColor, moonlightColor * 0.1, time) * clamp(dot(normal, sunPos), 0.0, 1.0) * shadow;
   }
    else if (worldTime >= 13000 && worldTime < 24000)
   {
     float time = smoothstep(23215, 24000, float(worldTime));
-    sunlight = mix(moonlightColor * 0.1 , morningSunlightColor, time) * clamp(dot(normal, sunPos), 0.0, 1.0) * shadow;;
+    sunlight = mix(moonlightColor * 0.1 , morningSunlightColor, time) * clamp(dot(normal, sunPos), 0.0, 1.0) * shadow;
 	  
   }
   if(isRaining)
@@ -145,6 +145,32 @@ vec3 getCurrentSunlight(vec3 sunlight, vec3 normal,vec3 shadow, vec3 sunPos)
 
   }
     return sunlight;
+}
+
+vec3 currentSunColor(vec3 color)
+{
+   if (worldTime >= 0 && worldTime < 1000)
+  {
+    //smoothstep equation allows interpolation between times of day
+    float time = smoothstep(0, 1000, float(worldTime));
+    color = mix(morningSunlightColor * 1.3, sunlightColor, time);
+  }
+   else if (worldTime >= 1000 && worldTime < 11500)
+  {
+     float time = smoothstep(10000, 11500, float(worldTime));
+    color = mix(sunlightColor * 1.4, morningSunlightColor* 0.4, time);
+  }
+  else if (worldTime >= 11500 && worldTime < 13000)
+  {
+     float time = smoothstep(11500, 13000, float(worldTime));
+    color = mix(morningSunlightColor, moonlightColor * 0.1, time);
+  }
+   else if (worldTime >= 13000 && worldTime < 24000)
+  {
+    float time = smoothstep(23215, 24000, float(worldTime));
+    color = mix(moonlightColor * 0.1 , morningSunlightColor, time);
+  }
+  return color;
 }
 
 #endif //LIGHTING_GLSL

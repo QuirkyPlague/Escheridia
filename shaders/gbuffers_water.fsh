@@ -83,7 +83,7 @@ void main() {
 	}
 	float sss =specMap.b;
 	vec3 F=fresnelSchlick(max(dot(encodedNormal.rgb,V),0.),F0);
-	vec3 shadow = getSoftShadow(shadowClipPos, feetPlayerPos, encodedNormal.rgb, texcoord, shadowScreenPos);
+	vec3 shadow = getSoftShadow(shadowClipPos, feetPlayerPos, encodedNormal.rgb, texcoord, shadowScreenPos, sss);
 	
   	vec3 diffuse = doDiffuse(texcoord, lightmapData.rg, encodedNormal.rgb, worldLightVector, shadow, viewPos, sss, feetPlayerPos);
 	vec3 sunlight;
