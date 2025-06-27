@@ -12,7 +12,5 @@ void main() {
 	color = texture(colortex0, texcoord);
 	 
 	
-#if GODRAYS_GLSL == 1
-	color.rgb += texture(colortex3, texcoord).rgb;
-	#endif
+
 }

@@ -9,8 +9,8 @@ const vec3 horizonColor = vec3(0.2275, 0.4549, 0.502);
 const vec3 zenithColor = vec3(0.0275, 0.1765, 0.4118);
 const vec3 earlyHorizon = vec3(0.298, 0.1922, 0.0471);
 const vec3 earlyZenith =  vec3(0.0275, 0.3137, 0.4196);
-const vec3 lateHorizon = vec3(0.5451, 0.1804, 0.0078);
-const vec3 lateZenith = vec3(0.0706, 0.1451, 0.1843);
+const vec3 lateHorizon = vec3(0.3608, 0.1176, 0.0039);
+const vec3 lateZenith = vec3(0.0118, 0.1686, 0.2549);
 const vec3 nightHorizon = vec3(0.0096, 0.0192, 0.0327);
 const vec3 nightZenith = vec3(0.0, 0.00039, 0.00157);
 vec3 rainHorizon = vec3(0.8157, 0.8157, 0.8157);
@@ -46,7 +46,7 @@ vec3 calcSkyColor(vec3 pos) {
   }
    else if (worldTime >= 13000 && worldTime < 24000)
   {
-    float time = smoothstep(23215, 24000, float(worldTime));
+    float time = smoothstep(23000, 24000, float(worldTime));
 	horizon = mix(nightHorizon, earlyHorizon, time);
    	zenith = mix(nightZenith, earlyZenith,time);
 	  
@@ -73,25 +73,25 @@ vec3 calcSkyColor(vec3 pos) {
 vec3 MieScatter(vec3 color, vec3 lightPos, vec3 feetPlayerPos, vec3 viewPos, vec3 sunColor)
 {
   color = calcSkyColor(normalize(viewPos));
-  bool isNight = worldTime >= 13000 && worldTime < 24000;
+  bool isNight = worldTime >= 13000 && worldTime < 23000;
   
   
-  vec3 mieScatterColor = vec3(0.0606, 0.0431, 0.0275) * MIE_SCALE * sunColor;
+  vec3 mieScatterColor = vec3(0.102, 0.0667, 0.0235) * MIE_SCALE * sunColor;
   if(isNight)
   {
     mieScatterColor = vec3(0.00039, 0.00039, 0.00078) * MIE_SCALE * sunColor;
   }
   float VoL = dot(normalize(feetPlayerPos), lightPos);
   
-  color = mix(color * 0.5 , mieScatterColor, 0.652);
+  color = mix(color * 0.03 , mieScatterColor, 0.212);
   if(isNight)
   {
-     color = mix(color * 1.0, mieScatterColor, 0.01);
-     color *= HG(0.75, VoL);
+     color = mix(color * 1.0, mieScatterColor, 0.32);
+     color *= HG(0.82, VoL);
   }
   else
   {
-    color *= HG(0.55, VoL);
+    color *= HG(0.73, VoL);
   }
   
   return color;

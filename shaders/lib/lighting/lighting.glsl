@@ -68,7 +68,7 @@ vec3 doDiffuse(vec2 texcoord, vec2 lightmap, vec3 normal, vec3 sunPos, vec3 shad
   }
    else if (worldTime >= 13000 && worldTime < 24000)
   {
-    float time = smoothstep(23215, 24000, float(worldTime));
+    float time = smoothstep(23000, 24000, float(worldTime));
     sunlight = mix(moonlightColor * 0.7 , morningSunlightColor, time) * clamp(dot(normal, sunPos), 0.0, 1.0) * shadow;
     if(sss > 64.0/255.0)
     {

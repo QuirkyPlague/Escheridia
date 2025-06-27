@@ -21,12 +21,7 @@ void main() {
 	vec3 viewPos = projectAndDivide(gbufferProjectionInverse, NDCPos);
 	vec3 feetPlayerPos = (gbufferModelViewInverse * vec4(viewPos, 1.0)).xyz;
 	
-	if(depth==1.0)
-	{
-		
-		color += texture(colortex8, texcoord);
-		
-	}
+	
 	
 	
 }

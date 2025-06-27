@@ -13,7 +13,7 @@
 #include "/lib/water/waterFog.glsl"
 #include "/lib/brdf.glsl"
 #include "/lib/blockID.glsl"
-
+#include "/lib/atmosphere/distanceFog.glsl"
 in vec2 texcoord;
 
 /* RENDERTARGETS: 0 */
@@ -131,40 +131,54 @@ if(isWater)
 	 if(reflectionHit)
 	 {
 		#if DO_SSR == 1
-		reflectedColor = texture(colortex0, reflectedPos.xy).rgb;
-		if(reflectedPos.z == skyDepth)
-		{
-			
-			reflectedColor=calcSkyColor((reflect(normalize(viewPos),normals)));
 		
+		if(reflectedPos.z < 1.0)
+		{
+			reflectedColor = texture(colortex0, reflectedPos.xy).rgb;	
+		}
+		else
+		{
+			vec3 skyReflection =calcSkyColor((reflect(normalize(reflectedPos),n2)));
+			reflectedColor = skyReflection;
 		}
 			 if(clamp(reflectedPos.xy, 0, 1) != reflectedPos.xy && !inWater)
 			{
 				
-				reflectedColor=calcSkyColor((reflect(normalize(viewPos),normals)));
+				reflectedColor=calcSkyColor((reflect(normalize(reflectedPos),n2)));
 				if(!inWater)
 				{
 					reflectedColor *= lightmap.g;
 				}
-				
 				if(isMetal)
-				{
-					reflectedColor *= 0.4;
-				}
+			{
+				reflectedColor *= 0.5;
+			}
+				
 			}
 		#else
 				
-				vec3 worldReflectedDir = mat3(gbufferModelViewInverse) * reflectedDir;
-            	vec3 skyReflection = calcSkyColor(worldReflectedDir);
+				vec3 skyReflection =calcSkyColor((reflect(normalize(reflectedPos),n2)));
 				reflectedColor = skyReflection;
-		
+				if(!inWater)
+				{
+					reflectedColor *= lightmap.g;
+				}
+					if(isMetal)
+			{
+				reflectedColor *= 0.5;
+			}
 		#endif
 	 }
 	}
 	if(isMetal && SpecMap.r < 155.0/255.0 )
 	{
-		reflectedColor=calcSkyColor((reflect(normalize(viewPos),n2)));
+		reflectedColor=calcSkyColor((reflect(normalize(reflectedPos),n2)));
+		reflectedColor *= lightmap.g;
 		reflectedColor *= 0.2;
+		if(lightmap.g < 0.55)
+		{
+			reflectedColor = color.rgb;
+		}
 	}
 if(isRaining)
 	{
@@ -191,13 +205,13 @@ if(isRaining)
 		if(clamp(reflectedPos.xy, -1.0, 1.0) != reflectedPos.xy)
 			{
 				
-			 reflectedColor=calcSkyColor((reflect(normalize(viewPos),normal)));
+			 reflectedColor=calcSkyColor((reflect(normalize(viewPos),n2)));
 				reflectedColor * lightmap.g;
 			}
 		if(lightmap.g < 0.9935)
 		{ 
 			float reflectedColorFalloff = exp(-5.512 * (1.214 - lightmap.g));
-			vec3 reflectedSkyColor = calcSkyColor((reflect(normalize(viewPos),normal)));
+			vec3 reflectedSkyColor = calcSkyColor((reflect(normalize(viewPos),n2)));
 			reflectedColor = mix(reflectedSkyColor * 0.0, reflectedColor, clamp(reflectedColorFalloff, 0.0, 1.0) );
 		
 		}
