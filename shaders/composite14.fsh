@@ -11,13 +11,10 @@ in vec2 texcoord;
 layout(location = 0) out vec4 bloomColor;
 
 void main() {
-		#if BLOOM_GLSL ==1
 		Bloom screen = screens[SCREEN_INDEX];
+		bloomColor = vec4(0.0, 0.0, 0.0, 1.0);
 		
-
-		vec2 screenCoord = scaleToBloomTile(texcoord, screen); // scale up to encompass whole texture
-		bloomColor = vec4(downsampleScreen(colortex0, screenCoord), 1.0);
-
+		vec2 tileCoord = texcoord / 2;
 		
-		#endif	
-}
+		bloomColor.rgb += upSample(colortex12, tileCoord);	
+	}

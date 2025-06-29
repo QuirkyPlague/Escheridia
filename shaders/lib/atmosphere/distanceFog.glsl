@@ -36,7 +36,7 @@ vec3 distanceFog(vec3 color, vec3 viewPos,vec2 texcoord, float depth)
     vec3 distFog;
     distFog = calcSkyColor(normalize(viewPos));
     float dist = length(viewPos) / far;
-    float fogFactor = exp(-5.0 * (1.0 - dist));
+    float fogFactor = exp(-12.0 * (1.0 - dist));
     float rainFogFactor = exp(-5.5 * (1.0 - dist));
     bool isRaining = rainStrength <= 1.0 && rainStrength > 0.0;
     if(isRaining)
@@ -58,7 +58,7 @@ vec3 distanceFog(vec3 color, vec3 viewPos,vec2 texcoord, float depth)
 vec3 atmosphericFog(vec3 color, vec3 viewPos,vec2 texcoord, float depth, vec2 lightmap)
 {
   
-     float dist0=length(screenToView(texcoord,depth) /52);
+     float dist0=length(screenToView(texcoord,depth) /53);
     float farPlane = far/ 4;
     float dist1= length(viewPos) / farPlane;
     float dist=max(0,dist0-dist1);

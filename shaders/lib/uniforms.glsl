@@ -3,11 +3,7 @@
 
 #include "/lib/common.glsl"
 
-/*
-const int colortex0Format = RGB16F;
-const int colortex3Format = RGB16F;
-const int colortex4Format = RGB16F;
-*/
+
 
 
 uniform mat4 gbufferProjection;

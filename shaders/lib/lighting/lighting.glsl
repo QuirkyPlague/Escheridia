@@ -7,7 +7,7 @@
 
 const vec3 blocklightColor = vec3(0.7882, 0.6196, 0.4235);
 const vec3 skylightColor = vec3(0.4902, 0.7608, 1.0);
-const vec3 sunlightColor= vec3(0.6314, 0.5098, 0.2784) * 1.5;
+const vec3 sunlightColor= vec3(0.7098, 0.6118, 0.4275);
 const vec3 morningSunlightColor = vec3(0.898, 0.6078, 0.3216);
 const vec3 moonlightColor = vec3(0.1255, 0.3216, 0.6588);
 const vec3 ambientColor = vec3(0.14);
@@ -38,12 +38,12 @@ vec3 doDiffuse(vec2 texcoord, vec2 lightmap, vec3 normal, vec3 sunPos, vec3 shad
    else if (worldTime >= 1000 && worldTime < 11500)
   {
      float time = smoothstep(10000, 11500, float(worldTime));
-     sunlight = mix(sunlightColor, morningSunlightColor* 0.4, time) * clamp(dot(normal, sunPos), 0.0, 1.0) * shadow;
+     sunlight = mix(sunlightColor, morningSunlightColor* 0.7, time) * clamp(dot(normal, sunPos), 0.0, 1.0) * shadow;
     if(sss > 64.0/255.0)
     {
       float VoL = dot(normalize(feetPlayerPos), sunPos);
       
-      vec3 scatterSun = mix(sunlightColor, morningSunlightColor* 0.4, time) * (shadow * sss);
+      vec3 scatterSun = mix(sunlightColor, morningSunlightColor* 0.7, time) * (shadow * sss);
       scatterSun*= HG(SSS_HG, VoL);
       sunlight = mix(sunlight, scatterSun, SSS_INTENSITY);
     }
@@ -55,12 +55,12 @@ vec3 doDiffuse(vec2 texcoord, vec2 lightmap, vec3 normal, vec3 sunPos, vec3 shad
   else if (worldTime >= 11500 && worldTime < 13000)
   {
      float time = smoothstep(11500, 13000, float(worldTime));
-    sunlight = mix(morningSunlightColor, moonlightColor * 0.4, time) * clamp(dot(normal, sunPos), 0.0, 1.0) * shadow;
+    sunlight = mix(morningSunlightColor * 1.1, moonlightColor * 0.4, time) * clamp(dot(normal, sunPos), 0.0, 1.0) * shadow;
       if(sss > 64.0/255.0)
     {
       float VoL = dot(normalize(feetPlayerPos), sunPos);
       
-      vec3 scatterSun = mix(morningSunlightColor, moonlightColor * 0.4, time) * (shadow * sss);
+      vec3 scatterSun = mix(morningSunlightColor * 1.1, moonlightColor * 0.4, time) * (shadow * sss);
       scatterSun*= HG(SSS_HG, VoL);
       sunlight = mix(sunlight, scatterSun, SSS_INTENSITY);
     }

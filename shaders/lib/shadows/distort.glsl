@@ -39,12 +39,6 @@ vec3 distortShadowClipPos(vec3 shadowClipPos){
   shadowClipPos.z *= 0.5; // increases shadow distance on the Z axis, which helps when the sun is very low in the sky
   return shadowClipPos;
 }
-vec3 computeBias(vec3 pos, vec3 worldNormal){
-	float biasAdjust = log2(max(4.0, shadowDistance - shadowMapResolution * 0.125)) * 0.5;
 
-	float factor = cubeLength(pos.xy) * 0.2 + (1.0 - 0.2);
-
-	return mat3(shadowProjection) * (mat3(shadowModelView) * worldNormal) * factor * biasAdjust;
-}
 
 #endif //DISTORT_GLSL

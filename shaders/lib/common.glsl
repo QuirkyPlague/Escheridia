@@ -1,6 +1,13 @@
 #ifndef COMMON_GLSL
 #define COMMON_GLSL
 
+/*
+const int colortex0Format = RGB16F;
+const int colortex3Format = RGB16F;
+const int colortex4Format = RGB16F;
+const int colortex12Format = RGB16F;
+*/
+
 #define SHADOW_SAMPLES 16 //[4 8 12 16 20 24 28 32]
 #define SHADOW_SOFTNESS 1.0 //[0.1 0.2 0.3 0.4 0.5 0.6 0.7 0.8 0.9 1.0 1.1 1.2 1.3 1.4 1.5 1.6 1.7 1.8 1.9 2.0]
 #define SHADOW_RESOLUTION 2048 //[512 1024 2048 4096 8192]
@@ -24,7 +31,8 @@
 #define WATER_FOG_DENSITY 1.0 //[0.1 0.2 0.3 0.4 0.5 0.6 0.7 0.8 0.9 1.0 1.1 1.2 1.3 1.4 1.5 1.6 1.7 1.8 1.9 2.0]
 
 #define EMISSIVE_MULTIPLIER 1.0 //[0.1 0.2 0.3 0.4 0.5 0.6 0.7 0.8 0.9 1.0 1.1 1.2 1.3 1.4 1.5 1.6 1.7 1.8 1.9 2.0]
-
+#define BLOOM_QUALITY 0.5
+#define BLOOM_RADIUS 1.0
 #define DO_SSR 1 //[0 1]
 #define SSR_STEPS 8 //[2 4 6 8 10 12 14 16 18 20 22 24 28 32 36 40]
 

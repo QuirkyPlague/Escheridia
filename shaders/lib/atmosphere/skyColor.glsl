@@ -76,7 +76,7 @@ vec3 MieScatter(vec3 color, vec3 lightPos, vec3 feetPlayerPos, vec3 viewPos, vec
   bool isNight = worldTime >= 13000 && worldTime < 23000;
   
   
-  vec3 mieScatterColor = vec3(0.102, 0.0667, 0.0235) * MIE_SCALE * sunColor;
+  vec3 mieScatterColor = vec3(0.0863, 0.0667, 0.0392) * MIE_SCALE * sunColor;
   if(isNight)
   {
     mieScatterColor = vec3(0.00039, 0.00039, 0.00078) * MIE_SCALE * sunColor;
