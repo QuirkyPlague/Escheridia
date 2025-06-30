@@ -7,8 +7,8 @@
 
 const vec3 blocklightColor = vec3(0.7882, 0.6196, 0.4235);
 const vec3 skylightColor = vec3(0.4902, 0.7608, 1.0);
-const vec3 sunlightColor= vec3(0.7098, 0.6118, 0.4275);
-const vec3 morningSunlightColor = vec3(0.898, 0.6078, 0.3216);
+const vec3 sunlightColor= vec3(0.9922, 0.8549, 0.6039);
+const vec3 morningSunlightColor = vec3(0.9961, 0.651, 0.302);
 const vec3 moonlightColor = vec3(0.1255, 0.3216, 0.6588);
 const vec3 ambientColor = vec3(0.14);
 bool isNight = worldTime >= 13000 && worldTime < 24000;
@@ -38,7 +38,7 @@ vec3 doDiffuse(vec2 texcoord, vec2 lightmap, vec3 normal, vec3 sunPos, vec3 shad
    else if (worldTime >= 1000 && worldTime < 11500)
   {
      float time = smoothstep(10000, 11500, float(worldTime));
-     sunlight = mix(sunlightColor, morningSunlightColor* 0.7, time) * clamp(dot(normal, sunPos), 0.0, 1.0) * shadow;
+     sunlight = mix(sunlightColor * 1.2, morningSunlightColor* 0.7, time) * clamp(dot(normal, sunPos), 0.0, 1.0) * shadow;
     if(sss > 64.0/255.0)
     {
       float VoL = dot(normalize(feetPlayerPos), sunPos);
@@ -103,6 +103,7 @@ if(lightmap.g < 0.2)
 	{
 		sunlight = vec3(0.0);
 	}
+
     vec3 diffuse =  ambient+ blocklight+ skylight + sunlight;
     return diffuse;
 }

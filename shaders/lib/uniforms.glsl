@@ -50,13 +50,13 @@ uniform int isEyeInWater;
 uniform vec3 cameraPosition;
 uniform int worldTime;
 const float shadowDistance = SHADOW_DISTANCE;
-const float shadowFarPlane = 512.0;
+const float shadowFarPlane = 684.0;
 const float shadowDistanceRenderMul = 1.0;
 uniform float rainStrength;
 uniform float wetness;
 const float drynessHalfLife = 256.0;
 const float wetnessHalflife = 256.0;
 uniform float cloudHeight;
-
+uniform bool isHotBiome;
 
 #endif //UNIFORMS_GLSL

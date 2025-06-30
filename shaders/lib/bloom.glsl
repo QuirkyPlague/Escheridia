@@ -24,16 +24,6 @@ float karisAverage(vec3 col)
     return 1.0f / (1.0f + luma);
 }
 
-struct Bloom {
-  vec2 origin;
-  int mipLevel;
-  float scale;
-};
-Bloom screen = Bloom(vec2(0.0), 1, 0.5); // 1/2 scale
-
-
-Bloom screens[1] = Bloom[1](screen);
-
 vec3 downsampleScreen(sampler2D srcTexture, vec2 texCoord)
 {
 
@@ -129,27 +119,23 @@ vec3 upSample(sampler2D srcTexture,vec2 texCoord)
     return upsample;
 }
 
-// takes a texcoord within a bloom tile and scales it up to spread across the whole screen
-vec2 scaleToBloomTile(vec2 coord, Bloom screen){
-  return (coord - screen.origin) / screen.scale;
-}
-
-// takes a full screen texcoord and scales it down to map to a bloom tile
-vec2 scaleFromBloomTile(vec2 coord, Bloom screen){
-  return coord * screen.scale + screen.origin;
-}
-
-vec3 computeBloomMix(vec2 texcoord)
+vec3 computeBloomMix(vec2 texcoord, bool isMetal, float depth)
 {
-    float bloomStrength = 0.23;
+    
+    float bloomStrength = 0.35;
    if(inWater)
    {
       bloomStrength = 0.73;
+   }
+   if(depth ==1)
+   {
+    bloomStrength = 0.75;
    }
 	vec3 hdr = texture(colortex0, texcoord).rgb;
     vec3 blm = texture(colortex12, texcoord).rgb;
 	float rain = texture(colortex9, texcoord).r;
     vec3 col = mix(hdr, blm, vec3(bloomStrength));
     return col;
+    
 }
 #endif

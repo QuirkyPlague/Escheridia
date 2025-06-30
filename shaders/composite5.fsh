@@ -48,6 +48,7 @@ color=texture(colortex0,texcoord);
 	
 	float sss = SpecMap.b;
 
+	if (depth == 1)return;
 	
 	//Space Conversions
 	vec3 NDCPos = vec3(texcoord.xy, depth) * 2.0 - 1.0;
@@ -101,7 +102,8 @@ color=texture(colortex0,texcoord);
 		
 	vec3 sunlight;
 	vec3 currentSunlight = getCurrentSunlight(sunlight, normal, shadow, worldLightVector);
-		
+	vec3 sunlightColor;
+	vec3 sunColor = currentSunColor(sunlightColor);
 	vec3 reflectedDir = reflect(viewDir, n2);
     vec3 reflectedPos = vec3(0.0);
     vec3 reflectedColor = vec3(0.0);
@@ -139,13 +141,17 @@ if(isWater)
 		}
 		else
 		{
-			reflectedColor = vec3(0.0);
-			reflectedColor=calcSkyColor((reflect(normalize(viewPos),n2))) * 0.95;
+			
+			vec3 skyMieReflection = calcMieSky(normalize(viewPos), worldLightVector, sunColor, viewPos) * 1.7;
+			vec3 skyReflection =calcSkyColor((reflect(normalize(viewPos),n2)));
+			reflectedColor= mix(skyReflection, skyMieReflection, 0.6);
 		}
 			 if(clamp(reflectedPos.xy, 0, 1) != reflectedPos.xy && !inWater)
 			{
 				
-				reflectedColor=calcSkyColor((reflect(normalize(viewPos),n2)));
+				vec3 skyMieReflection = calcMieSky(normalize(viewPos), worldLightVector, sunColor, viewPos) * 1.7;
+				vec3 skyReflection =calcSkyColor((reflect(normalize(viewPos),n2)));
+				reflectedColor= mix(skyReflection, skyMieReflection, 0.6);
 				if(!inWater)
 				{
 					reflectedColor *= lightmap.g;
@@ -222,7 +228,7 @@ if(isRaining)
 		reflectedColor *= F;
 
 	vec3 specular = brdf(albedo, f0, L, currentSunlight, normal, H, V2, roughness, SpecMap) + reflectedColor;
-	vec3 distFog = atmosphericFog(color.rgb, viewPos, texcoord, depth, lightmap);
+	
 	
 	if(inWater)
 	{

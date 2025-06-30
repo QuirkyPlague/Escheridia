@@ -35,7 +35,7 @@ void main() {
 	#if DISTANCE_FOG_GLSL == 1
 	if(!inWater)
 	{
-		color.rgb = atmosphericFog(color.rgb, viewPos, texcoord, depth, lightmap);
+		//color.rgb = atmosphericFog(color.rgb, viewPos, texcoord, depth, lightmap);
 	}
 	
 	

@@ -25,7 +25,7 @@ void main() {
 	
 	if(depth==1.0)
 	{
-		color.rgb += MieScatter(color.rgb, worldLightVector, feetPlayerPos, viewPos, sunColor) ;
+	
 		color += texture(colortex8, texcoord) ;
 		
 	}
