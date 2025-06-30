@@ -56,7 +56,7 @@ vec3 distanceMieFog(vec3 color, vec3 viewPos,vec2 texcoord, float depth, vec3 li
 {
   
     vec3 distFog;
-    distFog = calcMieSky(normalize(viewPos), lightPos, sunColor, viewPos);
+    distFog = calcMieSky(normalize(viewPos), lightPos, sunColor, viewPos, texcoord);
     float dist = length(viewPos) / far;
     float fogFactor = exp(-12 * (1.0 - dist));
     float rainFogFactor = exp(-5.5 * (1.0 - dist));
@@ -78,7 +78,7 @@ vec3 distanceMieFog(vec3 color, vec3 viewPos,vec2 texcoord, float depth, vec3 li
 vec3 atmosphericFog(vec3 color, vec3 viewPos,vec2 texcoord, float depth, vec2 lightmap)
 {
   
-     float dist0=length(screenToView(texcoord,depth) /33);
+  float dist0=length(screenToView(texcoord,depth) /33);
         if(isNight)
    {
      dist0=length(screenToView(texcoord,depth)) /15;
@@ -99,9 +99,14 @@ vec3 atmosphericFog(vec3 color, vec3 viewPos,vec2 texcoord, float depth, vec2 li
        inscatteringAmount *= 4;
        absorptionFactor=exp(-absorption* 1.0*(dist* .03));
     }
-     
+     if(lightmap.g <= 1.0)
+     {
+        float lightmapSmooth = smoothstep(0.001, 0.0, lightmap.g);
+        vec3 caveInscatteringAmount= inscatteringAmount * 0.5;
+        inscatteringAmount = mix(inscatteringAmount, caveInscatteringAmount, lightmapSmooth);
+     }
       color*=absorptionFactor;
-      color += inscatteringAmount /absorption*(1.- absorptionFactor);
+      color += (inscatteringAmount) /absorption*(1.- absorptionFactor);
     return color;
 }
 vec3 atmosphericMieFog(vec3 color, vec3 viewPos,vec2 texcoord, float depth, vec2 lightmap, vec3 lightPos,vec3 sunColor)
@@ -120,7 +125,7 @@ vec3 atmosphericMieFog(vec3 color, vec3 viewPos,vec2 texcoord, float depth, vec2
     float scatterFactor = exp(-5.0 * (1.0 - dist1));
     vec3 absorption= vec3(1.0, 1.0, 1.0);
       bool isRaining = rainStrength <= 1.0 && rainStrength > 0.0;
-    vec3 inscatteringAmount= calcMieSky(normalize(viewPos), lightPos, sunColor, viewPos);
+    vec3 inscatteringAmount= calcMieSky(normalize(viewPos), lightPos, sunColor, viewPos, texcoord);
    
     vec3 absorptionFactor=exp(-absorption* 1.0*(dist* .05));
     if(isRaining)
@@ -128,9 +133,15 @@ vec3 atmosphericMieFog(vec3 color, vec3 viewPos,vec2 texcoord, float depth, vec2
        inscatteringAmount *= 4;
        absorptionFactor=exp(-absorption* 1.0*(dist* .03));
     }
+    if(lightmap.g <= 1.0)
+     {
+        float lightmapSmooth = smoothstep(0.6, 0.0, lightmap.g);
+        vec3 caveInscatteringAmount= inscatteringAmount * 0.5;
+        inscatteringAmount = mix(inscatteringAmount, caveInscatteringAmount, lightmapSmooth);
+     }
      
       color*=absorptionFactor;
-      color += (inscatteringAmount *lightmap.g)   /absorption*(1.- absorptionFactor);
+      color += (inscatteringAmount)   /absorption*(1.- absorptionFactor);
     return color;
 }
 

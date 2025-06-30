@@ -81,7 +81,7 @@ vec3 downsampleScreen(sampler2D srcTexture, vec2 texCoord)
     group3 *= karisAverage(group3);
     group4 *= karisAverage(group4);
     dsample = group0 + group1 + group2 + group3 + group4;
-  
+    dsample = max(dsample, 0.0001f);
     return dsample;
 }
 
@@ -122,7 +122,7 @@ vec3 upSample(sampler2D srcTexture,vec2 texCoord)
 vec3 computeBloomMix(vec2 texcoord, bool isMetal, float depth)
 {
     
-    float bloomStrength = 0.35;
+    float bloomStrength = 0.3;
    if(inWater)
    {
       bloomStrength = 0.73;
@@ -131,6 +131,7 @@ vec3 computeBloomMix(vec2 texcoord, bool isMetal, float depth)
    {
     bloomStrength = 0.75;
    }
+  
 	vec3 hdr = texture(colortex0, texcoord).rgb;
     vec3 blm = texture(colortex12, texcoord).rgb;
 	float rain = texture(colortex9, texcoord).r;

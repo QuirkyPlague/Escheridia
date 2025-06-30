@@ -14,20 +14,23 @@ in vec3 normal;
 in mat3 tbnMatrix;
 in vec3 viewPos;
 flat in int blockID;
-/* RENDERTARGETS: 0,1,2,3,5,6,11,12 */
+in float emission;
+
+/* RENDERTARGETS: 0,1,2,5,6,11,12,13 */
 layout(location = 0) out vec4 color;
 layout(location = 1) out vec4 lightmapData;
 layout(location = 2) out vec4 encodedNormal;
-layout(location = 3) out vec4 godraySample;
-layout(location = 4) out vec4 specMap;
-layout(location = 5) out vec4 geoNormal;
-layout(location = 6) out vec4 sssMask;
-layout(location = 7) out vec4 bloom;
+layout(location = 3) out vec4 specMap;
+layout(location = 4) out vec4 geoNormal;
+layout(location = 5) out vec4 sssMask;
+layout(location = 6) out vec4 bloom;
+layout(location = 7) out vec4 metalMask;
 void main() {
 	
 	color = texture(gtexture, texcoord) * glcolor  ;
 
 	if(color.a < 0.1) discard;
+	
 	
 	vec3 normalMaps = texture2DLod(normals, texcoord,0).rgb;
 	normalMaps = normalMaps * 2.0 - 1.0;
@@ -43,10 +46,21 @@ void main() {
 
 	if(blockID == SSS_ID)
 	{
-    sssMask = vec4(1.0, 1.0, 1.0, 1.0);
+    	sssMask = vec4(1.0, 1.0, 1.0, 1.0);
 	}
 	else
 	{
 		sssMask =vec4(0.0, 0.0, 0.0, 1.0);
 	}
+	if(blockID == METAL_ID )
+	{
+    	metalMask = vec4(1.0, 1.0, 1.0, 1.0);
+	}
+	else
+	{
+		metalMask =vec4(0.0, 0.0, 0.0, 1.0);
+	}
+	#if RESOURCE_PACK_SUPPORT == 1
+		color += color * (emission * 1.15)  * EMISSIVE_MULTIPLIER;
+	#endif
 }

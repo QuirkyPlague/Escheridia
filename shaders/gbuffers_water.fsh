@@ -88,8 +88,6 @@ void main() {
 	
   	vec3 diffuse = doDiffuse(texcoord, lightmapData.rg, geoNormal.rgb, worldLightVector, shadow, viewPos, sss, feetPlayerPos);
 	vec3 sunlight;
-	vec3 currentSunlight = getCurrentSunlight(sunlight, geoNormal.rgb, shadow, worldLightVector);
-	vec3 specular = max(brdf(albedo, F0, L, currentSunlight, encodedNormal.rgb, H, V, roughness, specMap), 0.0)  * F;
 	vec3 lighting = albedo * diffuse + emissive ;
 	
 	if(blockID == WATER_ID)

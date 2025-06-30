@@ -98,7 +98,7 @@ vec3 MieScatter(vec3 color, vec3 lightPos, vec3 viewPos, vec3 sunColor)
   return color;
 }
 
-vec3 calcMieSky(vec3 pos, vec3 lightPos, vec3 sunColor, vec3 viewPos) {
+vec3 calcMieSky(vec3 pos, vec3 lightPos, vec3 sunColor, vec3 viewPos, vec2 texcoord) {
 	 bool inWater = isEyeInWater ==1.0;
    if (worldTime >= 0 && worldTime < 1000)
   {
@@ -141,12 +141,15 @@ vec3 calcMieSky(vec3 pos, vec3 lightPos, vec3 sunColor, vec3 viewPos) {
     
   }
   
-	
 	float upDot = dot(pos, gbufferModelView[1].xyz); //not much, what's up with you?
 	vec3 skyColor = mix(zenith, horizon, fogify(max(upDot, 0.0), 0.028));
   vec3 feetPlayerPos = (gbufferModelViewInverse * vec4(viewPos, 1.0)).xyz;
   float VoL = dot(normalize(feetPlayerPos), lightPos);
   vec3 mieScatterColor = vec3(0.1569, 0.1176, 0.0706) * MIE_SCALE * sunColor;
+  if(inWater)
+  {
+    mieScatterColor *= vec3(0.098, 0.0, 1.0) * MIE_SCALE * sunColor;
+  }
   mieScatterColor *= HG(0.66, VoL);
   return skyColor = mix(skyColor * 0.3 , mieScatterColor, 0.812);
 }

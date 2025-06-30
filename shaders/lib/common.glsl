@@ -12,7 +12,7 @@ const int colortex12Format = RGB16F;
 #define SHADOW_SOFTNESS 1.0 //[0.1 0.2 0.3 0.4 0.5 0.6 0.7 0.8 0.9 1.0 1.1 1.2 1.3 1.4 1.5 1.6 1.7 1.8 1.9 2.0]
 #define SHADOW_RESOLUTION 2048 //[512 1024 2048 4096 8192]
 //4 8 12 16 24 32
-#define SHADOW_DISTANCE 384.0 //[64.0 128.0 192.0 256.0 384.0 584.0]
+#define SHADOW_DISTANCE 128.0 //[64.0 128.0 192.0 256.0 384.0 584.0]
 #define SUN_ROTATION -30 //[-45 -30 -15 0 15 30 45]
 
 #define GODRAYS_SAMPLES 18 //[6 12 18 24 30 36 42 48 54 60 64 68 74]
@@ -37,7 +37,14 @@ const int colortex12Format = RGB16F;
 #define SSR_STEPS 8 //[2 4 6 8 10 12 14 16 18 20 22 24 28 32 36 40]
 
 #define MIE_SCALE 1.0
-#define HARDCODED_SSS 1 //[0 1]
-#define SSS_INTENSITY 0.6 //[0.1 0.25 0.5 0.75 1.0]
+#define RESOURCE_PACK_SUPPORT 1 //[0 1]
+#define SSS_INTENSITY 0.36 //[0.1 0.25 0.5 0.75 1.0]
 #define SSS_HG 0.4
+#define HARDCODED_METAL 0 //[0 1]
+#define NAME 0 //[0 1] 
+
+//Color Grading
+#define BRIGHTNESS  1.0  //[0.0 0.1 0.2 0.3 0.4 0.5 0.6 0.7 0.8 0.9 1.0 1.1 1.2 1.3 1.4 1.5 1.6 1.7 1.8 1.9 2.0]
+#define SATURATION  1.0  //[0.0 0.1 0.2 0.3 0.4 0.5 0.6 0.7 0.8 0.9 1.0 1.1 1.2 1.3 1.4 1.5 1.6 1.7 1.8 1.9 2.0]
+#define CONTRAST    1.0    //[0.0 0.1 0.2 0.3 0.4 0.5 0.6 0.7 0.8 0.9 1.0 1.1 1.2 1.3 1.4 1.5 1.6 1.7 1.8 1.9 2.0]
 #endif //COMMON_GLSL

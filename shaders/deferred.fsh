@@ -42,8 +42,8 @@ void main() {
 	vec3 shadowNDCPos = shadowClipPos.xyz / shadowClipPos.w;
 	vec3 shadowScreenPos = shadowNDCPos * 0.5 + 0.5;
 	
-float sss;
-	#if HARDCODED_SSS == 1
+	float sss;
+	#if RESOURCE_PACK_SUPPORT == 1
 	if(canScatter)
 	{
 		sss = 1.0;
@@ -92,9 +92,11 @@ float sss;
 
 	vec3 diffuse = doDiffuse(texcoord, lightmap, normal, worldLightVector, shadow, viewPos, sss, feetPlayerPos);
 	vec3 sunlight;
-	vec3 currentSunlight = getCurrentSunlight(sunlight, normal, shadow, worldLightVector);
-	vec3 specular = brdf(albedo, F0, L, currentSunlight, normal, H, V, roughness, SpecMap) ;
+	#if RESOURCE_PACK_SUPPORT == 0
 	vec3 lighting = albedo * diffuse  + emissive;
+	#else
+	vec3 lighting = albedo * diffuse;
+	#endif
 	
 	#if LIGHTING_GLSL == 1
 	color.rgb = lighting;

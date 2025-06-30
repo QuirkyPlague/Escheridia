@@ -18,10 +18,6 @@ void main() {
 		vec2 OriginCoord = vec2(0.0);
 		float coordScalar = 0.5;
 		vec2 screenCoord = (texcoord - OriginCoord) / coordScalar;
-		if(clamp(screenCoord, 0 ,1) != screenCoord)
-		{
-			bloomColor.rgb = vec3(0.0, 0.0, 0.0);
-		}
 		bloomColor.rgb = downsampleScreen(colortex0, screenCoord);
 
 		#endif	

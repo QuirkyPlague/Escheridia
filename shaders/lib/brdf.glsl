@@ -8,7 +8,7 @@ vec3 brdf(vec3 albedo, vec3 F0, vec3 L, vec3 currentSunlight,vec3 N, vec3 H,vec3
     
     // calculate per-light radiance
     float dist    = length(L);
-    float attenuation = 1.0 * (dist * dist);
+    float attenuation = 3.0 * (dist * dist);
     vec3 radiance    = currentSunlight * attenuation ;  
         
       

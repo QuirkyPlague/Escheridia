@@ -65,10 +65,10 @@ option.DO_SSR.comment = Enables the use of screenspace reflections (SSR)
     value.DO_SSR.0 = off
     value.DO_SSR.1 = on
 
-option.HARDCODED_SSS = Use Resourcepack SSS
-option.HARDCODED_SSS.comment = choose whether to use resourcepack subsurface scattering or let the shader handle it
-    value.HARDCODED_SSS.0 = Lab SSS
-    value.HARDCODED_SSS.1 = Hardcoded
+option.RESOURCE_PACK_SUPPORT = PBR Resource Pack Support
+option.RESOURCE_PACK_SUPPORT.comment = choose whether to use a labPBR Resource Pack or let the shader handle it
+    value.RESOURCE_PACK_SUPPORT.0 = LabPBR
+    value.RESOURCE_PACK_SUPPORT.1 = Hardcoded
 
 option.BINARY_REFINEMENT = SSR Mode
 option.BINARY_REFINEMENT.comment = choose quality or performance SSR 
@@ -76,3 +76,11 @@ option.BINARY_REFINEMENT.comment = choose quality or performance SSR
     value.BINARY_REFINEMENT.1 = Quality
 
 option.SSS_INTENSITY = SSS Intensity
+
+option.HARDCODED_METAL = Hardcoded Metals
+option.HARDCODED_METAL.comment = NOT FUNCTIONAL
+    value.HARDCODED_METAL.0 = LabPBR
+    value.HARDCODED_METAL.1 = Hardcoded
+option.NAME = Escheridia
+    value.NAME.0 =§cBy QuirkyPlague§r
+    value.NAME.1 =§bBy QuirkyPlague§g

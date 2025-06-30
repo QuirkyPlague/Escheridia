@@ -3,7 +3,7 @@
 #include "/lib/util.glsl"
 #include "/lib/uniforms.glsl"
 #include "/lib/tonemapping.glsl"
-
+#include "/lib/postProcessing.glsl"
 in vec2 texcoord;
 
 /* RENDERTARGETS: 8 */
@@ -25,8 +25,10 @@ void main() {
     #elif TONEMAPPING_TYPE == 3
      color.rgb = agx(color.rgb); 
     #endif
-   
-
-  
+    
+    float saturation;
+    float brightness;
+    float contrast;
+    
     
 }

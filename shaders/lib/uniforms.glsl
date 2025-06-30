@@ -28,6 +28,7 @@ uniform sampler2D colortex9;
 uniform sampler2D colortex10;
 uniform sampler2D colortex11;
 uniform sampler2D colortex12;
+uniform sampler2D colortex13;
 //depth buffer
 uniform sampler2D depthtex0;
 uniform sampler2D depthtex1;
