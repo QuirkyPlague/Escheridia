@@ -13,7 +13,7 @@
 #include "/lib/water/waterFog.glsl"
 #include "/lib/brdf.glsl"
 #include "/lib/blockID.glsl"
-
+#include "/lib/atmosphere/distanceFog.glsl"
 in vec2 texcoord;
 
 /* RENDERTARGETS: 0 */
@@ -48,6 +48,7 @@ color=texture(colortex0,texcoord);
 	
 	float sss = SpecMap.b;
 
+	if (depth == 1)return;
 	
 	//Space Conversions
 	vec3 NDCPos = vec3(texcoord.xy, depth) * 2.0 - 1.0;
@@ -65,7 +66,7 @@ color=texture(colortex0,texcoord);
 	vec3 shadowNDCPos = shadowClipPos.xyz / shadowClipPos.w;
 	vec3 shadowScreenPos = shadowNDCPos * 0.5 + 0.5;
 
-	vec3 shadow = getSoftShadow(shadowClipPos, feetPlayerPos, geoNormal, texcoord, shadowScreenPos, sss);
+	vec3 shadow = getSoftShadow(shadowClipPos,geoNormal, sss);
 	bool isMetal = SpecMap.g >= 230.0/255.0;
 	bool isOpaque = !isWater;
 	vec3 clouds = texture(colortex10, texcoord).rgb;
@@ -101,7 +102,8 @@ color=texture(colortex0,texcoord);
 		
 	vec3 sunlight;
 	vec3 currentSunlight = getCurrentSunlight(sunlight, normal, shadow, worldLightVector);
-		
+	vec3 sunlightColor;
+	vec3 sunColor = currentSunColor(sunlightColor);
 	vec3 reflectedDir = reflect(viewDir, n2);
     vec3 reflectedPos = vec3(0.0);
     vec3 reflectedColor = vec3(0.0);
@@ -122,49 +124,68 @@ if(isWater)
 	//SSR Calculations
 	bool reflectionHit = true;
 	float jitter = IGN(gl_FragCoord.xy, frameCounter);
+		
 	reflectionHit && raytrace(viewPos, reflectedDir,SSR_STEPS, jitter,  reflectedPos);
 	bool isRaining = rainStrength <= 1.0 && rainStrength > 0.0;
 	float skyDepth = 1.0;
-	
+
 	 if( isWater || SpecMap.r >= 155.0/255.0)
 	{
 	 if(reflectionHit)
 	 {
 		#if DO_SSR == 1
-		reflectedColor = texture(colortex0, reflectedPos.xy).rgb;
-		if(reflectedPos.z == skyDepth)
+		
+		if(reflectedPos.z < 1.0)
+		{
+			reflectedColor = texture(colortex0, reflectedPos.xy).rgb;	
+		}
+		else
 		{
 			
-			reflectedColor=calcSkyColor((reflect(normalize(viewPos),normals)));
-		
+			vec3 skyMieReflection = calcMieSky(normalize(viewPos), worldLightVector, sunColor, viewPos) * 1.7;
+			vec3 skyReflection =calcSkyColor((reflect(normalize(viewPos),n2)));
+			reflectedColor= mix(skyReflection, skyMieReflection, 0.6);
 		}
 			 if(clamp(reflectedPos.xy, 0, 1) != reflectedPos.xy && !inWater)
 			{
 				
-				reflectedColor=calcSkyColor((reflect(normalize(viewPos),normals)));
+				vec3 skyMieReflection = calcMieSky(normalize(viewPos), worldLightVector, sunColor, viewPos) * 1.7;
+				vec3 skyReflection =calcSkyColor((reflect(normalize(viewPos),n2)));
+				reflectedColor= mix(skyReflection, skyMieReflection, 0.6);
 				if(!inWater)
 				{
 					reflectedColor *= lightmap.g;
 				}
-				
 				if(isMetal)
-				{
-					reflectedColor *= 0.4;
-				}
+			{
+				reflectedColor *= 0.5;
+			}
+				
 			}
 		#else
 				
-				vec3 worldReflectedDir = mat3(gbufferModelViewInverse) * reflectedDir;
-            	vec3 skyReflection = calcSkyColor(worldReflectedDir);
+				vec3 skyReflection =calcSkyColor((reflect(normalize(reflectedPos),n2)));
 				reflectedColor = skyReflection;
-		
+				if(!inWater)
+				{
+					reflectedColor *= lightmap.g;
+				}
+					if(isMetal)
+			{
+				reflectedColor *= 0.5;
+			}
 		#endif
 	 }
 	}
 	if(isMetal && SpecMap.r < 155.0/255.0 )
 	{
-		reflectedColor=calcSkyColor((reflect(normalize(viewPos),n2)));
-		reflectedColor *= 0.2;
+		reflectedColor=calcSkyColor((reflect(normalize(reflectedPos),n2)));
+		reflectedColor *= lightmap.g;
+		reflectedColor *= 0.5;
+		if(lightmap.g < 0.55)
+		{
+			reflectedColor = color.rgb;
+		}
 	}
 if(isRaining)
 	{
@@ -191,13 +212,13 @@ if(isRaining)
 		if(clamp(reflectedPos.xy, -1.0, 1.0) != reflectedPos.xy)
 			{
 				
-			 reflectedColor=calcSkyColor((reflect(normalize(viewPos),normal)));
+			 reflectedColor=calcSkyColor((reflect(normalize(viewPos),n2)));
 				reflectedColor * lightmap.g;
 			}
 		if(lightmap.g < 0.9935)
 		{ 
 			float reflectedColorFalloff = exp(-5.512 * (1.214 - lightmap.g));
-			vec3 reflectedSkyColor = calcSkyColor((reflect(normalize(viewPos),normal)));
+			vec3 reflectedSkyColor = calcSkyColor((reflect(normalize(viewPos),n2)));
 			reflectedColor = mix(reflectedSkyColor * 0.0, reflectedColor, clamp(reflectedColorFalloff, 0.0, 1.0) );
 		
 		}
@@ -214,22 +235,26 @@ if(isRaining)
 		currentSunlight *= WATER_SCATTERING;
 		specular = brdf(albedo, f0, L, currentSunlight, normal, H, V2, roughness, SpecMap) + reflectedColor;
 	}
+
 	vec3 lighting =  specular ;
 	
 	if(clamp(reflectedPos.xy, 0, 1) == reflectedPos.xy && isMetal)
 	{
 		color.rgb = reflectedColor;
+		
 	}
 	else if(clamp(reflectedPos.xy, 0, 1) != reflectedPos.xy && isMetal && lightmap.g < 0.55)
 	{
 		color.rgb += reflectedColor;
+		
 	}
 	else if(clamp(reflectedPos.xy, 0, 1) != reflectedPos.xy && isMetal && lightmap.g > 0.74)
 	{
 		color.rgb = reflectedColor;
+		
 	}
 
-
+	
 	if(isWater)
 	{
 		color.rgb+= specular;
@@ -238,4 +263,8 @@ if(isRaining)
 	else{
 		color.rgb += specular;
 	}
+	
+		
+	
+
 	}

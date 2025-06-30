@@ -3,11 +3,7 @@
 
 #include "/lib/common.glsl"
 
-/*
-const int colortex0Format = RGB16F;
-const int colortex3Format = RGB16F;
-const int colortex4Format = RGB16F;
-*/
+
 
 
 uniform mat4 gbufferProjection;
@@ -54,12 +50,13 @@ uniform int isEyeInWater;
 uniform vec3 cameraPosition;
 uniform int worldTime;
 const float shadowDistance = SHADOW_DISTANCE;
-const float shadowFarPlane = 512.0;
+const float shadowFarPlane = 684.0;
 const float shadowDistanceRenderMul = 1.0;
 uniform float rainStrength;
-const float drynessHalfLife = 3200.0;
-const float wetnessHalflife = 3200.0;
+uniform float wetness;
+const float drynessHalfLife = 256.0;
+const float wetnessHalflife = 256.0;
 uniform float cloudHeight;
-
+uniform bool isHotBiome;
 
 #endif //UNIFORMS_GLSL

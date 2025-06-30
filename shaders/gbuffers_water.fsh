@@ -26,7 +26,7 @@ layout(location = 2) out vec4 encodedNormal;
 layout(location = 3) out vec4 waterMask;
 layout(location = 4) out vec4 specMap;
 layout(location = 5) out vec4 translucentMask;
-layout(location = 6) out vec4 waterNormals;
+layout(location = 6) out vec4 bloom;
 
 
 void main() {
@@ -41,8 +41,9 @@ void main() {
 	normalMaps.z = sqrt(1.0 - dot(normalMaps.xy, normalMaps.xy));
 	vec3 mappedNormal = tbnMatrix * normalMaps;
 
+	vec4 geoNormal = vec4(normal * 0.5 + 0.5, 1.0);
 	
-	waterNormals = texture(waterNormal, texcoord);
+	
 	lightmapData = vec4(lmcoord, 0.0, 1.0);
 	encodedNormal = vec4(mappedNormal * 0.5 + 0.5, 1.0);
 	
@@ -83,20 +84,21 @@ void main() {
 	}
 	float sss =specMap.b;
 	vec3 F=fresnelSchlick(max(dot(encodedNormal.rgb,V),0.),F0);
-	vec3 shadow = getSoftShadow(shadowClipPos, feetPlayerPos, encodedNormal.rgb, texcoord, shadowScreenPos, sss);
+	vec3 shadow = getSoftShadow(shadowClipPos,geoNormal.rgb, sss);
 	
-  	vec3 diffuse = doDiffuse(texcoord, lightmapData.rg, encodedNormal.rgb, worldLightVector, shadow, viewPos, sss, feetPlayerPos);
+  	vec3 diffuse = doDiffuse(texcoord, lightmapData.rg, geoNormal.rgb, worldLightVector, shadow, viewPos, sss, feetPlayerPos);
 	vec3 sunlight;
-	vec3 currentSunlight = getCurrentSunlight(sunlight, encodedNormal.rgb, shadow, worldLightVector);
+	vec3 currentSunlight = getCurrentSunlight(sunlight, geoNormal.rgb, shadow, worldLightVector);
 	vec3 specular = max(brdf(albedo, F0, L, currentSunlight, encodedNormal.rgb, H, V, roughness, specMap), 0.0)  * F;
 	vec3 lighting = albedo * diffuse + emissive ;
 	
 	if(blockID == WATER_ID)
 	{
     waterMask = vec4(1.0, 1.0, 1.0, 1.0);
-	waterNormals = vec4(mappedNormal * 0.5 + 0.5, 1.0);
-    color.a *= 0.0;
-	color = vec4(0.0);
+
+    color.a *= 0.6;
+	lighting *= 0.5;
+	
 	}
 	else if(blockID == TRANSLUCENT_ID)
 	{
@@ -107,10 +109,11 @@ void main() {
 	{
 		waterMask = vec4(0.0, 0.0, 0.0, 1.0);
 		translucentMask = vec4(0.0, 0.0, 0.0, 1.0);
+		
 	}
 
-
-	 color = vec4(lighting, color.a);
+	color = vec4(lighting, color.a);
+	 
 	
 	
 }
