@@ -25,6 +25,9 @@ void main() {
 	
 	vec4 SpecMap = texture(colortex5, texcoord);
 	vec4 sssMask = texture(colortex11, texcoord);
+	vec4 waterMask=texture(colortex4,texcoord);
+	int blockID2=int(waterMask)+100;
+	bool isWater=blockID2==WATER_ID;
 	int blockID=int(sssMask)+103;
 	bool canScatter = blockID == SSS_ID;	
 	vec2 lightmap = texture(colortex1, texcoord).rg; // we only need the r and g components
@@ -88,10 +91,18 @@ void main() {
     	F0 = albedo;
   	}
 	bool isMetal = SpecMap.g >= 230.0/255.0;
-	
+	vec3  f0;
+	if(isMetal)
+  	{f0 = albedo;}
+	else if(isWater)
+	{f0 = vec3(0.02);}
+	else
+	{f0 = vec3(SpecMap.g);}
 
 	vec3 diffuse = doDiffuse(texcoord, lightmap, normal, worldLightVector, shadow, viewPos, sss, feetPlayerPos);
 	vec3 sunlight;
+	vec3 currentSunlight = getCurrentSunlight(sunlight, normal, shadow, worldLightVector, sss, feetPlayerPos);
+	vec3 specular = brdf(albedo, f0, L, currentSunlight, normal, H, V, roughness, SpecMap);
 	#if RESOURCE_PACK_SUPPORT == 0
 	vec3 lighting = albedo * diffuse  + emissive;
 	#else

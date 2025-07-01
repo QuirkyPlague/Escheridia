@@ -31,11 +31,14 @@ void main() {
 	vec3 viewPos = projectAndDivide(gbufferProjectionInverse, NDCPos);
 	
 	bool isMetal = SpecMap.g >= 230.0/255.0;
-
+vec3 sunlightColor;
+	vec3 sunColor = currentSunColor(sunlightColor);
 	#if DISTANCE_FOG_GLSL == 1
+	vec3 mieFog = atmosphericMieFog(color.rgb, viewPos, texcoord, depth, lightmap, worldLightVector, sunColor);
+	vec3 atmosphereFog = atmosphericFog(color.rgb, viewPos, texcoord, depth, lightmap);
 	if(!inWater)
 	{
-		//color.rgb = atmosphericFog(color.rgb, viewPos, texcoord, depth, lightmap);
+		color.rgb = mix(atmosphereFog, mieFog, 0.4);
 	}
 	
 	

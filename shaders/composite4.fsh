@@ -93,6 +93,7 @@ void main() {
 	vec3 specular = brdf(albedo, f0, L, currentSunlight, normal, H, V, roughness, SpecMap);
 	
 	color.rgb += specular;
+	
 }
 /*
 if(isMetal && SpecMap.r < 155.0/255.0 )

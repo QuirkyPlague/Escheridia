@@ -103,7 +103,7 @@ vec3 atmosphericFog(vec3 color, vec3 viewPos,vec2 texcoord, float depth, vec2 li
      {
         float lightmapSmooth = smoothstep(0.001, 0.0, lightmap.g);
         vec3 caveInscatteringAmount= inscatteringAmount * 0.5;
-        inscatteringAmount = mix(inscatteringAmount, caveInscatteringAmount, lightmapSmooth);
+        inscatteringAmount = mix(inscatteringAmount, caveInscatteringAmount, clamp(smoothstep(13.5 / 15.0, 1.0, lightmap.y), 0 , 1));
      }
       color*=absorptionFactor;
       color += (inscatteringAmount) /absorption*(1.- absorptionFactor);

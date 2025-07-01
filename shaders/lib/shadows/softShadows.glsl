@@ -8,7 +8,7 @@
  
  vec3 getSoftShadow(vec4 shadowClipPos, vec3 normal, float SSS)
  {   
-   float sampleRadius = SHADOW_SOFTNESS * 0.00034;
+   float sampleRadius = SHADOW_SOFTNESS * 0.0003;
    float noise = IGN(floor(gl_FragCoord.xy), frameCounter);
 
    vec3 shadowNormal = mat3(shadowModelView) * normal;

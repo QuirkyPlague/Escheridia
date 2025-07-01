@@ -136,6 +136,6 @@ vec3 decodeNormal(vec2 f) {
     n.y += n.y >= 0.0 ? -t : t;
     return normalize( n );
 }
-
+#define maxVec2(v) max(v.x, v.y)
 
 #endif //UTIL_GLSL
