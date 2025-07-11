@@ -37,4 +37,22 @@ vec3 getShadow(vec3 shadowScreenPos){
   return shadowColor.rgb * (3.0 - shadowColor.a);
 }
 
+vec3 getShdCol(in vec3 shdPos){
+		// Sample shadows
+		float shd0 = textureLod(shadowtex0, shdPos.xy, 0).r;
+		// If not in shadow, return "white"
+		if(shd0 == 1) return vec3(1);
+
+		// Sample opaque only shadows
+		float shd1 = textureLod(shadowtex1, shdPos.xy, 0).r;
+		// If in shadow, return "black"
+		if(shd1 == 0) return vec3(0);
+		// Otherwise, calculate the full shadow color
+		return texelFetch(shadowcolor0, ivec2(shdPos.xy * SHADOW_RESOLUTION), 0).rgb * (1.0 - shd0) * shd1 + shd0;
+
+		// Sample shadows and return directly
+		return vec3(textureLod(shadowtex0, shdPos.xy, 0));
+	
+}
+
 #endif //DRAWSHADOWS_GLSL

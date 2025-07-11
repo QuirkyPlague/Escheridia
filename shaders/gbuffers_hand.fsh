@@ -61,6 +61,6 @@ void main() {
 		metalMask =vec4(0.0, 0.0, 0.0, 1.0);
 	}
 	#if RESOURCE_PACK_SUPPORT == 1
-		color += color * (emission * 1.15)  * EMISSIVE_MULTIPLIER;
+		color += color * emission * EMISSIVE_MULTIPLIER;
 	#endif
 }

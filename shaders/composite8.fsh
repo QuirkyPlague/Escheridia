@@ -27,18 +27,19 @@ void main() {
 	
 	bool isMetal = SpecMap.g >= 230.0/255.0;
 	
-	if(depth==1.0)
-	{
 	
-		color += texture(colortex8, texcoord) ;
-		
-	}
 	if(isMetal)
 	{
 	vec3 mieFog = atmosphericMieFog(color.rgb, viewPos, texcoord, depth, lightmap, worldLightVector, sunColor);
 	vec3 atmosphereFog = atmosphericFog(color.rgb, viewPos, texcoord, depth, lightmap);
 	color.rgb = mix(atmosphereFog, mieFog, 0.4);
 	}
+	else
+	{
+	vec3 distanceFog = distanceFog(color.rgb, viewPos, texcoord, depth);
+	vec3 distanceMieFog = distanceMieFog(color.rgb, viewPos, texcoord, depth, worldLightVector, sunColor);
+	color.rgb = mix(distanceFog, distanceMieFog, 0.4);
+	}
 	color += texture(colortex9, texcoord) * vec4(0.0667, 0.0667, 0.0667, 1.0);
-	color += texture(colortex10, texcoord) * vec4(0.2235, 0.2235, 0.2235, 1.0);
+	color += texture(colortex10, texcoord) * vec4(3.0);
 }

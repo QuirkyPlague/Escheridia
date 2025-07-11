@@ -3,7 +3,7 @@
 
 //taken fromn Blemu's training raytracer found at https://gist.github.com/BelmuTM/af0fe99ee5aab386b149a53775fe94a3
 #define BINARY_REFINEMENT 1 //[0 1]
-#define BINARY_COUNT 24
+#define BINARY_COUNT 4
 #define BINARY_DECREASE 0.5
 
 vec3 diagonal(mat4 mat) { return vec3(mat[0].x, mat[1].y, mat[2].z);      }
@@ -49,6 +49,7 @@ bool raytrace(vec3 viewPosition, vec3 rayDirection, int stepCount, float jitter,
         // There's no need to continue ray marching if the ray goes outside of the screen
 
         float depth = texture(depthtex0, rayPosition.xy).r;
+        
         // Sampling the depth at the ray's screen space position
       
         intersect = rayPosition.z > depth;

@@ -31,7 +31,7 @@ void main() {
 	vec3 distanceMieFog = distanceMieFog(color.rgb, viewPos, texcoord, depth, worldLightVector, sunColor);
 	color.rgb = mix(distanceFog, distanceMieFog, 0.4);
 	#endif
-	color += texture(colortex10, texcoord) * vec4(0.4588, 0.4588, 0.4588, 1.0);
+	color += texture(colortex10, texcoord) * vec4(1.0, 1.0, 1.0, 1.0);
 }
 	
 	

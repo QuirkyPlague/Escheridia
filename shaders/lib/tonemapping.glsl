@@ -8,9 +8,9 @@ vec3 uncharted2Tonemap(vec3 x)
     float A = 0.035f;
     float B = 0.03f;
     float C = 0.30f;
-    float D = 1.80f;
+    float D = 1.10f;
     float E = 0.02f;
-    float F = 0.20f;
+    float F = 0.10f;
     return ((x*(A*x+C*B)+D*E)/(x*(A*x+B)+D*F))-E/F;
 }
 

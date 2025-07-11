@@ -29,10 +29,10 @@ option.SHADOW_DISTANCE.comment = Increase the range of the shadows §cHigh perfo
     value.SHADOW_DISTANCE.384.0 = 24 chunks
     value.SHADOW_DISTANCE.512.0 = 32 chunks
     
-option.GODRAYS_GLSL = Enable Godrays
-option.GODRAYS_GLSL.comment = Enables screenspace godrays effect §cThis is not volumetric and will have errors when the sun is not on screen§r
-value.GODRAYS_GLSL.0  = off
-value.GODRAYS_GLSL.1  = on
+option.VOLUMETRIC_LIGHTING = Volumetric Lighting
+option.VOLUMETRIC_LIGHTING.comment = Enables either screenspace godrays effect or Volumetric Fog §chigh performance impact§r
+value.VOLUMETRIC_LIGHTING.0  = off
+value.VOLUMETRIC_LIGHTING.1  = Screenspace
 option.GODRAYS_SAMPLES = Godray sample count
 option.GODRAYS_SAMPLES.comment = Increase the quality of godrays. §cPotentially major performance impact§r
 option.GODRAY_DENSITY = Godrays Density
@@ -87,3 +87,5 @@ option.NAME = Escheridia
 
 option.ROUGH_REFLECTION = Rough Reflections 
 option.ROUGH_REFLECTION.comment = Enables the use of roughness varied rough reflections §3Will introduce noise
+
+option.PIXELATED_LIGHTING = Pixel Locked Lighting

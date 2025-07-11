@@ -5,17 +5,17 @@
 #include "/lib/util.glsl"
 
 
-const vec3 horizonColor = vec3(0.3412, 0.6863, 0.7569);
-const vec3 zenithColor = vec3(0.0627, 0.3333, 0.7647);
-const vec3 earlyHorizon = vec3(0.298, 0.1922, 0.0471);
-const vec3 earlyZenith =  vec3(0.0392, 0.4667, 0.6235);
+const vec3 horizonColor = vec3(0.7529, 0.8784, 0.9922);
+const vec3 zenithColor = vec3(0.2549, 0.5412, 1.0);
+const vec3 earlyHorizon = vec3(0.7765, 0.4706, 0.2235);
+const vec3 earlyZenith =  vec3(0.298, 0.6275, 1.0);
 const vec3 lateHorizon = vec3(0.3608, 0.1176, 0.0039);
 const vec3 lateZenith = vec3(0.0118, 0.1686, 0.2549);
-const vec3 nightHorizon = vec3(0.0096, 0.0192, 0.0327);
-const vec3 nightZenith = vec3(0.0, 0.00039, 0.00157);
-vec3 rainHorizon = vec3(0.8157, 0.8157, 0.8157);
-vec3 rainZenith = vec3(0.3725, 0.3725, 0.3725); 
-vec3 horizon;
+const vec3 nightHorizon = vec3(0.0235, 0.0392, 0.0863);
+const vec3 nightZenith = vec3(0.0078, 0.0078, 0.0353);
+vec3 rainHorizon = vec3(0.298, 0.298, 0.298);
+vec3 rainZenith = vec3(0.0745, 0.0745, 0.0745); 
+vec3 horizon; 
 vec3 zenith;
 
 
@@ -53,8 +53,8 @@ vec3 calcSkyColor(vec3 pos) {
   }
   if(rainStrength <= 1.0 && rainStrength > 0.0)
   {
-    vec3 currentZenithColor = zenith;
-    vec3 currentHorizonColor = horizon;
+    vec3 currentZenithColor = zenith * 2;
+    vec3 currentHorizonColor = horizon * 2;
     if(worldTime >= 13000 && worldTime < 24000)
     {
       rainZenith *=  0.1;
@@ -65,9 +65,10 @@ vec3 calcSkyColor(vec3 pos) {
     horizon = mix(currentHorizonColor, rainHorizon, dryToWet);
   }
   
-	
+	horizon *= 4.5;
+  zenith *= 4.5;
 	float upDot = dot(pos, gbufferModelView[1].xyz); //not much, what's up with you?
-	return mix(zenith, horizon, fogify(max(upDot, 0.0), 0.028));
+	return mix(zenith, horizon, fogify(max(upDot, 0.0), 0.018));
 }
 
 vec3 MieScatter(vec3 color, vec3 lightPos, vec3 viewPos, vec3 sunColor)
@@ -76,7 +77,7 @@ vec3 MieScatter(vec3 color, vec3 lightPos, vec3 viewPos, vec3 sunColor)
   bool isNight = worldTime >= 13000 && worldTime < 23000;
   
   
-  vec3 mieScatterColor = vec3(0.0863, 0.0667, 0.0392) * MIE_SCALE * sunColor;
+  vec3 mieScatterColor = vec3(0.2549, 0.2235, 0.1765) * MIE_SCALE * sunColor;
   if(isNight)
   {
     mieScatterColor = vec3(0.00039, 0.00039, 0.00078) * MIE_SCALE * sunColor;
@@ -100,31 +101,39 @@ vec3 MieScatter(vec3 color, vec3 lightPos, vec3 viewPos, vec3 sunColor)
 
 vec3 calcMieSky(vec3 pos, vec3 lightPos, vec3 sunColor, vec3 viewPos, vec2 texcoord) {
 	 bool inWater = isEyeInWater ==1.0;
+  const vec3 earlyMieScatterColor = vec3(0.8784, 0.5843, 0.3725) * MIE_SCALE * sunColor;
+  const vec3 mieScatterColor = vec3(0.4275, 0.3451, 0.2863) * MIE_SCALE * sunColor;
+  const vec3 lateMieScatterColor = vec3(1.0, 0.2392, 0.1216) * MIE_SCALE * sunColor;
+  const vec3 nightMieScatterColor = vec3(0.9255, 0.9451, 1.0) * MIE_SCALE * sunColor;
+  vec3 mieScat; 
    if (worldTime >= 0 && worldTime < 1000)
   {
     //smoothstep equation allows interpolation between times of day
     float time = smoothstep(0, 1000, float(worldTime));
-   horizon = mix(earlyHorizon, horizonColor, time);
-   zenith = mix(earlyZenith, zenithColor,time);
+    horizon = mix(earlyHorizon, horizonColor, time);
+    zenith = mix(earlyZenith, zenithColor,time);
+    mieScat = mix(earlyMieScatterColor, mieScatterColor, time);
   }
    else if (worldTime >= 1000 && worldTime < 11500)
   {
      float time = smoothstep(10000, 11500, float(worldTime));
-	horizon = mix(horizonColor, lateHorizon, time);
+	  horizon = mix(horizonColor, lateHorizon, time);
    	zenith = mix(zenithColor, lateZenith,time);
+    mieScat = mix(mieScatterColor, lateMieScatterColor, time);
   }
   else if (worldTime >= 11500 && worldTime < 13000)
   {
-     float time = smoothstep(11500, 13000, float(worldTime));
+    float time = smoothstep(11500, 13000, float(worldTime));
     horizon = mix(lateHorizon, nightHorizon, time);
    	zenith = mix(lateZenith, nightZenith,time);
+    mieScat =mix(lateMieScatterColor, nightMieScatterColor, time);
   }
    else if (worldTime >= 13000 && worldTime < 24000)
   {
     float time = smoothstep(23000, 24000, float(worldTime));
-	horizon = mix(nightHorizon, earlyHorizon, time);
+	  horizon = mix(nightHorizon, earlyHorizon, time);
    	zenith = mix(nightZenith, earlyZenith,time);
-	  
+	  mieScat =mix(nightMieScatterColor,earlyMieScatterColor, time);
   }
   if(rainStrength <= 1.0 && rainStrength > 0.0)
   {
@@ -140,29 +149,27 @@ vec3 calcMieSky(vec3 pos, vec3 lightPos, vec3 sunColor, vec3 viewPos, vec2 texco
     horizon = mix(currentHorizonColor, rainHorizon, dryToWet);
     
   }
+    bool isNight = worldTime >= 13000 && worldTime < 23000;
+	  float upDot = dot(pos, gbufferModelView[1].xyz); //not much, what's up with you?
+	  vec3 skyColor = mix(zenith, horizon, fogify(max(upDot, 0.0), 0.028));
+    vec3 feetPlayerPos = (gbufferModelViewInverse * vec4(viewPos, 1.0)).xyz;
+    float VoL = dot(normalize(feetPlayerPos), lightPos);
+ 
   
-	float upDot = dot(pos, gbufferModelView[1].xyz); //not much, what's up with you?
-	vec3 skyColor = mix(zenith, horizon, fogify(max(upDot, 0.0), 0.028));
-  vec3 feetPlayerPos = (gbufferModelViewInverse * vec4(viewPos, 1.0)).xyz;
-  float VoL = dot(normalize(feetPlayerPos), lightPos);
-  vec3 mieScatterColor = vec3(0.1569, 0.1176, 0.0706) * MIE_SCALE * sunColor;
   if(inWater)
   {
-    mieScatterColor *= vec3(0.098, 0.0, 1.0) * MIE_SCALE * sunColor;
+    mieScat *= vec3(0.098, 0.0, 1.0) * MIE_SCALE * sunColor;
   }
-  mieScatterColor *= HG(0.66, VoL);
-  return skyColor = mix(skyColor * 0.3 , mieScatterColor, 0.812);
-}
-vec4 cloudScatter(vec4 color, vec3 lightPos, vec3 feetPlayerPos, vec3 viewPos)
-{
-  vec4 mieCloudScatter = vec4(0.4314, 0.3098, 0.1647, 1.0);
-  float VoL = dot(normalize(feetPlayerPos), lightPos);
-  float dist = length(viewPos) / far;
-  float scatterCondense = HG(0.65, VoL);
-  float scatterFactor = exp(15.0 * (1.0 - scatterCondense));
-  color = mix(mieCloudScatter, color, clamp(scatterFactor, 0,1));
   
-  return color;
-
+  if(isNight)
+  {
+     mieScat *= HG(0.92, VoL);
+  }
+  else
+  {
+    mieScat *= HG(0.64, VoL);
+  }
+  return skyColor = mix(skyColor * 0.3 , mieScat, 0.812);
 }
+
 #endif //SKY_COLOR_GLSL

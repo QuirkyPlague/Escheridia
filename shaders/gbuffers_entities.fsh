@@ -63,4 +63,5 @@ void main() {
 	#if RESOURCE_PACK_SUPPORT == 1
 		color += color * (emission * 1.15)  * EMISSIVE_MULTIPLIER;
 	#endif
+	color.rgb = mix(color.rgb, entityColor.rgb, entityColor.a );
 }

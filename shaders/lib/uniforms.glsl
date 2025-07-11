@@ -44,9 +44,12 @@ uniform sampler2D specular;
 const float PI = float(3.14159);
 uniform int frameCounter;
 const float sunPathRotation=SUN_ROTATION;
+uniform vec3 previousCameraPosition;
 uniform float viewWidth;
 uniform float viewHeight;
+uniform float frameTime;
 uniform float far;
+uniform float near;
 uniform int isEyeInWater;
 uniform vec3 cameraPosition;
 uniform int worldTime;
@@ -55,9 +58,11 @@ const float shadowFarPlane = 684.0;
 const float shadowDistanceRenderMul = 1.0;
 uniform float rainStrength;
 uniform float wetness;
-const float drynessHalfLife = 256.0;
-const float wetnessHalflife = 256.0;
+const float drynessHalfLife = 10.0;
+const float wetnessHalflife = 10.0;
 uniform float cloudHeight;
 uniform bool isHotBiome;
-
+uniform bool isHurt;
+uniform bool is_sneaking;
+uniform vec4 entityColor;
 #endif //UNIFORMS_GLSL

@@ -19,7 +19,7 @@ in vec3 viewPos;
 in vec3 feetPlayerPos;
 flat in int blockID;
 in mat3 tbnMatrix;
-/* RENDERTARGETS: 0,1,2,4,5,7,12 */
+/* RENDERTARGETS: 0,1,2,4,5,7,12,11 */
 layout(location = 0) out vec4 color;
 layout(location = 1) out vec4 lightmapData;
 layout(location = 2) out vec4 encodedNormal;
@@ -27,7 +27,7 @@ layout(location = 3) out vec4 waterMask;
 layout(location = 4) out vec4 specMap;
 layout(location = 5) out vec4 translucentMask;
 layout(location = 6) out vec4 bloom;
-
+layout(location = 7) out vec4 sssMask;
 
 void main() {
 	
@@ -84,9 +84,10 @@ void main() {
 	}
 	float sss =specMap.b;
 	vec3 F=fresnelSchlick(max(dot(encodedNormal.rgb,V),0.),F0);
-	vec3 shadow = getSoftShadow(shadowClipPos,geoNormal.rgb, sss);
-	
-  	vec3 diffuse = doDiffuse(texcoord, lightmapData.rg, geoNormal.rgb, worldLightVector, shadow, viewPos, sss, feetPlayerPos);
+	vec3 shadow = getSoftShadow(feetPlayerPos,geoNormal.rgb, sss);
+	const bool isMetal = specMap.g >= 230.0/255.0;
+	float ao = texture(normals, texcoord).z;
+  	vec3 diffuse = doDiffuse(texcoord, lightmapData.rg, geoNormal.rgb, worldLightVector, shadow, viewPos, sss, feetPlayerPos, isMetal);
 	vec3 sunlight;
 	vec3 lighting = albedo * diffuse + emissive ;
 	
@@ -108,6 +109,15 @@ void main() {
 		waterMask = vec4(0.0, 0.0, 0.0, 1.0);
 		translucentMask = vec4(0.0, 0.0, 0.0, 1.0);
 		
+	}
+
+	if(blockID == SSS_ID)
+	{
+    	sssMask = vec4(1.0, 1.0, 1.0, 1.0);
+	}
+	else
+	{
+		sssMask =vec4(0.0, 0.0, 0.0, 1.0);
 	}
 
 	color = vec4(lighting, color.a);
