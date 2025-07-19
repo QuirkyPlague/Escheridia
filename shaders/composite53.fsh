@@ -22,7 +22,8 @@ void main() {
 	float roughness;
  	roughness = pow(1.0 - SpecMap.r, 2.0);
 	float depth = texture(depthtex0, texcoord).r;
-	color.rgb = computeBloomMix(texcoord, isMetal, depth);
+	bool isEmissive = SpecMap.a >= 0.0/255.0 && SpecMap.a < 255.0/255.0;
+	color.rgb = computeBloomMix(texcoord, isMetal, depth, isEmissive);
 	#endif
 
 

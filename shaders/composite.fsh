@@ -49,6 +49,7 @@ float depth = texture(depthtex0, texcoord).r;
 
 	//normal assignments
 	vec3 normal = normalize((encodedNormal - 0.5) * 2.0); // we normalize to make sure it is of unit length
+	normal = mat3(gbufferModelView) * normal;
 	vec3 baseNormal = texture(colortex6, texcoord).rgb;
 	vec3 geoNormal = normalize((baseNormal - 0.5) * 2.0); 
 	
@@ -95,12 +96,12 @@ if(isWater)
 	vec3 worldLightVector = mat3(gbufferModelViewInverse) * lightVector;
 	vec3 shadow = getSoftShadow(feetPlayerPos, geoNormal, sss);
 
-	const vec3 V = normalize(cameraPosition - worldPos);
-  	const vec3 L = normalize(worldLightVector);
+	const vec3 V = normalize(-viewPos);
+  	const vec3 L = normalize(lightVector);
   	const vec3 H = normalize(V + L);
 
 	vec3 sunlight;
-	const vec3 currentSunlight = getCurrentSunlight(sunlight, normal, shadow, worldLightVector, sss, feetPlayerPos);
+	const vec3 currentSunlight = getCurrentSunlight(sunlight, normal, shadow, worldLightVector, sss, feetPlayerPos, isWater);
 	
 	const vec3 specular = brdf(albedo, f0, L, currentSunlight, normal, H, V, roughness, SpecMap);
 	

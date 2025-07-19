@@ -16,6 +16,8 @@ void main() {
     color.rgb = agx(color.rgb);
     #elif TONEMAPPING_TYPE ==1
     color.rgb = uncharted2(color.rgb); 
+    #elif TONEMAPPING_TYPE ==0
+    color.rgb = aces_tonemap(color.rgb); 
     #endif
     color.rgb = CSB(color.rgb, BRIGHTNESS, SATURATION, CONTRAST);
 }

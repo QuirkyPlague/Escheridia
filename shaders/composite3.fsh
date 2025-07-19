@@ -23,15 +23,18 @@ void main() {
 	bool isWater=blockID==WATER_ID;
 	vec3 NDCPos = vec3(texcoord.xy, depth) * 2.0 - 1.0;
 	vec3 viewPos = projectAndDivide(gbufferProjectionInverse, NDCPos);
-	vec3 sunlightColor;
+	vec3 sunlightColor = vec3(0.0);
 	vec3 sunColor = currentSunColor(sunlightColor);
 	
-	#if DISTANCE_FOG_GLSL == 1
+	if (depth == 1.0) 
+	{
+  		return;
+	}
 	vec3 distanceFog = distanceFog(color.rgb, viewPos, texcoord, depth);
-	vec3 distanceMieFog = distanceMieFog(color.rgb, viewPos, texcoord, depth, worldLightVector, sunColor);
-	color.rgb = mix(distanceFog, distanceMieFog, 0.4);
-	#endif
-	color += texture(colortex10, texcoord) * vec4(1.0, 1.0, 1.0, 1.0);
+
+	color.rgb = distanceFog;
+	
+	color += texture(colortex10, texcoord) * vec4(0.4941, 0.4941, 0.4941, 1.0);
 }
 	
 	

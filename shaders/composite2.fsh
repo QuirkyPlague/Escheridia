@@ -13,7 +13,7 @@ in vec2 texcoord;
 layout(location = 0) out vec4 color;
 
 void main() {
-	
+	color = texture(colortex0, texcoord);
 	float depth = texture(depthtex0, texcoord).r;
 	//space conversions
 	vec3 screenPos = vec3(texcoord.xy, depth);

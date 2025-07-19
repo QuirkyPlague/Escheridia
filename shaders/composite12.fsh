@@ -12,10 +12,10 @@ layout(location = 0) out vec4 bloomColor;
 void main() {
 		#if BLOOM_GLSL ==1
 	
-		vec2 OriginCoord =  vec2(0.5 + 2 / (viewWidth * BLOOM_QUALITY), 0.0);
-		vec2 prevCoord = vec2(0.0);
-		float coordScalar =  0.25;
-		float prevScale= 0.5;
+		vec2 OriginCoord =  vec2(0.875 + 6 / (viewWidth * BLOOM_QUALITY), 0.0);
+		vec2 prevCoord = vec2(0.75 + 4 / (viewWidth * BLOOM_QUALITY), 0.0);
+		float coordScalar =  0.0625;
+		float prevScale= 0.125;
 		vec2 screenCoord = (texcoord - OriginCoord) / coordScalar;
 		if(clamp(screenCoord, 0,1)!= screenCoord)
 		{

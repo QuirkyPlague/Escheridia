@@ -37,7 +37,7 @@ float sampleRadius = SHADOW_SOFTNESS * 0.0003;
    if(SSS > 64.0/255.0)
    {
     
-      sampleRadius *= SSS * 4.2;
+      sampleRadius *= SSS * 2.2;
    }   
    
    vec3 shadowAccum = vec3(0.0); // sum of all shadow samples

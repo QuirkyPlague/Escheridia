@@ -17,14 +17,22 @@ layout(location = 2) out vec4 encodedNormal;
 layout(location = 3) out vec4 rainBuffer;
 
 void main() {
-	color.a = 0.5;
-	color = texture(gtexture, texcoord) * glcolor *color.a;
-	rainBuffer =texture(gtexture, texcoord) * glcolor *color.a;
+	color = texture(gtexture, texcoord) * glcolor;
+	
 	if (color.a < 0.1) {
 		discard;
 	}
-	
+	if (color.r == color.g) {
+    // snow
+    rainBuffer = vec4(0.0);
+    return;
+  } else {
+    color = vec4(0.0);
+    rainBuffer = vec4(1.0, 1.0, 1.0, 1.0);
+  }
 
+	
+rainBuffer = vec4(1.0, 1.0, 1.0, 1.0);
 	
 	
 	

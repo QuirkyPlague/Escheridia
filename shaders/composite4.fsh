@@ -35,8 +35,11 @@ float depth = texture(depthtex0, texcoord).r;
 	vec3 shadow = getSoftShadow(feetPlayerPos, geoNormal, sss);
 	int blockID=int(waterMask)+100;
 	bool isWater=blockID==WATER_ID;
-	
-	vec3 sunlightColor;
+	if (depth == 1.0) 
+	{
+  		return;
+	}
+	vec3 sunlightColor = vec3(0.0) ;
 	vec3 sunColor = currentSunColor(sunlightColor);
 	#if DISTANCE_FOG_GLSL == 1
 	vec3 mieFog = atmosphericMieFog(color.rgb, viewPos, texcoord, depth, lightmap, worldLightVector, sunColor);
@@ -44,7 +47,7 @@ float depth = texture(depthtex0, texcoord).r;
 	vec3 fullFog = mix(atmosphereFog, mieFog, 0.4);
 	if(!inWater)
 	{
-		color.rgb = mix(color.rgb, fullFog, 1.0);
+		color.rgb = mix(color.rgb, fullFog * 3, 0.5);
 
 	}
 	#endif

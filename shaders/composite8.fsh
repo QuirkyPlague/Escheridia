@@ -19,27 +19,22 @@ void main() {
 	vec3 LightVector=normalize(shadowLightPosition);
 	vec3 worldLightVector=mat3(gbufferModelViewInverse)*LightVector;
 	vec2 lightmap = texture(colortex1, texcoord).rg;
-	vec3 sunlightColor;
+	vec3 sunlightColor = vec3(0.0);
 	vec3 sunColor = currentSunColor(sunlightColor);
 	vec3 NDCPos = vec3(texcoord.xy, depth) * 2.0 - 1.0;
 	vec3 viewPos = projectAndDivide(gbufferProjectionInverse, NDCPos);
 	vec3 feetPlayerPos = (gbufferModelViewInverse * vec4(viewPos, 1.0)).xyz;
+	if (depth == 1.0) 
+	{
+  		return;
+	}
 	
 	bool isMetal = SpecMap.g >= 230.0/255.0;
-	
-	
-	if(isMetal)
-	{
-	vec3 mieFog = atmosphericMieFog(color.rgb, viewPos, texcoord, depth, lightmap, worldLightVector, sunColor);
-	vec3 atmosphereFog = atmosphericFog(color.rgb, viewPos, texcoord, depth, lightmap);
-	color.rgb = mix(atmosphereFog, mieFog, 0.4);
-	}
-	else
-	{
 	vec3 distanceFog = distanceFog(color.rgb, viewPos, texcoord, depth);
-	vec3 distanceMieFog = distanceMieFog(color.rgb, viewPos, texcoord, depth, worldLightVector, sunColor);
-	color.rgb = mix(distanceFog, distanceMieFog, 0.4);
-	}
+
+	color.rgb = distanceFog;
+	
+
 	color += texture(colortex9, texcoord) * vec4(0.0667, 0.0667, 0.0667, 1.0);
-	color += texture(colortex10, texcoord) * vec4(3.0);
+	color += texture(colortex10, texcoord) * vec4(0.3333, 0.3333, 0.3333, 1.0);
 }

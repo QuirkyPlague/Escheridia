@@ -5,6 +5,7 @@
 #include "/lib/atmosphere/distanceFog.glsl"
 #include "/lib/shadows/softShadows.glsl"
 #include "/lib/brdf.glsl"
+#include "/lib/water/waves.glsl"
 in vec2 texcoord;
 
 /* RENDERTARGETS: 0 */
@@ -48,7 +49,13 @@ void main() {
 	bool isMetal = SpecMap.g >= 230.0/255.0;
 	vec2 lightmap = texture(colortex1, texcoord).rg; // we only need the r and g components
 
-	
+	float waveIntensity = 0.11 * WAVE_INTENSITY;
+	if(isWater)
+	{
+		normal= waveNormal(feetPlayerPos.xz + cameraPosition.xz, 0.714, waveIntensity);
+		normal = mat3(gbufferModelView) * normal;
+		
+	}
 
 	float sss;
 	float roughness;
@@ -61,7 +68,7 @@ void main() {
 		sss = 0.0;
 		if(!isWater)
 		{
-		roughness = 185.0/255.0;
+		roughness = 255.0/255.0;
 		f0 = vec3(0.07);
 		}
 	if(isMetal)
@@ -77,18 +84,18 @@ void main() {
 	roughness = pow(1.0 - SpecMap.r, 2.0);
 	#endif
 if(isWater)
-	{roughness = 0.05;}
+	{roughness = 0.15;}
 	//sun and shadow
 	vec3 lightVector = normalize(shadowLightPosition);
 	vec3 worldLightVector = mat3(gbufferModelViewInverse) * lightVector;
 	vec3 shadow = getSoftShadow(feetPlayerPos, geoNormal, sss);
 
-	const vec3 V = normalize(cameraPosition - worldPos);
-  	const vec3 L = normalize(worldLightVector);
+	const vec3 V = normalize(-viewPos);
+  	const vec3 L = normalize(lightVector);
   	const vec3 H = normalize(V + L);
 
 	vec3 sunlight;
-	const vec3 currentSunlight = getCurrentSunlight(sunlight, normal, shadow, worldLightVector, sss, feetPlayerPos);
+	const vec3 currentSunlight = getCurrentSunlight(sunlight, normal, shadow, worldLightVector, sss, feetPlayerPos, isWater);
 	
 	const vec3 specular = brdf(albedo, f0, L, currentSunlight, normal, H, V, roughness, SpecMap);
 	
@@ -98,7 +105,8 @@ if(isWater)
 	}      
 	if(inWater)
 	{
-		color.rgb = waterFog(color.rgb, texcoord, lightmap, depth, depth1);
+		vec3 waterScatter = waterFog(color.rgb, texcoord, lightmap, depth, depth1);
+		color.rgb = waterScatter;
 	}  
 	if(isWater)
 	{

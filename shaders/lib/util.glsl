@@ -79,7 +79,7 @@ float DistributionGGX(vec3 N, vec3 H, float roughness)
 {
     float a      = roughness*roughness;
     float a2     = a*a;
-    float NdotH  = max(dot(N, H), 0.0);
+    float NdotH  = max(dot(N, H), 1e-6);
     float NdotH2 = NdotH*NdotH;
 	
     float num   = a2;
@@ -101,8 +101,8 @@ float GeometrySchlickGGX(float NdotV, float roughness)
 }
 float GeometrySmith(vec3 N, vec3 V, vec3 L, float roughness)
 {
-    float NdotV = max(dot(N, V), 0.0);
-    float NdotL = max(dot(N, L), 0.0);
+    float NdotV = max(dot(N, V), 1e-6);
+    float NdotL = max(dot(N, L), 1e-6);
     float ggx2  = GeometrySchlickGGX(NdotV, roughness);
     float ggx1  = GeometrySchlickGGX(NdotL, roughness);
 	
@@ -125,17 +125,28 @@ vec3 screenSpaceToViewSpace(vec3 screenPosition) {
 	return viewPosition;
 }
 
-//from Jbritain's Glimmer Shaders https://github.com/jbritain/glimmer-shaders
-vec3 decodeNormal(vec2 f) {
-    f = f * 2.0 - 1.0;
- 
-    // https://twitter.com/Stubbesaurus/status/937994790553227264
-    vec3 n = vec3( f.x, f.y, 1.0 - abs( f.x ) - abs( f.y ) );
-    float t = max( -n.z, 0.0 );
-    n.x += n.x >= 0.0 ? -t : t;
-    n.y += n.y >= 0.0 ? -t : t;
-    return normalize( n );
+
+float Rayleigh(float costh)
+{
+    return 3.0 / (16.0 * PI) * (1.0 + costh * costh);
 }
-#define maxVec2(v) max(v.x, v.y)
+vec3 skyboxSun(vec3 sunPos, vec3 dir,vec3 sunColor)
+{
+    vec3 col = vec3(0.0);
+    const bool isNight = worldTime >= 13000 && worldTime < 232500;
+    const float sun_a = acos(dot(sunPos, dir));
+    vec3 sun_col = 1.3 * (sunColor * vec3(0.1333, 0.1176, 0.1098) * SUN_SIZE) / sun_a;
+    if (worldTime >= 0 && worldTime < 1000)
+    {
+        sun_col = .12 * (sunColor * vec3(0.6941, 0.3922, 0.1725) * SUN_SIZE) / sun_a;
+    }
+    if(isNight)
+    {
+        sun_col = .052 * ( vec3(0.2039, 0.4471, 0.6863) * SUN_SIZE) / sun_a;
+    }
+    col = max(col + .04 * sun_col, sun_col);
+    return col;
+}
+
 
 #endif //UTIL_GLSL

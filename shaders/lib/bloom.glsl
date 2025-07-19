@@ -3,7 +3,7 @@
 
 #include "/lib/util.glsl"
 #include "/lib/water/waterFog.glsl"
-
+#include "/lib/common.glsl"
 //Adapted from https://learnopengl.com/Guest-Articles/2022/Phys.-Based-Bloom and Glimmer Shaders https://github.com/jbritain/glimmer-shaders
 vec3 powVec3(vec3 v, float p)
 {
@@ -24,7 +24,8 @@ float karisAverage(vec3 col)
     return 1.0f / (1.0f + luma);
 }
 
-vec3 downsampleScreen(sampler2D srcTexture, vec2 texCoord)
+
+vec3 downsampleScreen(sampler2D srcTexture, vec2 texCoord, bool doKaris)
 {
 
      float x = 1.0 / float(viewWidth * BLOOM_QUALITY);
@@ -69,18 +70,29 @@ vec3 downsampleScreen(sampler2D srcTexture, vec2 texCoord)
     // 0.125*5 + 0.03125*4 + 0.0625*4 = 1
     vec3 dsample;
     
-    vec3 group0 = (a+b+d+e) * (0.124/4.0);
-    vec3 group1 = (b+c+e+f) * (0.124/4.0);
-    vec3 group2 = (d+e+g+h) * (0.125/4.0);
-    vec3 group3 = (e+f+h+i) * (0.125/4.0);
-    vec3 group4 = (j+k+l+m) * (0.5/4.0);
-
-    group0 *= karisAverage(group0);
-    group1 *= karisAverage(group1);
-    group2 *= karisAverage(group2);
-    group3 *= karisAverage(group3);
-    group4 *= karisAverage(group4);
-    dsample = group0 + group1 + group2 + group3 + group4;
+    
+    if(doKaris)
+    {
+        vec3 group0 = (a+b+d+e) * (0.124/4.0);
+        vec3 group1 = (b+c+e+f) * (0.124/4.0);
+        vec3 group2 = (d+e+g+h) * (0.125/4.0);
+        vec3 group3 = (e+f+h+i) * (0.125/4.0);
+        vec3 group4 = (j+k+l+m) * (0.5/4.0);
+        group0 *= karisAverage(group0);
+        group1 *= karisAverage(group1);
+        group2 *= karisAverage(group2);
+        group3 *= karisAverage(group3);
+        group4 *= karisAverage(group4);
+        dsample = group0 + group1 + group2 + group3 + group4;
+    }
+    else
+    {
+        dsample = e * 0.125;
+        dsample += (a + c + g + i) * 0.03125;
+        dsample += (b + d + f + h) * 0.0625;
+        dsample += (j + k + l + m) * 0.125;
+    }
+    
     dsample = max(dsample, 0.0001f);
     return dsample;
 }
@@ -116,27 +128,28 @@ vec3 upSample(sampler2D srcTexture,vec2 texCoord)
     upsample += (b+d+f+h)*2.0;
     upsample += (a+c+g+i);
     upsample *= 1.0 / 16.0;
+
+    upsample = max(upsample, 0.0001);
     return upsample;
 }
 
-vec3 computeBloomMix(vec2 texcoord, bool isMetal, float depth)
+vec3 computeBloomMix(vec2 texcoord, bool isMetal, float depth, bool isEmissive)
 {
     
-    float bloomStrength = 0.3;
+    float bloomStrength =2.0 * BLOOM_STRENGTH;
    if(inWater)
    {
-      bloomStrength = 0.53;
+      bloomStrength = 8.0 * BLOOM_STRENGTH;
    }
-    if(isMetal)
-    {
-        bloomStrength = 0.05;
-    }
+   
   
 	vec3 hdr = texture(colortex0, texcoord).rgb;
     vec3 blm = texture(colortex12, texcoord).rgb;
 	float rain = texture(colortex9, texcoord).r;
-    vec3 col = mix(hdr, blm, vec3(bloomStrength));
-    return col;
+    hdr = mix(hdr,blm,clamp( 0.025 * bloomStrength + rain * 0.1 + (wetness) * 0.1,0,1));
+    return hdr;
     
 }
+
+
 #endif
