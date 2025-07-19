@@ -25,8 +25,8 @@ vec3 dayZenith(vec3 color)
 vec3 dayHorizon(vec3 color)
 {
   color.r = DAY_HOR_R ;
-  color.g = DAY_HOR_G  ;
-  color.b = DAY_HOR_B ;
+  color.g = DAY_HOR_G  * 1.25;
+  color.b = DAY_HOR_B * 1.35 ;
   return color;
 }
 vec3 dawnZenith(vec3 color)
@@ -86,8 +86,8 @@ vec3 calcSkyColor(vec3 pos)
     float rayleigh = Rayleigh(VoL) * RAYLEIGH_COEFF;
     //color assignments
     //DAY
-    horizonColor = dayHorizon(horizonColor) * rayleigh * 6.64;
-    zenithColor= dayZenith(zenithColor) * rayleigh * 4.14;
+    horizonColor = dayHorizon(horizonColor) * rayleigh * 7.64;
+    zenithColor= dayZenith(zenithColor) * rayleigh * 7.14;
     //DAWN
     earlyHorizon = dawnHorizon(earlyHorizon) * rayleigh * 4.24;
     earlyZenith = dawnZenith(earlyZenith) * rayleigh * 5.84 ;

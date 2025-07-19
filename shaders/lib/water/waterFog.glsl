@@ -67,7 +67,7 @@ vec3 waterFog(vec3 color, vec2 texcoord, vec2 lightmap, float depth, float depth
     vec3 inscatteringAmount = vec3(0.0);
     inscatteringAmount = waterScatter(inscatteringAmount);
     inscatteringAmount *= SCATTER_COEFF;
-    vec3 absorptionFactor=exp(-absorption *WATER_FOG_DENSITY *(dist* ABSORPTION_COEFF));
+    vec3 absorptionFactor=exp(-absorption * UNDERWATER_FOG_DENSITY *(dist* ABSORPTION_COEFF));
     color.rgb*=absorptionFactor;
     color.rgb +=  inscatteringAmount /absorption * (1.0 -absorptionFactor);
 

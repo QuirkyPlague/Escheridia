@@ -23,9 +23,7 @@ void main() {
 float depth = texture(depthtex0, texcoord).r;
 	if(depth==1.0)
 	{
-	
-		color += texture(colortex8, texcoord) ;
-		
+		return;
 	}
 
 	//buffer assignments

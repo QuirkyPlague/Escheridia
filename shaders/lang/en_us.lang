@@ -166,3 +166,12 @@ option.BLOOM_GLSL = Bloom:
 option.WAVE_FREQUENCY  = Wave Frequency 
 option.WAVE_SPEED = Wave Speed
 option.WAVE_INTENSITY = Wave Intensity
+option.WAVE_SOFTNESS = Wave Softness
+option.WAVE_SOFTNESS.comment = How sharp each octave is
+option.WAVE_OCTAVES = Wave Octaves 
+option.WAVE_PULL = Wave Pull Factor
+option.WAVE_PULL.comment = Defines the general wave shape
+option.WAVE_RANDOMNESS = Wave Randomness
+option.WAVE_RANDOMNESS.comment = Higher values result in less random waves
+
+option.UNDERWATER_FOG_DENSITY = Underwater Fog Density

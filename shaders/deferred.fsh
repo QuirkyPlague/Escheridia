@@ -20,7 +20,7 @@ void main() {
 	float depth = texture(depthtex0, texcoord).r;
 	if (depth == 1.0) 
 	{
-  		return;
+		return;
 	}
 	
 	vec4 SpecMap = texture(colortex5, texcoord);

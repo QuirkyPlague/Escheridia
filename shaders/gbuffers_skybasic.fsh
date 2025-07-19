@@ -4,6 +4,8 @@
 #include "/lib/util.glsl"
 #include "/lib/lighting/lighting.glsl"
 #include "/lib/common.glsl"
+#include "/lib/atmosphere/clouds.glsl"
+
 uniform int renderStage;
 
 in vec3 normal;
@@ -191,7 +193,7 @@ vec3 calcSkyColor(vec3 pos)
       sun = mix(night_sun_col, morning_sun_col, time);
     }
     sky = max(sky + .3 * sun , sun - wetness);
-   
+  
    
     return sky;
 }
