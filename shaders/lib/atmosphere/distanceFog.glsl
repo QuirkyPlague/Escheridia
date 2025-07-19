@@ -7,10 +7,11 @@
 
 vec3 fogMie(vec3 color, vec3 lightPos, vec3 feetPlayerPos, vec3 viewPos)
 {
+  
   vec3 sunColor = vec3(0.0);
   sunColor = currentSunColor(sunColor);
   color = calcSkyColor(normalize(viewPos));
-  bool isNight = worldTime >= 13000 && worldTime < 23000;
+  
   vec3 mieScatterColor = vec3(0.00606, 0.00431, 0.00275) * MIE_SCALE;
   if(isNight)
   {

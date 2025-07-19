@@ -28,7 +28,7 @@ vec3 waterScatter(vec3 color)
 
 vec3 waterExtinction(vec3 color, vec2 texcoord, vec2 lightmap, float depth, float depth1)
 {
-    bool isNight = worldTime >= 13000 && worldTime < 24000;
+  
     float dist0=length(screenToView(texcoord,depth));
     float dist1=length(screenToView(texcoord,depth1));
     float dist=max(0,dist1-dist0);

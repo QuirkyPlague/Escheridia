@@ -55,6 +55,8 @@ uniform int worldTime;
 const float shadowDistance = SHADOW_DISTANCE;
 const float shadowFarPlane = 684.0;
 const float shadowDistanceRenderMul = 1.0;
+const float wetnessHalflife = 30.0;
+const float drynessHalflife = 68.0;
 uniform float rainStrength;
 uniform float wetness;
 uniform float frameTimeCounter;
@@ -63,4 +65,6 @@ uniform bool isHotBiome;
 uniform bool isHurt;
 uniform bool is_sneaking;
 uniform vec4 entityColor;
+bool isNight = worldTime >= 13000 && worldTime < 23000;
+bool isRaining = rainStrength <= 1.0 && rainStrength > 0.0;
 #endif //UNIFORMS_GLSL

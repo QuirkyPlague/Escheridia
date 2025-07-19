@@ -21,7 +21,7 @@ vec3 sampleGodrays(vec3 godraySample, vec2 texcoord, vec3 feetPlayerPos, float d
 {
 	vec4 waterMask=texture(colortex4,texcoord);
   int blockID=int(waterMask)+100;
-  bool isNight = worldTime >= 13000 && worldTime < 23000;
+ 
   bool isWater=blockID==WATER_ID;
 	//godray parameters
     const float exposure = 0.8;
@@ -57,9 +57,9 @@ vec3 sampleGodrays(vec3 godraySample, vec2 texcoord, vec3 feetPlayerPos, float d
 	vec3 inscatteringAmount = sunColor;
 	
 	
-		float rain = texture(colortex9, texcoord).r;
+		
 		inscatteringAmount = mix(sunColor, sunColor * 1.3, GODRAY_DENSITY + wetness);
-		absorption = mix(absorption, vec3(0.051, 0.051, 0.051), wetness + rain * 1.5);
+		absorption = mix(absorption, vec3(0.051, 0.051, 0.051), wetness  * 1.5);
 	
 
 

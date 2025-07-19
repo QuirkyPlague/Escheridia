@@ -205,8 +205,4 @@ vec3 FXAA(vec3 color, sampler2D cTex, vec2 texcoord)
 			}
 			return color;
 		}
-	
-	
-
-
 #endif// FXAA_GLSL

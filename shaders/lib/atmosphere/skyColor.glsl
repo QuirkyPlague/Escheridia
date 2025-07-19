@@ -12,8 +12,8 @@ vec3 lateHorizon = vec3(0.0);
 vec3 lateZenith = vec3(0.0);
 vec3 nightHorizon = vec3(0.0);
 vec3 nightZenith = vec3(0.0);
-vec3 rainHorizon = vec3(0.298, 0.298, 0.298) * 8;
-vec3 rainZenith = vec3(0.0745, 0.0745, 0.0745) * 8; 
+vec3 rainHorizon = vec3(0.298, 0.298, 0.298);
+vec3 rainZenith = vec3(0.0745, 0.0745, 0.0745); 
 
 vec3 dayZenith(vec3 color)
 {
@@ -223,7 +223,6 @@ vec3 calcMieSky(vec3 pos, vec3 lightPos, vec3 sunColor, vec3 viewPos, vec2 texco
     
     }
 
-      bool isNight = worldTime >= 13000 && worldTime < 23000;
 	    float upDot = dot(pos, gbufferModelView[1].xyz); //not much, what's up with you?
 	    vec3 skyColor = mix(zenith, horizon, fogify(max(upDot, 0.0), 0.028));
 

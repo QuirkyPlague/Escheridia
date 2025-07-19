@@ -17,7 +17,9 @@
 #include "/lib/atmosphere/distanceFog.glsl"
 #include "/lib/blur.glsl"
 in vec2 texcoord;
-const bool colortex0MipmapEnabled = true;
+
+
+
 /* RENDERTARGETS: 0 */
 layout(location = 0) out vec4 color;
 
@@ -54,24 +56,24 @@ void main()
 	vec3 NDCPos = vec3(texcoord.xy, depth) * 2.0 - 1.0;
 	vec3 viewPos = projectAndDivide(gbufferProjectionInverse, NDCPos);
 	vec3 feetPlayerPos = (gbufferModelViewInverse * vec4(viewPos, 1.0)).xyz;
-
+#if PIXELATED_LIGHTING ==1
+	feetPlayerPos =floor((feetPlayerPos + cameraPosition) * 16) / 16 - cameraPosition;
+    viewPos = (gbufferModelView * vec4(feetPlayerPos, 1.0)).xyz;
+    
+	#endif
 	//normal assignments
 	vec3 normal = normalize((encodedNormal - 0.5) * 2.0); // we normalize to make sure it is of unit length
 	normal=mat3(gbufferModelView)*normal;
-	float waveIntensity = 0.15 * WAVE_INTENSITY;
+	float waveIntensity = 0.1 * WAVE_INTENSITY;
 	if(isWater)
 	{
-		normal= waveNormal(feetPlayerPos.xz + cameraPosition.xz, 0.714, waveIntensity);
+		normal= waveNormal(feetPlayerPos.xz + cameraPosition.xz, 0.6, waveIntensity);
 		normal = mat3(gbufferModelView) * normal;
 		
 	}
 	
 
-	#if PIXELATED_LIGHTING ==1
-	feetPlayerPos =floor((feetPlayerPos + cameraPosition) * 16) / 16 - cameraPosition;
-    viewPos = (gbufferModelView * vec4(feetPlayerPos, 1.0)).xyz;
-    
-	#endif
+	
 	vec3 viewDir = normalize(viewPos);
 	
 	const vec3 lightVector = normalize(shadowLightPosition);
@@ -106,8 +108,8 @@ void main()
 	
 	//SSR Calculations
 	bool reflectionHit = false;
-	const float jitter = IGN(gl_FragCoord.xy, frameCounter * SSR_STEPS);
-	const bool canReflect = roughness < 0.3;
+	 float jitter = IGN(gl_FragCoord.xy, frameCounter * SSR_STEPS);
+	 bool canReflect = roughness < 0.3;
 	#ifdef DO_SSR
 	reflectionHit = true;
 	reflectionHit && raytrace(viewPos, reflectedDir,SSR_STEPS, jitter,  reflectedPos);
@@ -116,7 +118,7 @@ void main()
 	{
 		float currentRoughness = roughness;
 		float wetRoughness = 0.0;
-		roughness = mix(currentRoughness, wetRoughness,  clamp( wetness * 3, 0,1));
+		roughness = mix(currentRoughness, wetRoughness,  clamp( wetness, 0,1));
 		
 	}
 	vec3 normalReflectedPos = reflectedPos;
@@ -156,7 +158,7 @@ void main()
 			}
 			else
 			{
-					vec3 skyMieReflection = calcMieSky(reflect(normalize(viewPos), normal), worldLightVector, sunColor, viewPos, texcoord) * 4;
+					vec3 skyMieReflection = calcMieSky(reflect(normalize(viewPos), normal), worldLightVector, sunColor, viewPos, texcoord) ;
 					vec3 skyReflection = calcSkyColor(reflect(normalize(viewPos), normal)) * 2;
 					vec3 sunReflection = skyboxSun(lightVector,reflect(normalize(viewPos), normal), sunColor) * 17;
 					skyReflection = mix(sunReflection, skyReflection, 0.5);
@@ -167,7 +169,7 @@ void main()
 			}
 				if(clamp(reflectedPos.xy, 0, 1) != reflectedPos.xy && !inWater)
 				{
-					vec3 skyMieReflection = calcMieSky(reflect(normalize(viewPos), normal), worldLightVector, sunColor, viewPos, texcoord)*4;
+					vec3 skyMieReflection = calcMieSky(reflect(normalize(viewPos), normal), worldLightVector, sunColor, viewPos, texcoord);
 					vec3 skyReflection = calcSkyColor(reflect(normalize(viewPos), normal)) *2;
 					vec3 sunReflection = skyboxSun(lightVector,reflect(normalize(viewPos), normal), sunColor) * 17;
 					skyReflection = mix(sunReflection, skyReflection, 0.5);

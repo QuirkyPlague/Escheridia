@@ -148,5 +148,21 @@ option.DUSK_HOR_R = Horizon Red
 option.DUSK_HOR_G = Horizon Green
 option.DUSK_HOR_B = Horizon Blue
 
+option.NIGHT_ZEN_R = Zenith Red
+option.NIGHT_ZEN_G = Zenith Green
+option.NIGHT_ZEN_B = Zenith Blue
+
+option.NIGHT_HOR_R = Horizon Red
+option.NIGHT_HOR_G = Horizon Green
+option.NIGHT_HOR_B = Horizon Blue
+
+
 option.BLOOM_RADIUS = Bloom Radius 
 option.BLOOM_QUALITY = Bloom Quality
+option.BLOOM_GLSL = Bloom:
+    value.BLOOM_GLSL.0 = Off 
+    value.BLOOM_GLSL.1 = On 
+
+option.WAVE_FREQUENCY  = Wave Frequency 
+option.WAVE_SPEED = Wave Speed
+option.WAVE_INTENSITY = Wave Intensity

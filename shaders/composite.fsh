@@ -74,8 +74,8 @@ float depth = texture(depthtex0, texcoord).r;
 		sss = 0.0;
 		if(!isWater)
 		{
-		roughness = 185.0/255.0;
-		f0 = vec3(0.07);
+		roughness = 255.0/255.0;
+		f0 = vec3(0.02);
 		}
 	if(isMetal)
   	{f0 = albedo;}
