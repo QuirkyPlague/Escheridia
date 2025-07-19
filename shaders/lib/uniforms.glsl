@@ -3,9 +3,6 @@
 
 #include "/lib/common.glsl"
 
-
-
-
 uniform mat4 gbufferProjection;
 uniform mat4 gbufferProjectionInverse;
 uniform mat4 gbufferModelViewInverse;
@@ -28,6 +25,7 @@ uniform sampler2D colortex9;
 uniform sampler2D colortex10;
 uniform sampler2D colortex11;
 uniform sampler2D colortex12;
+uniform sampler2D colortex13;
 //depth buffer
 uniform sampler2D depthtex0;
 uniform sampler2D depthtex1;
@@ -43,9 +41,14 @@ uniform sampler2D specular;
 const float PI = float(3.14159);
 uniform int frameCounter;
 const float sunPathRotation=SUN_ROTATION;
+uniform mat4 gbufferPreviousProjection;
+uniform mat4 gbufferPreviousModelView;
+uniform vec3 previousCameraPosition;
 uniform float viewWidth;
 uniform float viewHeight;
+uniform float frameTime;
 uniform float far;
+uniform float near;
 uniform int isEyeInWater;
 uniform vec3 cameraPosition;
 uniform int worldTime;
@@ -54,9 +57,10 @@ const float shadowFarPlane = 684.0;
 const float shadowDistanceRenderMul = 1.0;
 uniform float rainStrength;
 uniform float wetness;
-const float drynessHalfLife = 256.0;
-const float wetnessHalflife = 256.0;
+uniform float frameTimeCounter;
 uniform float cloudHeight;
 uniform bool isHotBiome;
-
+uniform bool isHurt;
+uniform bool is_sneaking;
+uniform vec4 entityColor;
 #endif //UNIFORMS_GLSL

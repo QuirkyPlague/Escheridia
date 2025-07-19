@@ -29,10 +29,10 @@ option.SHADOW_DISTANCE.comment = Increase the range of the shadows §cHigh perfo
     value.SHADOW_DISTANCE.384.0 = 24 chunks
     value.SHADOW_DISTANCE.512.0 = 32 chunks
     
-option.GODRAYS_GLSL = Enable Godrays
-option.GODRAYS_GLSL.comment = Enables screenspace godrays effect §cThis is not volumetric and will have errors when the sun is not on screen§r
-value.GODRAYS_GLSL.0  = off
-value.GODRAYS_GLSL.1  = on
+option.VOLUMETRIC_LIGHTING = Volumetric Lighting
+option.VOLUMETRIC_LIGHTING.comment = Enables either screenspace godrays effect or Volumetric Fog §chigh performance impact§r
+value.VOLUMETRIC_LIGHTING.0  = off
+value.VOLUMETRIC_LIGHTING.1  = Screenspace
 option.GODRAYS_SAMPLES = Godray sample count
 option.GODRAYS_SAMPLES.comment = Increase the quality of godrays. §cPotentially major performance impact§r
 option.GODRAY_DENSITY = Godrays Density
@@ -65,10 +65,10 @@ option.DO_SSR.comment = Enables the use of screenspace reflections (SSR)
     value.DO_SSR.0 = off
     value.DO_SSR.1 = on
 
-option.HARDCODED_SSS = Use Resourcepack SSS
-option.HARDCODED_SSS.comment = choose whether to use resourcepack subsurface scattering or let the shader handle it
-    value.HARDCODED_SSS.0 = Lab SSS
-    value.HARDCODED_SSS.1 = Hardcoded
+option.RESOURCE_PACK_SUPPORT = PBR Resource Pack Support
+option.RESOURCE_PACK_SUPPORT.comment = choose whether to use a labPBR Resource Pack or let the shader handle it
+    value.RESOURCE_PACK_SUPPORT.0 = §2LabPBR
+    value.RESOURCE_PACK_SUPPORT.1 = §6Hardcoded
 
 option.BINARY_REFINEMENT = SSR Mode
 option.BINARY_REFINEMENT.comment = choose quality or performance SSR 
@@ -76,3 +76,77 @@ option.BINARY_REFINEMENT.comment = choose quality or performance SSR
     value.BINARY_REFINEMENT.1 = Quality
 
 option.SSS_INTENSITY = SSS Intensity
+
+option.HARDCODED_METAL = Hardcoded Metals
+option.HARDCODED_METAL.comment = NOT FUNCTIONAL
+    value.HARDCODED_METAL.0 = §gLabPBR§g
+    value.HARDCODED_METAL.1 = Hardcoded
+option.NAME = Escheridia
+    value.NAME.0 =§cBy QuirkyPlague§r
+    value.NAME.1 =§bBy QuirkyPlague§g
+
+option.ROUGH_REFLECTION = Rough Reflections 
+option.ROUGH_REFLECTION.comment = Enables the use of roughness varied rough reflections §3Will introduce noise
+
+option.PIXELATED_LIGHTING = Pixel Locked Lighting
+
+option.ABSORPTION_R = Red Absorption
+option.ABSORPTION_G = Green Absorption
+option.ABSORPTION_B = Blue Absorption
+    suffix.ABSORPTION_R = %
+    suffix.ABSORPTION_G = %
+    suffix.ABSORPTION_B = %
+
+option.SCATTER_R = Red Scattering
+option.SCATTER_G = Green Scattering
+option.SCATTER_B = Blue Scattering
+    suffix.SCATTER_R = %
+    suffix.SCATTER_G = %
+    suffix.SCATTER_B = %
+    
+option.SCATTER_COEFF = Scattering Amount
+option.ABSORPTION_COEFF = Absorption Amount
+
+option.RAYLEIGH_COEFF = Rayleigh Coefficient
+option.SUN_SIZE = Sun Size
+
+option.DO_CLOUDS = Clouds
+    value.DO_CLOUDS.0 = Off
+    value.DO_CLOUDS.1 = Vanilla
+
+option.AIR_FOG_DENSITY = Fog Density
+option.SUN_FOG_DENSITY = Sun Fog Density
+
+option.GABSORB_R = Red Absorption
+option.GABSORB_G = Green Absorption
+option.GABSORB_B = Blue Absoprtion
+    suffix.GABSORB_R = %
+    suffix.GABSORB_G = %
+    suffix.GABSORB_B = %
+
+option.DAY_ZEN_R = Zenith Red
+option.DAY_ZEN_G = Zenith Green
+option.DAY_ZEN_B = Zenith Blue
+
+option.DAY_HOR_R = Horizon Red
+option.DAY_HOR_G = Horizon Green
+option.DAY_HOR_B = Horizon Blue
+
+option.DAWN_ZEN_R = Zenith Red
+option.DAWN_ZEN_G = Zenith Green
+option.DAWN_ZEN_B = Zenith Blue
+
+option.DAWN_HOR_R = Horizon Red
+option.DAWN_HOR_G = Horizon Green
+option.DAWN_HOR_B = Horizon Blue
+
+option.DUSK_ZEN_R = Zenith Red
+option.DUSK_ZEN_G = Zenith Green
+option.DUSK_ZEN_B = Zenith Blue
+
+option.DUSK_HOR_R = Horizon Red
+option.DUSK_HOR_G = Horizon Green
+option.DUSK_HOR_B = Horizon Blue
+
+option.BLOOM_RADIUS = Bloom Radius 
+option.BLOOM_QUALITY = Bloom Quality

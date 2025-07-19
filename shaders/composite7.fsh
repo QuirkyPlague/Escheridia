@@ -10,7 +10,8 @@ layout(location = 0) out vec4 color;
 
 void main() {
 	color = texture(colortex0, texcoord);
-	 #if GODRAYS_GLSL == 1
+	 #if VOLUMETRIC_LIGHTING == 1 || VOLUMETRIC_LIGHTING == 2
 	color.rgb += texture(colortex3, texcoord).rgb;
 	#endif
+
 }

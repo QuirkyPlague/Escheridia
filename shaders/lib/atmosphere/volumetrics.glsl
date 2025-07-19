@@ -1,45 +1,47 @@
 #ifndef VOLUMETRICS_GLSL
 #define VOLUMETRICS_GLSL
 
+#include "/lib/uniforms.glsl"
+#include "/lib/common.glsl"
+#include "/lib/util.glsl"
+#include "/lib/atmosphere/skyColor.glsl"
+#include "/lib/water/waterFog.glsl"
+#include "/lib/blockID.glsl" 
+#include "/lib/lighting/lighting.glsl"
+#include "/lib/SSR.glsl"
+#include "/lib/shadows/drawShadows.glsl"
 
-
-
-
-
-bool VolumetricLighting(vec3 viewPosition, vec3 rayDirection, int stepCount, float jitter, out vec3 rayPosition) {
-    // "out vec3 rayPosition" is our ray's position, we use it as an "out" parameter to be able to output both the intersection check and the hit position
-
-    // Calculating the ray's direction in screen space, we multiply it by a "step size" that depends on a few factors from the DDA algorithm
-
-    bool intersect = false;
-    // Our intersection isn't found by default
-
-    rayPosition += rayDirection * jitter;
-    // We settle the ray's starting point and jitter it
-    // Jittering reduces the banding caused by a low amount of steps, it's basically multiplying the direction by a random value (like noise)
-    for(int i = 0; i <= stepCount && !intersect; i++, rayPosition += rayDirection) {
-        // Loop until we reach the max amount of steps OR if an intersection is found, add 1 at each iteration AND march the ray (position += direction)
-
-        if(clamp(rayPosition.xy, 0, 1) != rayPosition.xy) false;
-        // Checking if the ray goes outside of the screen (if clamping the coordinates to [0;1] returns a different value, then we're outside)
-        // There's no need to continue ray marching if the ray goes outside of the screen
-
-        float depth = texture(depthtex0, rayPosition.xy).r;
-        // Sampling the depth at the ray's screen space position
-      
-        intersect = rayPosition.z > depth;
-       
-        
-        // If the ray's depth is bigger than the geometry depth, then our ray has hit the geometry 
-    }
-
-    #if BINARY_REFINEMENT == 1
-        binarySearch(rayPosition, rayDirection);
-        // Binary search for some extra accuracy
-    #endif
-
-    return intersect;
-    // Outputting the boolean
+vec3 volumetricFog(vec3 feetPlayerPos, vec3 shadowScreenPos, float jitter, vec2 texcoord, float depth, vec3 lightPos)
+{
+    vec3 startPos = vec3(0.0, 0.0, 0.0);
+    vec3 endPos = feetPlayerPos;
+    int stepCount = GODRAYS_SAMPLES;
+    bool intersected = false;
+    float dist = length(screenToView(texcoord, depth));
+    vec3 stepSize = (endPos - startPos) / stepCount;
+    vec3 loopPos =  startPos + jitter * stepSize;
+    vec3 shadowSum = vec3(0.0);
+    
+ 
+    for(int i = 0; i < GODRAYS_SAMPLES; i++) 
+    {
+   
+  
+   loopPos += stepSize;
+   if (length(loopPos - startPos) < dist)
+     break;
+}
+    shadowSum /= stepCount;
+    vec3 absorption = vec3(5.0);
+	vec3 vLColor;
+    vec3 sunColor = currentSunColor(vLColor);
+    float VoL = dot(normalize(feetPlayerPos), lightPos);
+	vec3 inscatteringAmount = sunColor;
+   vec3 absorptionFactor = exp(-absorption  * (dist * 0.8) * shadowSum);
+    vLColor *= absorptionFactor;
+    vLColor +=  inscatteringAmount / absorption * (1.0 - clamp(absorptionFactor, 0, 1));
+    vLColor *= HG(0.56, VoL);
+    return vLColor;
 }
 
 #endif

@@ -12,17 +12,16 @@ layout(location = 0) out vec4 bloomColor;
 
 void main() {
 		#if BLOOM_GLSL ==1
-		bloomColor = texture(colortex0, texcoord);
 		
-		bloomColor.rgb = vec3(0.0, 0.0, 0.0);
 		vec2 OriginCoord = vec2(0.0);
 		float coordScalar = 0.5;
 		vec2 screenCoord = (texcoord - OriginCoord) / coordScalar;
-		if(clamp(screenCoord, 0 ,1) != screenCoord)
+		if(clamp(screenCoord, 0,1)!= screenCoord)
 		{
-			bloomColor.rgb = vec3(0.0, 0.0, 0.0);
+			 bloomColor = vec4(0.0); // write black to remove whatever from the buffer
+    		return;
 		}
-		bloomColor.rgb = downsampleScreen(colortex0, screenCoord);
+		bloomColor.rgb = downsampleScreen(colortex0, screenCoord, true);
 
 		#endif	
 }
