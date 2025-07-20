@@ -68,7 +68,7 @@ vec3 sampleGodrays(vec3 godraySample, vec2 texcoord, vec3 feetPlayerPos, float d
     godrayColor +=  inscatteringAmount / absorption * (1.0 - clamp(absorptionFactor, 0, 1));
 	if(inWater)
 	{
-		weight += 0.23;
+		weight += 0.33;
 	absorption = waterColor(godrayColor);
 	inscatteringAmount = waterScatter(inscatteringAmount);
 	absorptionFactor = exp(-absorption  * (dist * UNDERWATER_FOG_DENSITY + GODRAY_DENSITY));

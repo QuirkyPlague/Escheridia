@@ -104,14 +104,15 @@ void main() {
 	
 	vec3 diffuse = doDiffuse(texcoord, lightmap, normal, worldLightVector, shadow, viewPos, sss, feetPlayerPos, isMetal);
 	vec3 sunlight;
-	//vec3 currentSunlight = getCurrentSunlight(sunlight, normal, shadow, worldLightVector, sss, feetPlayerPos);
-	//vec3 specular = brdf(albedo, f0, L, currentSunlight, normal, H, V, roughness, SpecMap);
+	vec3 currentSunlight = getCurrentSunlight(sunlight, normal, shadow, worldLightVector, sss, feetPlayerPos, isWater);
+	vec3 specular = brdf(albedo, f0, L, currentSunlight, normal, H, V, roughness, SpecMap);
 	vec3 F  = fresnelSchlick(max(dot(H, V),0.0), F0);
 	vec3 lighting;
+	
 	#if RESOURCE_PACK_SUPPORT == 0
 	if(!isMetal)
 	{
-		lighting = (diffuse) + emissive ;
+		lighting = diffuse + emissive ;
 	}
 	else
 	{

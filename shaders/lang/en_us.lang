@@ -175,3 +175,7 @@ option.WAVE_RANDOMNESS = Wave Randomness
 option.WAVE_RANDOMNESS.comment = Higher values result in less random waves
 
 option.UNDERWATER_FOG_DENSITY = Underwater Fog Density
+
+option.DH_SUPPORT = Distant Horizons Support
+    value.DH_SUPPORT.0 = Off
+    value.DH_SUPPORT.1 = On

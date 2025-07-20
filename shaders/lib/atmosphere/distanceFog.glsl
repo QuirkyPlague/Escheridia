@@ -41,6 +41,9 @@ vec3 distanceFog(vec3 color, vec3 viewPos,vec2 texcoord, float depth)
     vec3 distFog = vec3(0.0);
     distFog = calcSkyColor(normalize(viewPos)) + wetness;
     float dist = length(viewPos) / far;
+    #if DH_SUPPORT == 1
+    dist = length(viewPos) / dhRenderDistance;
+    #endif
     float fogFactor = exp(-23.0 * (1.0 - dist));
     float rainFogFactor = exp(-5.5 * (1.0 - dist));
     bool isRaining = rainStrength <= 1.0 && rainStrength > 0.0;
@@ -69,7 +72,11 @@ vec3 distanceMieFog(vec3 color, vec3 viewPos,vec2 texcoord, float depth, vec3 li
   
     vec3 distFog;
     distFog = calcMieSky(normalize(viewPos), lightPos, sunColor, viewPos, texcoord);
+   
     float dist = length(viewPos) / far;
+      #if DH_SUPPORT == 1
+      dist = length(viewPos) / dhRenderDistance;
+      #endif
    vec3 inscatteringAmount= calcMieSky(normalize(viewPos), lightPos, sunColor, viewPos, texcoord);
    vec3 absorption= vec3(1.0, 1.0, 1.0);
       bool isRaining = rainStrength <= 1.0 && rainStrength > 0.0;
@@ -101,7 +108,9 @@ vec3 atmosphericFog(vec3 color, vec3 viewPos,vec2 texcoord, float depth, vec2 li
     }
     float farPlane = far/ 4;
     float dist1= length(viewPos) / farPlane;
-   
+    #ifdef DISTANT_HORIZONS
+      dist1 = length(viewPos) / dhRenderDistance;
+      #endif
     
     vec3 feetPlayerPos = (gbufferModelViewInverse * vec4(viewPos, 1.0)).xyz;
    
@@ -135,6 +144,9 @@ vec3 atmosphericMieFog(vec3 color, vec3 viewPos,vec2 texcoord, float depth, vec2
    
     float farPlane = far / 14;
     float dist1= length(viewPos) / farPlane;
+     #ifdef DISTANT_HORIZONS
+     dist1= length(viewPos) / dhFarPlane;
+     #endif
     float dist=max(0,dist0-dist1);
     
     vec3 feetPlayerPos = (gbufferModelViewInverse * vec4(viewPos, 1.0)).xyz;
