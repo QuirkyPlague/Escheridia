@@ -76,7 +76,7 @@ void main() {
 	vec3 albedo = texture(colortex0,texcoord).rgb;
 	if (emission >= 0.0/255.0 && emission < 255.0/255.0)
 	{
-		emissive += emission * 1.5  * EMISSIVE_MULTIPLIER;
+		emissive += albedo * (emission * 3.6)  * EMISSIVE_MULTIPLIER;
   
 	}
 
@@ -105,18 +105,18 @@ void main() {
 	vec3 diffuse = doDiffuse(texcoord, lightmap, normal, worldLightVector, shadow, viewPos, sss, feetPlayerPos, isMetal);
 	vec3 sunlight;
 	vec3 currentSunlight = getCurrentSunlight(sunlight, normal, shadow, worldLightVector, sss, feetPlayerPos, isWater);
-	vec3 specular = brdf(albedo, f0, L, currentSunlight, normal, H, V, roughness, SpecMap);
+	vec3 specular = brdf(albedo, f0, L, currentSunlight, normal, H, V, roughness, SpecMap, diffuse);
 	vec3 F  = fresnelSchlick(max(dot(H, V),0.0), F0);
 	vec3 lighting;
 	
 	#if RESOURCE_PACK_SUPPORT == 0
 	if(!isMetal)
 	{
-		lighting = diffuse + emissive ;
+		lighting = specular + emissive ;
 	}
 	else
 	{
-		lighting =  diffuse + emissive;
+		lighting =  specular + emissive;
 	}
 	#else
 	
@@ -124,7 +124,7 @@ void main() {
 	#endif
 	
 	#if LIGHTING_GLSL == 1
-	color.rgb *= lighting;
+	color.rgb = lighting;
 	#endif
 	
 }

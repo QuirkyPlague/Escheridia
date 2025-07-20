@@ -30,9 +30,11 @@ void main() {
 	
 	//normal assignments
 	vec3 normal = normalize((encodedNormal - 0.5) * 2.0); // we normalize to make sure it is of unit length
+	normal=mat3(gbufferModelView)*normal;
+
 	vec3 baseNormal = texture(colortex6, texcoord).rgb;
 	vec3 geoNormal = normalize((baseNormal - 0.5) * 2.0); 
-	
+	geoNormal=mat3(gbufferModelView)*geoNormal;
 	//space conversions
 	vec3 NDCPos = vec3(texcoord.xy, depth) * 2.0 - 1.0;
 	vec3 viewPos = projectAndDivide(gbufferProjectionInverse, NDCPos);
@@ -90,7 +92,7 @@ void main() {
 	vec3 sunlight;
 	const vec3 currentSunlight = getCurrentSunlight(sunlight, normal, shadow, worldLightVector, sss, feetPlayerPos, isWater);
 	
-	vec3 specular = brdf(albedo, f0, L, currentSunlight, normal, H, V, roughness, SpecMap);
+	
 	
 	if(isWater && !inWater && !isTranslucent)
 	{
