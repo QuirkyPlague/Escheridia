@@ -30,9 +30,11 @@ void main() {
 	
 	//normal assignments
 	vec3 normal = normalize((encodedNormal - 0.5) * 2.0); // we normalize to make sure it is of unit length
+	normal=mat3(gbufferModelView)*normal;
+
 	vec3 baseNormal = texture(colortex6, texcoord).rgb;
 	vec3 geoNormal = normalize((baseNormal - 0.5) * 2.0); 
-	
+	geoNormal=mat3(gbufferModelView)*geoNormal;
 	//space conversions
 	vec3 NDCPos = vec3(texcoord.xy, depth) * 2.0 - 1.0;
 	vec3 viewPos = projectAndDivide(gbufferProjectionInverse, NDCPos);
@@ -48,14 +50,6 @@ void main() {
 	bool isWater=blockID==WATER_ID;
 	bool isMetal = SpecMap.g >= 230.0/255.0;
 	vec2 lightmap = texture(colortex1, texcoord).rg; // we only need the r and g components
-
-	float waveIntensity = 0.11 * WAVE_INTENSITY;
-	if(isWater)
-	{
-		normal= waveNormal(feetPlayerPos.xz + cameraPosition.xz, 0.714, waveIntensity);
-		normal = mat3(gbufferModelView) * normal;
-		
-	}
 
 	float sss;
 	float roughness;
@@ -83,8 +77,9 @@ void main() {
 	sss = SpecMap.b;
 	roughness = pow(1.0 - SpecMap.r, 2.0);
 	#endif
-if(isWater)
+	if(isWater)
 	{roughness = 0.15;}
+	
 	//sun and shadow
 	vec3 lightVector = normalize(shadowLightPosition);
 	vec3 worldLightVector = mat3(gbufferModelViewInverse) * lightVector;
@@ -97,7 +92,7 @@ if(isWater)
 	vec3 sunlight;
 	const vec3 currentSunlight = getCurrentSunlight(sunlight, normal, shadow, worldLightVector, sss, feetPlayerPos, isWater);
 	
-	const vec3 specular = brdf(albedo, f0, L, currentSunlight, normal, H, V, roughness, SpecMap);
+	
 	
 	if(isWater && !inWater && !isTranslucent)
 	{
@@ -108,10 +103,8 @@ if(isWater)
 		vec3 waterScatter = waterFog(color.rgb, texcoord, lightmap, depth, depth1);
 		color.rgb = waterScatter;
 	}  
-	if(isWater)
-	{
-		color.rgb += specular;
-	}
+	
+	
 	
 
 }

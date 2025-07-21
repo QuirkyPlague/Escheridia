@@ -133,9 +133,8 @@ float Rayleigh(float costh)
 vec3 skyboxSun(vec3 sunPos, vec3 dir,vec3 sunColor)
 {
     vec3 col = vec3(0.0);
-    const bool isNight = worldTime >= 13000 && worldTime < 232500;
-    const float sun_a = acos(dot(sunPos, dir));
-    vec3 sun_col = 1.3 * (sunColor * vec3(0.1333, 0.1176, 0.1098) * SUN_SIZE) / sun_a;
+    float sun_a = acos(dot(sunPos, dir));
+    vec3 sun_col = 1.3 * (sunColor * vec3(0.3412, 0.302, 0.2784) * SUN_SIZE) / sun_a;
     if (worldTime >= 0 && worldTime < 1000)
     {
         sun_col = .12 * (sunColor * vec3(0.6941, 0.3922, 0.1725) * SUN_SIZE) / sun_a;

@@ -23,9 +23,7 @@ void main() {
 float depth = texture(depthtex0, texcoord).r;
 	if(depth==1.0)
 	{
-	
-		color += texture(colortex8, texcoord) ;
-		
+		return;
 	}
 
 	//buffer assignments
@@ -35,6 +33,7 @@ float depth = texture(depthtex0, texcoord).r;
 	vec4 sssMask = texture(colortex11, texcoord);
 	vec4 waterMask=texture(colortex4,texcoord);
 	vec4 translucentMask=texture(colortex7,texcoord);
+	vec2 lightmap = texture(colortex1, texcoord).rg;
 	
 	//block IDs
 	int blockID=int(waterMask)+100;
@@ -49,7 +48,6 @@ float depth = texture(depthtex0, texcoord).r;
 
 	//normal assignments
 	vec3 normal = normalize((encodedNormal - 0.5) * 2.0); // we normalize to make sure it is of unit length
-	normal = mat3(gbufferModelView) * normal;
 	vec3 baseNormal = texture(colortex6, texcoord).rgb;
 	vec3 geoNormal = normalize((baseNormal - 0.5) * 2.0); 
 	
@@ -74,8 +72,8 @@ float depth = texture(depthtex0, texcoord).r;
 		sss = 0.0;
 		if(!isWater)
 		{
-		roughness = 185.0/255.0;
-		f0 = vec3(0.07);
+		roughness = 255.0/255.0;
+		f0 = vec3(0.02);
 		}
 	if(isMetal)
   	{f0 = albedo;}
@@ -96,16 +94,20 @@ if(isWater)
 	vec3 worldLightVector = mat3(gbufferModelViewInverse) * lightVector;
 	vec3 shadow = getSoftShadow(feetPlayerPos, geoNormal, sss);
 
-	const vec3 V = normalize(-viewPos);
-  	const vec3 L = normalize(lightVector);
+	const vec3 V = normalize(cameraPosition - worldPos);
+  	const vec3 L = normalize(worldLightVector);
   	const vec3 H = normalize(V + L);
 
 	vec3 sunlight;
 	const vec3 currentSunlight = getCurrentSunlight(sunlight, normal, shadow, worldLightVector, sss, feetPlayerPos, isWater);
+	float ao = encodedNormal.z;
+	vec3 diffuse = doDiffuse(texcoord, lightmap, normal, worldLightVector, shadow, viewPos, sss, feetPlayerPos, isMetal, ao);
+	vec3 specular = brdf(albedo, f0, L, currentSunlight, normal, H, V, roughness, SpecMap, diffuse );
 	
-	const vec3 specular = brdf(albedo, f0, L, currentSunlight, normal, H, V, roughness, SpecMap);
-	
-	if(!isWater) color.rgb += specular;
+	if(isTranslucent)
+	{
+		color.rgb += specular;
+	} 
 	
 
 }

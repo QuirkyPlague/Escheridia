@@ -47,7 +47,7 @@ float depth = texture(depthtex0, texcoord).r;
 	vec3 fullFog = mix(atmosphereFog, mieFog, 0.4);
 	if(!inWater)
 	{
-		color.rgb = mix(color.rgb, fullFog * 3, 0.5);
+		color.rgb = mix(color.rgb, fullFog, 0.5);
 
 	}
 	#endif
