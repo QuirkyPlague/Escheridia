@@ -24,7 +24,7 @@ vec3 sampleGodrays(vec3 godraySample, vec2 texcoord, vec3 feetPlayerPos, float d
  
   bool isWater=blockID==WATER_ID;
 	//godray parameters
-    const float exposure = 0.8;
+    const float exposure = 0.6;
     float decay = 1.0;
     const float density = 1.0;
      float weight =  0.12 * (GODRAY_DENSITY * AIR_FOG_DENSITY); 
@@ -35,14 +35,13 @@ vec3 sampleGodrays(vec3 godraySample, vec2 texcoord, vec3 feetPlayerPos, float d
     vec2 altCoord = texcoord;
     //calculation of the sun position
     vec3 sunScreenPos = viewSpaceToScreenSpace(shadowLightPosition);
-	
-    sunScreenPos.xy = clamp(sunScreenPos.xy, vec2(-1.5), vec2(1.5));
+   
 	vec3 lightVector = normalize(shadowLightPosition);
 	vec3 worldLightVector = mat3(gbufferModelViewInverse) * lightVector;
-	float VoL = dot(normalize(feetPlayerPos), worldLightVector);
+	float VoL = dot(normalize(screenPos), sunScreenPos);
 	vec2 deltaTexCoord = (texcoord - (sunScreenPos.xy)); 
 
-    deltaTexCoord *= 1.0/ GODRAYS_SAMPLES * density;
+    deltaTexCoord *= 0.75 / GODRAYS_SAMPLES * density;
 	float illuminationDecay = 1.0;
 	altCoord -= deltaTexCoord * IGN(gl_FragCoord.xy, frameCounter);
 
@@ -58,7 +57,7 @@ vec3 sampleGodrays(vec3 godraySample, vec2 texcoord, vec3 feetPlayerPos, float d
 	
 	
 		
-		inscatteringAmount = mix(sunColor, sunColor * 1.3, GODRAY_DENSITY + wetness);
+		inscatteringAmount = mix(sunColor, sunColor , GODRAY_DENSITY + wetness);
 		absorption = mix(absorption, vec3(0.051, 0.051, 0.051), wetness  * 1.5);
 	
 
@@ -103,7 +102,7 @@ vec3 sampleGodrays(vec3 godraySample, vec2 texcoord, vec3 feetPlayerPos, float d
 	}
 	else
 	{
-		godraySample *= HG(0.73, VoL);
+		godraySample *= HG(0.63, VoL);
 	}
 
 	godraySample *= exposure;

@@ -87,8 +87,10 @@ void main() {
 	vec3 shadow = getSoftShadow(feetPlayerPos,geoNormal.rgb, sss);
 	const bool isMetal = specMap.g >= 230.0/255.0;
 	float ao = texture(normals, texcoord).z;
-  	vec3 diffuse = doDiffuse(texcoord, lightmapData.rg, geoNormal.rgb, worldLightVector, shadow, viewPos, sss, feetPlayerPos, isMetal);
+  	vec3 diffuse = doDiffuse(texcoord, lightmapData.rg, geoNormal.rgb, worldLightVector, shadow, viewPos, sss, feetPlayerPos, isMetal, ao);
 	vec3 sunlight;
+	
+	bool isWater;
 	vec3 lighting = albedo * diffuse + emissive ;
 	
 	if(blockID == WATER_ID)
@@ -96,7 +98,7 @@ void main() {
     waterMask = vec4(1.0, 1.0, 1.0, 1.0);
 
     color.a *= 0.0;
-	
+	 isWater = true;
 	
 	}
 	else if(blockID == TRANSLUCENT_ID)
@@ -108,7 +110,7 @@ void main() {
 	{
 		waterMask = vec4(0.0, 0.0, 0.0, 1.0);
 		translucentMask = vec4(0.0, 0.0, 0.0, 1.0);
-		
+		isWater = false;
 	}
 
 	if(blockID == SSS_ID)
@@ -120,7 +122,9 @@ void main() {
 		sssMask =vec4(0.0, 0.0, 0.0, 1.0);
 	}
 
-	color = vec4(lighting, color.a);
+vec3 currentSunlight = getCurrentSunlight(sunlight, normal, shadow, worldLightVector, sss, feetPlayerPos, isWater);
+	vec3 specular = brdf(albedo, F0, L, currentSunlight, normal, H, V, roughness, specMap, diffuse);
+	color = vec4(specular, color.a);
 	 
 	
 	

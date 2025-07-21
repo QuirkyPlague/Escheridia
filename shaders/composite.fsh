@@ -33,6 +33,7 @@ float depth = texture(depthtex0, texcoord).r;
 	vec4 sssMask = texture(colortex11, texcoord);
 	vec4 waterMask=texture(colortex4,texcoord);
 	vec4 translucentMask=texture(colortex7,texcoord);
+	vec2 lightmap = texture(colortex1, texcoord).rg;
 	
 	//block IDs
 	int blockID=int(waterMask)+100;
@@ -99,10 +100,14 @@ if(isWater)
 
 	vec3 sunlight;
 	const vec3 currentSunlight = getCurrentSunlight(sunlight, normal, shadow, worldLightVector, sss, feetPlayerPos, isWater);
+	float ao = encodedNormal.z;
+	vec3 diffuse = doDiffuse(texcoord, lightmap, normal, worldLightVector, shadow, viewPos, sss, feetPlayerPos, isMetal, ao);
+	vec3 specular = brdf(albedo, f0, L, currentSunlight, normal, H, V, roughness, SpecMap, diffuse );
 	
-	//const vec3 specular = brdf(albedo, f0, L, currentSunlight, normal, H, V, roughness, SpecMap);
-	
-	//if(!isWater) color.rgb += specular;
+	if(isTranslucent)
+	{
+		color.rgb += specular;
+	} 
 	
 
 }

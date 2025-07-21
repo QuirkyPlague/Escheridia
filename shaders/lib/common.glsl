@@ -73,7 +73,7 @@ const bool colortex0MipmapEnabled = true;
 #define MIE_SCALE 1.0
 #define RESOURCE_PACK_SUPPORT 1 //[0 1]
 #define SSS_INTENSITY 0.6 //[0.1 0.25 0.5 0.75 1.0]
-#define SSS_HG 0.7
+#define SSS_HG 0.5
 #define ROUGH_SAMPLES 4
 #define HARDCODED_METAL 0 //[0 1]
 #define NAME 0 //[0 1] 

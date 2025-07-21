@@ -46,21 +46,34 @@ void main() {
 	vec4 shadowClipPos = shadowProjection * vec4(shadowViewPos, 1.0);
 	vec3 shadowNDCPos = shadowClipPos.xyz / shadowClipPos.w;
 	vec3 shadowScreenPos = shadowNDCPos * 0.5 + 0.5;
-	
+	vec3 albedo = texture(colortex0,texcoord).rgb;
+	bool isMetal = SpecMap.g >= 230.0/255.0;
+
 	float sss;
+	float roughness;
+ 	vec3  f0;
 	#if RESOURCE_PACK_SUPPORT == 1
-	normal = geoNormal;
 	if(canScatter)
-	{
-		sss = 1.0;
-	}
+	{sss = 1.0;}
 	else
 	{
 		sss = 0.0;
+		if(!isWater)
+		{
+		roughness = 185.0/255.0;
+		f0 = vec3(0.0);
+		}
+	if(isMetal)
+  	{f0 = albedo;}
+	else if(isWater)
+	{f0 = vec3(0.02);}
+	else
+	{f0 = vec3(SpecMap.g);}
+		
 	}
-	
 	#else
 	sss = SpecMap.b;
+	roughness = pow(1.0 - SpecMap.r, 2.0);
 	#endif
 
 	
@@ -68,12 +81,11 @@ void main() {
 	vec3 lightVector = normalize(shadowLightPosition);
 	vec3 worldLightVector = mat3(gbufferModelViewInverse) * lightVector;
 	
-	float roughness;
- 	roughness = pow(1.0 - SpecMap.r, 2.0);
+	
 	
 	float emission = SpecMap.a;
 	vec3 emissive;
-	vec3 albedo = texture(colortex0,texcoord).rgb;
+	
 	if (emission >= 0.0/255.0 && emission < 255.0/255.0)
 	{
 		emissive += albedo * (emission * 3.6)  * EMISSIVE_MULTIPLIER;
@@ -83,30 +95,16 @@ void main() {
 	vec3 V = normalize(cameraPosition - worldPos);
   	vec3 L = normalize(worldLightVector);
   	vec3 H = normalize(V + L);
-	vec3 F0;
-  	if(SpecMap.g <= 229.0/255.0)
-  	{
-    	F0 = vec3(SpecMap.g);
-  	}
-  		else
-  	{
-    	F0 = albedo;
-  	}
-	bool isMetal = SpecMap.g >= 230.0/255.0;
-	vec3  f0;
-	if(isMetal)
-  	{f0 = albedo;}
-	else if(isWater)
-	{f0 = vec3(0.02);}
-	else
-	{f0 = vec3(SpecMap.g);}
-
 	
-	vec3 diffuse = doDiffuse(texcoord, lightmap, normal, worldLightVector, shadow, viewPos, sss, feetPlayerPos, isMetal);
+	
+	
+
+	float ao = 1.0;
+	vec3 diffuse = doDiffuse(texcoord, lightmap, normal, worldLightVector, shadow, viewPos, sss, feetPlayerPos, isMetal, ao);
 	vec3 sunlight;
 	vec3 currentSunlight = getCurrentSunlight(sunlight, normal, shadow, worldLightVector, sss, feetPlayerPos, isWater);
 	vec3 specular = brdf(albedo, f0, L, currentSunlight, normal, H, V, roughness, SpecMap, diffuse);
-	vec3 F  = fresnelSchlick(max(dot(H, V),0.0), F0);
+	vec3 F  = fresnelSchlick(max(dot(H, V),0.0), f0);
 	vec3 lighting;
 	
 	#if RESOURCE_PACK_SUPPORT == 0
@@ -120,7 +118,7 @@ void main() {
 	}
 	#else
 	
-	 lighting =  diffuse ;
+	 lighting =  specular ;
 	#endif
 	
 	#if LIGHTING_GLSL == 1

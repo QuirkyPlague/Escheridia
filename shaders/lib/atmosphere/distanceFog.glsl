@@ -130,7 +130,10 @@ vec3 atmosphericFog(vec3 color, vec3 viewPos,vec2 texcoord, float depth, vec2 li
     {
       inscatteringAmount += wetness * 0.1;
     }
-      
+      if(lightmap.g < 0.45)
+    {
+      inscatteringAmount *= smoothstep(0.0, 0.8, lightmap.g);
+    }
     
     color*=absorptionFactor;
     return color += (inscatteringAmount) /absorption*(1.- absorptionFactor);
@@ -166,8 +169,11 @@ vec3 atmosphericMieFog(vec3 color, vec3 viewPos,vec2 texcoord, float depth, vec2
     }
       
       
-    
-    
+   if(lightmap.g < 0.45)
+    {
+      inscatteringAmount *= smoothstep(0.0, 0.8, lightmap.g);
+    }
+
       float depthSmooth = smoothstep(0.999, 1.0, depth);
       inscatteringAmount *= depthSmooth;
       color*=absorptionFactor;

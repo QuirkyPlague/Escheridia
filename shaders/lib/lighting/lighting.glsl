@@ -9,15 +9,15 @@
 const vec3 blocklightColor = vec3(1.0, 0.8941, 0.7255);
 const vec3 skylightColor = vec3(0.4706, 0.549, 0.8863) ;
 const vec3 nightSkylightColor = vec3(0.0588, 0.1686, 0.7255);
-const vec3 sunlightColor= vec3(0.9882, 0.7686, 0.5137) * 7.3;
-const vec3 morningSunlightColor = vec3(1.0, 0.6431, 0.4235)* 1.35;
+const vec3 sunlightColor= vec3(1.0, 0.7137, 0.3843) * 11.3;
+const vec3 morningSunlightColor = vec3(0.9882, 0.4902, 0.1804)* 6.3;
 const vec3 eveningSunlightColor = vec3(1.0, 0.4078, 0.3059) * 1.4;
-const vec3 moonlightColor = vec3(0.1176, 0.2941, 0.6235);
+const vec3 moonlightColor = vec3(0.1176, 0.2941, 0.6235) * 3;
 vec3 ambientColor = vec3(0.1804, 0.1804, 0.1804);
 
 
 
-vec3 doDiffuse(vec2 texcoord, vec2 lightmap, vec3 normal, vec3 sunPos, vec3 shadow, vec3 viewPos, float sss, vec3 feetPlayerPos, bool isMetal)
+vec3 doDiffuse(vec2 texcoord, vec2 lightmap, vec3 normal, vec3 sunPos, vec3 shadow, vec3 viewPos, float sss, vec3 feetPlayerPos, bool isMetal, float ao)
 {
     vec3 blocklight = lightmap.r * blocklightColor;
     vec3 skylight = lightmap.g * skylightColor;
@@ -37,11 +37,11 @@ vec3 doDiffuse(vec2 texcoord, vec2 lightmap, vec3 normal, vec3 sunPos, vec3 shad
       vec3 scatterSun = mix(morningSunlightColor, sunlightColor, time) *  (shadow );
       vec3 SSS = mix(morningSunlightColor, sunlightColor, time) *  (shadow);
       scatterSun*= HG(SSS_HG, VoL);
-      vec3 fullScatter = mix(SSS,scatterSun, 0.4);
-      sunlight = mix(sunlight * 0.3, fullScatter, SSS_INTENSITY);
+      vec3 fullScatter = mix(SSS,scatterSun, 0.4) * 0.3;
+      sunlight = mix(sunlight, fullScatter, SSS_INTENSITY);
     }
     
-    skylight *= mix(0.75, 1.0, time);
+    skylight *= mix(0.8, 1.0, time);
   }
    else if (worldTime >= 1000 && worldTime < 11500)
   {
@@ -54,10 +54,10 @@ vec3 doDiffuse(vec2 texcoord, vec2 lightmap, vec3 normal, vec3 sunPos, vec3 shad
       vec3 scatterSun = mix(sunlightColor, eveningSunlightColor, time) *  (shadow * sss );
       vec3 SSS = mix(sunlightColor, eveningSunlightColor, time) *  (shadow * sss);
       scatterSun*= HG(SSS_HG, VoL);
-      vec3 fullScatter = mix(SSS,scatterSun, 0.4) * 0.3;
+      vec3 fullScatter = mix(SSS,scatterSun, 0.4) * 0.2;
       sunlight = mix(sunlight, fullScatter, SSS_INTENSITY);
     }
-    skylight *= mix(1.0, 1.0, time); 
+    skylight *= mix(0.76, 1.0, time); 
     
   }
   else if (worldTime >= 11500 && worldTime < 13000)
@@ -119,10 +119,13 @@ vec3 doDiffuse(vec2 texcoord, vec2 lightmap, vec3 normal, vec3 sunPos, vec3 shad
    
     const vec3 ambient = ambientColor;
     float lightmapSmooth = smoothstep( 1.0,0.515, lightmap.g);
-    vec3 diffuse =  ambient+ blocklight+ skylight + sunlight;
+    vec3 indirect =  ambient+ blocklight+ skylight;
+    indirect *= ao;
+    vec3 diffuse = sunlight;
+    diffuse += indirect;
     if(isMetal && lightmap.g != lightmapSmooth)
   {
-    diffuse *= 0.5;
+    diffuse *= 0.3;
   }
     return diffuse;
 }
@@ -209,12 +212,12 @@ vec3 currentSunColor(vec3 color)
   {
     //smoothstep equation allows interpolation between times of day
     float time = smoothstep(0, 1000, float(worldTime));
-    color = mix(morningSunlightColor * 1.5, sunlightColor, time);
+    color = mix(morningSunlightColor * 0.3, sunlightColor * 0.23, time);
   }
    else if (worldTime >= 1000 && worldTime < 11500)
   {
      float time = smoothstep(10000, 11500, float(worldTime));
-    color = mix(sunlightColor * 0.1, eveningSunlightColor * 1.5, time);
+    color = mix(sunlightColor * 0.23, eveningSunlightColor * 1.5, time);
   }
   else if (worldTime >= 11500 && worldTime < 13000)
   {
@@ -224,7 +227,7 @@ vec3 currentSunColor(vec3 color)
    else if (worldTime >= 13000 && worldTime < 24000)
   {
     float time = smoothstep(21000, 24000, float(worldTime));
-    color = mix(moonlightColor * 0.3  , morningSunlightColor* 1.5, time);
+    color = mix(moonlightColor * 0.1  , morningSunlightColor* 1.5, time);
   }
   if(isRaining)
   {
