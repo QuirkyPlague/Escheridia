@@ -104,7 +104,7 @@ void main() {
 	else if(blockID == TRANSLUCENT_ID)
 	{
 		 translucentMask = vec4(1.0, 1.0, 1.0, 1.0);
-		lighting = emissive;
+		
 	}
 	else
 	{

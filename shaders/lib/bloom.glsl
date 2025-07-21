@@ -136,7 +136,7 @@ vec3 upSample(sampler2D srcTexture,vec2 texCoord)
 vec3 computeBloomMix(vec2 texcoord, bool isMetal, float depth, bool isEmissive)
 {
     
-    float bloomStrength =1.5 * BLOOM_STRENGTH;
+    float bloomStrength =2.35 * BLOOM_STRENGTH;
    if(inWater)
    {
       bloomStrength = 8.0 * BLOOM_STRENGTH;

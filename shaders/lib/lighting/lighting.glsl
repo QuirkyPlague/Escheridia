@@ -9,7 +9,7 @@
 const vec3 blocklightColor = vec3(1.0, 0.8941, 0.7255);
 const vec3 skylightColor = vec3(0.4706, 0.549, 0.8863) ;
 const vec3 nightSkylightColor = vec3(0.0588, 0.1686, 0.7255);
-const vec3 sunlightColor= vec3(1.0, 0.7137, 0.3843) * 11.3;
+const vec3 sunlightColor= vec3(1.0, 0.7137, 0.3843) * 9.3;
 const vec3 morningSunlightColor = vec3(0.9882, 0.4902, 0.1804)* 6.3;
 const vec3 eveningSunlightColor = vec3(1.0, 0.4078, 0.3059) * 1.4;
 const vec3 moonlightColor = vec3(0.1176, 0.2941, 0.6235) * 3;

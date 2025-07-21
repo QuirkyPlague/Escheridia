@@ -32,7 +32,7 @@ vec3 dayHorizon(vec3 color)
 vec3 dawnZenith(vec3 color)
 {
   color.r = DAWN_ZEN_R;
-  color.g = DAWN_ZEN_G *4.3;
+  color.g = DAWN_ZEN_G *2.3;
   color.b = DAWN_ZEN_B * 3.1;
   return color;
 }
