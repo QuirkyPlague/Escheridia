@@ -61,7 +61,8 @@ vec3 distanceFog(vec3 color, vec3 viewPos,vec2 texcoord, float depth)
 
        distFog = mix(distFog, distFog, dryToWet) * 0.7;
     }
-   
+     distFog *= 0.007;
+    distFog *= eyeBrightnessSmooth.y;
     color = mix(color, distFog, clamp(fogFactor, 0.0, 1.0));
    
     return color;
@@ -84,8 +85,8 @@ vec3 distanceMieFog(vec3 color, vec3 viewPos,vec2 texcoord, float depth, vec3 li
    
     vec3 absorptionFactor=exp(-absorption* 1.0*(dist  * 4.3 *SUN_FOG_DENSITY ));
   
-       
-    
+       inscatteringAmount *= 0.01;
+      inscatteringAmount *= eyeBrightnessSmooth.y;
       
       color*=absorptionFactor;
       color += (inscatteringAmount)   /absorption*(1.- absorptionFactor);
@@ -116,8 +117,14 @@ vec3 atmosphericFog(vec3 color, vec3 viewPos,vec2 texcoord, float depth, vec2 li
    
     vec3 absorption= vec3(1.0, 1.0, 1.0);
     bool isRaining = rainStrength <= 1.0 && rainStrength > 0.0;
-    vec3 inscatteringAmount= calcSkyColor(normalize(viewPos));
-
+    vec3 inscatteringAmount= calcSkyColor(viewPos);
+    bool isCave = lightmap.g <= 0.35;
+    float caveLightmap = lightmap.g * 0.6;
+   
+      inscatteringAmount *= 0.01;
+      inscatteringAmount *= eyeBrightnessSmooth.y;
+      
+    
   
     float dist=max(0,dist0-dist1);
     vec3 absorptionFactor=exp(-absorption* 1.0*(dist* AIR_FOG_DENSITY));
@@ -130,10 +137,7 @@ vec3 atmosphericFog(vec3 color, vec3 viewPos,vec2 texcoord, float depth, vec2 li
     {
       inscatteringAmount += wetness * 0.1;
     }
-      if(lightmap.g < 0.45)
-    {
-      inscatteringAmount *= smoothstep(0.0, 0.8, lightmap.g);
-    }
+
     
     color*=absorptionFactor;
     return color += (inscatteringAmount) /absorption*(1.- absorptionFactor);
@@ -169,10 +173,9 @@ vec3 atmosphericMieFog(vec3 color, vec3 viewPos,vec2 texcoord, float depth, vec2
     }
       
       
-   if(lightmap.g < 0.45)
-    {
-      inscatteringAmount *= smoothstep(0.0, 0.8, lightmap.g);
-    }
+      inscatteringAmount *= 0.01;
+      inscatteringAmount *= eyeBrightnessSmooth.y;
+     
 
       float depthSmooth = smoothstep(0.999, 1.0, depth);
       inscatteringAmount *= depthSmooth;

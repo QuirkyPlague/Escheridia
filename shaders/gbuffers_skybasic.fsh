@@ -100,17 +100,17 @@ vec3 calcSkyColor(vec3 pos)
     float rayleigh = Rayleigh(VoL) * RAYLEIGH_COEFF;
     //color assignments
     //DAY
-    horizonColor = dayHorizon(horizonColor) * rayleigh * 41.14;
+    horizonColor = dayHorizon(horizonColor) * rayleigh * 47.14;
     zenithColor= dayZenith(zenithColor) * rayleigh * 48.14;
     //DAWN
     earlyHorizon = dawnHorizon(earlyHorizon) * rayleigh * 32.14;
     earlyZenith = dawnZenith(earlyZenith) * rayleigh * 43.14  ;
     //DUSK
-    lateHorizon = duskHorizon(lateHorizon) * rayleigh * 23.14;
-    lateZenith = duskZenith(lateZenith) * rayleigh * 23.14;
+    lateHorizon = duskHorizon(lateHorizon) * rayleigh * 42.14;
+    lateZenith = duskZenith(lateZenith) * rayleigh * 42.14;
     //NIGHT
     nightHorizon = NightHorizon(nightHorizon) * rayleigh * 38.14;
-    nightZenith = NightZenith(nightZenith) * rayleigh * 32.14;
+    nightZenith = NightZenith(nightZenith) * rayleigh * 36.14;
     
     if (worldTime >= 0 && worldTime < 1000)
     {
@@ -162,9 +162,9 @@ vec3 calcSkyColor(vec3 pos)
     vec3 sunColor = vec3(0.0);
     sunColor = currentSunColor(sunColor);
    float sun_a = acos(dot(sunPos, pos)) * SUN_SIZE;
-    const vec3 sun_col = .32 * (sunColor * vec3(0.7373, 0.4275, 0.1333)) / sun_a;
-    const vec3 morning_sun_col = .61 * sunColor / sun_a;
-    const vec3 evening_sun_col = .062 * sunColor / sun_a;
+    const vec3 sun_col = .62 * (sunColor * vec3(0.1412, 0.1137, 0.0941)) / sun_a;
+    const vec3 morning_sun_col = .21 * (sunColor * vec3(1.0, 0.5961, 0.2196)) / sun_a;
+    const vec3 evening_sun_col = .22 * sunColor / sun_a;
     const vec3 night_sun_col = 0.0 * vec3(0.0);
     vec3 sun = vec3(0.0);
     if(worldTime >= 0 && worldTime < 1000)
@@ -208,8 +208,8 @@ vec3 calcMieSky(vec3 pos, vec3 lightPos, vec3 sunColor, vec3 viewPos, vec2 texco
       float rayleigh = Rayleigh(VoL) * RAYLEIGH_COEFF;
       //color assignments
      //DAY
-    horizonColor = dayHorizon(horizonColor) * rayleigh * 32.14;
-    zenithColor= dayZenith(zenithColor) * rayleigh * 45.14;
+    horizonColor = dayHorizon(horizonColor) * rayleigh * 24.14;
+    zenithColor= dayZenith(zenithColor) * rayleigh * 32.14;
     //DAWN
     earlyHorizon = dawnHorizon(earlyHorizon) * rayleigh * 27.14;
     earlyZenith = dawnZenith(earlyZenith) * rayleigh * 27.14  ;
@@ -217,14 +217,14 @@ vec3 calcMieSky(vec3 pos, vec3 lightPos, vec3 sunColor, vec3 viewPos, vec2 texco
     lateHorizon = duskHorizon(lateHorizon);
     lateZenith = duskZenith(lateZenith) ;
     //NIGHT
-    nightHorizon = NightHorizon(nightHorizon) * rayleigh * 21.14;
-    nightZenith = NightZenith(nightZenith) * rayleigh;
+    nightHorizon = NightHorizon(nightHorizon) * rayleigh * 12.14;
+    nightZenith = NightZenith(nightZenith) * rayleigh * 12.14;
 
     //Mie scattering assignments
-    const vec3 earlyMieScatterColor = vec3(0.3098, 0.1137, 0.0353) * MIE_SCALE * sunColor;
+    const vec3 earlyMieScatterColor = vec3(0.1294, 0.051, 0.0118) * MIE_SCALE * sunColor;
     const vec3 mieScatterColor = vec3(0.0627, 0.0314, 0.0078) * MIE_SCALE * sunColor;
-    const vec3 lateMieScatterColor = vec3(0.1412, 0.0471, 0.0353) * MIE_SCALE * sunColor;
-    const vec3 nightMieScatterColor = vec3(0.0235, 0.0314, 0.0471) * MIE_SCALE * sunColor;
+    const vec3 lateMieScatterColor = vec3(0.0549, 0.0118, 0.0078) * MIE_SCALE * sunColor;
+    const vec3 nightMieScatterColor = vec3(0.0706, 0.102, 0.1647) * MIE_SCALE * sunColor;
     vec3 mieScat = vec3(0.0);
 
     if (worldTime >= 0 && worldTime < 1000)
@@ -244,7 +244,7 @@ vec3 calcMieSky(vec3 pos, vec3 lightPos, vec3 sunColor, vec3 viewPos, vec2 texco
     }
     else if (worldTime >= 11500 && worldTime < 13000)
     {
-      float time = smoothstep(11500, 13000, float(worldTime));
+      float time = smoothstep(12800, 13000, float(worldTime));
       horizon = mix(lateHorizon, nightHorizon, time);
    	  zenith = mix(lateZenith, nightZenith,time);
       mieScat =mix(lateMieScatterColor, nightMieScatterColor, time);
@@ -287,9 +287,9 @@ vec3 calcMieSky(vec3 pos, vec3 lightPos, vec3 sunColor, vec3 viewPos, vec2 texco
       mieScat *= HG(0.62, VoL);
     }
   
-
-      mieScat *= HG(0.68, VoL);
-      mieScat *= 0.7;
+ 
+      mieScat *= HG(0.75, VoL);
+      mieScat *= 0.43;
   return skyColor = mix(skyColor * 0.5  , mieScat, 1.913);
 }
 

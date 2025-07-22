@@ -72,9 +72,7 @@ void main()
 		normal = mat3(gbufferModelView) * normal;
 		
 	}
-	
 
-	
 	vec3 viewDir = normalize(viewPos);
 	
 	const vec3 lightVector = normalize(shadowLightPosition);
