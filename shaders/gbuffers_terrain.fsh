@@ -17,7 +17,7 @@ in vec3 feetPlayerPos;
 flat in int blockID;
 in float emission;
 
-/* RENDERTARGETS: 0,1,2,5,6,11,12 */
+/* RENDERTARGETS: 0,1,2,5,6,11,12,13 */
 layout(location = 0) out vec4 color;
 layout(location = 1) out vec4 lightmapData;
 layout(location = 2) out vec4 encodedNormal;
@@ -25,6 +25,7 @@ layout(location = 3) out vec4 specMap;
 layout(location = 4) out vec4 geoNormal;
 layout(location = 5) out vec4 sssMask;
 layout(location = 6) out vec4 bloom;
+layout(location = 7) out vec4 thickness;
 
 void main() {
 	
@@ -56,6 +57,7 @@ void main() {
 	
 	float sss = 1.0;
 	
+	thickness.z = fwidth(gl_FragCoord.z);
 	#if RESOURCE_PACK_SUPPORT == 1
 		color += color * (emission* 0.8)  * EMISSIVE_MULTIPLIER;
 	#endif

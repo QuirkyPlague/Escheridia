@@ -7,6 +7,7 @@
 #include "/lib/shadows/softShadows.glsl"
 #include "/lib/brdf.glsl"
 #include "/lib/blockID.glsl"
+#include "/lib/water/waves.glsl"
 
 in vec2 texcoord;
 
@@ -85,6 +86,7 @@ void main() {
 		emissive += albedo * (emission * 2 )  * EMISSIVE_MULTIPLIER;
   
 	}
+	
 
 	
 	const vec3 shadow = getSoftShadow(feetPlayerPos, geoNormal, sss);
@@ -100,6 +102,7 @@ void main() {
 	vec3 sunlight;
 	vec3 currentSunlight = getCurrentSunlight(sunlight, normal, shadow, worldLightVector, sss, feetPlayerPos, isWater);
 	vec3 specular = brdf(albedo, f0, L, currentSunlight, normal, H, V, roughness, SpecMap, diffuse);
+
 	vec3 lighting;
 	
 	#if RESOURCE_PACK_SUPPORT == 0
