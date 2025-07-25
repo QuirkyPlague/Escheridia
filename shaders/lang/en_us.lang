@@ -1,5 +1,5 @@
 option.TONEMAPPING_TYPE = Tonemap operator
-    value.TONEMAPPING_TYPE.0 = Aces Approx
+    value.TONEMAPPING_TYPE.0 = Aces 
     value.TONEMAPPING_TYPE.1 = Uncharted 2 
     value.TONEMAPPING_TYPE.2 = Reinhard Jodie
     value.TONEMAPPING_TYPE.3 = AgX

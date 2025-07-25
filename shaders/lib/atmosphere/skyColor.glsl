@@ -137,8 +137,8 @@ vec3 calcSkyColor(vec3 pos)
     }
 
       
-    zenith = mix(currentZenithColor, rainZenith, pow(wetness, 1.0/9.0));
-    horizon = mix(currentHorizonColor, rainHorizon, pow(wetness, 1.0/9.0));
+    zenith = mix(currentZenithColor, rainZenith, pow(wetness, 1.0/16.0));
+    horizon = mix(currentHorizonColor, rainHorizon, pow(wetness, 1.0/16.0));
 
 	  float upDot = dot(normalize(pos), gbufferModelView[1].xyz); //not much, what's up with you?
 	  vec3 sky = mix(zenith, horizon, fogify(max(upDot, 0.0), 0.032));

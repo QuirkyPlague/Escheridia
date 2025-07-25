@@ -61,7 +61,7 @@ void main()
 	//normal assignments
 	vec3 normal = normalize((encodedNormal - 0.5) * 2.0); // we normalize to make sure it is of unit length
 	normal=mat3(gbufferModelView)*normal;
-	float waveIntensity = 0.13 * WAVE_INTENSITY;
+	float waveIntensity = 0.2 * WAVE_INTENSITY;
 	float waveSoftness = 0.3 * WAVE_SOFTNESS;
 	if(isWater)
 	{
@@ -101,7 +101,7 @@ void main()
 	//SSR Calculations
 	bool reflectionHit = false;
 	float jitter = IGN(gl_FragCoord.xy, frameCounter * SSR_STEPS);
-	bool canReflect = roughness < 0.3;
+	
 	#ifdef DO_SSR
 	reflectionHit = true;
 	reflectionHit && raytrace(viewPos, reflectedDir,SSR_STEPS, jitter,  reflectedPos);
@@ -109,7 +109,7 @@ void main()
 	if(!isMetal && !isWater)
 	{
 		float currentRoughness = roughness;
-		float wetRoughness = 0.1;
+		float wetRoughness = 0.03;
 		roughness = mix(currentRoughness, wetRoughness,  clamp( wetness, 0,1));
 	}
 	vec3 normalReflectedPos = reflectedPos;
@@ -132,7 +132,7 @@ void main()
 	lod = 0.0;
 	#endif
 	#endif
-
+	bool canReflect = roughness < 0.3;
 	#ifdef DO_SSR
 	if(reflectionHit)
 	{

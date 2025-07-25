@@ -26,8 +26,8 @@ vec3 lateHorizon = vec3(0.0);
 vec3 lateZenith = vec3(0.0);
 vec3 nightHorizon = vec3(0.0);
 vec3 nightZenith = vec3(0.0);
-vec3 rainHorizon = vec3(0.5098, 0.5098, 0.5098) *15 ;
-vec3 rainZenith = vec3(0.2157, 0.2157, 0.2157) * 12; 
+vec3 rainHorizon = vec3(0.5098, 0.5098, 0.5098) *4;
+vec3 rainZenith = vec3(0.2157, 0.2157, 0.2157) * 5; 
 
 vec3 dayZenith(vec3 color)
 {

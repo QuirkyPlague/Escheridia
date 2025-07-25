@@ -57,6 +57,6 @@ void main() {
 	float sss = 1.0;
 	
 	#if RESOURCE_PACK_SUPPORT == 1
-		color += color * (emission * 2)  * EMISSIVE_MULTIPLIER;
+		color += color * (emission* 0.8)  * EMISSIVE_MULTIPLIER;
 	#endif
 }
