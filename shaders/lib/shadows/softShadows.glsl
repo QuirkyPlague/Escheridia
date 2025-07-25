@@ -18,9 +18,9 @@ vec4 getShadowClipPos(vec3 feetPlayerPos)
 
  vec3 getSoftShadow(vec3 feetPlayerPos, vec3 normal, float SSS)
  {   
-float sampleRadius = SHADOW_SOFTNESS * 0.00025;
-   vec3 shadowNormal = mat3(shadowModelView) * normal;
-   float shadowMapPixelSize = 1.0 / float(SHADOW_RESOLUTION);
+   float sampleRadius = SHADOW_SOFTNESS * 0.00025;
+   const vec3 shadowNormal = mat3(shadowModelView) * normal;
+   const float shadowMapPixelSize = 1.0 / float(SHADOW_RESOLUTION);
    vec3 biasAdjustFactor = vec3(shadowMapPixelSize * 2.35, shadowMapPixelSize * 2.35, -0.00006803515625);
    #if PIXELATED_LIGHTING == 1
    sampleRadius = SHADOW_SOFTNESS * 0.0001;
@@ -32,8 +32,6 @@ float sampleRadius = SHADOW_SOFTNESS * 0.00025;
    vec4 shadowClipPos = getShadowClipPos(feetPlayerPos);
    #endif
    const float noise = IGN(floor(gl_FragCoord.xy), frameCounter);
-
-
 
    if(SSS > 64.0/255.0)
    {
@@ -51,7 +49,6 @@ float sampleRadius = SHADOW_SOFTNESS * 0.00025;
       vec3 shadowScreenPos = shadowNDCPos * 0.5 + 0.5; // convert to screen space
       shadowScreenPos += shadowNormal * biasAdjustFactor;
       shadowAccum += getShadow(shadowScreenPos); // take shadow sample
-        
    }
 
   return shadowAccum / float(SHADOW_SAMPLES); // divide sum by count, getting average shadow

@@ -3,8 +3,7 @@
 #include "/lib/uniforms.glsl"
 #include "/lib/atmosphere/godrays.glsl"
 #include "/lib/util.glsl"
-#include "/lib/atmosphere/volumetrics.glsl"
-#include "/lib/shadows/drawShadows.glsl"
+
 
 in vec2 texcoord;
 
@@ -20,17 +19,14 @@ void main() {
 	vec3 NDCPos = vec3(texcoord.xy, depth) * 2.0 - 1.0;
 	vec3 viewPos = projectAndDivide(gbufferProjectionInverse, NDCPos);
 	vec3 feetPlayerPos = (gbufferModelViewInverse * vec4(viewPos, 1.0)).xyz;
-	vec3 lightVector = normalize(shadowLightPosition);
-	vec3 worldLightVector = mat3(gbufferModelViewInverse) * lightVector;
 	
-	vec3 baseNormal = texture(colortex6, texcoord).rgb;
-	vec3 normal = normalize((baseNormal - 0.5) * 2.0); 
+
 	const float jitter = IGN(gl_FragCoord.xy, frameCounter);
 	int stepCount = GODRAYS_SAMPLES;
 
 
 	#if VOLUMETRIC_LIGHTING == 1
-	color.rgb = sampleGodrays(color.rgb, texcoord, worldLightVector, depth);
+	color.rgb = sampleGodrays(color.rgb, texcoord, feetPlayerPos, depth);
 	#endif
 	/*
 	vec3 shadowViewPos_start = (shadowModelView * vec4(vec3(0.0), 1.0)).xyz;

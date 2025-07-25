@@ -77,11 +77,16 @@ void main() {
 	float emission = specMap.a;
 	vec3 emissive;
 	vec3 albedo = texture(colortex0,texcoord).rgb;
+	#if RESOURCE_PACK_SUPPORT == 0
 	if (emission >= 0.0/255.0 && emission < 255.0/255.0)
 	{
-		emissive += albedo * emission  * 4.0 * EMISSIVE_MULTIPLIER;
+		emissive += albedo * 3.0 * EMISSIVE_MULTIPLIER;
   
 	}
+	#else
+	emissive += albedo * 6.0 * EMISSIVE_MULTIPLIER;
+	#endif
+
 	float sss =specMap.b;
 	vec3 F=fresnelSchlick(max(dot(encodedNormal.rgb,V),0.),F0);
 	vec3 shadow = getSoftShadow(feetPlayerPos,geoNormal.rgb, sss);
@@ -91,8 +96,10 @@ void main() {
 	vec3 sunlight;
 	
 	bool isWater;
-	vec3 lighting = albedo * diffuse + emissive ;
 	
+	vec3 currentSunlight = getCurrentSunlight(sunlight, normal, shadow, worldLightVector, sss, feetPlayerPos, isWater);
+	vec3 specular = brdf(albedo, F0, L, currentSunlight, normal, H, V, roughness, specMap, diffuse);
+	vec3 lighting = specular;
 	if(blockID == WATER_ID)
 	{
     waterMask = vec4(1.0, 1.0, 1.0, 1.0);
@@ -104,7 +111,7 @@ void main() {
 	else if(blockID == TRANSLUCENT_ID)
 	{
 		 translucentMask = vec4(1.0, 1.0, 1.0, 1.0);
-		
+		lighting = emissive;
 	}
 	else
 	{
@@ -122,9 +129,8 @@ void main() {
 		sssMask =vec4(0.0, 0.0, 0.0, 1.0);
 	}
 
-vec3 currentSunlight = getCurrentSunlight(sunlight, normal, shadow, worldLightVector, sss, feetPlayerPos, isWater);
-	vec3 specular = brdf(albedo, F0, L, currentSunlight, normal, H, V, roughness, specMap, diffuse);
-	color = vec4(specular, color.a);
+
+	color = vec4(lighting, color.a);
 	 
 	
 	

@@ -36,11 +36,11 @@ void main() {
 	vec3 mappedNormal = tbnMatrix * normalMaps;
 	
 	geoNormal = vec4(normal * 0.5 + 0.5, 1.0);
-
+	vec4 albedo  = texture(gtexture, texcoord) * glcolor  ;
 	lightmapData = vec4(lmcoord, 0.0, 1.0);
 	encodedNormal = vec4(mappedNormal * 0.5 + 0.5, 1.0);
 	specMap = texture2DLod(specular, texcoord, 0);
-
+	color.rgb += albedo.rgb * 1.5;
 	if(blockID == SSS_ID)
 	{
     sssMask = vec4(1.0, 1.0, 1.0, 1.0);
