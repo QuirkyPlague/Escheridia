@@ -19,7 +19,7 @@ in vec3 viewPos;
 in vec3 feetPlayerPos;
 flat in int blockID;
 in mat3 tbnMatrix;
-/* RENDERTARGETS: 0,1,2,4,5,7*/
+/* RENDERTARGETS: 0,1,2*/
 layout(location = 0) out vec4 color;
 layout(location = 1) out vec4 lightmapData;
 layout(location = 2) out vec4 encodedNormal;

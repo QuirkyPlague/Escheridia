@@ -18,7 +18,7 @@ vec2 wavedx(vec2 position, vec2 direction, float frequency, float timeshift) {
 
 // Calculates waves by summing octaves of various waves with various parameters
 float getwaves(vec2 position, int iterations) {
-  float wavePhaseShift = length(position) * 0.6 * WAVE_RANDOMNESS; // this is to avoid every octave having exactly the same phase everywhere
+  float wavePhaseShift = length(position) * 2.6 * WAVE_RANDOMNESS; // this is to avoid every octave having exactly the same phase everywhere
   float iter = 0.0; // this will help generating well distributed wave directions
   float frequency = 1.0; // frequency of the wave, this will change every iteration
   float timeMultiplier = 2.0; // time multiplier for the wave, this will change every iteration
@@ -40,8 +40,8 @@ float getwaves(vec2 position, int iterations) {
     sumOfWeights += weight;
 
     // modify next octave ;
-    weight = mix(weight, 0.7, 0.3);
-    frequency *= 0.84 * WAVE_FREQUENCY;
+    weight = mix(weight, 0.71, 0.9);
+    frequency *= 0.93 * WAVE_FREQUENCY;
     timeMultiplier *= 1.17 * WAVE_SPEED;
 
     // add some kind of random value to make next wave look random too

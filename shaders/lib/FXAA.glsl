@@ -9,8 +9,8 @@ float rgb2luma(vec3 rgb)
 
 float QUALITY[12]=float[12](1.,1.,1.,1.,1.,1.5,2.,2.,2.,2.,4.,8.);
 
-#define EDGE_THRESHOLD_MAX 0.15
-#define EDGE_THRESHOLD_MIN 0.0635
+#define EDGE_THRESHOLD_MAX 0.1666
+#define EDGE_THRESHOLD_MIN 0.0503
 #define ITERATIONS 16
 #define SUBPIXEL_QUALITY 1.0
 

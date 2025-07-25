@@ -24,13 +24,13 @@ vec3 brdf(vec3 albedo, vec3 F0, vec3 L, vec3 currentSunlight,vec3 N, vec3 H,vec3
     vec3 kD = vec3(1.0) - kS;  
     if(SpecMap.g >= 230.0/255.0) 
     {
-      kD /= PI; 
+      kD *= 0.6; 
     }
     // add to outgoing radiance Lo
     float NdotL = max(dot(N, L), 0.0);        
     Lo += (kD * albedo / PI + spec) * radiance * NdotL;
 
-    indirect *=  albedo;
+    indirect *=   albedo / PI;
    
   
     return Lo + indirect;

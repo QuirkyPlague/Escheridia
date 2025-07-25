@@ -18,6 +18,9 @@ void main() {
     color.rgb = uncharted2(color.rgb); 
     #elif TONEMAPPING_TYPE ==0
     color.rgb = aces_tonemap(color.rgb); 
+    #elif TONEMAPPING_TYPE == 2
+    color.rgb = reinhard_jodie(color.rgb);
     #endif
+
     color.rgb = CSB(color.rgb, BRIGHTNESS, SATURATION, CONTRAST);
 }

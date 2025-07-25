@@ -16,9 +16,6 @@ void main() {
 	color = texture(colortex0, texcoord);
 	
 	vec4 SpecMap = texture(colortex5, texcoord);
-	vec4 waterMask=texture(colortex4,texcoord);
-	int blockID=int(waterMask)+100;
-	bool isWater=blockID==WATER_ID;
 
 	float depth = texture(depthtex0, texcoord).r;
 	float depth1 = texture(depthtex1, texcoord).r;
@@ -34,20 +31,17 @@ void main() {
 	vec3 viewPos = projectAndDivide(gbufferProjectionInverse, NDCPos);
 	
 	bool isMetal = SpecMap.g >= 230.0/255.0;
-vec3 sunlightColor = vec3(0.0);
+	vec3 sunlightColor = vec3(0.0);
 	vec3 sunColor = currentSunColor(sunlightColor);
 	#if DISTANCE_FOG_GLSL == 1
 	vec3 mieFog = atmosphericMieFog(color.rgb, viewPos, texcoord, depth, lightmap, worldLightVector, sunColor);
 	vec3 atmosphereFog = atmosphericFog(color.rgb, viewPos, texcoord, depth, lightmap);
 	vec3 fullFog = mix(atmosphereFog, mieFog, 0.4);
-	if(!inWater)
-	{
-		color.rgb = mix(color.rgb, fullFog, 1.0);
-	}
+	
 
 	if(isMetal)
 	{
-		color.rgb = distanceFog(color.rgb, viewPos, texcoord, depth);
+		color.rgb = mix(color.rgb, fullFog, 1.0);
 	}
 	
 	#endif

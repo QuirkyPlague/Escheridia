@@ -133,7 +133,7 @@ vec3 upSample(sampler2D srcTexture,vec2 texCoord)
     return upsample;
 }
 
-vec3 computeBloomMix(vec2 texcoord, bool isMetal, float depth, bool isEmissive)
+vec3 computeBloomMix(vec2 texcoord, float depth)
 {
     
     float bloomStrength =1.5 * BLOOM_STRENGTH;
@@ -146,7 +146,7 @@ vec3 computeBloomMix(vec2 texcoord, bool isMetal, float depth, bool isEmissive)
 	vec3 hdr = texture(colortex0, texcoord).rgb;
     vec3 blm = texture(colortex12, texcoord).rgb;
 	float rain = texture(colortex9, texcoord).r;
-    hdr = mix(hdr,blm,clamp( 0.025 * bloomStrength + rain * 0.1 + (wetness) * 0.1,0,1));
+    hdr = mix(hdr,blm,clamp( 0.025 * bloomStrength + rain * 0.06 + wetness * 0.1 ,0,1));
     return hdr;
     
 }
