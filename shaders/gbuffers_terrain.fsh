@@ -55,9 +55,7 @@ void main() {
 	}
 	
 	float sss = 1.0;
-	vec3 shadow = getSoftShadow(feetPlayerPos,geoNormal.rgb, sss);
 	
-
 	#if RESOURCE_PACK_SUPPORT == 1
 		color += color * (emission * 2)  * EMISSIVE_MULTIPLIER;
 	#endif

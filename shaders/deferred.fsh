@@ -73,7 +73,7 @@ void main() {
 		
 	}
 	#else
-	sss = mix(SpecMap.b, 0.3, wetness);
+	sss = SpecMap.b;
 	roughness = pow(1.0 - SpecMap.r, 2.0);
 	#endif
 

@@ -53,7 +53,7 @@ vec3 sampleGodrays(vec3 godraySample, vec2 texcoord, vec3 feetPlayerPos, float d
 	bool isRaining = rainStrength <= 1.0 && rainStrength > 0.0;
 
 	vec3 absorption = vec3(0.0);
-	absorption = godrayAbsorp(absorption);
+	absorption = godrayAbsorp(absorption) * 0.5;
 	vec3 sunColor = currentSunColor(godrayColor);
 	vec3 inscatteringAmount = sunColor;
 	
@@ -89,7 +89,7 @@ vec3 sampleGodrays(vec3 godraySample, vec2 texcoord, vec3 feetPlayerPos, float d
 			break;
 		}
     }
-	
+
 	godraySample /= GODRAYS_SAMPLES;
 	if(inWater)
 	{

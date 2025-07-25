@@ -63,8 +63,8 @@ uniform ivec2 eyeBrightnessSmooth;
 const float eyeBrightnessHalflife = 3.0;
 uniform float constantMood;
 uniform float sunAngle;
-uniform float moodSmooth;
 uniform float playerMood;
+uniform float moodSmooth;
 bool isNight = worldTime >= 13000 && worldTime < 23000;
 bool isRaining = rainStrength <= 1.0 && rainStrength > 0.0;
 
