@@ -17,9 +17,9 @@ vec3 rainZenith = vec3(0.0745, 0.0745, 0.0745);
 
 vec3 dayZenith(vec3 color)
 {
-  color.r = DAY_ZEN_R * 1.05 ;
-  color.g = DAY_ZEN_G  * 2.45;
-  color.b = DAY_ZEN_B * 4.85 ;
+  color.r = DAY_ZEN_R  ;
+  color.g = DAY_ZEN_G  ;
+  color.b = DAY_ZEN_B  ;
   return color;
 }
 vec3 dayHorizon(vec3 color)
@@ -32,43 +32,43 @@ vec3 dayHorizon(vec3 color)
 vec3 dawnZenith(vec3 color)
 {
   color.r = DAWN_ZEN_R;
-  color.g = DAWN_ZEN_G *2.3;
-  color.b = DAWN_ZEN_B * 3.1;
+  color.g = DAWN_ZEN_G;
+  color.b = DAWN_ZEN_B;
   return color;
 }
 vec3 dawnHorizon(vec3 color)
 {
-  color.r = DAWN_HOR_R * 3.5;
-  color.g = DAWN_HOR_G * 1.3;
+  color.r = DAWN_HOR_R ;
+  color.g = DAWN_HOR_G;
   color.b = DAWN_HOR_B;
   return color;
 }
 vec3 duskZenith(vec3 color)
 {
   color.r = DUSK_ZEN_R;
-  color.g = DUSK_ZEN_G * 3;
-  color.b = DUSK_ZEN_B * 2;
+  color.g = DUSK_ZEN_G;
+  color.b = DUSK_ZEN_B;
   return color;
 }
 vec3 duskHorizon(vec3 color)
 {
-  color.r = DUSK_HOR_R * 3.55;
-  color.g = DUSK_HOR_G * 1.15;
-  color.b = DUSK_HOR_B * 0.5;
+  color.r = DUSK_HOR_R;
+  color.g = DUSK_HOR_G;
+  color.b = DUSK_HOR_B;
   return color;
 }
 vec3 NightZenith(vec3 color)
 {
   color.r = NIGHT_ZEN_R;
   color.g = NIGHT_ZEN_G;
-  color.b = NIGHT_ZEN_B * 2.85;
+  color.b = NIGHT_ZEN_B;
   return color;
 }
 vec3 NightHorizon(vec3 color)
 {
   color.r = NIGHT_HOR_R;
   color.g = NIGHT_HOR_G;
-  color.b = NIGHT_HOR_B * 3.45;
+  color.b = NIGHT_HOR_B;
   return color;
 }
 
@@ -81,23 +81,24 @@ vec3 calcSkyColor(vec3 pos)
 	  vec3 horizon; 
     vec3 zenith;
     bool inWater = isEyeInWater ==1.0;
-      vec3 sunPos = normalize(shadowLightPosition);
+    vec3 sunPos = normalize(shadowLightPosition);
     vec3 feetPlayerPos = (gbufferModelViewInverse * vec4(pos, 1.0)).xyz;
     vec3 worldLightPos = mat3(gbufferModelViewInverse) * sunPos;
     float VoL = dot(normalize(feetPlayerPos), worldLightPos);
-    float rayleigh = Rayleigh(VoL) * RAYLEIGH_COEFF;
+    const float rayleigh = Rayleigh(VoL) * RAYLEIGH_COEFF;
+
     //color assignments
     //DAY
-   horizonColor = dayHorizon(horizonColor) * rayleigh * 7.14;
-    zenithColor= dayZenith(zenithColor) * rayleigh * 7.14;
+    horizonColor = dayHorizon(horizonColor) * rayleigh * 7.14;
+    zenithColor= dayZenith(zenithColor) * rayleigh * 5.14;
     //DAWN
-    earlyHorizon = dawnHorizon(earlyHorizon) * rayleigh * 3.24;
-    earlyZenith = dawnZenith(earlyZenith) * rayleigh * 2.54 ;
+    earlyHorizon = dawnHorizon(earlyHorizon) * rayleigh * 7.24;
+    earlyZenith = dawnZenith(earlyZenith) * rayleigh * 7.54 ;
     //DUSK
     lateHorizon = duskHorizon(lateHorizon) * rayleigh * 11.14;
     lateZenith = duskZenith(lateZenith) * rayleigh * 5.14  ;
     //NIGHT
-    nightHorizon = NightHorizon(nightHorizon) * rayleigh * 4.25;
+    nightHorizon = NightHorizon(nightHorizon) * rayleigh * 2.25;
     nightZenith = NightZenith(nightZenith) * rayleigh;
 
     if (worldTime >= 0 && worldTime < 1000)
@@ -124,7 +125,6 @@ vec3 calcSkyColor(vec3 pos)
       float time = smoothstep(23000, 24000, float(worldTime));
 	    horizon = mix(nightHorizon, earlyHorizon , time);
    	  zenith = mix(nightZenith, earlyZenith,time);
-	  
     }
 
     vec3 currentZenithColor = zenith;
