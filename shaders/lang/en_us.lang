@@ -179,3 +179,5 @@ option.UNDERWATER_FOG_DENSITY = Underwater Fog Density
 option.DH_SUPPORT = Distant Horizons Support
     value.DH_SUPPORT.0 = Off
     value.DH_SUPPORT.1 = On
+
+option.WAVES = Water Waves

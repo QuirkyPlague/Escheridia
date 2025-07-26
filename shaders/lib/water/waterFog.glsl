@@ -6,7 +6,7 @@
 #include "/lib/common.glsl"
 #include "/lib/atmosphere/skyColor.glsl"
 #include "/lib/lighting/lighting.glsl"
-bool inWater=isEyeInWater==1.;
+
 
 vec3 waterColor(vec3 color)
 {

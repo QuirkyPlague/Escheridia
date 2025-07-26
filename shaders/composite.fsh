@@ -1,14 +1,6 @@
 #version 420 compatibility
 
-#include "/lib/uniforms.glsl"
-#include "/lib/lighting/lighting.glsl"
-#include "/lib/shadows/distort.glsl"
-#include "/lib/shadows/drawShadows.glsl"
-#include "/lib/shadows/softShadows.glsl"
-#include "/lib/brdf.glsl"
-#include "/lib/blockID.glsl"
-#include "/lib/water/waterFog.glsl"
-
+uniform sampler2D colortex0;
 in vec2 texcoord;
 
 

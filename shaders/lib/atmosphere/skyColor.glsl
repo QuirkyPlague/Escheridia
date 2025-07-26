@@ -80,17 +80,15 @@ vec3 calcSkyColor(vec3 pos)
 {
 	  vec3 horizon; 
     vec3 zenith;
-    bool inWater = isEyeInWater ==1.0;
-    vec3 sunPos = normalize(shadowLightPosition);
+  
     vec3 feetPlayerPos = (gbufferModelViewInverse * vec4(pos, 1.0)).xyz;
-    vec3 worldLightPos = mat3(gbufferModelViewInverse) * sunPos;
-    float VoL = dot(normalize(feetPlayerPos), worldLightPos);
+    float VoL = dot(normalize(feetPlayerPos), worldLightVector);
     const float rayleigh = Rayleigh(VoL) * RAYLEIGH_COEFF;
 
     //color assignments
     //DAY
-    horizonColor = dayHorizon(horizonColor) * rayleigh * 10.14;
-    zenithColor= dayZenith(zenithColor) * rayleigh * 9.14;
+    horizonColor = dayHorizon(horizonColor) * rayleigh * 7.14;
+    zenithColor= dayZenith(zenithColor) * rayleigh * 7.14;
     //DAWN
     earlyHorizon = dawnHorizon(earlyHorizon) * rayleigh * 5.24;
     earlyZenith = dawnZenith(earlyZenith) * rayleigh * 7.54 ;
@@ -122,7 +120,7 @@ vec3 calcSkyColor(vec3 pos)
     }
    else if (worldTime >= 13000 && worldTime < 24000)
     {
-      float time = smoothstep(23000, 24000, float(worldTime));
+      float time = smoothstep(23500, 24000, float(worldTime));
 	    horizon = mix(nightHorizon, earlyHorizon , time);
    	  zenith = mix(nightZenith, earlyZenith,time);
     }
@@ -149,51 +147,25 @@ vec3 calcSkyColor(vec3 pos)
 
 vec3 calcMieSky(vec3 pos, vec3 lightPos, vec3 sunColor, vec3 viewPos, vec2 texcoord) 
 {
-    //Mie scattering assignments
-    const vec3 earlyMieScatterColor = vec3(0.1647, 0.0667, 0.0157) * MIE_SCALE * sunColor;
-    const vec3 mieScatterColor = vec3(0.1804, 0.098, 0.0314) * MIE_SCALE * sunColor;
-    const vec3 lateMieScatterColor = vec3(0.0549, 0.0118, 0.0078) * MIE_SCALE * sunColor;
-    const vec3 nightMieScatterColor = vec3(0.0706, 0.102, 0.1647) * MIE_SCALE * sunColor;
-    vec3 mieScat = vec3(0.0);
-
-    if (worldTime >= 0 && worldTime < 1000)
-    {
-      //smoothstep equation allows interpolation between times of day
-      float time = smoothstep(0, 1000, float(worldTime));
-      mieScat = mix(earlyMieScatterColor, mieScatterColor, time);
-    }
-    else if (worldTime >= 1000 && worldTime < 11500)
-    {
-      float time = smoothstep(10000, 11500, float(worldTime));
-      mieScat = mix(mieScatterColor, lateMieScatterColor, time);
-    }
-    else if (worldTime >= 11500 && worldTime < 13000)
-    {
-      float time = smoothstep(12800, 13000, float(worldTime));
-      mieScat =mix(lateMieScatterColor, nightMieScatterColor, time);
-    }
-    else if (worldTime >= 13000 && worldTime < 24000)
-    {
-      float time = smoothstep(23000, 24000, float(worldTime));
-	    mieScat =mix(nightMieScatterColor,earlyMieScatterColor, time);
-    }  
-    bool inWater = isEyeInWater ==1.0;
-    vec3 feetPlayerPos = (gbufferModelViewInverse * vec4(viewPos, 1.0)).xyz;
-    float VoL = dot(normalize(feetPlayerPos), lightPos);
-    if(rainStrength <= 1.0 && rainStrength > 0.0)
-    {
-      float dryToWet = smoothstep(0.0, 1.0, float(rainStrength));
-      mieScat = mix(mieScat, mieScat *0.8, rainStrength);
-    }
-    if(inWater)
-    {
-      mieScat *=  MIE_SCALE * sunColor;
-      mieScat *= HG(0.62, VoL);
-    }
+  //Mie scattering assignments
+  const vec3 mieScatterColor = vec3(0.1922, 0.1608, 0.1333) * MIE_SCALE * sunColor;
+  
+  vec3 mieScat = mieScatterColor;
+  vec3 feetPlayerPos = (gbufferModelViewInverse * vec4(viewPos, 1.0)).xyz;
+  float VoL = dot(normalize(feetPlayerPos), lightPos);
+  if(rainStrength <= 1.0 && rainStrength > 0.0)
+  {
+    float dryToWet = smoothstep(0.0, 1.0, float(rainStrength));
+    mieScat = mix(mieScat, mieScat *0.8, rainStrength);
+  }
+  if(inWater)
+  {
+    mieScat *= HG(0.65, VoL);
+  }
     
  
-    mieScat *= HG(0.75, VoL);
-    return mieScat;
+  mieScat *= HG(0.65, VoL);
+  return mieScat;
 }
 
 #endif //SKY_COLOR_GLSL

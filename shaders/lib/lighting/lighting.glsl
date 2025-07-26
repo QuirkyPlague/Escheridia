@@ -6,14 +6,14 @@
 
 
 
-const vec3 blocklightColor = vec3(1.0, 0.9725, 0.9216) * 1.2;
-const vec3 skylightColor = vec3(0.5412, 0.6314, 0.9961) * 2;
+const vec3 blocklightColor = vec3(1.0, 0.9294, 0.8392) * 1.2;
+const vec3 skylightColor = vec3(0.5137, 0.6118, 1.0) *3.5;
 const vec3 nightSkylightColor = vec3(0.0863, 0.2196, 0.898) * 1.2;
-const vec3 sunlightColor= vec3(1.0, 0.7333, 0.4275) * 5.3;
+const vec3 sunlightColor= vec3(1.0, 0.8235, 0.302) * 4.3;
 const vec3 morningSunlightColor = vec3(0.9882, 0.4902, 0.1804)* 6.3;
 const vec3 eveningSunlightColor = vec3(1.0, 0.4078, 0.3059) * 2.4;
 const vec3 moonlightColor = vec3(0.1176, 0.2941, 0.6235) * 3;
-vec3 ambientColor = vec3(0.2235, 0.2235, 0.2235) + moodSmooth;
+vec3 ambientColor = vec3(0.2824, 0.2824, 0.2824);
 
 
 
@@ -21,6 +21,7 @@ vec3 doDiffuse(vec2 texcoord, vec2 lightmap, vec3 normal, vec3 sunPos, vec3 shad
 {
     vec3 blocklight = lightmap.r * blocklightColor;
     vec3 skylight = lightmap.g * skylightColor;
+    vec3 nightSkylight = lightmap.g * nightSkylightColor;
     vec3 scatterSun;
     vec3 SSS;
     vec3 fullScatter;
@@ -36,7 +37,7 @@ vec3 doDiffuse(vec2 texcoord, vec2 lightmap, vec3 normal, vec3 sunPos, vec3 shad
       scatterSun = mix(morningSunlightColor, sunlightColor, time) *  (shadow );
       SSS = mix(morningSunlightColor, sunlightColor, time) *  (shadow);
       scatterSun*= HG(SSS_HG, VoL);
-      fullScatter = mix(SSS,scatterSun, 0.5) * 2;
+      fullScatter = mix(SSS,scatterSun, 0.5) * 1.5;
       sunlight = mix(sunlight, fullScatter, SSS_INTENSITY);
     }
     
@@ -52,7 +53,7 @@ vec3 doDiffuse(vec2 texcoord, vec2 lightmap, vec3 normal, vec3 sunPos, vec3 shad
       scatterSun = mix(sunlightColor, eveningSunlightColor, time) *  (shadow * sss );
       SSS = mix(sunlightColor, eveningSunlightColor, time) *  (shadow * sss);
       scatterSun*= HG(SSS_HG, VoL);
-      fullScatter = mix(SSS,scatterSun, 0.5) * 2;
+      fullScatter = mix(SSS,scatterSun, 0.5) * 1.5;
       sunlight = mix(sunlight, fullScatter, SSS_INTENSITY);
     }
     skylight *= mix(1.1, 1.0, time); 
@@ -65,10 +66,10 @@ vec3 doDiffuse(vec2 texcoord, vec2 lightmap, vec3 normal, vec3 sunPos, vec3 shad
       scatterSun =  mix(eveningSunlightColor, moonlightColor , time) *  (shadow * sss );
       SSS = mix(eveningSunlightColor, moonlightColor , time) *  (shadow * sss);
       scatterSun*= HG(SSS_HG, VoL);
-      fullScatter = mix(SSS,scatterSun, 0.5) * 2;
+      fullScatter = mix(SSS,scatterSun, 0.5) * 1.5;
       sunlight = mix(sunlight, fullScatter, SSS_INTENSITY);
     }
-	  skylight *= 0.7;
+	  skylight = mix(skylight * 0.7, nightSkylight, time);
   }
    else if (worldTime >= 13000 && worldTime < 24000)
   {
@@ -78,10 +79,10 @@ vec3 doDiffuse(vec2 texcoord, vec2 lightmap, vec3 normal, vec3 sunPos, vec3 shad
       scatterSun = mix(moonlightColor , morningSunlightColor, time) *   (shadow * sss ) * 0.2;
       SSS = mix(moonlightColor , morningSunlightColor, time) *  (shadow * sss);
       scatterSun*= HG(SSS_HG, VoL);
-      fullScatter = mix(SSS,scatterSun, 0.5) * 2;
+      fullScatter = mix(SSS,scatterSun, 0.5) * 1.5;
       sunlight = mix(sunlight, fullScatter, SSS_INTENSITY);
     }
-	  skylight = lightmap.g * nightSkylightColor;
+	  skylight = mix(nightSkylight, skylight, time);
 	  
   }
     if(isRaining)
@@ -104,8 +105,8 @@ vec3 doDiffuse(vec2 texcoord, vec2 lightmap, vec3 normal, vec3 sunPos, vec3 shad
     sunlight = mix(sunlight, rainScatterFactor, SSS_INTENSITY);
   }
   
-   blocklight += max(0.9 * pow(blocklight, vec3(12.8)), 0.0);
-   blocklight += min(0.17 * pow(blocklight, vec3(1.8)), 0.2);
+   blocklight += max(1.9 * pow(blocklight, vec3(4.8)), 0.0);
+   blocklight += clamp(min(0.17 * pow(blocklight, vec3(0.8)), 5.2), 0, 1);
 
    
    

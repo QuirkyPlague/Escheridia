@@ -12,7 +12,7 @@ vec3 distanceFog(vec3 color, vec3 viewPos,vec2 texcoord, float depth)
     vec3 sunColor = vec3(0.0);
     sunColor = currentSunColor(sunColor);
     vec3 distFog = vec3(0.0);
-    distFog = calcSkyColor(normalize(viewPos)) + wetness;
+    distFog = calcSkyColor(viewPos) + wetness;
     float dist = length(viewPos) / far;
     float fogFactor = exp(-16.0 * (1.0 - dist));
     float rainFogFactor = exp(-32.5 * (1.0 - dist));
@@ -31,8 +31,13 @@ vec3 distanceFog(vec3 color, vec3 viewPos,vec2 texcoord, float depth)
 
        distFog = mix(distFog, distFog, dryToWet) * 0.1;
     }
-     distFog *= 0.007;
-    distFog *= eyeBrightnessSmooth.y;
+    if(!inWater)
+    {
+      distFog *= 0.006;
+      distFog *= eyeBrightnessSmooth.y;
+    }
+     
+    
     color = mix(color, distFog, clamp(fogFactor, 0.0, 1.0));
    
     return color;

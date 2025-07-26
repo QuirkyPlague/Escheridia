@@ -1,11 +1,8 @@
 #version 420 compatibility
 
 #include "/lib/uniforms.glsl"
-#include "/lib/atmosphere/godrays.glsl"
-#include "/lib/atmosphere/distanceFog.glsl"
-#include "/lib/shadows/softShadows.glsl"
-#include "/lib/brdf.glsl"
-#include "/lib/water/waves.glsl"
+#include "/lib/blockID.glsl"
+#include "/lib/water/waterFog.glsl"
 in vec2 texcoord;
 
 /* RENDERTARGETS: 0 */

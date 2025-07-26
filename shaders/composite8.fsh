@@ -1,9 +1,6 @@
 #version 420 compatibility
 
 #include "/lib/uniforms.glsl"
-#include "/lib/FXAA.glsl" 
-#include "/lib/atmosphere/skyColor.glsl" 
-#include "/lib/lighting/lighting.glsl"
 #include "/lib/atmosphere/distanceFog.glsl"
 in vec2 texcoord;
 

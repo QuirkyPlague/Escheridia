@@ -48,8 +48,7 @@ void main() {
 	encodedNormal = vec4(mappedNormal * 0.5 + 0.5, 1.0);
 	
 	specMap = texture(specular, texcoord);
-	vec3 lightVector = normalize(shadowLightPosition);
-	vec3 worldLightVector = mat3(gbufferModelViewInverse) * lightVector;
+	
 
 	vec3 shadowViewPos = (shadowModelView * vec4(feetPlayerPos, 1.0)).xyz;
 	vec4 shadowClipPos = shadowProjection * vec4(shadowViewPos, 1.0);
@@ -80,7 +79,7 @@ void main() {
 	#if RESOURCE_PACK_SUPPORT == 0
 	if (emission >= 0.0/255.0 && emission < 255.0/255.0)
 	{
-		emissive += albedo * 3.0 * EMISSIVE_MULTIPLIER;
+		emissive += albedo * 6.0 * EMISSIVE_MULTIPLIER;
   
 	}
 	#else

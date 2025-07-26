@@ -69,5 +69,9 @@ uniform float playerMood;
 uniform float moodSmooth;
 bool isNight = worldTime >= 13000 && worldTime < 23000;
 bool isRaining = rainStrength <= 1.0 && rainStrength > 0.0;
+bool inWater=isEyeInWater==1.;
+
+const vec3 lightVector = normalize(shadowLightPosition);
+const vec3 worldLightVector = mat3(gbufferModelViewInverse) * lightVector;
 
 #endif //UNIFORMS_GLSL

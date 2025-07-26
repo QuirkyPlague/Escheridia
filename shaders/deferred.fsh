@@ -2,12 +2,9 @@
 
 #include "/lib/uniforms.glsl"
 #include "/lib/lighting/lighting.glsl"
-#include "/lib/shadows/distort.glsl"
-#include "/lib/shadows/drawShadows.glsl"
 #include "/lib/shadows/softShadows.glsl"
 #include "/lib/brdf.glsl"
 #include "/lib/blockID.glsl"
-#include "/lib/water/waves.glsl"
 
 in vec2 texcoord;
 
@@ -83,15 +80,12 @@ void main() {
 	
 	if (emission >= 0.0/255.0 && emission < 255.0/255.0)
 	{
-		emissive += albedo * (emission * 2 )  * EMISSIVE_MULTIPLIER;
+		emissive += albedo * (emission * 3 )  * EMISSIVE_MULTIPLIER;
   
 	}
-	
 
-	
 	const vec3 shadow = getSoftShadow(feetPlayerPos, geoNormal, sss);
-	const vec3 lightVector = normalize(shadowLightPosition);
-	const vec3 worldLightVector = mat3(gbufferModelViewInverse) * lightVector;
+
 	
 	const vec3 V = normalize(cameraPosition - worldPos);
   	const vec3 L = normalize(worldLightVector);

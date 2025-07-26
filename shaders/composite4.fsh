@@ -3,10 +3,6 @@
 
 #include "/lib/uniforms.glsl"
 #include "/lib/atmosphere/godrays.glsl"
-#include "/lib/blockID.glsl"
-#include "/lib/water/waterFog.glsl"
-#include "/lib/shadows/softShadows.glsl"
-#include "/lib/brdf.glsl"
 #include "/lib/atmosphere/distanceFog.glsl"
 in vec2 texcoord;
 
@@ -16,14 +12,10 @@ layout(location = 0) out vec4 color;
 
 void main() {
 	color = texture(colortex0, texcoord);
-	
-
-
 
 	float depth = texture(depthtex0, texcoord).r;
 	float depth1 = texture(depthtex1, texcoord).r;
-	vec3 LightVector=normalize(shadowLightPosition);
-	vec3 worldLightVector=mat3(gbufferModelViewInverse)*LightVector;
+	
 
 	if (depth == 1.0) 
 	{
