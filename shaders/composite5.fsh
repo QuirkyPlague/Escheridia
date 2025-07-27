@@ -109,9 +109,13 @@ void main()
 	reflectionHit = true;
 	reflectionHit && raytrace(viewPos, reflectedDir,SSR_STEPS, jitter,  reflectedPos);
 	
-	
+	if(!isMetal && !isWater && !isColdBiome)
+	{
+		float currentRoughness =  pow(1.0 - SpecMap.r, 2.0);
+		float wetRoughness = currentRoughness * 0.02;
+		roughness = mix(currentRoughness, wetRoughness,  clamp( wetness, 0,1));
 		
-	
+	}
 	vec3 normalReflectedPos = reflectedPos;
 	vec3 reflectedViewPos = screenSpaceToViewSpace(reflectedPos);
 	float reflectedDist = distance(viewPos, reflectedViewPos);
@@ -186,18 +190,18 @@ void main()
 			}
 			else
 			{
-				vec3 skyMieReflection = calcMieSky(reflect(normalize(viewPos), normal), worldLightVector, sunColor, viewPos, texcoord) ;
-					vec3 skyReflection = calcSkyColor(reflect(normalize(viewPos), normal));
-					vec3 sunReflection = skyboxSun(lightVector,reflect(normalize(viewPos), normal), sunColor) ;
+				vec3 skyMieReflection = calcMieSky(reflect(normalize(viewPos), normal), worldLightVector, sunColor, viewPos, texcoord) * 7 ;
+					vec3 skyReflection = calcSkyColor(reflect(normalize(viewPos), normal)) * 5;
+					vec3 sunReflection = skyboxSun(lightVector,reflect(normalize(viewPos), normal), sunColor) * 3;
 					skyReflection = mix(sunReflection, skyReflection, 0.5);
 					vec3 fullSkyReflection = mix(skyReflection, skyMieReflection, 0.5);
 					reflectedColor = fullSkyReflection;
 			}
 		 	if(clamp(reflectedPos.xy, 0, 1) != reflectedPos.xy)
 			{
-				vec3 skyMieReflection = calcMieSky(reflect(normalize(viewPos), normal), worldLightVector, sunColor, viewPos, texcoord) ;
-					vec3 skyReflection = calcSkyColor(reflect(normalize(viewPos), normal));
-					vec3 sunReflection = skyboxSun(lightVector,reflect(normalize(viewPos), normal), sunColor);
+				vec3 skyMieReflection = calcMieSky(reflect(normalize(viewPos), normal), worldLightVector, sunColor, viewPos, texcoord) * 7 ;
+					vec3 skyReflection = calcSkyColor(reflect(normalize(viewPos), normal)) * 5;
+					vec3 sunReflection = skyboxSun(lightVector,reflect(normalize(viewPos), normal), sunColor) * 3;
 					skyReflection = mix(sunReflection, skyReflection, 0.5);
 					vec3 fullSkyReflection = mix(skyReflection, skyMieReflection, 0.5);
 					reflectedColor = fullSkyReflection;
