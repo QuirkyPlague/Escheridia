@@ -3,7 +3,7 @@
 
 //implemented from  Very fast procedural ocean: https://www.shadertoy.com/view/MdXyzX
 
-#define DRAG_MULT 0.9 * WAVE_PULL // changes how much waves pull on the water
+#define DRAG_MULT 1.0 * WAVE_PULL // changes how much waves pull on the water
 const int waveOctaves =  WAVE_OCTAVES; // waves iterations when calculating normals
 
 
@@ -40,7 +40,7 @@ float getwaves(vec2 position, int iterations) {
     sumOfWeights += weight;
 
     // modify next octave ;
-    weight = mix(weight, 0.71, 0.9);
+    weight = mix(weight, 0.11, 0.8);
     frequency *= 0.93 * WAVE_FREQUENCY;
     timeMultiplier *= 1.17 * WAVE_SPEED;
 

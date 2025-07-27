@@ -130,20 +130,14 @@ float Rayleigh(float costh)
 {
     return 3.0 / (16.0 * PI) * (1.0 + costh * costh);
 }
+
 vec3 skyboxSun(vec3 sunPos, vec3 dir,vec3 sunColor)
 {
     vec3 col = vec3(0.0);
     float sun_a = acos(dot(sunPos, dir));
     vec3 sun_col = 1.3 * (sunColor * vec3(0.3412, 0.302, 0.2784) * SUN_SIZE) / sun_a;
-    if (worldTime >= 0 && worldTime < 1000)
-    {
-        sun_col = .12 * (sunColor * vec3(0.6941, 0.3922, 0.1725) * SUN_SIZE) / sun_a;
-    }
-    if(isNight)
-    {
-        sun_col = .052 * ( vec3(0.2039, 0.4471, 0.6863) * SUN_SIZE) / sun_a;
-    }
-    col = max(col + .04 * sun_col, sun_col);
+
+    col = max(col + .07 * sun_col, sun_col);
     return col;
 }
 

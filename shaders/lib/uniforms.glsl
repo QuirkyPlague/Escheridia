@@ -8,7 +8,9 @@ uniform mat4 gbufferProjectionInverse;
 uniform mat4 gbufferModelViewInverse;
 uniform mat4 gbufferModelView;
 uniform mat4 shadowModelView;
+uniform mat4 shadowModelViewInverse;
 uniform mat4 shadowProjection;
+uniform mat4 shadowProjectionInverse;
 uniform vec3 shadowLightPosition;
 
 //buffers
@@ -65,7 +67,14 @@ uniform float constantMood;
 uniform float sunAngle;
 uniform float playerMood;
 uniform float moodSmooth;
+uniform int biome;
+uniform bool isHotBiome;
+uniform bool isColdBiome;
 bool isNight = worldTime >= 13000 && worldTime < 23000;
 bool isRaining = rainStrength <= 1.0 && rainStrength > 0.0;
+bool inWater=isEyeInWater==1.;
+
+const vec3 lightVector = normalize(shadowLightPosition);
+const vec3 worldLightVector = mat3(gbufferModelViewInverse) * lightVector;
 
 #endif //UNIFORMS_GLSL

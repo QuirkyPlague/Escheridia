@@ -18,18 +18,22 @@ vec3 brdf(vec3 albedo, vec3 F0, vec3 L, vec3 currentSunlight,vec3 N, vec3 H,vec3
     float G   = GeometrySmith(N, V, L, roughness); 
 
     vec3 numerator    = NDF * G * F;
-    float denominator = 4.0 * clamp(dot(N, V), 0.0, 1.0) * clamp(dot(N, L), 0.0, 1.0)  + 0.0001;
+    float denominator = 4.0 * clamp(dot(N, V), 0.0, 1.0)  + 0.0001;
     vec3 spec     = numerator / denominator;  
     vec3 kS = F;
-    vec3 kD = vec3(1.0) - kS;  
+    vec3 kD = vec3(1.0) - kS; 
+    #ifdef DO_SSR
     if(SpecMap.g >= 230.0/255.0) 
     {
-      kD *= 0.6; 
+      kD *= 0.0; 
     }
+    #else
+    kD *= 1.0;
+    #endif
     // add to outgoing radiance Lo
     float NdotL = max(dot(N, L), 0.0);        
-    Lo += (kD * albedo / PI + spec) * radiance * NdotL;
-
+    Lo = (kD * albedo / PI) * radiance * NdotL;
+    Lo += (spec * 0.4) * radiance;
     indirect *=   albedo / PI;
    
   

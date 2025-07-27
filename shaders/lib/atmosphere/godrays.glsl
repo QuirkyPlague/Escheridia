@@ -24,7 +24,7 @@ vec3 sampleGodrays(vec3 godraySample, vec2 texcoord, vec3 feetPlayerPos, float d
   	bool isWater=blockID==WATER_ID;
 
 	//godray parameters
-    const float exposure = 0.3;
+    const float exposure = 0.5;
     const float decay = 1.0;
     const float density = 1.0;
     float weight =  0.12 * (GODRAY_DENSITY); 
@@ -38,8 +38,7 @@ vec3 sampleGodrays(vec3 godraySample, vec2 texcoord, vec3 feetPlayerPos, float d
     vec3 sunScreenPos = viewSpaceToScreenSpace(shadowLightPosition);
     sunScreenPos.xy = clamp(sunScreenPos.xy, vec2(-0.5), vec2(1.5));
 
-	vec3 lightVector = normalize(shadowLightPosition);
-	vec3 worldLightVector = mat3(gbufferModelViewInverse) * lightVector;
+	
 	float VoL = dot(normalize(feetPlayerPos), worldLightVector);
 
 	vec2 deltaTexCoord = (texcoord - (sunScreenPos.xy)); 
@@ -93,7 +92,7 @@ vec3 sampleGodrays(vec3 godraySample, vec2 texcoord, vec3 feetPlayerPos, float d
 	godraySample /= GODRAYS_SAMPLES;
 	if(inWater)
 	{
-		godraySample *= HG(0.32, VoL);
+		godraySample *= HG(0.6, VoL);
 	}
 	else
 	{

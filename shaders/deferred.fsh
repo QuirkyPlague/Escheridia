@@ -2,8 +2,6 @@
 
 #include "/lib/uniforms.glsl"
 #include "/lib/lighting/lighting.glsl"
-#include "/lib/shadows/distort.glsl"
-#include "/lib/shadows/drawShadows.glsl"
 #include "/lib/shadows/softShadows.glsl"
 #include "/lib/brdf.glsl"
 #include "/lib/blockID.glsl"
@@ -82,14 +80,12 @@ void main() {
 	
 	if (emission >= 0.0/255.0 && emission < 255.0/255.0)
 	{
-		emissive += albedo * (emission * 2 )  * EMISSIVE_MULTIPLIER;
+		emissive += albedo * (emission * 3 )  * EMISSIVE_MULTIPLIER;
   
 	}
 
-	
 	const vec3 shadow = getSoftShadow(feetPlayerPos, geoNormal, sss);
-	const vec3 lightVector = normalize(shadowLightPosition);
-	const vec3 worldLightVector = mat3(gbufferModelViewInverse) * lightVector;
+
 	
 	const vec3 V = normalize(cameraPosition - worldPos);
   	const vec3 L = normalize(worldLightVector);
@@ -100,6 +96,7 @@ void main() {
 	vec3 sunlight;
 	vec3 currentSunlight = getCurrentSunlight(sunlight, normal, shadow, worldLightVector, sss, feetPlayerPos, isWater);
 	vec3 specular = brdf(albedo, f0, L, currentSunlight, normal, H, V, roughness, SpecMap, diffuse);
+
 	vec3 lighting;
 	
 	#if RESOURCE_PACK_SUPPORT == 0

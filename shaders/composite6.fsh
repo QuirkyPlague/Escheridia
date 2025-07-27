@@ -1,11 +1,7 @@
 #version 420 compatibility
 
 #include "/lib/uniforms.glsl"
-#include "/lib/FXAA.glsl" 
-#include "/lib/atmosphere/godrays.glsl"
 #include "/lib/atmosphere/distanceFog.glsl"
-#include "/lib/blockID.glsl"
-#include "/lib/water/waterFog.glsl"
 in vec2 texcoord;
 
 
@@ -19,9 +15,7 @@ void main() {
 
 	float depth = texture(depthtex0, texcoord).r;
 	float depth1 = texture(depthtex1, texcoord).r;
-	vec3 LightVector=normalize(shadowLightPosition);
-	vec3 worldLightVector=mat3(gbufferModelViewInverse)*LightVector;
-
+	
 	if (depth == 1.0) 
 	{
   		return;
@@ -38,7 +32,6 @@ void main() {
 	vec3 atmosphereFog = atmosphericFog(color.rgb, viewPos, texcoord, depth, lightmap);
 	vec3 fullFog = mix(atmosphereFog, mieFog, 0.4);
 	
-
 	if(isMetal)
 	{
 		color.rgb = mix(color.rgb, fullFog, 1.0);

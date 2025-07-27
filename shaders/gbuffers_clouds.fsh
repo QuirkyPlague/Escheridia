@@ -22,8 +22,5 @@ void main() {
 	color = texture(gtexture, texcoord) * glcolor ;
 	reflCloud = texture(gtexture, texcoord) * glcolor;
 	
-	vec3 LightVector=normalize(shadowLightPosition);
-	vec3 worldLightVector=mat3(gbufferModelViewInverse)*LightVector;
-	//reflCloud = cloudScatter(reflCloud, worldLightVector, feetPlayerPos, viewPos);
 	
 }

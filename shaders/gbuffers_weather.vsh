@@ -20,7 +20,7 @@ void main() {
 	glcolor = gl_Color;
 	viewPos = (gl_ModelViewMatrix * gl_Vertex).xyz;
   	vec3 feetPlayerPos = (gbufferModelViewInverse * vec4(viewPos, 1.0)).xyz;
-  	feetPlayerPos.xz += feetPlayerPos.y * -0.15;
+  	feetPlayerPos.xz += feetPlayerPos.y * -0.35;
   	viewPos = (gbufferModelView * vec4(feetPlayerPos, 1.0)).xyz;
 
  	 gl_Position = gbufferProjection * vec4(viewPos, 1.0);
