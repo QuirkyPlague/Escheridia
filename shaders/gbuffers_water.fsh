@@ -35,7 +35,7 @@ void main() {
 	if (color.a < 0.1) {
 		discard;
 	}
-	vec3 normalMaps = texture2DLod(normals, texcoord, 0).rgb;
+	vec3 normalMaps = texture(normals, texcoord).rgb;
 	normalMaps = normalMaps * 2.0 - 1.0;
 	normalMaps.xy /= (254.0/255.0);
 	normalMaps.z = sqrt(1.0 - dot(normalMaps.xy, normalMaps.xy));
@@ -91,7 +91,7 @@ void main() {
 	vec3 shadow = getSoftShadow(feetPlayerPos,geoNormal.rgb, sss);
 	const bool isMetal = specMap.g >= 230.0/255.0;
 	float ao = texture(normals, texcoord).z;
-  	vec3 diffuse = doDiffuse(texcoord, lightmapData.rg, geoNormal.rgb, worldLightVector, shadow, viewPos, sss, feetPlayerPos, isMetal, ao);
+  	vec3 diffuse = doDiffuse(texcoord, lightmapData.rg, normal, worldLightVector, shadow, viewPos, sss, feetPlayerPos, isMetal, ao);
 	vec3 sunlight;
 	
 	bool isWater;

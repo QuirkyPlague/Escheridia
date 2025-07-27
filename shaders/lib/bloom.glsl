@@ -5,23 +5,22 @@
 #include "/lib/water/waterFog.glsl"
 #include "/lib/common.glsl"
 //Adapted from https://learnopengl.com/Guest-Articles/2022/Phys.-Based-Bloom and Glimmer Shaders https://github.com/jbritain/glimmer-shaders
-vec3 powVec3(vec3 v, float p)
-{
-    return vec3(pow(v.x, p), pow(v.y, p), pow(v.z, p));
+vec3 powVec3(vec3 v, float p) {
+  return vec3(pow(v.x, p), pow(v.y, p), pow(v.z, p));
 }
 
-vec3 toSRGB(vec3 v) { return powVec3(v, 1.0/2.2); }
-
-float RGBToLuminance(vec3 col)
-{
-    return dot(col, vec3(0.2126f, 0.7152f, 0.0722f));
+vec3 toSRGB(vec3 v) {
+  return powVec3(v, 1.0 / 2.2);
 }
 
-float karisAverage(vec3 col)
-{
-    // Formula is 1 / (1 + luma)
-    float luma = RGBToLuminance(toSRGB(col)) * 0.25f;
-    return 1.0f / (1.0f + luma);
+float RGBToLuminance(vec3 col) {
+  return dot(col, vec3(0.2126f, 0.7152f, 0.0722f));
+}
+
+float karisAverage(vec3 col) {
+  // Formula is 1 / (1 + luma)
+  float luma = RGBToLuminance(toSRGB(col)) * 0.25f;
+  return 1.0f / (1.0f + luma);
 }
 
 
@@ -77,7 +76,7 @@ vec3 downsampleScreen(sampler2D srcTexture, vec2 texCoord, bool doKaris)
         vec3 group1 = (b+c+e+f) * (0.124/4.0);
         vec3 group2 = (d+e+g+h) * (0.125/4.0);
         vec3 group3 = (e+f+h+i) * (0.125/4.0);
-        vec3 group4 = (j+k+l+m) * (0.5/4.0);
+        vec3 group4 = (j+k+l+m) * (0.5/1.0);
         group0 *= karisAverage(group0);
         group1 *= karisAverage(group1);
         group2 *= karisAverage(group2);
@@ -129,7 +128,7 @@ vec3 upSample(sampler2D srcTexture,vec2 texCoord)
     upsample += (a+c+g+i);
     upsample *= 1.0 / 16.0;
 
-   
+   upsample = max(upsample, 0.0001f);
     return upsample;
 }
 

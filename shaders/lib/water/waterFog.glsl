@@ -43,6 +43,8 @@ vec3 waterExtinction(vec3 color, vec2 texcoord, vec2 lightmap, float depth, floa
     vec3 inscatteringAmount = vec3(0.0);
     inscatteringAmount = waterScatter(inscatteringAmount);
     inscatteringAmount *= SCATTER_COEFF;
+    inscatteringAmount *= eyeBrightnessSmooth.y;
+    inscatteringAmount *= 0.005;
     vec3 absorptionFactor=exp(-absorption*WATER_FOG_DENSITY*(dist* ABSORPTION_COEFF));
   
       color *= absorptionFactor;

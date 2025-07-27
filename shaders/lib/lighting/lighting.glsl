@@ -14,6 +14,7 @@ const vec3 morningSunlightColor = vec3(0.9882, 0.4902, 0.1804)* 6.3;
 const vec3 eveningSunlightColor = vec3(1.0, 0.4078, 0.3059) * 2.4;
 const vec3 moonlightColor = vec3(0.1176, 0.2941, 0.6235) * 3;
 vec3 ambientColor = vec3(0.2824, 0.2824, 0.2824);
+vec3 rainSun = vec3(0.8353, 0.8353, 0.8353);
 
 
 
@@ -21,7 +22,8 @@ vec3 doDiffuse(vec2 texcoord, vec2 lightmap, vec3 normal, vec3 sunPos, vec3 shad
 {
     vec3 blocklight = lightmap.r * blocklightColor;
     vec3 skylight = lightmap.g * skylightColor;
-    vec3 nightSkylight = lightmap.g * nightSkylightColor;
+    const vec3 nightSkylight = lightmap.g * nightSkylightColor;
+    vec3 rainSkylight = lightmap.g * vec3(0.5412, 0.6235, 0.6667);
     vec3 scatterSun;
     vec3 SSS;
     vec3 fullScatter;
@@ -68,8 +70,11 @@ vec3 doDiffuse(vec2 texcoord, vec2 lightmap, vec3 normal, vec3 sunPos, vec3 shad
       scatterSun*= HG(SSS_HG, VoL);
       fullScatter = mix(SSS,scatterSun, 0.5) * 1.5;
       sunlight = mix(sunlight, fullScatter, SSS_INTENSITY);
+      rainSun = mix(rainSun, rainSun * 0.2, time);
+      
     }
 	  skylight = mix(skylight * 0.7, nightSkylight, time);
+    rainSkylight = mix(rainSkylight, rainSkylight * 0.1, time);
   }
    else if (worldTime >= 13000 && worldTime < 24000)
   {
@@ -81,29 +86,21 @@ vec3 doDiffuse(vec2 texcoord, vec2 lightmap, vec3 normal, vec3 sunPos, vec3 shad
       scatterSun*= HG(SSS_HG, VoL);
       fullScatter = mix(SSS,scatterSun, 0.5) * 1.5;
       sunlight = mix(sunlight, fullScatter, SSS_INTENSITY);
+      rainSun = mix(rainSun * 0.2, rainSun, time);
+      
     }
 	  skylight = mix(nightSkylight, skylight, time);
-	  
+	  rainSkylight = mix(rainSkylight * 0.1, rainSkylight, time);
   }
-    if(isRaining)
-  {
-    float dryToWet = smoothstep(0.0, 1.0, float(rainStrength));
-    vec3 currentSunlight = sunlight;
-    vec3 rainSun = vec3(0.8353, 0.8353, 0.8353);
-    vec3 rainSkylight = lightmap.g * vec3(0.7412, 0.8235, 0.8667);
+
     vec3 rainScatter = fullScatter * 0.1;
-    vec3 rainScatterFactor = mix(fullScatter, rainScatter, dryToWet);
-   if(isNight)
-   {
-    rainSun *= 0.1;
-    rainSkylight *= 0.1;
-   }
-    vec3 currentSkylight = skylight;
+    vec3 rainScatterFactor = mix(fullScatter, rainScatter, wetness);
+  
     
-    skylight = mix(currentSkylight, rainSkylight, dryToWet) * lightmap.g;
-    sunlight = mix(currentSunlight, rainSun, dryToWet);
+    skylight = mix(skylight, rainSkylight, wetness);
+    sunlight = mix(sunlight, rainSun, wetness);
     sunlight = mix(sunlight, rainScatterFactor, SSS_INTENSITY);
-  }
+ 
   
    blocklight += max(1.9 * pow(blocklight, vec3(4.8)), 0.0);
    blocklight += clamp(min(0.17 * pow(blocklight, vec3(0.8)), 5.2), 0, 1);
@@ -111,7 +108,7 @@ vec3 doDiffuse(vec2 texcoord, vec2 lightmap, vec3 normal, vec3 sunPos, vec3 shad
    
    
    vec3 ambientMood = vec3(0.6157, 0.6157, 0.6157);
-    vec3 ambient = mix(ambientColor, ambientMood * 1.2, moodSmooth);
+    vec3 ambient = mix(ambientColor, ambientMood, moodSmooth);
     float lightmapSmooth = smoothstep( 1.0,0.515, lightmap.g);
     vec3 indirect =  ambient+ blocklight+ skylight;
     indirect *= ao;
@@ -148,22 +145,11 @@ vec3 getCurrentSunlight(vec3 sunlight, vec3 normal,vec3 shadow, vec3 sunPos, flo
   {
     float time = smoothstep(23250, 24000, float(worldTime));
     sunlight = mix(moonlightColor , morningSunlightColor, time)  * shadow;
-
+    rainSun = mix(rainSun, rainSun * 0.2, time);
 	
   }
-  if(isRaining)
-  {
-    float dryToWet = smoothstep(0.0, 1.0, float(rainStrength));
-    vec3 currentSunlight = sunlight;
-    vec3 rainSun = vec3(1.0, 1.0, 1.0) * 2 ;
-   if(isNight)
-   {
-    rainSun *= 0.03;
-   }
-    sunlight = mix(currentSunlight, rainSun, dryToWet)  * shadow;
-   
 
-  }
+    sunlight = mix(sunlight, rainSun, wetness) * shadow;
   }
      
     return sunlight;
@@ -186,24 +172,18 @@ vec3 currentSunColor(vec3 color)
   {
      float time = smoothstep(12800, 13000, float(worldTime));
     color = mix(eveningSunlightColor * 0.4, moonlightColor * 0.2 , time);
+    rainSun = mix(rainSun, rainSun *0.2, time);
   }
    else if (worldTime >= 13000 && worldTime < 24000)
   {
     float time = smoothstep(21000, 24000, float(worldTime));
     color = mix(moonlightColor * 0.1  , morningSunlightColor* 1.5, time);
+     rainSun = mix(rainSun * 0.2, rainSun , time);
   }
-  if(isRaining)
-  {
-    float dryToWet = smoothstep(0.0, 1.0, float(rainStrength));
-    vec3 currentSunlight = color;
-    vec3 rainSun = vec3(0.7255, 0.7255, 0.7255);
-   if(isNight)
-   {
-    rainSun *= 0.03;
-   }
-    color = mix(currentSunlight, rainSun, dryToWet);
   
-  }
+  color = mix(color, rainSun, wetness);
+  
+  
   return color;
   }
   

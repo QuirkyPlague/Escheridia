@@ -109,17 +109,14 @@ void main()
 	reflectionHit = true;
 	reflectionHit && raytrace(viewPos, reflectedDir,SSR_STEPS, jitter,  reflectedPos);
 	
-	if(!isMetal && !isWater)
-	{
-		float currentRoughness = roughness;
-		float wetRoughness = 0.03;
-		roughness = mix(currentRoughness, wetRoughness,  clamp( wetness, 0,1));
-	}
+	
+		
+	
 	vec3 normalReflectedPos = reflectedPos;
 	vec3 reflectedViewPos = screenSpaceToViewSpace(reflectedPos);
 	float reflectedDist = distance(viewPos, reflectedViewPos);
 	
-	float lod = min(4.0 * (1.0 -pow(roughness, 4.0)), reflectedDist);
+	float lod = min(3.0 * (1.0 -pow(roughness, 8.0)), reflectedDist);
 	if(roughness <= 0.0 || isWater) lod = 0.0;
 
 	#ifdef ROUGH_REFLECTION
@@ -157,7 +154,8 @@ void main()
 					skyReflection = mix(sunReflection, skyReflection, 0.5);
 					vec3 fullSkyReflection = mix(skyReflection, skyMieReflection, 0.5);
 					reflectedColor = fullSkyReflection;
-					reflectedColor *= smoothstep(0.815, 1.0, lightmap.g);
+					float smoothLightmap = smoothstep(0.882, 1.0, lightmap.g);
+					reflectedColor = mix(color.rgb, reflectedColor, smoothLightmap);
 				}
 				
 			}
@@ -170,7 +168,9 @@ void main()
 				skyReflection = mix(sunReflection, skyReflection, 0.5);
 				vec3 fullSkyReflection = mix(skyReflection, skyMieReflection, 0.5);
 				reflectedColor = fullSkyReflection;
-				reflectedColor *= smoothstep(0.815, 1.0, lightmap.g);	
+				float smoothLightmap = smoothstep(0.882, 1.0, lightmap.g);
+				reflectedColor = mix(color.rgb, reflectedColor, smoothLightmap);
+				
 			}
 			if(clamp(reflectedPos.xy, 0, 1) != reflectedPos.xy && inWater)
 			{
@@ -178,29 +178,32 @@ void main()
 			}
 		}		
 	}
-	if(roughness < 0.1 + wetness && !isMetal && SpecMap.r <= 155.0/255.0 && !isWater)
+	if(roughness < 0.1 + wetness && !isMetal && SpecMap.r <= 155.0/255.0 && !isWater && !isColdBiome)
 	{
-		if(reflectedPos.z < 1.0)
+		if(reflectedPos.z < 0.99995)
 			{
 				reflectedColor = texture2DLod(colortex0, reflectedPos.xy, lod).rgb;
 			}
 			else
 			{
-				vec3 skyMieReflection = calcMieSky(reflect(normalize(viewPos), normal), worldLightVector, sunColor, viewPos, texcoord);
-      				vec3 skyReflection = calcSkyColor(reflect(normalize(viewPos), normal));
+				vec3 skyMieReflection = calcMieSky(reflect(normalize(viewPos), normal), worldLightVector, sunColor, viewPos, texcoord) ;
+					vec3 skyReflection = calcSkyColor(reflect(normalize(viewPos), normal));
+					vec3 sunReflection = skyboxSun(lightVector,reflect(normalize(viewPos), normal), sunColor) ;
+					skyReflection = mix(sunReflection, skyReflection, 0.5);
 					vec3 fullSkyReflection = mix(skyReflection, skyMieReflection, 0.5);
 					reflectedColor = fullSkyReflection;
-					reflectedColor = mix(reflectedColor, reflectedColor, lod);
 			}
 		 	if(clamp(reflectedPos.xy, 0, 1) != reflectedPos.xy)
 			{
-				vec3 skyMieReflection = calcMieSky(reflect(normalize(viewPos), normal), worldLightVector, sunColor, viewPos, texcoord);
-      				vec3 skyReflection = calcSkyColor(reflect(normalize(viewPos), normal));
+				vec3 skyMieReflection = calcMieSky(reflect(normalize(viewPos), normal), worldLightVector, sunColor, viewPos, texcoord) ;
+					vec3 skyReflection = calcSkyColor(reflect(normalize(viewPos), normal));
+					vec3 sunReflection = skyboxSun(lightVector,reflect(normalize(viewPos), normal), sunColor);
+					skyReflection = mix(sunReflection, skyReflection, 0.5);
 					vec3 fullSkyReflection = mix(skyReflection, skyMieReflection, 0.5);
 					reflectedColor = fullSkyReflection;
-					reflectedColor = mix(reflectedColor, reflectedColor, lod);
 			}
-			reflectedColor *= smoothstep(0.9, 1.0, lightmap.g);
+			float smoothLightmap = smoothstep(0.882, 1.0, lightmap.g);
+			reflectedColor = mix(color.rgb, reflectedColor, smoothLightmap);
 	}
 	#else
 	if(canReflect || isMetal || isWater)

@@ -12,8 +12,8 @@ vec3 lateHorizon = vec3(0.0);
 vec3 lateZenith = vec3(0.0);
 vec3 nightHorizon = vec3(0.0);
 vec3 nightZenith = vec3(0.0);
-vec3 rainHorizon = vec3(0.298, 0.298, 0.298);
-vec3 rainZenith = vec3(0.0, 0.0, 0.0); 
+vec3 rainHorizon = vec3(0.5765, 0.5765, 0.5765);
+vec3 rainZenith = vec3(0.4196, 0.4196, 0.4196); 
 
 vec3 dayZenith(vec3 color)
 {
@@ -123,20 +123,15 @@ vec3 calcSkyColor(vec3 pos)
       float time = smoothstep(23500, 24000, float(worldTime));
 	    horizon = mix(nightHorizon, earlyHorizon , time);
    	  zenith = mix(nightZenith, earlyZenith,time);
-    }
-
-    vec3 currentZenithColor = zenith;
-    vec3 currentHorizonColor = horizon;
-
-    if(worldTime >= 13000 && worldTime < 24000)
-    {
-    
       rainHorizon = rainHorizon * rayleigh;
+      rainZenith = rainZenith * rayleigh;
     }
+
+
 
       
-    zenith = mix(currentZenithColor, rainZenith, pow(wetness, 1.0/16.0));
-    horizon = mix(currentHorizonColor, rainHorizon, pow(wetness, 1.0/16.0));
+       zenith = mix(zenith, rainZenith, wetness);
+      horizon = mix(horizon, rainHorizon, wetness);
 
 	  float upDot = dot(normalize(pos), gbufferModelView[1].xyz); //not much, what's up with you?
 	  vec3 sky = mix(zenith, horizon, fogify(max(upDot, 0.0), 0.032));

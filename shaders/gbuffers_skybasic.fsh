@@ -26,8 +26,8 @@ vec3 lateHorizon = vec3(0.0);
 vec3 lateZenith = vec3(0.0);
 vec3 nightHorizon = vec3(0.0);
 vec3 nightZenith = vec3(0.0);
-vec3 rainHorizon = vec3(0.5098, 0.5098, 0.5098) *4;
-vec3 rainZenith = vec3(0.2157, 0.2157, 0.2157) * 5; 
+vec3 rainHorizon = vec3(0.8941, 0.8941, 0.8941);
+vec3 rainZenith = vec3(0.7529, 0.7529, 0.7529); 
 
 vec3 dayZenith(vec3 color)
 {
@@ -100,7 +100,7 @@ vec3 calcSkyColor(vec3 pos)
     //color assignments
     //DAY
     horizonColor = dayHorizon(horizonColor) * rayleigh * 31.14;
-    zenithColor= dayZenith(zenithColor) * rayleigh * 31.14;
+    zenithColor= dayZenith(zenithColor) * rayleigh * 38.14;
     //DAWN
     earlyHorizon = dawnHorizon(earlyHorizon) * rayleigh * 29.14;
     earlyZenith = dawnZenith(earlyZenith) * rayleigh * 25.14  ;
@@ -110,7 +110,8 @@ vec3 calcSkyColor(vec3 pos)
     //NIGHT
     nightHorizon = NightHorizon(nightHorizon) * rayleigh * 37.14;
     nightZenith = NightZenith(nightZenith) * rayleigh * 21.14;
-    
+     rainHorizon = rainHorizon * rayleigh * 32;
+      rainZenith = rainZenith * rayleigh * 22;
     if (worldTime >= 0 && worldTime < 1000)
     {
       //smoothstep equation allows interpolation between times of day
@@ -135,24 +136,13 @@ vec3 calcSkyColor(vec3 pos)
       float time = smoothstep(23000, 24000, float(worldTime));
 	    horizon = mix(nightHorizon, earlyHorizon , time);
    	  zenith = mix(nightZenith, earlyZenith,time);
+      rainZenith *= 0.2;
+      rainHorizon *= 0.3;
 	  
     }
 
-    if(rainStrength <= 1.0 && rainStrength > 0.0)
-    {
-      vec3 currentZenithColor = zenith;
-      vec3 currentHorizonColor = horizon;
-
-      if(worldTime >= 13000 && worldTime < 24000)
-      {
-        rainZenith *=  0.2;
-        rainHorizon *=  0.34;
-      }
-
-      float dryToWet = smoothstep(0.0, 1.0, float(rainStrength));
-      zenith = mix(currentZenithColor, rainZenith, dryToWet);
-      horizon = mix(currentHorizonColor, rainHorizon, dryToWet);
-    }
+      zenith = mix(zenith, rainZenith, wetness);
+      horizon = mix(horizon, rainHorizon, wetness);
 
     
 	  float upDot = dot(pos, gbufferModelView[1].xyz); //not much, what's up with you?
