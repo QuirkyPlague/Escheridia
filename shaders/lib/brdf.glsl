@@ -2,14 +2,14 @@
 #define BRDF_GLSL
 
 
-vec3 brdf(vec3 albedo, vec3 F0, vec3 L, vec3 currentSunlight,vec3 N, vec3 H,vec3 V, float roughness, vec4 SpecMap, vec3 indirect)
+vec3 brdf(vec3 albedo, vec3 F0, vec3 L, vec3 currentSunlight,vec3 N, vec3 H,vec3 V, float roughness, vec4 SpecMap, vec3 indirect, vec3 shadow)
 {
   vec3 Lo = vec3(0.0);
     
     // calculate per-light radiance
     float dist    = length(L);
     float attenuation = 1.0 * (dist * dist);
-    vec3 radiance    = currentSunlight * attenuation ;  
+    vec3 radiance    = (currentSunlight* shadow) * attenuation ;  
    
     vec3 F  = fresnelSchlick(max(dot(H, V),0.0), F0);
         

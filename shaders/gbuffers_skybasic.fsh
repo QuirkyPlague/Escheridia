@@ -99,19 +99,19 @@ vec3 calcSkyColor(vec3 pos)
     const float rayleigh = Rayleigh(VoL) * RAYLEIGH_COEFF;
     //color assignments
     //DAY
-    horizonColor = dayHorizon(horizonColor) * rayleigh * 31.14;
-    zenithColor= dayZenith(zenithColor) * rayleigh * 38.14;
+    horizonColor = dayHorizon(horizonColor) * rayleigh * 41.14;
+    zenithColor= dayZenith(zenithColor) * rayleigh * 43.14;
     //DAWN
-    earlyHorizon = dawnHorizon(earlyHorizon) * rayleigh * 29.14;
-    earlyZenith = dawnZenith(earlyZenith) * rayleigh * 25.14  ;
+    earlyHorizon = dawnHorizon(earlyHorizon) * rayleigh * 34.14;
+    earlyZenith = dawnZenith(earlyZenith) * rayleigh * 34.14  ;
     //DUSK
     lateHorizon = duskHorizon(lateHorizon) * rayleigh * 20.14;
     lateZenith = duskZenith(lateZenith) * rayleigh * 20.14;
     //NIGHT
     nightHorizon = NightHorizon(nightHorizon) * rayleigh * 37.14;
     nightZenith = NightZenith(nightZenith) * rayleigh * 21.14;
-     rainHorizon = rainHorizon * rayleigh * 32;
-      rainZenith = rainZenith * rayleigh * 22;
+     rainHorizon = rainHorizon * rayleigh * 24;
+      rainZenith = rainZenith * rayleigh * 16;
     if (worldTime >= 0 && worldTime < 1000)
     {
       //smoothstep equation allows interpolation between times of day
@@ -133,10 +133,10 @@ vec3 calcSkyColor(vec3 pos)
     }
    else if (worldTime >= 13000 && worldTime < 24000)
     {
-      float time = smoothstep(23000, 24000, float(worldTime));
+      float time = smoothstep(22500, 24000, float(worldTime));
 	    horizon = mix(nightHorizon, earlyHorizon , time);
    	  zenith = mix(nightZenith, earlyZenith,time);
-      rainZenith *= 0.2;
+      rainZenith *= 0.4;
       rainHorizon *= 0.3;
 	  
     }
@@ -147,21 +147,21 @@ vec3 calcSkyColor(vec3 pos)
     
 	  float upDot = dot(pos, gbufferModelView[1].xyz); //not much, what's up with you?
 	  vec3 sky = mix(zenith, horizon, fogify(max(upDot, 0.0), 0.024));
-   
+    vec3 feetPlayerPos = (gbufferModelViewInverse * vec4(viewPos, 1.0)).xyz;
     vec3 sunColor = vec3(0.0);
     sunColor = currentSunColor(sunColor);
-    const float sunA = acos(dot(lightVector, pos)) * SUN_SIZE;
-     vec3 sunCol = .05 * (sunColor * vec3(0.8627, 0.6824, 0.5686)) / sunA;
+    const float sunA = acos(dot(worldLightVector, normalize(feetPlayerPos))) * SUN_SIZE * clamp(AIR_FOG_DENSITY, 0.8, 5.0);
+    vec3 sunCol = .06 * ((sunColor  )) / sunA;
     
-    sky = max(sky + .07 * sunCol , sunCol - wetness);
-
+    vec3 sun = max(sky + .07 * sunCol , sunCol - wetness);
+    sky = mix(sky, sun, 1.0);
     return sky;
 }
 
 vec3 calcMieSky(vec3 pos, vec3 lightPos, vec3 sunColor, vec3 viewPos, vec2 texcoord) 
 {
     //Mie scattering assignments
-    const vec3 mieScatterColor = vec3(0.1922, 0.1608, 0.1333) * MIE_SCALE * sunColor;
+    const vec3 mieScatterColor = vec3(0.5216, 0.3725, 0.1922) * MIE_SCALE * sunColor ;
   
     vec3 mieScat = mieScatterColor;
 
@@ -179,7 +179,7 @@ vec3 calcMieSky(vec3 pos, vec3 lightPos, vec3 sunColor, vec3 viewPos, vec2 texco
     }
     
  
-    mieScat *= HG(0.65, VoL);
+    mieScat *= CS(0.75, VoL);
     return mieScat;
 }
 
@@ -199,7 +199,7 @@ if (renderStage == MC_RENDER_STAGE_STARS) {
     vec3 sunColor = vec3(0.0);
     sunColor = currentSunColor(sunColor);
     vec4 skyMie = vec4(calcMieSky(normalize(pos), worldLightPos, sunColor, viewPos, texcoord), 1.0);
-    color = mix(skyMie,skyMain, 0.5);
+    color = mix(skyMie, skyMain, 0.4);
     
 	}
 }

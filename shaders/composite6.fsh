@@ -16,10 +16,7 @@ void main() {
 	float depth = texture(depthtex0, texcoord).r;
 	float depth1 = texture(depthtex1, texcoord).r;
 	
-	if (depth == 1.0) 
-	{
-  		return;
-	}
+	
 	vec2 lightmap =texture(colortex1, texcoord).rg;
 	vec3 NDCPos = vec3(texcoord.xy, depth) * 2.0 - 1.0;
 	vec3 viewPos = projectAndDivide(gbufferProjectionInverse, NDCPos);
@@ -32,10 +29,12 @@ void main() {
 	vec3 atmosphereFog = atmosphericFog(color.rgb, viewPos, texcoord, depth, lightmap);
 	vec3 fullFog = mix(atmosphereFog, mieFog, 0.4);
 	
-	if(isMetal)
+	if(!inWater)
 	{
 		color.rgb = mix(color.rgb, fullFog, 1.0);
 	}
+		
+	
 	
 	#endif
 

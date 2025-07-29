@@ -22,12 +22,12 @@ vec3 sampleGodrays(vec3 godraySample, vec2 texcoord, vec3 feetPlayerPos, float d
 	vec4 waterMask=texture(colortex4,texcoord);
   	int blockID=int(waterMask)+100;
   	bool isWater=blockID==WATER_ID;
-
+	float dist =length(screenToView(texcoord,depth));
 	//godray parameters
-    const float exposure = 0.5;
+    const float exposure = 0.3;
     const float decay = 1.0;
     const float density = 1.0;
-    float weight =  0.12 * (GODRAY_DENSITY); 
+    float weight =  1.0 * (GODRAY_DENSITY); 
     
 	//blank variables 
      godraySample = vec3(0.0);
@@ -52,22 +52,23 @@ vec3 sampleGodrays(vec3 godraySample, vec2 texcoord, vec3 feetPlayerPos, float d
 	bool isRaining = rainStrength <= 1.0 && rainStrength > 0.0;
 
 	vec3 absorption = vec3(0.0);
-	absorption = godrayAbsorp(absorption) * 0.5;
+	absorption = godrayAbsorp(absorption);
 	vec3 sunColor = currentSunColor(godrayColor);
 	vec3 inscatteringAmount = sunColor;
 	
-	inscatteringAmount = mix(sunColor, sunColor , GODRAY_DENSITY + wetness);
-	absorption = mix(absorption, vec3(0.7373, 0.7373, 0.7373), wetness  * 1.5);
-	vec3 absorptionFactor = exp(-absorption  * (GODRAY_DENSITY));
+	inscatteringAmount = mix(sunColor, sunColor, GODRAY_DENSITY + wetness ) * 0.73;
+	absorption = mix(absorption, vec3(0.8824, 0.8824, 0.8824), wetness);
+	vec3 absorptionFactor = exp(-absorption  * (dist * GODRAY_DENSITY));
     godrayColor *= absorptionFactor;
     godrayColor +=  inscatteringAmount / absorption * (1.0 - clamp(absorptionFactor, 0, 1));
 
 	if(inWater)
 	{
+		   
 		weight += 0.33;
 		absorption = waterColor(godrayColor);
 		inscatteringAmount = waterScatter(inscatteringAmount);
-		absorptionFactor = exp(-absorption  * (UNDERWATER_FOG_DENSITY + GODRAY_DENSITY));
+		absorptionFactor = exp(-absorption  * ( dist * UNDERWATER_FOG_DENSITY + GODRAY_DENSITY));
     	godrayColor *= absorptionFactor;
     	godrayColor +=  inscatteringAmount / absorption * (1.0 - absorptionFactor);
 	}
@@ -92,11 +93,11 @@ vec3 sampleGodrays(vec3 godraySample, vec2 texcoord, vec3 feetPlayerPos, float d
 	godraySample /= GODRAYS_SAMPLES;
 	if(inWater)
 	{
-		godraySample *= HG(0.6, VoL);
+		godraySample *= CS(0.6, VoL);
 	}
 	else
 	{
-		godraySample *= HG(0.78, VoL);
+		godraySample *= CS(0.75, VoL);
 	}
 
 	godraySample *= exposure;

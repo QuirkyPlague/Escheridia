@@ -34,7 +34,7 @@ void main() {
 	
 	if(!inWater)
 	{
-		color.rgb = mix(color.rgb, fullFog, 1.0);
+		//color.rgb = mix(color.rgb, fullFog, 1.0);
 	}
 
 	

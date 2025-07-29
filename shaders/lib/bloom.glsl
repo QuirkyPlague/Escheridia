@@ -134,18 +134,23 @@ vec3 upSample(sampler2D srcTexture,vec2 texCoord)
 
 vec3 computeBloomMix(vec2 texcoord, float depth)
 {
-    
-    float bloomStrength =1.5 * BLOOM_STRENGTH;
+    const float handDepth = MC_HAND_DEPTH * 0.5 + 0.5;
+vec3 hdr = texture(colortex0, texcoord).rgb;
+    vec3 blm = texture(colortex12, texcoord).rgb;
+	float rain = texture(colortex9, texcoord).r;
+    if(depth  > 0.65)
+    {
+      float bloomStrength =1.5 * BLOOM_STRENGTH;
    if(inWater)
    {
-      bloomStrength = 8.0 * BLOOM_STRENGTH;
+      bloomStrength = 4.0 * BLOOM_STRENGTH;
    }
    
 
-	vec3 hdr = texture(colortex0, texcoord).rgb;
-    vec3 blm = texture(colortex12, texcoord).rgb;
-	float rain = texture(colortex9, texcoord).r;
-    hdr = mix(hdr,blm,clamp( 0.025 * bloomStrength + rain * 0.06 + wetness * 0.1 ,0,1));
+	
+    hdr = mix(hdr,blm,clamp( 0.015 * bloomStrength + rain * 0.01 + wetness * 0.01 * eyeBrightnessSmooth.y * 0.05 ,0,1));
+    }
+    
     return hdr;
     
 }

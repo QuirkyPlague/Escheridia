@@ -17,14 +17,13 @@ void main() {
 	vec3 NDCPos = vec3(texcoord.xy, depth) * 2.0 - 1.0;
 	vec3 viewPos = projectAndDivide(gbufferProjectionInverse, NDCPos);
 	
-	if (depth == 1.0) 
-	{
-  		return;
-	}
+	if(depth ==1) return;
+	
 	
 	vec3 distanceFog = distanceFog(color.rgb, viewPos, texcoord, depth);
-
-	color.rgb = distanceFog;
+	vec3 distanceMieFog = distanceMie(color.rgb, viewPos, texcoord, depth);
+	vec3 fullFog = mix(distanceFog, distanceMieFog, 0.5);
+	color.rgb = mix(color.rgb, fullFog, 1.0);
 	
 
 }

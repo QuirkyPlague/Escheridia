@@ -94,8 +94,8 @@ void main() {
 	const float ao = 1.0;
 	vec3 diffuse = doDiffuse(texcoord, lightmap, normal, worldLightVector, shadow, viewPos, sss, feetPlayerPos, isMetal, ao);
 	vec3 sunlight;
-	vec3 currentSunlight = getCurrentSunlight(sunlight, normal, shadow, worldLightVector, sss, feetPlayerPos, isWater);
-	vec3 specular = brdf(albedo, f0, L, currentSunlight, normal, H, V, roughness, SpecMap, diffuse);
+	vec3 currentSunlight = currentSunColor(sunlight);
+	vec3 specular = brdf(albedo, f0, L, currentSunlight, normal, H, V, roughness, SpecMap, diffuse, shadow);
 
 	vec3 lighting;
 	
