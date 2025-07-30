@@ -96,8 +96,8 @@ vec3 calcSkyColor(vec3 pos)
     lateHorizon = duskHorizon(lateHorizon) * rayleigh * 2.14;
     lateZenith = duskZenith(lateZenith) * rayleigh * 5.14  ;
     //NIGHT
-    nightHorizon = NightHorizon(nightHorizon) * rayleigh;
-    nightZenith = NightZenith(nightZenith) * rayleigh;
+    nightHorizon = NightHorizon(nightHorizon) * rayleigh * 2;
+    nightZenith = NightZenith(nightZenith) * rayleigh * 2;
 
     if (worldTime >= 0 && worldTime < 1000)
     {

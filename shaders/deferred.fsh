@@ -80,7 +80,7 @@ void main() {
 	
 	if (emission >= 0.0/255.0 && emission < 255.0/255.0)
 	{
-		emissive += albedo * (emission * 3 )  * EMISSIVE_MULTIPLIER;
+		emissive += albedo * (emission * 4.6 )  * EMISSIVE_MULTIPLIER;
   
 	}
 

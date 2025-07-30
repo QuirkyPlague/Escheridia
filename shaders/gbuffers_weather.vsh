@@ -21,7 +21,10 @@ void main() {
 	viewPos = (gl_ModelViewMatrix * gl_Vertex).xyz;
   	vec3 feetPlayerPos = (gbufferModelViewInverse * vec4(viewPos, 1.0)).xyz;
   	
-	float iter =15.0;
+	
+	for(int i = 0; i < 7; i++)
+	{
+		float iter =15.0;
 
 	vec2 p = vec2(sin(iter), cos(iter));
 	float randomMovement = length(feetPlayerPos) * 0.3;
@@ -29,8 +32,6 @@ void main() {
   	float sinExp = exp(sin(x) - 0.7);
  	float dx = sinExp * cos(x);
 	vec2 directional = vec2(sinExp, -dx);
-	for(int i = 0; i < 7; i++)
-	{
 		feetPlayerPos.xz += p * directional * 0.2 * 1.3;
 	}
 	

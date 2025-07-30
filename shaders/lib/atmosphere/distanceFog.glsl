@@ -82,10 +82,7 @@ vec3 atmosphericFog(vec3 color, vec3 viewPos,vec2 texcoord, float depth, vec2 li
     vec3 sunColor = vec3(0.0);
     sunColor = currentSunColor(sunColor);
     float dist0=length(screenToView(texcoord,depth)) / 32;
-    if(isNight)
-    {
-       dist0=length(screenToView(texcoord,depth))/ 5;
-    }
+   
     float farPlane = far/ 4;
     float dist1= length(viewPos) / farPlane;
     
@@ -111,7 +108,7 @@ vec3 atmosphericFog(vec3 color, vec3 viewPos,vec2 texcoord, float depth, vec2 li
     }
     else
     {
-      inscatteringAmount += wetness * 0.01;
+      inscatteringAmount += wetness * 0.10;
     }
 
     

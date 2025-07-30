@@ -16,7 +16,7 @@ in vec3 modelPos;
 in vec3 viewPos;
 in vec4 glcolor;
 in vec2 texcoord;
-
+in vec3 feetPlayerPos;
 
 vec3 horizonColor = vec3(0.0);
 vec3 zenithColor = vec3(0.0);
@@ -149,7 +149,7 @@ vec3 calcSkyColor(vec3 pos)
     
 	  float upDot = dot(pos, gbufferModelView[1].xyz); //not much, what's up with you?
 	  vec3 sky = mix(zenith, horizon, fogify(max(upDot, 0.0), 0.024));
-    vec3 feetPlayerPos = (gbufferModelViewInverse * vec4(viewPos, 1.0)).xyz;
+  
     vec3 sunColor = vec3(0.0);
     sunColor = currentSunColor(sunColor);
     const float sunA = acos(dot(worldLightVector, normalize(feetPlayerPos))) * SUN_SIZE * clamp(AIR_FOG_DENSITY, 0.8, 5.0);
@@ -193,9 +193,31 @@ layout(location = 0) out vec4 color;
 
 
 void main() {
-if (renderStage == MC_RENDER_STAGE_STARS) {
-		color = glcolor * 3.15;
-	} else {
+if (renderStage == MC_RENDER_STAGE_STARS) 
+{
+    color = glcolor;
+     
+   
+  
+    for(int i=0; i < 5; i++) {
+    // generate some wave direction that looks kind of random
+   float iter = 0.0;
+    float starBrightnessShift = length(feetPlayerPos) * 0.7;
+    vec2 posShift = vec2(sin(iter), cos(iter));
+    float x = dot(feetPlayerPos.xz, posShift) * 0.5 + (frameTimeCounter* 0.9 + starBrightnessShift  );
+    float starTwinkleFactor = exp(sin(x - 1.0));
+    float starFluctuation = starTwinkleFactor - exp(cos(x - 1.3));
+    vec2 starTwinkle = vec2(starTwinkleFactor, -starFluctuation);
+
+      starTwinkle += starBrightnessShift * posShift;
+      color += float(starTwinkle) * 0.3;
+    }
+   
+		
+   
+} 
+else 
+{
 		vec3 pos = viewPos;
     vec3 lightPos= normalize(shadowLightPosition);
     vec3 worldLightPos = mat3(gbufferModelViewInverse) * lightPos;

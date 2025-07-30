@@ -172,8 +172,8 @@ void main()
 	}
 		if(!reflectionHit && canReflect && !inWater)
 			{
-				vec3 skyMieReflection = calcMieSky(reflect(normalize(viewPos), normal), worldLightVector, sunColor, viewPos, texcoord) * 7 ;
-					vec3 skyReflection = calcSkyColor(reflect(normalize(viewPos), normal)) * 5;
+				vec3 skyMieReflection = calcMieSky(reflect(normalize(viewPos), normal), worldLightVector, sunColor, viewPos, texcoord) * 3 ;
+					vec3 skyReflection = calcSkyColor(reflect(normalize(viewPos), normal)) * 3;
 					vec3 sunReflection = skyboxSun(lightVector,reflect(normalize(viewPos), normal), sunColor) * 3;
 					skyReflection = mix(sunReflection, skyReflection, 0.5);
 					vec3 fullSkyReflection = mix(skyReflection, skyMieReflection, 0.5);

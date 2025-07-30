@@ -23,6 +23,7 @@ vec3 sampleGodrays(vec3 godraySample, vec2 texcoord, vec3 feetPlayerPos, float d
   	int blockID=int(waterMask)+100;
   	bool isWater=blockID==WATER_ID;
 	float dist =length(screenToView(texcoord,depth));
+	
 	float depth1 = texture(depthtex1, texcoord).r;
 	float dist1 =length(screenToView(texcoord,depth));
 	//godray parameters
@@ -59,7 +60,11 @@ vec3 sampleGodrays(vec3 godraySample, vec2 texcoord, vec3 feetPlayerPos, float d
 	vec3 inscatteringAmount = sunColor;
 	
 	inscatteringAmount = mix(sunColor, sunColor, GODRAY_DENSITY + wetness ) * 0.73;
-	absorption = mix(absorption, vec3(0.8824, 0.8824, 0.8824), wetness);
+	if(isNight)
+	{
+		inscatteringAmount *= 0.3;
+	}
+	absorption = mix(absorption, vec3(0.1725, 0.1725, 0.1725), wetness);
 	vec3 absorptionFactor = exp(-absorption  * (dist * GODRAY_DENSITY));
     godrayColor *= absorptionFactor;
     godrayColor +=  inscatteringAmount / absorption * (1.0 - clamp(absorptionFactor, 0, 1));
