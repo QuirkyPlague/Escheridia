@@ -17,7 +17,7 @@ layout(location = 2) out vec4 encodedNormal;
 layout(location = 3) out vec4 rainBuffer;
 
 void main() {
-	color = texture(gtexture, texcoord * 2) * glcolor;
+	color = texture(gtexture, texcoord) * glcolor;
 	
 	if (color.a < 0.1) {
 		discard;

@@ -132,20 +132,26 @@ vec3 upSample(sampler2D srcTexture,vec2 texCoord)
     return upsample;
 }
 
-vec3 computeBloomMix(vec2 texcoord, float depth)
+vec3 computeBloomMix(vec2 texcoord, float depth, bool isMetal)
 {
-    
+    const float handDepth = MC_HAND_DEPTH * 0.5 + 0.5;
+vec3 hdr = texture(colortex0, texcoord).rgb;
+    vec3 blm = texture(colortex12, texcoord).rgb;
+	float rain = texture(colortex9, texcoord).r;
+   
     float bloomStrength =1.5 * BLOOM_STRENGTH;
    if(inWater)
    {
-      bloomStrength = 8.0 * BLOOM_STRENGTH;
+      bloomStrength = 4.0 * BLOOM_STRENGTH;
    }
-   
+   if(isMetal)
+   {
+    bloomStrength *= 0.1;
+   }
 
-	vec3 hdr = texture(colortex0, texcoord).rgb;
-    vec3 blm = texture(colortex12, texcoord).rgb;
-	float rain = texture(colortex9, texcoord).r;
-    hdr = mix(hdr,blm,clamp( 0.025 * bloomStrength + rain * 0.06 + wetness * 0.1 ,0,1));
+    hdr = mix(hdr,blm,clamp( 0.015 * bloomStrength + rain * 0.01 + wetness * 0.01 * eyeBrightnessSmooth.y * 0.05 ,0,1));
+    
+    
     return hdr;
     
 }

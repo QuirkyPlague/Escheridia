@@ -10,6 +10,11 @@ vec3 projectAndDivide(mat4 projectionMatrix, vec3 position)
   return homPos.xyz / homPos.w;
 }
 
+vec4 getNoise(vec2 coord){
+  ivec2 screenCoord = ivec2(coord * vec2(viewWidth, viewHeight)); // exact pixel coordinate onscreen
+  ivec2 noiseCoord = screenCoord % 64; // wrap to range of noiseTextureResolution
+  return texelFetch(noisetex, noiseCoord, 0);
+}
 float IGN(vec2 coord)
 {
     return fract(52.9829189f * fract(0.06711056f * coord.x + 0.00583715f* coord.y));
@@ -62,6 +67,11 @@ float HG(float g, float cosA)
 
      float g2 = g * g;
     return ((1.0 - g2) / pow(abs(1.0 + g2 - 2.0*g*cosA), 1.5));
+}
+
+float CS(float g, float costh)
+{
+    return (3.0 * (1.0 - g * g) * (1.0 + costh * costh)) / (4.0 * PI * 2.0 * (2.0 + g * g) * pow(1.0 + g * g - 2.0 * g * costh, 3.0/2.0));
 }
 vec3 screenToView(vec2 texcoord, float depth)
 {
@@ -126,18 +136,20 @@ vec3 screenSpaceToViewSpace(vec3 screenPosition) {
 }
 
 
-float Rayleigh(float costh)
-{
-    return 3.0 / (16.0 * PI) * (1.0 + costh * costh);
+float Rayleigh(float cosTheta) {
+  const float k = 3.0 / (16.0 * PI);
+  return k * (1.0 + cosTheta * cosTheta);
 }
+
+
 
 vec3 skyboxSun(vec3 sunPos, vec3 dir,vec3 sunColor)
 {
     vec3 col = vec3(0.0);
-    float sun_a = acos(dot(sunPos, dir));
-    vec3 sun_col = 1.3 * (sunColor * vec3(0.3412, 0.302, 0.2784) * SUN_SIZE) / sun_a;
+    const float sunA = acos(dot(sunPos, dir)) * SUN_SIZE * clamp(AIR_FOG_DENSITY, 0.5, 5.0);
+    vec3 sunCol = .03 * ((sunColor  )) / sunA;
 
-    col = max(col + .07 * sun_col, sun_col);
+    col = max(col + .04 * sunCol, sunCol);
     return col;
 }
 

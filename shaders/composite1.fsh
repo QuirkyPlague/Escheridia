@@ -10,6 +10,7 @@ layout(location = 0) out vec4 color;
 
 void main() {
 	color = texture(colortex0, texcoord);
+	 color.rgb = pow(color.rgb, vec3(2.2));
 	vec4 waterMask=texture(colortex4,texcoord);
 	
 	float depth = texture(depthtex0, texcoord).r;
@@ -26,7 +27,9 @@ void main() {
 	}      
 	if(inWater)
 	{
-		vec3 waterScatter = waterFog(color.rgb, texcoord, lightmap, depth, depth1);
+		vec3 waterScatter = waterFog(color.rgb, texcoord, lightmap, depth);
 		color.rgb = waterScatter;
 	}  
 }
+
+

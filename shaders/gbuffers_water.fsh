@@ -96,8 +96,8 @@ void main() {
 	
 	bool isWater;
 	
-	vec3 currentSunlight = getCurrentSunlight(sunlight, normal, shadow, worldLightVector, sss, feetPlayerPos, isWater);
-	vec3 specular = brdf(albedo, F0, L, currentSunlight, normal, H, V, roughness, specMap, diffuse);
+	vec3 currentSunlight = currentSunColor(sunlight);
+	vec3 specular = brdf(albedo, F0, L, currentSunlight, normal, H, V, roughness, specMap, diffuse, shadow);
 	vec3 lighting = specular;
 	if(blockID == WATER_ID)
 	{

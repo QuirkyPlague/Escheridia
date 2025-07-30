@@ -20,8 +20,21 @@ void main() {
 	glcolor = gl_Color;
 	viewPos = (gl_ModelViewMatrix * gl_Vertex).xyz;
   	vec3 feetPlayerPos = (gbufferModelViewInverse * vec4(viewPos, 1.0)).xyz;
-  	feetPlayerPos.xz += feetPlayerPos.y * -0.35;
-  	viewPos = (gbufferModelView * vec4(feetPlayerPos, 1.0)).xyz;
+  	
+	float iter =15.0;
+
+	vec2 p = vec2(sin(iter), cos(iter));
+	float randomMovement = length(feetPlayerPos) * 0.3;
+	float x = dot(feetPlayerPos.xz, p) * 0.5 + (frameTimeCounter* 0.4 + randomMovement  );
+  	float sinExp = exp(sin(x) - 0.7);
+ 	float dx = sinExp * cos(x);
+	vec2 directional = vec2(sinExp, -dx);
+	for(int i = 0; i < 7; i++)
+	{
+		feetPlayerPos.xz += p * directional * 0.2 * 1.3;
+	}
+	
+  	viewPos = (gbufferModelView * vec4(feetPlayerPos, 1.0)).xyz ;
 
  	 gl_Position = gbufferProjection * vec4(viewPos, 1.0);
 }

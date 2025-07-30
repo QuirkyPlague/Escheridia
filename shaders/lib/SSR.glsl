@@ -48,24 +48,36 @@ bool raytrace(vec3 viewPosition, vec3 rayDirection, int stepCount, float jitter,
 
     rayPosition += rayDirection * jitter;
     
-     
+     vec3 hitPosition;
    
     for(int i = 0; i <= stepCount  && !intersect; i++, rayPosition += rayDirection) 
     {
         if (clamp(rayPosition, 0 , 1) != rayPosition) return false; 
-
-        float depth = texture(depthtex0, rayPosition.xy).r;
-	    intersect = rayPosition.z > depth && abs(depthLenience - (rayPosition.z - depth)) < depthLenience && rayPosition.z > handDepth && depth < 1.0;
-    
-       if (intersect) {break;}
         
-    }
-  
+        float depth = texelFetch(depthtex0, ivec2(rayPosition.xy * vec2(viewWidth, viewHeight)), 0).r;
+	   
+        if(rayPosition.z > depth && abs(depthLenience - (rayPosition.z - depth)) < depthLenience && rayPosition.z > handDepth && depth < 1.0)
+        {
+            intersect = true;
+           
+        }
+        else
+        {
+            intersect = false;
 
+        }
+
+       if (intersect) {break;}
+      
+    }
+
+   
+ if (clamp(rayPosition, 0 , 1) != rayPosition) return false;
     #if BINARY_REFINEMENT == 1
         binarySearch(rayPosition, rayDirection);
     #endif
-  
+
+
     return intersect;
     
 }

@@ -55,15 +55,15 @@ vec3 waterExtinction(vec3 color, vec2 texcoord, vec2 lightmap, float depth, floa
       }
     return color;
 }
-vec3 waterFog(vec3 color, vec2 texcoord, vec2 lightmap, float depth, float depth1)
+vec3 waterFog(vec3 color, vec2 texcoord, vec2 lightmap, float depth)
 {
     
+    
     float dist0=length(screenToView(texcoord,depth)) / 3;
-    float dist1=length(screenToView(texcoord,depth1));
-    float dist=max(0,dist1-dist0);
+  
+    float dist= dist0;
     vec3 sunColor = vec3(0.0);
     sunColor = currentSunColor(sunColor);
-    dist = dist0;
     vec3 absorptionColor = vec3(0.0);
     vec3 absorption= waterColor(absorptionColor);
     vec3 inscatteringAmount = vec3(0.0);

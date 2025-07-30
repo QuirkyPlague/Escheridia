@@ -18,16 +18,19 @@ vec4 getShadowClipPos(vec3 feetPlayerPos)
 
  vec3 getSoftShadow(vec3 feetPlayerPos, vec3 normal, float SSS)
  {   
-   float sampleRadius = SHADOW_SOFTNESS * 0.00025;
+   
    const vec3 shadowNormal = mat3(shadowModelView) * normal;
    const float shadowMapPixelSize = 1.0 / float(SHADOW_RESOLUTION);
-   vec3 biasAdjustFactor = vec3(shadowMapPixelSize * 2.35, shadowMapPixelSize * 2.35, -0.00003803515625);
+   float sampleRadius = SHADOW_SOFTNESS * shadowMapPixelSize * 0.64 ;
+   vec3 biasAdjustFactor = vec3(shadowMapPixelSize * 2.35, shadowMapPixelSize * 2.35, -0.00007803515625);
    #if PIXELATED_LIGHTING == 1
-   sampleRadius = SHADOW_SOFTNESS * 0.0001;
-   shadowMapPixelSize = 1.0  / (float(SHADOW_RESOLUTION));
-   feetPlayerPos = floor((feetPlayerPos+cameraPosition) * 16) /16 - cameraPosition;
+   sampleRadius =  SHADOW_SOFTNESS * shadowMapPixelSize * 0.24 ;
+ 
+   feetPlayerPos = feetPlayerPos + cameraPosition;
+   feetPlayerPos = floor(feetPlayerPos * 16 + 0.01) / 16;
+   feetPlayerPos -= cameraPosition;
    vec4 shadowClipPos = getShadowClipPos(feetPlayerPos);
-   biasAdjustFactor = vec3(shadowMapPixelSize * 2.0, shadowMapPixelSize * 2.0, -0.00006803515625);
+  
    #else
    vec4 shadowClipPos = getShadowClipPos(feetPlayerPos);
    #endif
@@ -36,7 +39,7 @@ vec4 getShadowClipPos(vec3 feetPlayerPos)
    if(SSS > 64.0/255.0)
    {
     
-      sampleRadius *= SSS * 2.15;
+      sampleRadius *= 4;
    }   
    
    vec3 shadowAccum = vec3(0.0); // sum of all shadow samples
