@@ -9,6 +9,7 @@
 #include "/lib/water/waves.glsl"
 #include "/lib/atmosphere/skyColor.glsl"
 #include "/lib/atmosphere/distanceFog.glsl"
+#include "/lib/water/waterFog.glsl"
 in vec2 texcoord;
 
 
@@ -21,24 +22,25 @@ void main()
 	color=texture(colortex0,texcoord);
 	
 	float depth = texture(depthtex0, texcoord).r;
+	if(depth ==1) return;
 	
 
 	//buffer assignments
-	const vec4 SpecMap = texture(colortex5, texcoord);
-	const vec3 albedo = texture(colortex0, texcoord).rgb;
-	const vec3 encodedNormal = texture(colortex2,texcoord).rgb;
-	const vec2 lightmap = texture(colortex1, texcoord).rg;
-	const vec4 sssMask = texture(colortex11, texcoord);
-	const vec4 waterMask=texture(colortex4,texcoord);
-	const vec4 translucentMask=texture(colortex7,texcoord);
+	vec4 SpecMap = texture(colortex5, texcoord);
+	vec3 albedo = texture(colortex0, texcoord).rgb;
+	vec3 encodedNormal = texture(colortex2,texcoord).rgb;
+	vec2 lightmap = texture(colortex1, texcoord).rg;
+	vec4 sssMask = texture(colortex11, texcoord);
+	vec4 waterMask=texture(colortex4,texcoord);
+	vec4 translucentMask=texture(colortex7,texcoord);
 	
 	//block IDs
-	const int blockID=int(waterMask)+100;
-	const int blockID3=int(sssMask)+103;
+	int blockID=int(waterMask)+100;
+	int blockID3=int(sssMask)+103;
 
 	//bools
-	const bool isWater=blockID==WATER_ID;
-	const bool isMetal = SpecMap.g >= 230.0/255.0;
+	bool isWater=blockID==WATER_ID;
+	bool isMetal = SpecMap.g >= 230.0/255.0;
 
 	//space conversions
 	vec3 screenPos = vec3(texcoord.xy, depth);
@@ -47,12 +49,14 @@ void main()
 	vec3 viewDir = normalize(viewPos);
 	vec3 feetPlayerPos = (gbufferModelViewInverse * vec4(viewPos, 1.0)).xyz;
 	#if PIXELATED_LIGHTING ==1
-	feetPlayerPos =floor((feetPlayerPos + cameraPosition) * 16) / 16 - cameraPosition;
+	 feetPlayerPos = feetPlayerPos + cameraPosition;
+   feetPlayerPos = floor(feetPlayerPos * 16 + 0.01) /  16;
+   feetPlayerPos -= cameraPosition;
     viewPos = (gbufferModelView * vec4(feetPlayerPos, 1.0)).xyz;
 	#endif
-	float farPlane = far/ 0.8;
+	float farPlane = far/ 0.35;
 	float normalFalloff = length(viewPos) / farPlane;
-	float normalIntensityRolloff = exp(3.0  * (0.04 - normalFalloff));
+	float normalIntensityRolloff = exp(15.0  * (0.7 - normalFalloff));
 	//normal assignments
 	vec3 normal = normalize((encodedNormal - 0.5) * 2.0); // we normalize to make sure it is of unit length
 	normal=mat3(gbufferModelView)*normal;
@@ -98,7 +102,7 @@ void main()
 	if(isWater)
 	{roughness = 0;}
 
-	bool canReflect = roughness < 0.3;
+	bool canReflect = roughness < 0.25;
 
 	
 	const vec3 reflectedDir = reflect(viewDir, normal);
@@ -121,20 +125,29 @@ void main()
 	
 	}
 	
+	
+
 	vec3 normalReflectedPos = reflectedPos;
 	vec3 reflectedViewPos = screenSpaceToViewSpace(reflectedPos);
 	float reflectedDist = distance(viewPos, reflectedViewPos);
+	float noise = getNoise(texcoord).r;
+	float theta = noise * radians(360.0); // random angle using noise value
+  	float cosTheta = cos(theta);
+  	float sinTheta = sin(theta);
+
+  mat2 rotation = mat2(cosTheta, -sinTheta, sinTheta, cosTheta); // matrix to rotate the offset around the original position by the angle
 	
-	float lod = 0;
+	float lod = min(3.0 * (1.0 -pow(roughness, 8.0)), reflectedDist);
 	if(roughness <= 0.0 || isWater) lod = 0.0;
 
 	#ifdef ROUGH_REFLECTION
-	const float sampleRadius = roughness * 0.12 * distance(reflectedViewPos, viewPos) ;
+	float sampleRadius = roughness * 0.09 * distance(reflectedViewPos, viewPos) ;
 	
 	for(int i = 0; i < ROUGH_SAMPLES; i++)
    	{
 		jitter = IGN(gl_FragCoord.xy, frameCounter * ROUGH_SAMPLES);
 		vec2 offset = vogelDisc(i, ROUGH_SAMPLES , jitter) * sampleRadius;
+		offset *= rotation;
 		vec3 offsetReflectedPos = reflectedPos + vec3(offset, 0.0); // add offset
 		offsetReflectedPos.z = reflectedPos.z;
 		reflectedPos = offsetReflectedPos;
@@ -148,20 +161,16 @@ void main()
 	#ifdef DO_SSR
 	if(reflectionHit)
 	{
-		if(canReflect)
+		if(canReflect || isMetal || isWater)
 		{
 				reflectedColor = texture2DLod(colortex0, reflectedPos.xy, lod).rgb;
-				vec3 mieFog = atmosphericMieFog(reflectedColor, reflectedViewPos, texcoord, depth, lightmap, worldLightVector, sunColor);
-				vec3 atmosphereFog = atmosphericFog(reflectedColor, reflectedViewPos, texcoord, depth, lightmap);
-				vec3 fullFog = mix(atmosphereFog, mieFog, 0.3);
-				reflectedColor = fullFog;
+				vec3 mieFog = atmosphericMieFog(reflectedColor, reflectedViewPos, texcoord, depth, lightmap, lightVector, sunColor);
+				vec3 atmosphereFog = atmosphericFog(reflectedColor, reflectedViewPos, texcoord, depth, lightmap);	
 		}		
-		if(reflectedPos.z == 1.0)
-		{
-			reflectedColor = vec3(0.0);
-		}
+		
+		
 	}
-		if(!reflectionHit && canReflect)
+		if(!reflectionHit && canReflect && !inWater)
 			{
 				vec3 skyMieReflection = calcMieSky(reflect(normalize(viewPos), normal), worldLightVector, sunColor, viewPos, texcoord) * 7 ;
 					vec3 skyReflection = calcSkyColor(reflect(normalize(viewPos), normal)) * 5;
@@ -171,6 +180,10 @@ void main()
 					reflectedColor = fullSkyReflection;
 				float smoothLightmap = smoothstep(0.882, 1.0, lightmap.g);
 				reflectedColor = mix(color.rgb, reflectedColor, smoothLightmap);
+			}
+			if(!reflectionHit && inWater)
+			{
+				reflectedColor = color.rgb;
 			}
 	
 	if(roughness < 0.1 + wetness && !isMetal && SpecMap.r <= 155.0/255.0 && !isWater && !isColdBiome)

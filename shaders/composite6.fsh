@@ -29,11 +29,10 @@ void main() {
 	vec3 atmosphereFog = atmosphericFog(color.rgb, viewPos, texcoord, depth, lightmap);
 	vec3 fullFog = mix(atmosphereFog, mieFog, 0.4);
 	
-	if(!inWater)
+	if(isMetal)
 	{
-		color.rgb = mix(color.rgb, fullFog, 1.0);
+		color.rgb = fullFog;
 	}
-		
 	
 	
 	#endif

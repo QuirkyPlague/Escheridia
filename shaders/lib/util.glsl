@@ -10,6 +10,11 @@ vec3 projectAndDivide(mat4 projectionMatrix, vec3 position)
   return homPos.xyz / homPos.w;
 }
 
+vec4 getNoise(vec2 coord){
+  ivec2 screenCoord = ivec2(coord * vec2(viewWidth, viewHeight)); // exact pixel coordinate onscreen
+  ivec2 noiseCoord = screenCoord % 64; // wrap to range of noiseTextureResolution
+  return texelFetch(noisetex, noiseCoord, 0);
+}
 float IGN(vec2 coord)
 {
     return fract(52.9829189f * fract(0.06711056f * coord.x + 0.00583715f* coord.y));

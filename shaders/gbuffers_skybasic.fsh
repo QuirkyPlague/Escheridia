@@ -110,8 +110,8 @@ vec3 calcSkyColor(vec3 pos)
     //NIGHT
     nightHorizon = NightHorizon(nightHorizon) * rayleigh * 37.14;
     nightZenith = NightZenith(nightZenith) * rayleigh * 21.14;
-     rainHorizon = rainHorizon * rayleigh * 24;
-      rainZenith = rainZenith * rayleigh * 16;
+     rainHorizon = rainHorizon * rayleigh;
+      rainZenith = rainZenith * rayleigh ;
     if (worldTime >= 0 && worldTime < 1000)
     {
       //smoothstep equation allows interpolation between times of day
@@ -124,12 +124,14 @@ vec3 calcSkyColor(vec3 pos)
       float time = smoothstep(10000, 11500, float(worldTime));
 	    horizon = mix(horizonColor, lateHorizon, time);
    	  zenith = mix(zenithColor, lateZenith,time);
+      
     }
     else if (worldTime >= 11500 && worldTime < 13000)
     {
       float time = smoothstep(12800, 13000, float(worldTime));
       horizon = mix(lateHorizon, nightHorizon, time);
    	  zenith = mix(lateZenith, nightZenith,time);
+      
     }
    else if (worldTime >= 13000 && worldTime < 24000)
     {
@@ -154,6 +156,7 @@ vec3 calcSkyColor(vec3 pos)
     vec3 sunCol = .06 * ((sunColor  )) / sunA;
     
     vec3 sun = max(sky + .07 * sunCol , sunCol - wetness);
+    sun = max(sun, 0.00001);
     sky = mix(sky, sun, 1.0);
     return sky;
 }
@@ -175,7 +178,8 @@ vec3 calcMieSky(vec3 pos, vec3 lightPos, vec3 sunColor, vec3 viewPos, vec2 texco
     }
     if(inWater)
     {
-      mieScat *= HG(0.65, VoL);
+      mieScat *= 0.1;
+      mieScat *= HG(0.75, VoL);
     }
     
  

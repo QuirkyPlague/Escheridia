@@ -111,12 +111,17 @@ vec3 calcSkyColor(vec3 pos)
       float time = smoothstep(10000, 11500, float(worldTime));
 	    horizon = mix(horizonColor, lateHorizon, time);
    	  zenith = mix(zenithColor, lateZenith,time);
+       rainHorizon = rainHorizon * rayleigh * 6;
+      rainZenith = rainZenith * rayleigh * 6;
     }
     else if (worldTime >= 11500 && worldTime < 13000)
     {
       float time = smoothstep(12800, 13000, float(worldTime));
       horizon = mix(lateHorizon, nightHorizon, time);
    	  zenith = mix(lateZenith, nightZenith,time);
+      rainHorizon = rainHorizon * rayleigh * 12;
+      rainZenith = rainZenith * rayleigh * 12;
+    
     }
    else if (worldTime >= 13000 && worldTime < 24000)
     {

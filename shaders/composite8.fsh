@@ -18,12 +18,20 @@ void main() {
 	vec3 viewPos = projectAndDivide(gbufferProjectionInverse, NDCPos);
 	
 	if(depth ==1) return;
-	
-	
+	if(inWater)
+	{
+		depth = texture(depthtex1,texcoord).r;
+	}
+
+	if(!inWater)
+	{
 	vec3 distanceFog = distanceFog(color.rgb, viewPos, texcoord, depth);
 	vec3 distanceMieFog = distanceMie(color.rgb, viewPos, texcoord, depth);
 	vec3 fullFog = mix(distanceFog, distanceMieFog, 0.5);
 	color.rgb = mix(color.rgb, fullFog, 1.0);
+	}
+
+	
 	
 
 }

@@ -41,7 +41,7 @@ uniform sampler2D shadowcolor0;
 //normal/speculars
 uniform sampler2D normals;
 uniform sampler2D specular;
-
+uniform sampler2D noisetex;
 const float PI = float(3.14159);
 uniform int frameCounter;
 const float sunPathRotation=SUN_ROTATION;
