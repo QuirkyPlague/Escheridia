@@ -24,7 +24,7 @@ float minOf(vec3 x) { return min(x.x, min(x.y, x.z)); }
 
 void binarySearch(inout vec3 rayPosition, vec3 rayDirection) {
     for(int i = 0; i < BINARY_COUNT; i++) {
-        rayPosition += sign(texture(depthtex0, rayPosition.xy).r - rayPosition.z) * rayDirection;
+        rayPosition += sign(texelFetch(depthtex0, ivec2(rayPosition.xy * vec2(viewWidth, viewHeight)), 0).r - rayPosition.z) * rayDirection;
         // Going back and forth using the delta of the 2 different depths as a parameter for sign()
         rayDirection *= BINARY_DECREASE;
         // Decreasing the step length (to slowly tend towards the intersection)

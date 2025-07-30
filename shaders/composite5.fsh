@@ -67,8 +67,8 @@ void main()
 	float waveFalloff = length(feetPlayerPos) / farPlane;
 	float waveIntensityRolloff = exp(15.0 * WAVE_INTENSITY * (0.08 - waveFalloff));
 	float waveIntensity = 0.16 * WAVE_INTENSITY;
-	waveIntensity *= waveIntensityRolloff;
-	float waveSoftness = 0.3 * WAVE_SOFTNESS;
+	waveIntensity *= 0.76 * waveIntensityRolloff;
+	float waveSoftness = 1.1 * WAVE_SOFTNESS;
 	if(isWater)
 	{
 		normal= waveNormal(feetPlayerPos.xz + cameraPosition.xz, waveSoftness, waveIntensity);

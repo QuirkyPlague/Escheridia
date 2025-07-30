@@ -35,7 +35,7 @@ vec3 distanceFog(vec3 color, vec3 viewPos,vec2 texcoord, float depth)
     }
     if(!inWater)
     {
-      distFog *= 0.008;
+      distFog *= 0.005;
       distFog *= eyeBrightnessSmooth.y;
     }
      
