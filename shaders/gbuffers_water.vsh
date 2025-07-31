@@ -15,22 +15,23 @@ in vec2 mc_Entity;
 out mat3 tbnMatrix;
 
 void main() {
-  	gl_Position = ftransform();
-  	texcoord = (gl_TextureMatrix[0] * gl_MultiTexCoord0).xy;
-  	lmcoord = (gl_TextureMatrix[1] * gl_MultiTexCoord1).xy;
-  	lmcoord = (lmcoord * 33.05 / 32.0) - (1.05 / 32.0);
- 	glcolor = gl_Color;
-  
-  	normal = gl_NormalMatrix * gl_Normal; // this gives us the normal in view space
-  	normal = mat3(gbufferModelViewInverse) * normal; // this converts the normal to world/player space
+  gl_Position = ftransform();
+  texcoord = (gl_TextureMatrix[0] * gl_MultiTexCoord0).xy;
+  lmcoord = (gl_TextureMatrix[1] * gl_MultiTexCoord1).xy;
+  lmcoord = lmcoord * 33.05 / 32.0 - 1.05 / 32.0;
+  glcolor = gl_Color;
 
-  	modelPos = gl_Vertex.xyz;
-	viewPos = (gl_ModelViewMatrix * gl_Vertex).xyz;
-	feetPlayerPos = (gbufferModelViewInverse * vec4(viewPos, 1.0)).xyz;
+  normal = gl_NormalMatrix * gl_Normal; // this gives us the normal in view space
+  normal = mat3(gbufferModelViewInverse) * normal; // this converts the normal to world/player space
 
-	vec3 tangent = mat3(gbufferModelViewInverse) * normalize(gl_NormalMatrix * at_tangent.xyz);
-	vec3 binormal = cross(tangent, normal) * at_tangent.w;
-	tbnMatrix = mat3(tangent, binormal, normal);
+  modelPos = gl_Vertex.xyz;
+  viewPos = (gl_ModelViewMatrix * gl_Vertex).xyz;
+  feetPlayerPos = (gbufferModelViewInverse * vec4(viewPos, 1.0)).xyz;
 
-	blockID = int(mc_Entity.x + 0.5);
+  vec3 tangent =
+    mat3(gbufferModelViewInverse) * normalize(gl_NormalMatrix * at_tangent.xyz);
+  vec3 binormal = cross(tangent, normal) * at_tangent.w;
+  tbnMatrix = mat3(tangent, binormal, normal);
+
+  blockID = int(mc_Entity.x + 0.5);
 }

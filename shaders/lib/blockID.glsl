@@ -6,5 +6,4 @@
 #define SSS_ID 104
 #define METAL_ID 105
 
-
 #endif //BLOCKID_GLSL

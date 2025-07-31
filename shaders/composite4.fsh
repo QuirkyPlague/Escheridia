@@ -9,9 +9,9 @@ in vec2 texcoord;
 layout(location = 0) out vec4 color;
 
 void main() {
-	color = texture(colortex0, texcoord);
-	 #if VOLUMETRIC_LIGHTING == 1 
-	color.rgb += texture(colortex3, texcoord).rgb;
-	#endif
+  color = texture(colortex0, texcoord);
+  #if VOLUMETRIC_LIGHTING == 1
+  color.rgb += texture(colortex3, texcoord).rgb;
+  #endif
 
 }

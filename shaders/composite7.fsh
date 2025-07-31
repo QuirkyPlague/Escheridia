@@ -9,18 +9,15 @@ in vec2 texcoord;
 layout(location = 0) out vec4 color;
 
 void main() {
-	color = texture(colortex0, texcoord);
-	 vec4 SpecMap = texture(colortex5, texcoord);
+  color = texture(colortex0, texcoord);
+  vec4 SpecMap = texture(colortex5, texcoord);
 
+  bool isMetal = SpecMap.g >= 230.0 / 255.0;
+  #if VOLUMETRIC_LIGHTING == 1
+  if (isMetal) {
+    color.rgb += texture(colortex3, texcoord).rgb;
+  }
 
-	
-	bool isMetal = SpecMap.g >= 230.0/255.0;
-	 #if VOLUMETRIC_LIGHTING == 1 
-	if(isMetal)
-	{
-		color.rgb += texture(colortex3, texcoord).rgb;
-	}
-	
-	#endif
+  #endif
 
 }

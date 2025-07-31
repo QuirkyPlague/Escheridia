@@ -11,7 +11,6 @@ in vec2 mc_Entity;
 
 in vec4 at_midBlock;
 
-
 void main() {
   texcoord = (gl_TextureMatrix[0] * gl_MultiTexCoord0).xy;
   glcolor = gl_Color;
