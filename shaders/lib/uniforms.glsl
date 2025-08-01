@@ -44,7 +44,7 @@ uniform sampler2D specular;
 uniform sampler2D noisetex;
 const float PI = float(3.14159);
 uniform int frameCounter;
-const float sunPathRotation=SUN_ROTATION;
+const float sunPathRotation = SUN_ROTATION;
 uniform float viewWidth;
 uniform float viewHeight;
 uniform float far;
@@ -72,7 +72,7 @@ uniform bool isHotBiome;
 uniform bool isColdBiome;
 bool isNight = worldTime >= 13000 && worldTime < 23000;
 bool isRaining = rainStrength <= 1.0 && rainStrength > 0.0;
-bool inWater=isEyeInWater==1.;
+bool inWater = isEyeInWater == 1.0;
 
 vec3 lightVector = normalize(shadowLightPosition);
 vec3 worldLightVector = mat3(gbufferModelViewInverse) * lightVector;

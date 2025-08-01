@@ -1,9 +1,7 @@
-#version 420 compatibility
+#version 330 compatibility
 
 #include "/lib/uniforms.glsl"
 uniform sampler2D gtexture;
-
-
 
 in vec2 lmcoord;
 in vec2 texcoord;
@@ -17,12 +15,12 @@ layout(location = 2) out vec4 encodedNormal;
 layout(location = 3) out vec4 rainBuffer;
 
 void main() {
-	color = texture(gtexture, texcoord) * glcolor;
-	
-	if (color.a < 0.1) {
-		discard;
-	}
-	if (color.r == color.g) {
+  color = texture(gtexture, texcoord) * glcolor;
+
+  if (color.a < 0.1) {
+    discard;
+  }
+  if (color.r == color.g) {
     // snow
     rainBuffer = vec4(0.0);
     return;
@@ -31,9 +29,6 @@ void main() {
     rainBuffer = vec4(1.0, 1.0, 1.0, 1.0);
   }
 
-	
-rainBuffer = vec4(1.0, 1.0, 1.0, 1.0);
-	
-	
-	
+  rainBuffer = vec4(1.0, 1.0, 1.0, 1.0);
+
 }

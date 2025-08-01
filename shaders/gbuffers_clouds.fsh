@@ -1,4 +1,4 @@
-#version 420 compatibility
+#version 330 compatibility
 
 #include "/lib/uniforms.glsl"
 uniform sampler2D gtexture;
@@ -18,9 +18,8 @@ in vec3 feetPlayerPos;
 layout(location = 0) out vec4 color;
 layout(location = 1) out vec4 reflCloud;
 void main() {
-	color.a =0.1;
-	color = texture(gtexture, texcoord) * glcolor ;
-	reflCloud = texture(gtexture, texcoord) * glcolor;
-	
-	
+  color.a = 0.1;
+  color = texture(gtexture, texcoord) * glcolor;
+  reflCloud = texture(gtexture, texcoord) * glcolor;
+
 }

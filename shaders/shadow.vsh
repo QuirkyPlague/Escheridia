@@ -1,4 +1,4 @@
-#version 420 compatibility
+#version 330 compatibility
 
 #include "/lib/shadows/distort.glsl"
 #include "/lib/uniforms.glsl"
@@ -10,7 +10,6 @@ out vec3 shadowViewPos;
 in vec2 mc_Entity;
 
 in vec4 at_midBlock;
-
 
 void main() {
   texcoord = (gl_TextureMatrix[0] * gl_MultiTexCoord0).xy;

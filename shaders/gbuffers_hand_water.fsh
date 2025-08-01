@@ -1,4 +1,4 @@
-#version 420 compatibility
+#version 330 compatibility
 
 #include "/lib/uniforms.glsl"
 #include "/lib/lighting/lighting.glsl"
@@ -27,34 +27,28 @@ layout(location = 3) out vec4 waterMask;
 layout(location = 4) out vec4 specMap;
 layout(location = 5) out vec4 translucentMask;
 void main() {
-	color = texture(gtexture, texcoord) * glcolor;
-	
-	if (color.a < 0.1) {
-		discard;
-	}
+  color = texture(gtexture, texcoord) * glcolor;
 
-	if(blockID == WATER_ID)
-	{
+  if (color.a < 0.1) {
+    discard;
+  }
+
+  if (blockID == WATER_ID) {
     waterMask = vec4(1.0, 1.0, 1.0, 1.0);
     color.a *= 0.1;
-	}
-	else if(blockID == TRANSLUCENT_ID)
-	{
-		 translucentMask = vec4(1.0, 1.0, 1.0, 1.0);
-	}
-	else
-	{
-		waterMask = vec4(0.0, 0.0, 0.0, 1.0);
-	}
+  } else if (blockID == TRANSLUCENT_ID) {
+    translucentMask = vec4(1.0, 1.0, 1.0, 1.0);
+  } else {
+    waterMask = vec4(0.0, 0.0, 0.0, 1.0);
+  }
 
-	vec3 normalMaps = texture(normals, texcoord).rgb;
-	normalMaps = normalMaps * 2.0 - 1.0;
-	normalMaps.z = sqrt(1.0 - dot(normalMaps.xy, normalMaps.xy));
-	vec3 mappedNormal = tbnMatrix * normalMaps;
+  vec3 normalMaps = texture(normals, texcoord).rgb;
+  normalMaps = normalMaps * 2.0 - 1.0;
+  normalMaps.z = sqrt(1.0 - dot(normalMaps.xy, normalMaps.xy));
+  vec3 mappedNormal = tbnMatrix * normalMaps;
 
-
-	lightmapData = vec4(lmcoord, 0.0, 1.0);
-	encodedNormal = vec4(mappedNormal * 0.5 + 0.5, 1.0);
-	specMap = texture(specular, texcoord);
+  lightmapData = vec4(lmcoord, 0.0, 1.0);
+  encodedNormal = vec4(mappedNormal * 0.5 + 0.5, 1.0);
+  specMap = texture(specular, texcoord);
 
 }

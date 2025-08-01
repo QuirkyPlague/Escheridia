@@ -1,41 +1,47 @@
-#version 420 compatibility
-
+#version 330 compatibility
 
 #include "/lib/uniforms.glsl"
 #include "/lib/atmosphere/godrays.glsl"
 #include "/lib/atmosphere/distanceFog.glsl"
 in vec2 texcoord;
 
-
 /* RENDERTARGETS: 0 */
 layout(location = 0) out vec4 color;
 
 void main() {
-	color = texture(colortex0, texcoord);
+  color = texture(colortex0, texcoord);
 
-	float depth = texture(depthtex0, texcoord).r;
-	float depth1 = texture(depthtex1, texcoord).r;
-	
+  float depth = texture(depthtex0, texcoord).r;
+  float depth1 = texture(depthtex1, texcoord).r;
 
-	
-	vec2 lightmap =texture(colortex1, texcoord).rg;
-	vec3 NDCPos = vec3(texcoord.xy, depth) * 2.0 - 1.0;
-	vec3 viewPos = projectAndDivide(gbufferProjectionInverse, NDCPos);
-	
-	vec3 sunlightColor = vec3(0.0);
-	vec3 sunColor = currentSunColor(sunlightColor);
-	
-	vec3 mieFog = atmosphericMieFog(color.rgb, viewPos, texcoord, depth, lightmap, worldLightVector, sunColor);
-	vec3 atmosphereFog = atmosphericFog(color.rgb, viewPos, texcoord, depth, lightmap);
-	vec3 fullFog = mix(atmosphereFog, mieFog, 0.4);
-	
-	if(!inWater)
-	{
-		color.rgb = mix(color.rgb, fullFog, 1.0);
-	}
+  vec2 lightmap = texture(colortex1, texcoord).rg;
+  vec3 NDCPos = vec3(texcoord.xy, depth) * 2.0 - 1.0;
+  vec3 viewPos = projectAndDivide(gbufferProjectionInverse, NDCPos);
 
-	
+  vec3 sunlightColor = vec3(0.0);
+  vec3 sunColor = currentSunColor(sunlightColor);
+
+  vec3 mieFog = atmosphericMieFog(
+    color.rgb,
+    viewPos,
+    texcoord,
+    depth,
+    lightmap,
+    worldLightVector,
+    sunColor
+  );
+  vec3 atmosphereFog = atmosphericFog(
+    color.rgb,
+    viewPos,
+    texcoord,
+    depth,
+    lightmap
+  );
+  vec3 fullFog = mix(atmosphereFog, mieFog, 0.4);
+
+  if (!inWater) {
+    color.rgb = mix(color.rgb, fullFog, 1.0);
+  }
+
 }
 
-
-  

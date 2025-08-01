@@ -1,34 +1,30 @@
-#version 420 compatibility
+#version 330 compatibility
 
 #include "/lib/uniforms.glsl"
 #include "/lib/atmosphere/godrays.glsl"
 #include "/lib/util.glsl"
 
-
 in vec2 texcoord;
-
 
 /* RENDERTARGETS: 3 */
 layout(location = 0) out vec4 color;
 
 void main() {
-	color = texture(colortex0, texcoord);
-	float depth = texture(depthtex0, texcoord).r;
-	//space conversions
-	vec3 screenPos = vec3(texcoord.xy, depth);
-	vec3 NDCPos = vec3(texcoord.xy, depth) * 2.0 - 1.0;
-	vec3 viewPos = projectAndDivide(gbufferProjectionInverse, NDCPos);
-	vec3 feetPlayerPos = (gbufferModelViewInverse * vec4(viewPos, 1.0)).xyz;
-	
+  color = texture(colortex0, texcoord);
+  float depth = texture(depthtex0, texcoord).r;
+  //space conversions
+  vec3 screenPos = vec3(texcoord.xy, depth);
+  vec3 NDCPos = vec3(texcoord.xy, depth) * 2.0 - 1.0;
+  vec3 viewPos = projectAndDivide(gbufferProjectionInverse, NDCPos);
+  vec3 feetPlayerPos = (gbufferModelViewInverse * vec4(viewPos, 1.0)).xyz;
 
-	const float jitter = IGN(gl_FragCoord.xy, frameCounter);
-	int stepCount = GODRAYS_SAMPLES;
+  float jitter = IGN(gl_FragCoord.xy, frameCounter);
+  int stepCount = GODRAYS_SAMPLES;
 
-
-	#if VOLUMETRIC_LIGHTING == 1
-	color.rgb = sampleGodrays(color.rgb, texcoord, feetPlayerPos, depth);
-	#endif
-	/*
+  #if VOLUMETRIC_LIGHTING == 1
+  color.rgb = sampleGodrays(color.rgb, texcoord, feetPlayerPos, depth);
+  #endif
+  /*
 	vec3 shadowViewPos_start = (shadowModelView * vec4(vec3(0.0), 1.0)).xyz;
 	vec4 shadowClipPos_start = shadowProjection * vec4(shadowViewPos_start, 1.0);
 	vec3 shadowNDCPos_start = shadowClipPos_start.xyz / shadowClipPos_start.w;
@@ -63,7 +59,4 @@ void main() {
 	//color.rgb *= HG(0.25, VoL);
 	*/
 }
- 
 
-
-  
