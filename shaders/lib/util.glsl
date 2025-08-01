@@ -159,7 +159,7 @@ float Rayleigh(float cosTheta) {
 
 vec3 skyboxSun(vec3 sunPos, vec3 dir, vec3 sunColor) {
   vec3 col = vec3(0.0);
-  const float sunA =
+  float sunA =
     acos(dot(sunPos, dir)) * SUN_SIZE * clamp(AIR_FOG_DENSITY, 0.5, 5.0);
   vec3 sunCol = 0.03 * sunColor / sunA;
 

@@ -65,7 +65,7 @@ vec3 brdf(
   #endif
   // add to outgoing radiance Lo
 
-  Lo = (kD * albedo / PI * orenDiffuse + spec) * radiance * NdotL;
+  Lo = (kD * albedo / PI + spec) * radiance * orenDiffuse;
 
   indirect *= albedo / PI;
 

@@ -97,7 +97,7 @@ vec3 atmosphericFog(
   vec3 caveInscatter = vec3(0.2, 0.2353, 0.4667);
   inscatteringAmount = mix(inscatteringAmount, caveInscatter * 7, moodSmooth);
 
-  const float dist = dist0;
+  float dist = dist0;
   vec3 absorptionFactor = exp(-absorption * 1.0 * (dist * AIR_FOG_DENSITY));
 
   if (!isNight) {
@@ -118,9 +118,9 @@ vec3 atmosphericMieFog(
   vec3 lightPos,
   vec3 sunColor
 ) {
-  const float dist0 = length(screenToView(texcoord, depth));
+  float dist0 = length(screenToView(texcoord, depth));
 
-  const float dist = dist0;
+  float dist = dist0;
 
   vec3 feetPlayerPos = (gbufferModelViewInverse * vec4(viewPos, 1.0)).xyz;
 

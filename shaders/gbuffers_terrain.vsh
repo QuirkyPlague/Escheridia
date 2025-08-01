@@ -1,6 +1,7 @@
-#version 420 compatibility
+#version 330 compatibility
 
 #include "/lib/uniforms.glsl"
+#include "/lib/blockID.glsl"
 
 in vec4 at_tangent;
 out vec2 lmcoord;

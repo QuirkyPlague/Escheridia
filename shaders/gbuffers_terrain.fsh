@@ -1,4 +1,4 @@
-#version 420 compatibility
+#version 330 compatibility
 
 #include "/lib/uniforms.glsl"
 #include "/lib/blockID.glsl"
@@ -51,6 +51,10 @@ void main() {
   float sss = 1.0;
 
   #if RESOURCE_PACK_SUPPORT == 1
-  color += color * (emission * 0.8) * EMISSIVE_MULTIPLIER;
+  color.rgb +=
+    color.rgb *
+    (emission * 3) *
+    min(luminance(color.rgb) * abs(color.rgb), float(color.rgb * 5)) *
+    EMISSIVE_MULTIPLIER;
   #endif
 }

@@ -1,4 +1,4 @@
-#version 420 compatibility
+#version 330 compatibility
 
 #include "/lib/uniforms.glsl"
 uniform sampler2D gtexture;

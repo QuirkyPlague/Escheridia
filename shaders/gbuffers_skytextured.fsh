@@ -1,4 +1,4 @@
-#version 420 compatibility
+#version 330 compatibility
 
 uniform sampler2D gtexture;
 

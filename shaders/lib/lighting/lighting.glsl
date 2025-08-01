@@ -28,7 +28,7 @@ vec3 doDiffuse(
 ) {
   vec3 blocklight = lightmap.r * blocklightColor;
   vec3 skylight = lightmap.g * skylightColor;
-  const vec3 nightSkylight = lightmap.g * nightSkylightColor;
+  vec3 nightSkylight = lightmap.g * nightSkylightColor;
   vec3 rainSkylight = lightmap.g * vec3(0.5412, 0.6235, 0.6667);
   vec3 scatterSun;
   vec3 SSS;

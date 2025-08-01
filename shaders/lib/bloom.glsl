@@ -146,9 +146,6 @@ vec3 computeBloomMix(vec2 texcoord, float depth, bool isMetal) {
   if (inWater) {
     bloomStrength = 4.0 * BLOOM_STRENGTH;
   }
-  if (isMetal) {
-    bloomStrength *= 0.1;
-  }
 
   hdr = mix(
     hdr,

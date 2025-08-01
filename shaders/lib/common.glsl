@@ -3,9 +3,7 @@
 
 /*
 const int colortex0Format = RGB16F;
-const int colortex3Format = RGB16F;
-const int colortex4Format = RGB16F;
-const int colortex12Format = RGB32F;
+const int colortex12Format = RGB16F;
 const bool colortex0MipmapEnabled = true;
 const bool colortex2MipmapEnabled = true;
 */

@@ -51,11 +51,11 @@ void main() {
   vec3 f0;
   #if RESOURCE_PACK_SUPPORT == 1
   if (canScatter) {
-    sss = 1.0;
+    sss = max(luminance(albedo), float(albedo * 3));
   } else {
     sss = 0.0;
     if (!isWater) {
-      roughness = 185.0 / 255.0;
+      roughness = 0.95;
       f0 = vec3(0.0);
     }
     if (isMetal) {

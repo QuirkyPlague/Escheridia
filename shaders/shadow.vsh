@@ -1,4 +1,4 @@
-#version 420 compatibility
+#version 330 compatibility
 
 #include "/lib/shadows/distort.glsl"
 #include "/lib/uniforms.glsl"
