@@ -24,12 +24,7 @@ void main() {
     depth = texture(depthtex1, texcoord).r;
   }
 
-  if (!inWater) {
-    vec3 distanceFog = distanceFog(color.rgb, viewPos, texcoord, depth);
-    vec3 distanceMieFog = distanceMie(color.rgb, viewPos, texcoord, depth);
-    vec3 fullFog = mix(distanceFog, distanceMieFog, 0.5);
-    color.rgb = mix(color.rgb, fullFog, 1.0);
-  }
+ 
   vec4 waterMask = texture(colortex4, texcoord);
 
   float depth1 = texture(depthtex1, texcoord).r;

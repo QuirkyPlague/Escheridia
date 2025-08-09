@@ -42,4 +42,22 @@ vec3 getShadow(vec3 shadowScreenPos) {
   return shadowColor.rgb * (2.0 - shadowColor.a);
 }
 
+vec3 sampleShadow(vec3 shadowScreenPos) {
+  float transparentShadow = shadow2D(shadowtex0HW, shadowScreenPos).r;
+
+  if (transparentShadow >= 1.0 - 1e-6) {
+    return vec3(transparentShadow);
+  }
+
+  float opaqueShadow = shadow2D(shadowtex1HW, shadowScreenPos).r;
+
+  if (opaqueShadow <= 1e-6) {
+    return vec3(opaqueShadow);
+  }
+
+  vec4 shadowColorData = texture(shadowcolor0, shadowScreenPos.xy);
+  vec3 shadowColor =
+    pow(shadowColorData.rgb, vec3(2.2)) * (1.0 - shadowColorData.a);
+  return mix(shadowColor * opaqueShadow, vec3(1.0), transparentShadow);
+}
 #endif //DRAWSHADOWS_GLSL

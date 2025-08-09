@@ -33,7 +33,7 @@ vec3 sampleGodrays(
   const float exposure = 0.3;
   const float decay = 1.0;
   const float density = 1.0;
-  float weight = 0.8 * GODRAY_DENSITY;
+  float weight = 0.6 * GODRAY_DENSITY;
 
   //blank variables
   godraySample = vec3(0.0);

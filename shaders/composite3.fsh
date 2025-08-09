@@ -21,9 +21,7 @@ void main() {
 
   if (!inWater) {
     vec3 distanceFog = distanceFog(color.rgb, viewPos, texcoord, depth);
-    vec3 distanceMieFog = distanceMie(color.rgb, viewPos, texcoord, depth);
-    vec3 fullFog = mix(distanceFog, distanceMieFog, 0.5);
-    color.rgb = mix(color.rgb, fullFog, 1.0);
+    color.rgb = distanceFog;
   }
 
 }

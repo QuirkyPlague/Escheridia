@@ -24,15 +24,6 @@ void main() {
   vec3 sunColor = currentSunColor(sunlightColor);
   #if DISTANCE_FOG_GLSL == 1
 
-  vec3 mieFog = atmosphericMieFog(
-    color.rgb,
-    viewPos,
-    texcoord,
-    depth,
-    lightmap,
-    worldLightVector,
-    sunColor
-  );
   vec3 atmosphereFog = atmosphericFog(
     color.rgb,
     viewPos,
@@ -40,7 +31,7 @@ void main() {
     depth,
     lightmap
   );
-  vec3 fullFog = mix(atmosphereFog, mieFog, 0.4);
+  vec3 fullFog = atmosphereFog;
 
   if (isMetal) {
     color.rgb = fullFog;

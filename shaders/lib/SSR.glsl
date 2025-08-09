@@ -55,6 +55,11 @@ bool raytrace(
   float jitter,
   out vec3 rayPosition
 ) {
+
+   if (rayDirection.z > 0.0 && rayDirection.z >= -viewPosition.z) {
+    return false;
+  }
+  
   rayPosition = viewToScreen(viewPosition);
 
   rayDirection = viewToScreen(viewPosition + rayDirection) - rayPosition;

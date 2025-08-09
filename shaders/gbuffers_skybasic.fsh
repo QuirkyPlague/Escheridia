@@ -89,19 +89,19 @@ vec3 calcSkyColor(vec3 pos) {
   float rayleigh = Rayleigh(VoL) * RAYLEIGH_COEFF;
   //color assignments
   //DAY
-  horizonColor = dayHorizon(horizonColor) * rayleigh * 41.14;
-  zenithColor = dayZenith(zenithColor) * rayleigh * 43.14;
+  horizonColor = dayHorizon(horizonColor);
+  zenithColor = dayZenith(zenithColor);
   //DAWN
-  earlyHorizon = dawnHorizon(earlyHorizon) * rayleigh * 34.14;
-  earlyZenith = dawnZenith(earlyZenith) * rayleigh * 34.14;
+  earlyHorizon = dawnHorizon(earlyHorizon);
+  earlyZenith = dawnZenith(earlyZenith);
   //DUSK
-  lateHorizon = duskHorizon(lateHorizon) * rayleigh * 20.14;
-  lateZenith = duskZenith(lateZenith) * rayleigh * 20.14;
+  lateHorizon = duskHorizon(lateHorizon);
+  lateZenith = duskZenith(lateZenith);
   //NIGHT
-  nightHorizon = NightHorizon(nightHorizon) * rayleigh * 37.14;
-  nightZenith = NightZenith(nightZenith) * rayleigh * 21.14;
-  rainHorizon = rainHorizon * rayleigh;
-  rainZenith = rainZenith * rayleigh;
+  nightHorizon = NightHorizon(nightHorizon);
+  nightZenith = NightZenith(nightZenith);
+  rainHorizon = rainHorizon;
+  rainZenith = rainZenith;
   if (worldTime >= 0 && worldTime < 1000) {
     //smoothstep equation allows interpolation between times of day
     float time = smoothstep(0, 1000, float(worldTime));
@@ -114,20 +114,20 @@ vec3 calcSkyColor(vec3 pos) {
 
   } else if (worldTime >= 11500 && worldTime < 13000) {
     float time = smoothstep(12800, 13000, float(worldTime));
-    horizon = mix(lateHorizon, nightHorizon, time);
-    zenith = mix(lateZenith, nightZenith, time);
+    horizon = mix(lateHorizon, nightHorizon * 0.6, time);
+    zenith = mix(lateZenith, nightZenith * 0.5, time);
 
   } else if (worldTime >= 13000 && worldTime < 24000) {
     float time = smoothstep(22500, 24000, float(worldTime));
-    horizon = mix(nightHorizon, earlyHorizon, time);
-    zenith = mix(nightZenith, earlyZenith, time);
+    horizon = mix(nightHorizon * 0.6, earlyHorizon, time);
+    zenith = mix(nightZenith * 0.5, earlyZenith, time);
     rainZenith *= 0.4;
     rainHorizon *= 0.3;
 
   }
 
-  zenith = mix(zenith, rainZenith, wetness);
-  horizon = mix(horizon, rainHorizon, wetness);
+  zenith = mix(zenith, zenith * 30, rayleigh);
+  horizon = mix(horizon, horizon * 30, rayleigh);
 
   float upDot = dot(pos, gbufferModelView[1].xyz); //not much, what's up with you?
   vec3 sky = mix(zenith, horizon, fogify(max(upDot, 0.0), 0.024));
@@ -138,7 +138,7 @@ vec3 calcSkyColor(vec3 pos) {
     acos(dot(worldLightVector, normalize(feetPlayerPos))) *
     SUN_SIZE *
     clamp(AIR_FOG_DENSITY, 0.8, 5.0);
-  vec3 sunCol = 0.06 * sunColor / sunA;
+  vec3 sunCol = 0.01 * sunColor / sunA;
 
   vec3 sun = max(sky + 0.07 * sunCol, sunCol - wetness);
   sun = max(sun, 0.00001);
@@ -154,7 +154,7 @@ vec3 calcMieSky(
   vec2 texcoord
 ) {
   //Mie scattering assignments
-  vec3 mieScatterColor = vec3(0.5216, 0.3725, 0.1922) * MIE_SCALE * sunColor;
+  vec3 mieScatterColor = vec3(0.0941, 0.0667, 0.0275) * MIE_SCALE * sunColor;
 
   vec3 mieScat = mieScatterColor;
 
@@ -167,7 +167,7 @@ vec3 calcMieSky(
   }
   if (inWater) {
     mieScat *= 0.1;
-    mieScat *= HG(0.75, VoL);
+    mieScat *= CS(0.75, VoL);
   }
 
   mieScat *= CS(0.75, VoL);
@@ -179,24 +179,23 @@ layout(location = 0) out vec4 color;
 
 void main() {
   if (renderStage == MC_RENDER_STAGE_STARS) {
-    color = glcolor;
+    color = glcolor * 0.5;
 
     for (int i = 0; i < 5; i++) {
       // generate some wave direction that looks kind of random
       float iter = 0.0;
-      float starBrightnessShift = length(feetPlayerPos) * 0.7;
+      float starBrightnessShift = length(feetPlayerPos) * 3.1;
       vec2 posShift = vec2(sin(iter), cos(iter));
       float x =
-        dot(feetPlayerPos.xz, posShift) * 0.5 +
+        dot(feetPlayerPos.xz, posShift) * 2.5 +
         (frameTimeCounter * 0.9 + starBrightnessShift);
       float starTwinkleFactor = exp(sin(x - 1.0));
       float starFluctuation = starTwinkleFactor - exp(cos(x - 1.3));
       vec2 starTwinkle = vec2(starTwinkleFactor, -starFluctuation);
 
       starTwinkle += starBrightnessShift * posShift;
-      color += float(starTwinkle) * 0.3;
+      color += float(starTwinkle) * 0.16;
     }
-
   } else {
     vec3 pos = viewPos;
     vec3 lightPos = normalize(shadowLightPosition);

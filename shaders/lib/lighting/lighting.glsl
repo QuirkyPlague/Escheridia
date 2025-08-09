@@ -7,7 +7,7 @@
 const vec3 blocklightColor = vec3(1.0, 0.9294, 0.8392) * 1.2;
 const vec3 skylightColor = vec3(0.5137, 0.6118, 1.0) * 3.5;
 const vec3 nightSkylightColor = vec3(0.0863, 0.2196, 0.898) * 2.2;
-const vec3 sunlightColor = vec3(1.0, 0.8549, 0.4196) * 6.3;
+const vec3 sunlightColor = vec3(1.0, 0.902, 0.6039) * 4.3;
 const vec3 morningSunlightColor = vec3(0.9882, 0.4902, 0.1804) * 5.3;
 const vec3 eveningSunlightColor = vec3(0.9882, 0.3333, 0.098) * 5.4;
 const vec3 moonlightColor = vec3(0.1608, 0.4118, 0.8824) * 3;
@@ -55,7 +55,7 @@ vec3 doDiffuse(
       SSS = mix(sunlightColor, sunlightColor, time) * (shadow * sss) * 1.25;
       scatterSun *= CS(SSS_HG, VoL);
       fullScatter = mix(SSS, scatterSun, 0.5) * 2;
-      fullScatter = mix(fullScatter, fullScatter * 0.7, time);
+      fullScatter = mix(fullScatter, fullScatter, time);
       sunlight = mix(sunlight, fullScatter, SSS_INTENSITY);
     }
     skylight *= mix(0.67, 0.4, time);

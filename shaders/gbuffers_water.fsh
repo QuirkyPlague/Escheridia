@@ -116,17 +116,15 @@ void main() {
   vec3 lighting = specular;
   if (blockID == WATER_ID) {
     waterMask = vec4(1.0, 1.0, 1.0, 1.0);
-
     color.a *= 0.0;
-    isWater = true;
-
+    
   } else if (blockID == TRANSLUCENT_ID) {
     translucentMask = vec4(1.0, 1.0, 1.0, 1.0);
     lighting = emissive;
   } else {
     waterMask = vec4(0.0, 0.0, 0.0, 1.0);
     translucentMask = vec4(0.0, 0.0, 0.0, 1.0);
-    isWater = false;
+   
   }
 
   if (blockID == SSS_ID) {

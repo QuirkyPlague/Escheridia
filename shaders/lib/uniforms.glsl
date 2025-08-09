@@ -37,6 +37,8 @@ uniform sampler2D dhDepthTex1;
 //shadow buffer
 uniform sampler2D shadowtex0;
 uniform sampler2D shadowtex1;
+uniform sampler2DShadow shadowtex1HW;
+uniform sampler2DShadow shadowtex0HW;
 uniform sampler2D shadowcolor0;
 //normal/speculars
 uniform sampler2D normals;
@@ -77,4 +79,5 @@ bool inWater = isEyeInWater == 1.0;
 vec3 lightVector = normalize(shadowLightPosition);
 vec3 worldLightVector = mat3(gbufferModelViewInverse) * lightVector;
 
+vec2 resolution = vec2(viewWidth, viewHeight);
 #endif //UNIFORMS_GLSL

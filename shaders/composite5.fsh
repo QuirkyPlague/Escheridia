@@ -61,11 +61,11 @@ void main() {
   //waves
   float waveFalloff = length(feetPlayerPos) / farPlane;
   float waveIntensityRolloff = exp(
-    15.0 * WAVE_INTENSITY * (0.08 - waveFalloff)
+    15.0 * WAVE_INTENSITY * (0.04 - waveFalloff)
   );
-  float waveIntensity = 0.16 * WAVE_INTENSITY;
-  waveIntensity *= 0.76 * waveIntensityRolloff;
-  float waveSoftness = 1.1 * WAVE_SOFTNESS;
+  float waveIntensity = 0.66 * WAVE_INTENSITY;
+  waveIntensity *= 0.26 * waveIntensityRolloff;
+  float waveSoftness = 0.01 * WAVE_SOFTNESS;
   if (isWater) {
     normal = waveNormal(
       feetPlayerPos.xz + cameraPosition.xz,
@@ -162,43 +162,32 @@ void main() {
   if (reflectionHit) {
     if (canReflect || isMetal || isWater) {
       reflectedColor = texture2DLod(colortex0, reflectedPos.xy, lod).rgb;
-      vec3 mieFog = atmosphericMieFog(
-        reflectedColor,
-        reflectedViewPos,
-        texcoord,
-        depth,
-        lightmap,
-        lightVector,
-        sunColor
-      );
-      vec3 atmosphereFog = atmosphericFog(
-        reflectedColor,
-        reflectedViewPos,
-        texcoord,
-        depth,
-        lightmap
-      );
+      
     }
 
   }
   if (!reflectionHit && canReflect && !inWater) {
     vec3 skyMieReflection =
       calcMieSky(
-        reflect(normalize(viewPos), normal),
+        reflectedDir,
         worldLightVector,
         sunColor,
         viewPos,
         texcoord
       ) *
       3;
-    vec3 skyReflection = calcSkyColor(reflect(normalize(viewPos), normal)) * 3;
+    vec3 skyReflection = calcSkyColor(reflectedDir) * 3;
     vec3 sunReflection =
-      skyboxSun(lightVector, reflect(normalize(viewPos), normal), sunColor) * 3;
+      skyboxSun(lightVector, reflectedDir, sunColor) * 3;
     skyReflection = mix(sunReflection, skyReflection, 0.5);
     vec3 fullSkyReflection = mix(skyReflection, skyMieReflection, 0.5);
     reflectedColor = fullSkyReflection;
     float smoothLightmap = smoothstep(0.882, 1.0, lightmap.g);
-    reflectedColor = mix(color.rgb, reflectedColor, smoothLightmap);
+    if(reflectedPos.z < 1.0 && lightmap.g < 0.882)
+    {
+      reflectedColor = mix(color.rgb, reflectedColor, smoothLightmap);
+    }
+    
   }
   if (!reflectionHit && inWater) {
     reflectedColor = color.rgb;
