@@ -118,7 +118,12 @@ vec3 calcSkyColor(vec3 pos) {
 
   zenith = mix(zenith * 0.3, zenith, rayleigh);
   horizon = mix(horizon, horizon, rayleigh);
-
+  rainHorizon = mix(rainHorizon, rainHorizon, rayleigh);
+  rainZenith = mix(rainZenith, rainZenith, rayleigh);
+  zenith = mix(zenith, zenith * 30, rayleigh);
+  horizon = mix(horizon, horizon * 30, rayleigh);
+    zenith = mix(zenith, rainZenith *2, wetness);
+  horizon = mix(horizon, rainHorizon *2, wetness);
   float upDot = dot(normalize(pos), gbufferModelView[1].xyz); //not much, what's up with you?
   vec3 sky = mix(zenith, horizon, fogify(max(upDot, 0.0), 0.024));
 

@@ -35,7 +35,7 @@ vec3 getSoftShadow(vec3 feetPlayerPos, vec3 normal, float SSS) {
   float noise = IGN(floor(gl_FragCoord.xy), frameCounter);
   float faceNdl = dot(normal, worldLightVector);
   if (faceNdl <= 1e-6 && SSS > 64.0 / 255.0) {
-    sampleRadius *= 1.0 + 16.0 * SSS;
+    sampleRadius *= 1.0 + 6.0 * SSS;
   }
 
   vec3 shadowAccum = vec3(0.0); // sum of all shadow samples

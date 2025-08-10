@@ -59,7 +59,7 @@ vec3 atmosphericFog(
   vec3 inscatteringAmount = calcSkyColor(viewPos);
 
   inscatteringAmount *= eyeBrightnessSmooth.y;
-  inscatteringAmount *= 0.003;
+  inscatteringAmount *= 0.001;
   vec3 caveInscatter = vec3(0.2, 0.2353, 0.4667);
   inscatteringAmount = mix(inscatteringAmount, caveInscatter * 7, moodSmooth);
 
