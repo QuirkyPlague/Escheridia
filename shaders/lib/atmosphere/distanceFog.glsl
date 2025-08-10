@@ -29,7 +29,7 @@ vec3 distanceFog(vec3 color, vec3 viewPos, vec2 texcoord, float depth) {
     distFog = mix(distFog, distFog, dryToWet) * 0.15;
   }
   if (!inWater) {
-    distFog *= 0.005;
+    distFog *= 0.008;
     distFog *= eyeBrightnessSmooth.y;
   }
 
@@ -59,7 +59,7 @@ vec3 atmosphericFog(
   vec3 inscatteringAmount = calcSkyColor(viewPos);
 
   inscatteringAmount *= eyeBrightnessSmooth.y;
-  inscatteringAmount *= 0.001;
+  inscatteringAmount *= 0.003;
   vec3 caveInscatter = vec3(0.2, 0.2353, 0.4667);
   inscatteringAmount = mix(inscatteringAmount, caveInscatter * 7, moodSmooth);
 

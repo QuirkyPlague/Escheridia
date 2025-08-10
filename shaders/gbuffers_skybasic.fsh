@@ -140,7 +140,7 @@ vec3 calcSkyColor(vec3 pos) {
     acos(dot(worldLightVector, normalize(feetPlayerPos))) *
     SUN_SIZE *
     clamp(AIR_FOG_DENSITY, 0.8, 5.0);
-  vec3 sunCol = 0.01 * sunColor / sunA;
+  vec3 sunCol = 0.02 * sunColor / sunA;
 
   vec3 sun = max(sky + 0.07 * sunCol, sunCol - wetness);
   sun = max(sun, 0.00001);
@@ -156,7 +156,7 @@ vec3 calcMieSky(
   vec2 texcoord
 ) {
   //Mie scattering assignments
-  vec3 mieScatterColor = vec3(0.0941, 0.0667, 0.0275) * MIE_SCALE * sunColor;
+  vec3 mieScatterColor = vec3(0.102, 0.0431, 0.0078) * MIE_SCALE * sunColor;
 
   vec3 mieScat = mieScatterColor;
 

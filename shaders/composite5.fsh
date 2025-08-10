@@ -65,7 +65,7 @@ void main() {
   );
   float waveIntensity = 0.66 * WAVE_INTENSITY;
   waveIntensity *= 0.26 * waveIntensityRolloff;
-  float waveSoftness = 0.01 * WAVE_SOFTNESS;
+  float waveSoftness = 0.2 * WAVE_SOFTNESS;
   if (isWater) {
     normal = waveNormal(
       feetPlayerPos.xz + cameraPosition.xz,
@@ -131,23 +131,17 @@ void main() {
   vec3 normalReflectedPos = reflectedPos;
   vec3 reflectedViewPos = screenSpaceToViewSpace(reflectedPos);
   float reflectedDist = distance(viewPos, reflectedViewPos);
-  float noise = getNoise(texcoord).r;
-  float theta = noise * radians(360.0); // random angle using noise value
-  float cosTheta = cos(theta);
-  float sinTheta = sin(theta);
-
-  mat2 rotation = mat2(cosTheta, -sinTheta, sinTheta, cosTheta); // matrix to rotate the offset around the original position by the angle
+  
 
   float lod = min(3.0 * (1.0 - pow(roughness, 8.0)), reflectedDist);
   if (roughness <= 0.0 || isWater) lod = 0.0;
 
   #ifdef ROUGH_REFLECTION
-  float sampleRadius = roughness * 0.09 * distance(reflectedViewPos, viewPos);
+  float sampleRadius = roughness * 0.05 * distance(reflectedViewPos, viewPos);
 
   for (int i = 0; i < ROUGH_SAMPLES; i++) {
     jitter = IGN(gl_FragCoord.xy, frameCounter * ROUGH_SAMPLES);
     vec2 offset = vogelDisc(i, ROUGH_SAMPLES, jitter) * sampleRadius;
-    offset *= rotation;
     vec3 offsetReflectedPos = reflectedPos + vec3(offset, 0.0); // add offset
     offsetReflectedPos.z = reflectedPos.z;
     reflectedPos = offsetReflectedPos;
@@ -183,13 +177,11 @@ void main() {
     vec3 fullSkyReflection = mix(skyReflection, skyMieReflection, 0.5);
     reflectedColor = fullSkyReflection;
     float smoothLightmap = smoothstep(0.882, 1.0, lightmap.g);
-    if(reflectedPos.z < 1.0 && lightmap.g < 0.882)
-    {
       reflectedColor = mix(color.rgb, reflectedColor, smoothLightmap);
-    }
+    
     
   }
-  if (!reflectionHit && inWater) {
+  if (!reflectionHit && inWater && isWater) {
     reflectedColor = color.rgb;
   }
 

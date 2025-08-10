@@ -23,8 +23,8 @@ vec3 dayZenith(vec3 color) {
 }
 vec3 dayHorizon(vec3 color) {
   color.r = DAY_HOR_R;
-  color.g = DAY_HOR_G * 1.51;
-  color.b = DAY_HOR_B * 1.81;
+  color.g = DAY_HOR_G * 1.21;
+  color.b = DAY_HOR_B * 1.51;
   return color;
 }
 vec3 dawnZenith(vec3 color) {
@@ -116,12 +116,10 @@ vec3 calcSkyColor(vec3 pos) {
     rainZenith = rainZenith * rayleigh;
   }
 
-  zenith = mix(zenith * 0.3, zenith, rayleigh);
-  horizon = mix(horizon, horizon, rayleigh);
+  zenith = mix(zenith * 0.3, zenith * 0.2, rayleigh);
+  horizon = mix(horizon * 0.7, horizon * 5.2, rayleigh);
   rainHorizon = mix(rainHorizon, rainHorizon, rayleigh);
   rainZenith = mix(rainZenith, rainZenith, rayleigh);
-  zenith = mix(zenith, zenith * 30, rayleigh);
-  horizon = mix(horizon, horizon * 30, rayleigh);
     zenith = mix(zenith, rainZenith *2, wetness);
   horizon = mix(horizon, rainHorizon *2, wetness);
   float upDot = dot(normalize(pos), gbufferModelView[1].xyz); //not much, what's up with you?

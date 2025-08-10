@@ -51,12 +51,12 @@ void main() {
   vec3 f0;
   #if RESOURCE_PACK_SUPPORT == 1
   if (canScatter) {
-    sss = max(luminance(albedo), float(albedo * 3));
+    sss = clamp(max(luminance(albedo), float(albedo * 2)), 0.0,1.5);
 
   } else {
     sss = 0.0;
     if (!isWater) {
-      roughness = min(luminance(albedo - 1), float(albedo));
+      roughness = min(luminance(albedo - 1.0), float(albedo * 3));
 
       f0 = vec3(0.0);
     }

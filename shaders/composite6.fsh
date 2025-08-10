@@ -10,33 +10,18 @@ layout(location = 0) out vec4 color;
 void main() {
   color = texture(colortex0, texcoord);
 
-  vec4 SpecMap = texture(colortex5, texcoord);
-
   float depth = texture(depthtex0, texcoord).r;
-  float depth1 = texture(depthtex1, texcoord).r;
-
   vec2 lightmap = texture(colortex1, texcoord).rg;
   vec3 NDCPos = vec3(texcoord.xy, depth) * 2.0 - 1.0;
   vec3 viewPos = projectAndDivide(gbufferProjectionInverse, NDCPos);
 
-  bool isMetal = SpecMap.g >= 230.0 / 255.0;
-  vec3 sunlightColor = vec3(0.0);
-  vec3 sunColor = currentSunColor(sunlightColor);
-  #if DISTANCE_FOG_GLSL == 1
-
-  vec3 atmosphereFog = atmosphericFog(
-    color.rgb,
-    viewPos,
-    texcoord,
-    depth,
-    lightmap
-  );
-  vec3 fullFog = atmosphereFog;
-
-  if (isMetal) {
-    color.rgb = fullFog;
+  if (depth == 1.0) {
+    return;
   }
 
-  #endif
+  if (!inWater) {
+    vec3 distanceFog = distanceFog(color.rgb, viewPos, texcoord, depth);
+    color.rgb = distanceFog;
+  }
 
 }

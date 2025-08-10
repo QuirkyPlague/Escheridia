@@ -29,6 +29,16 @@ void main() {
   color.rgb = sampleGodrays(color.rgb, texcoord, feetPlayerPos, depth);
 
   #elif VOLUMETRIC_LIGHTING == 2
+
+  const float shadowMapPixelSize = 1.0 / float(SHADOW_RESOLUTION);
+  float sampleRadius = SHADOW_SOFTNESS * shadowMapPixelSize * 0.74;
+  #if PIXELATED_LIGHTING == 1
+  sampleRadius = SHADOW_SOFTNESS * shadowMapPixelSize * 0.54;
+
+  feetPlayerPos = feetPlayerPos + cameraPosition;
+  feetPlayerPos = floor(feetPlayerPos * 8 + 0.01) / 8;
+  feetPlayerPos -= cameraPosition;
+  #endif
 	vec3 shadowViewPos_start = (shadowModelView * vec4(vec3(0.0), 1.0)).xyz;
 	vec4 shadowClipPos_start = shadowProjection * vec4(shadowViewPos_start, 1.0);
 	vec3 shadowNDCPos_start = shadowClipPos_start.xyz / shadowClipPos_start.w;
@@ -44,7 +54,7 @@ void main() {
   
   vec3 worldPos = feetPlayerPos + cameraPosition;
  
-  float dist =length(feetPlayerPos) / (inverseStep + 1);
+  float dist =length(feetPlayerPos) / (inverseStep);
   
 
 	vec3 scatterF = vec3(0.0011, 0.0018, 0.0038);
@@ -57,12 +67,15 @@ void main() {
   vec3 sunColor;
   sunColor = currentSunColor(sunColor);
   float phase = CS(VL_ANISO, VoL);
-
-  const float shadowMapPixelSize = 1.0 / float(SHADOW_RESOLUTION);
-  float sampleRadius = SHADOW_SOFTNESS * shadowMapPixelSize * 0.74;
+float waveFalloff = length(feetPlayerPos) / far;
+  float waveIntensityRolloff = exp(
+    0.1 * WAVE_INTENSITY * (0.04 - waveFalloff)
+  );
+  
 
   float minHeight = VOLUMETRIC_MIN_HEIGHT;
   float maxHeight = VOLUMETRIC_MAX_HEIGHT;
+
   float worldSmooth = smoothstep(maxHeight, minHeight, worldPos.y);
 
     for(int i = 0; i < GODRAYS_SAMPLES; i++) 
@@ -96,12 +109,19 @@ void main() {
     transmission *= sampleTransmittance;
     
     }
-    scatter *= 0.02 * VOLUMETRIC_FOG_DENSITY;
+    scatter *= 0.003 * VOLUMETRIC_FOG_DENSITY;
+    
     #ifdef DO_FOG_HEIGHT
-    scatter = mix(scatter * 0.5, scatter * 5, worldSmooth);
+    scatter*= waveIntensityRolloff;
+    scatter = mix(scatter * 0.3, scatter * 5, worldSmooth);
+    
     #endif
+    
 	color.rgb = mix(color.rgb, transmission + scatter, 1.0 + wetness);
-  
+  if(depth ==1)
+    {
+      color.rgb = mix(color.rgb, (transmission + scatter) * 0.15, 1.0 + wetness);
+    }
     
 	#endif
 	
