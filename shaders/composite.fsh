@@ -62,7 +62,7 @@ void main() {
 
 
   float farPlane = far /4;
-  float dist = clamp(length(eyePlayerPos), 0.0, far);
+  float dist = clamp(length(eyePlayerPos) + 2, 0.0, far);
 
   float waveFalloff = length(eyePlayerPos) / far;
   float waveIntensityRolloff = exp(0.8 * WAVE_INTENSITY * (0.05 - waveFalloff));
@@ -77,7 +77,7 @@ void main() {
 
   if (isNight) {
   
-    absorbF = vec3(0.7412, 0.7412, 0.7412) * 3.15;
+    absorbF = vec3(0.7412, 0.7412, 0.7412) * 4.55;
   }
   vec3 transmission = vec3(1.0);
   vec3 scatter = vec3(0.0, 0.0, 0.0);
@@ -140,7 +140,7 @@ void main() {
 
   }
 
-  scatter *= 0.1;
+  scatter *= 0.07;
  
   color.rgb = mix(color.rgb, transmission + scatter, 1.0 + wetness);
   if (depth == 1) {

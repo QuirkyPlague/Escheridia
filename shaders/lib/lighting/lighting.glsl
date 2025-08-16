@@ -5,7 +5,7 @@
 #include "/lib/util.glsl"
 
 const vec3 blocklightColor = vec3(1.0, 0.9137, 0.8784) * 1.15;
-const vec3 skylightColor = vec3(0.3255, 0.4157, 0.5216) * 3;
+const vec3 skylightColor = vec3(0.3765, 0.4824, 0.6039) * 3;
 const vec3 nightSkylightColor = vec3(0.0, 0.1647, 1.0) * 3.2;
 const vec3 sunlightColor = vec3(1.0, 0.7569, 0.4627) * 3.5;
 const vec3 morningSunlightColor = vec3(1.0, 0.4431, 0.1412) * 3.5;
@@ -140,7 +140,7 @@ vec3 doDiffuse(
   blocklight += clamp(min(0.17 * pow(blocklight, vec3(0.8)), 5.2), 0.0, 1.0);
 
   vec3 ambientMood = vec3(0.7843, 0.7843, 0.7843);
-  vec3 ambientColorLocal = vec3(0.251, 0.251, 0.251);
+  vec3 ambientColorLocal = vec3(0.3098, 0.3098, 0.3098);
   vec3 ambient = mix(ambientColorLocal, ambientMood, moodSmooth);
   
 
