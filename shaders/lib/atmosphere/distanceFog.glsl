@@ -82,7 +82,7 @@ vec3 atmosphericFog(
 ) {
   vec3 sunColor = vec3(0.0);
   sunColor = currentSunColor(sunColor);
-  float dist0 = length(viewPos) / 32;
+  float dist0 = length(viewPos) / 49;
 
   float farPlane = far / 4;
   float dist1 = length(viewPos) / farPlane;
