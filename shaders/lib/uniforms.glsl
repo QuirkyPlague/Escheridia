@@ -37,6 +37,8 @@ uniform sampler2D dhDepthTex1;
 //shadow buffer
 uniform sampler2D shadowtex0;
 uniform sampler2D shadowtex1;
+uniform sampler2DShadow shadowtex1HW;
+uniform sampler2DShadow shadowtex0HW;
 uniform sampler2D shadowcolor0;
 //normal/speculars
 uniform sampler2D normals;
@@ -44,6 +46,7 @@ uniform sampler2D specular;
 uniform sampler2D noisetex;
 const float PI = float(3.14159);
 uniform int frameCounter;
+uniform float eyeAltitude;
 const float sunPathRotation = SUN_ROTATION;
 uniform float viewWidth;
 uniform float viewHeight;
@@ -62,7 +65,7 @@ uniform float wetness;
 uniform float frameTimeCounter;
 uniform vec4 entityColor;
 uniform ivec2 eyeBrightnessSmooth;
-const float eyeBrightnessHalflife = 3.0;
+const float eyeBrightnessHalflife = 30.0;
 uniform float constantMood;
 uniform float sunAngle;
 uniform float playerMood;
@@ -70,6 +73,8 @@ uniform float moodSmooth;
 uniform int biome;
 uniform bool isHotBiome;
 uniform bool isColdBiome;
+const float eps          = 1e-6;
+const float entityShadowDistanceMul = 0.15;
 bool isNight = worldTime >= 13000 && worldTime < 23000;
 bool isRaining = rainStrength <= 1.0 && rainStrength > 0.0;
 bool inWater = isEyeInWater == 1.0;
@@ -77,4 +82,5 @@ bool inWater = isEyeInWater == 1.0;
 vec3 lightVector = normalize(shadowLightPosition);
 vec3 worldLightVector = mat3(gbufferModelViewInverse) * lightVector;
 
+vec2 resolution = vec2(viewWidth, viewHeight);
 #endif //UNIFORMS_GLSL

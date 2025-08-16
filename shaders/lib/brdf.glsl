@@ -47,25 +47,28 @@ vec3 brdf(
   float G = GeometrySmith(N, V, L, roughness);
 
   vec3 numerator = NDF * G * F;
-  float denominator = 4.0 * clamp(dot(N, V), 0.0, 1.0) + 0.0001;
+  float NdotL = clamp(dot(N, L), 0.0, 1.0);
+
+  float denominator = 4.0 * NdotL + 0.0001;
   vec3 spec = numerator / denominator;
+  if (NdotL < 0) return spec * 0;
   vec3 kS = F;
   vec3 kD = vec3(1.0) - kS;
 
-  float NdotL = clamp(dot(N, L), 0.0, 1.0);
   float NdotV = clamp(dot(N, V), 0.0, 1.0);
   float VdotH = clamp(dot(V, H), 0.0, 1.0);
   float orenDiffuse = OrenNayar(roughness, NdotL, NdotV, VdotH);
+  orenDiffuse /= radians(180.0);
   #ifdef DO_SSR
   if (SpecMap.g >= 230.0 / 255.0) {
-    kD *= 0.0;
+    kD /= PI;
   }
   #else
   kD *= 1.0;
   #endif
   // add to outgoing radiance Lo
 
-  Lo = (kD * albedo / PI + spec) * radiance * orenDiffuse;
+  Lo = (kD * albedo + spec) * radiance * orenDiffuse;
 
   indirect *= albedo / PI;
 

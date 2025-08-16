@@ -29,6 +29,10 @@ float minOf(vec3 x) {
   return min(x.x, min(x.y, x.z));
 }
 
+float minOf(vec2 x) {
+  return min(x.x, x.y);
+}
+
 void binarySearch(inout vec3 rayPosition, vec3 rayDirection) {
   for (int i = 0; i < BINARY_COUNT; i++) {
     rayPosition +=
@@ -55,6 +59,10 @@ bool raytrace(
   float jitter,
   out vec3 rayPosition
 ) {
+  if (rayDirection.z > 0.0 && rayDirection.z >= -viewPosition.z) {
+    return false;
+  }
+
   rayPosition = viewToScreen(viewPosition);
 
   rayDirection = viewToScreen(viewPosition + rayDirection) - rayPosition;
@@ -64,24 +72,24 @@ bool raytrace(
     minOf(
       abs(sign(rayDirection) - rayPosition) / max(abs(rayDirection), 0.00001)
     ) *
-    (1.0 / stepCount);
+    (1.0 / stepCount * 4);
 
   float depthLenience = max(
-    abs(rayDirection.z) * 3.0,
-    0.02 / pow(viewPosition.z, 2.0)
+    abs(rayDirection.z) * 1.0,
+    0.02 / (viewPosition.z * viewPosition.z)
   ); // From Dr Desten
   bool intersect = false;
 
   rayPosition += rayDirection * jitter;
 
   vec3 hitPosition;
-
-  for (
-    int i = 0;
-    i <= stepCount && !intersect;
-    i++, rayPosition += rayDirection
-  ) {
-    if (clamp(rayPosition, 0, 1) != rayPosition) return false;
+  bool outOfBounds = false;
+  for (int i = 0; i < stepCount; i++) {
+    if (clamp(rayPosition, 0, 1) != rayPosition) {
+      outOfBounds = true;
+      break;
+    }
+    rayPosition += rayDirection;
 
     float depth = texelFetch(
       depthtex0,
@@ -108,7 +116,7 @@ bool raytrace(
 
   }
 
-  if (clamp(rayPosition, 0, 1) != rayPosition) return false;
+  if (outOfBounds) return false;
   #if BINARY_REFINEMENT == 1
   binarySearch(rayPosition, rayDirection);
   #endif

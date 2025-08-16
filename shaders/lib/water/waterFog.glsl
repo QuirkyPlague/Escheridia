@@ -7,21 +7,8 @@
 #include "/lib/atmosphere/skyColor.glsl"
 #include "/lib/lighting/lighting.glsl"
 
-vec3 waterColor(vec3 color) {
-  color.r = ABSORPTION_R;
-  color.g = ABSORPTION_G;
-  color.b = ABSORPTION_B;
-
-  return color;
-}
-
-vec3 waterScatter(vec3 color) {
-  color.r = SCATTER_R;
-  color.g = SCATTER_G;
-  color.b = SCATTER_B;
-
-  return color;
-}
+const vec3 WATER_ABOSRBTION = vec3(ABSORPTION_R, ABSORPTION_G, ABSORPTION_B);
+const vec3 WATER_SCATTERING = vec3(SCATTER_R, SCATTER_G, SCATTER_B);
 
 vec3 waterExtinction(
   vec3 color,
@@ -39,9 +26,9 @@ vec3 waterExtinction(
     dist = dist0;
   }
   vec3 absorptionColor = vec3(0.0);
-  vec3 absorption = waterColor(absorptionColor);
+  vec3 absorption = WATER_ABOSRBTION;
   vec3 inscatteringAmount = vec3(0.0);
-  inscatteringAmount = waterScatter(inscatteringAmount);
+  inscatteringAmount = WATER_SCATTERING;
   inscatteringAmount *= SCATTER_COEFF;
   inscatteringAmount *= eyeBrightnessSmooth.y;
   inscatteringAmount *= 0.005;
@@ -68,9 +55,9 @@ vec3 waterFog(vec3 color, vec2 texcoord, vec2 lightmap, float depth) {
   vec3 sunColor = vec3(0.0);
   sunColor = currentSunColor(sunColor);
   vec3 absorptionColor = vec3(0.0);
-  vec3 absorption = waterColor(absorptionColor);
+  vec3 absorption = WATER_ABOSRBTION;
   vec3 inscatteringAmount = vec3(0.0);
-  inscatteringAmount = waterScatter(inscatteringAmount);
+  inscatteringAmount = WATER_SCATTERING;
   inscatteringAmount *= SCATTER_COEFF;
   if (isNight) {
     inscatteringAmount *= 0.3;

@@ -21,7 +21,7 @@ float IGN(vec2 coord) {
 }
 
 float IGN(vec2 coord, int frame) {
-  return IGN(coord + 5.588238 * (frame & 63));
+  return IGN(coord + 5.588238 * (frame % 63));
 }
 
 vec2 vogelDisc(int stepIndex, int stepCount, float noise) {
@@ -152,9 +152,9 @@ vec3 screenSpaceToViewSpace(vec3 screenPosition) {
   return viewPosition;
 }
 
-float Rayleigh(float cosTheta) {
-  const float k = 3.0 / (16.0 * PI);
-  return k * (1.0 + cosTheta * cosTheta);
+float Rayleigh(float mu)
+{
+	return 3.0 * (1.0 + mu * mu) / (16.0 * PI);
 }
 
 vec3 skyboxSun(vec3 sunPos, vec3 dir, vec3 sunColor) {

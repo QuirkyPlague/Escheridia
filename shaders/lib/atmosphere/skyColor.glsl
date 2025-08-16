@@ -4,126 +4,18 @@
 #include "/lib/uniforms.glsl"
 #include "/lib/util.glsl"
 
-vec3 horizonColor = vec3(0.0);
-vec3 zenithColor = vec3(0.0);
-vec3 earlyHorizon = vec3(0.0);
-vec3 earlyZenith = vec3(0.0);
-vec3 lateHorizon = vec3(0.0);
-vec3 lateZenith = vec3(0.0);
-vec3 nightHorizon = vec3(0.0);
-vec3 nightZenith = vec3(0.0);
 vec3 rainHorizon = vec3(0.5765, 0.5765, 0.5765);
 vec3 rainZenith = vec3(0.1137, 0.1137, 0.1137);
 
-vec3 dayZenith(vec3 color) {
-  color.r = DAY_ZEN_R * 1.34;
-  color.g = DAY_ZEN_G * 2.34;
-  color.b = DAY_ZEN_B * 3.34;
-  return color;
-}
-vec3 dayHorizon(vec3 color) {
-  color.r = DAY_HOR_R;
-  color.g = DAY_HOR_G;
-  color.b = DAY_HOR_B;
-  return color;
-}
-vec3 dawnZenith(vec3 color) {
-  color.r = DAWN_ZEN_R;
-  color.g = DAWN_ZEN_G;
-  color.b = DAWN_ZEN_B;
-  return color;
-}
-vec3 dawnHorizon(vec3 color) {
-  color.r = DAWN_HOR_R * 2.5;
-  color.g = DAWN_HOR_G * 1.25;
-  color.b = DAWN_HOR_B;
-  return color;
-}
-vec3 duskZenith(vec3 color) {
-  color.r = DUSK_ZEN_R;
-  color.g = DUSK_ZEN_G;
-  color.b = DUSK_ZEN_B;
-  return color;
-}
-vec3 duskHorizon(vec3 color) {
-  color.r = DUSK_HOR_R * 2.4;
-  color.g = DUSK_HOR_G * 1.2;
-  color.b = DUSK_HOR_B * 0.7;
-  return color;
-}
-vec3 NightZenith(vec3 color) {
-  color.r = NIGHT_ZEN_R;
-  color.g = NIGHT_ZEN_G;
-  color.b = NIGHT_ZEN_B;
-  return color;
-}
-vec3 NightHorizon(vec3 color) {
-  color.r = NIGHT_HOR_R;
-  color.g = NIGHT_HOR_G;
-  color.b = NIGHT_HOR_B * 3;
-  return color;
-}
-
-float fogify(float x, float w) {
-  return w / (x * x + w);
-}
-
-vec3 calcSkyColor(vec3 pos) {
-  vec3 horizon;
-  vec3 zenith;
-
-  vec3 feetPlayerPos = (gbufferModelViewInverse * vec4(pos, 1.0)).xyz;
-  float VoL = dot(normalize(feetPlayerPos), worldLightVector);
-  float rayleigh = Rayleigh(VoL) * RAYLEIGH_COEFF;
-
-  //color assignments
-  //DAY
-  horizonColor = dayHorizon(horizonColor) * rayleigh * 13.14;
-  zenithColor = dayZenith(zenithColor) * rayleigh * 7.14;
-  //DAWN
-  earlyHorizon = dawnHorizon(earlyHorizon) * rayleigh * 9.24;
-  earlyZenith = dawnZenith(earlyZenith) * rayleigh * 9.54;
-  //DUSK
-  lateHorizon = duskHorizon(lateHorizon) * rayleigh * 2.14;
-  lateZenith = duskZenith(lateZenith) * rayleigh * 5.14;
-  //NIGHT
-  nightHorizon = NightHorizon(nightHorizon) * rayleigh * 2;
-  nightZenith = NightZenith(nightZenith) * rayleigh * 2;
-
-  if (worldTime >= 0 && worldTime < 1000) {
-    //smoothstep equation allows interpolation between times of day
-    float time = smoothstep(0, 1000, float(worldTime));
-    horizon = mix(earlyHorizon, horizonColor, time);
-    zenith = mix(earlyZenith, zenithColor, time);
-  } else if (worldTime >= 1000 && worldTime < 11500) {
-    float time = smoothstep(10000, 11500, float(worldTime));
-    horizon = mix(horizonColor, lateHorizon, time);
-    zenith = mix(zenithColor, lateZenith, time);
-    rainHorizon = rainHorizon * rayleigh * 6;
-    rainZenith = rainZenith * rayleigh * 6;
-  } else if (worldTime >= 11500 && worldTime < 13000) {
-    float time = smoothstep(12800, 13000, float(worldTime));
-    horizon = mix(lateHorizon, nightHorizon, time);
-    zenith = mix(lateZenith, nightZenith, time);
-    rainHorizon = rainHorizon * rayleigh * 12;
-    rainZenith = rainZenith * rayleigh * 12;
-
-  } else if (worldTime >= 13000 && worldTime < 24000) {
-    float time = smoothstep(22500, 24000, float(worldTime));
-    horizon = mix(nightHorizon, earlyHorizon, time);
-    zenith = mix(nightZenith, earlyZenith, time);
-    rainHorizon = rainHorizon * rayleigh;
-    rainZenith = rainZenith * rayleigh;
-  }
-
-  zenith = mix(zenith, rainZenith, wetness);
-  horizon = mix(horizon, rainHorizon, wetness);
-
-  float upDot = dot(normalize(pos), gbufferModelView[1].xyz); //not much, what's up with you?
-  vec3 sky = mix(zenith, horizon, fogify(max(upDot, 0.0), 0.021));
-
-  return sky;
-}
+// Replace the color-setting functions with constants
+const vec3 DAY_ZENITH = vec3(DAY_ZEN_R,DAY_ZEN_G,DAY_ZEN_B );
+const vec3 DAY_HORIZON = vec3(DAY_HOR_R, DAY_HOR_G, DAY_HOR_B);
+const vec3 DAWN_ZENITH = vec3(DAWN_ZEN_R, DAWN_ZEN_G, DAWN_ZEN_B);
+const vec3 DAWN_HORIZON = vec3(DAWN_HOR_R, DAWN_HOR_G, DAWN_HOR_B);
+const vec3 DUSK_ZENITH = vec3(DUSK_ZEN_R, DUSK_ZEN_G, DUSK_ZEN_B);
+const vec3 DUSK_HORIZON = vec3(DUSK_HOR_R, DUSK_HOR_G,DUSK_HOR_B);
+const vec3 NIGHT_ZENITH_C = vec3(NIGHT_ZEN_R,NIGHT_ZEN_G,NIGHT_ZEN_B);
+const vec3 NIGHT_HORIZON_C = vec3(NIGHT_HOR_R,NIGHT_HOR_G,NIGHT_HOR_B);
 
 vec3 calcMieSky(
   vec3 pos,
@@ -134,7 +26,7 @@ vec3 calcMieSky(
 ) {
   //Mie scattering assignments
   vec3 mieScatterColor =
-    vec3(0.1922, 0.1608, 0.1333) * MIE_SCALE * (sunColor * 0.1);
+    vec3(0.0863, 0.0667, 0.051) * MIE_SCALE * (sunColor * 0.25);
 
   vec3 mieScat = mieScatterColor;
   vec3 feetPlayerPos = (gbufferModelViewInverse * vec4(viewPos, 1.0)).xyz;
@@ -144,11 +36,88 @@ vec3 calcMieSky(
     mieScat = mix(mieScat, mieScat * 0.8, rainStrength);
   }
   if (inWater) {
-    mieScat *= HG(0.65, VoL);
+    mieScat *= HG(0.75, VoL);
   }
 
-  mieScat *= HG(0.65, VoL);
+  mieScat *= HG(0.75, VoL);
   return mieScat;
+}
+
+vec3 newSky(vec3 pos) {
+
+  vec3 dir = normalize(pos);
+  float VoL = dot(dir, worldLightVector);
+  float rayleigh = Rayleigh(VoL) * RAYLEIGH_COEFF;
+
+  float upPos = clamp(dir.y, 0, 1);
+  float downPos = clamp(dir.y, -1, 0);
+  float negatedDownPos = -1 * downPos;
+  float midPos = upPos + negatedDownPos;
+  float negatedMidPos = 1 - midPos;
+
+ float zenithBlend = pow(upPos, 0.75);
+  float horizonBlend = pow(negatedMidPos, 5.5);
+  float groundBlend = pow(negatedDownPos, 0.65);
+
+  vec3 zenithCol;
+  vec3 horizonCol;
+  float t = fract(worldTime / 24000.0);
+
+  const int keys = 7;
+  const float keyFrames[keys] = float[keys](
+    0.0,
+    0.0417,
+    0.25,
+    0.4792,
+    0.5417,
+    0.8417,
+    1.0
+  );
+
+  const vec3 zenithColors[keys] = vec3[keys](
+    DAWN_ZENITH,
+    DAY_ZENITH,
+    DAY_ZENITH,
+    DUSK_ZENITH * 0.7,
+    NIGHT_ZENITH_C * 0.15,
+    NIGHT_ZENITH_C * 0.15,
+    DAWN_ZENITH
+  );
+  const vec3 horizonColors[keys] = vec3[keys](
+    DAWN_HORIZON,
+    DAY_HORIZON,
+    DAY_HORIZON,
+    DUSK_HORIZON * 0.8,
+    NIGHT_HORIZON_C * 0.4,
+    NIGHT_HORIZON_C * 0.4,
+    DAWN_HORIZON
+  );
+
+  int i = 0;
+  // step(edge, x) returns 0.0 if x<edge, else 1.0
+  // Accumulate how many key boundaries t has passed.
+  for (int k = 0; k < keys - 1; ++k) {
+    i += int(step(keyFrames[k + 1], t));
+  }
+  i = clamp(i, 0, keys - 2);
+
+  // Local segment interpolation in [0..1]
+  float segW = (t - keyFrames[i]) / max(1e-6, keyFrames[i + 1] - keyFrames[i]);
+  segW = smoothstep(0.0, 1.0, segW);
+
+  zenithCol = mix(zenithColors[i], zenithColors[i + 1], segW);
+  horizonCol = mix(horizonColors[i], horizonColors[i + 1], segW);
+
+  zenithCol = mix(zenithCol, rainZenith, wetness);
+  horizonCol = mix(horizonCol, rainZenith, wetness);
+  
+  zenithCol *= rayleigh * 25 * zenithBlend;
+  horizonCol *= rayleigh * 25 * horizonBlend;
+  vec3 groundCol = vec3(0.0588, 0.1059, 0.2235) * rayleigh * 15 * groundBlend;
+
+  vec3 sky = zenithCol + horizonCol + groundCol;
+
+  return sky;
 }
 
 #endif //SKY_COLOR_GLSL

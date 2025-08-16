@@ -13,35 +13,28 @@ void main() {
 
   float depth = texture(depthtex0, texcoord).r;
   float depth1 = texture(depthtex1, texcoord).r;
-
+  if (depth == 1) return;
   vec2 lightmap = texture(colortex1, texcoord).rg;
   vec3 NDCPos = vec3(texcoord.xy, depth) * 2.0 - 1.0;
   vec3 viewPos = projectAndDivide(gbufferProjectionInverse, NDCPos);
-
+ vec3 feetPlayerPos = (gbufferModelViewInverse * vec4(viewPos, 1.0)).xyz;
+ vec3 eyePlayerPos = feetPlayerPos - gbufferModelViewInverse[3].xyz;
   vec3 sunlightColor = vec3(0.0);
   vec3 sunColor = currentSunColor(sunlightColor);
-
-  vec3 mieFog = atmosphericMieFog(
-    color.rgb,
-    viewPos,
-    texcoord,
-    depth,
-    lightmap,
-    worldLightVector,
-    sunColor
-  );
+  #if DISTANCE_FOG_GLSL == 1
   vec3 atmosphereFog = atmosphericFog(
     color.rgb,
-    viewPos,
+    eyePlayerPos,
     texcoord,
     depth,
     lightmap
   );
-  vec3 fullFog = mix(atmosphereFog, mieFog, 0.4);
+  vec3 fullFog = atmosphereFog;
 
   if (!inWater) {
-    color.rgb = mix(color.rgb, fullFog, 1.0);
+    color.rgb = fullFog;
   }
+  #endif
 
 }
 
