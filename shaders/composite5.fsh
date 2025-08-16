@@ -30,12 +30,13 @@ vec3 skyFallbackBlend(vec3 dir, vec3 sunColor, vec3 viewPos, vec2 uv, vec3 norma
     uv
   );
   vec4 SpecMap = texture(colortex5, texcoord);
-
+ 
   bool isMetal = SpecMap.g >= 230.0 / 255.0;
   vec3 sky = newSky(dir2) * 0.5;
   vec3 sun = skyboxSun(lightVector, dir, sunColor) ; // keep sun *3 as in original
   sky += mie * 0.15;
-  return sky + sun * 0.3 ;
+  sky = sky + sun * 0.3;
+  return sky;
 }
 
 void main() {
@@ -150,7 +151,7 @@ void main() {
   vec3 reflectedViewPos = screenSpaceToViewSpace(reflectedPos);
   float reflectedDist = distance(viewPos, reflectedViewPos);
 
-  float lod = 0;
+  float lod = min(4.15 * (1.0 -pow(roughness, 12.0)), reflectedDist * 2);
   if (roughness <= 0.0 || isWater) lod = 0.0;
 
   #ifdef ROUGH_REFLECTION

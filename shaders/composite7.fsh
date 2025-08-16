@@ -2,7 +2,7 @@
 
 #include "/lib/uniforms.glsl"
 #include "/lib/atmosphere/godrays.glsl"
-
+#include "/lib/atmosphere/distanceFog.glsl"
 in vec2 texcoord;
 
 /* RENDERTARGETS: 0 */
@@ -16,6 +16,8 @@ void main() {
   #if VOLUMETRIC_LIGHTING == 1 || VOLUMETRIC_LIGHTING == 2
   color.rgb += texture(colortex3, texcoord).rgb;
   #endif
+
+ 
 
   
 }

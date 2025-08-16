@@ -23,7 +23,7 @@ vec3 getShadow(vec3 shadowScreenPos) {
 
   vec4 shadowColor = texture(shadowcolor0, shadowScreenPos.xy);
 
-  return shadowColor.rgb * (2.0 - shadowColor.a);
+  return shadowColor.rgb * (4.0 - shadowColor.a);
 }
 
 #endif //DRAWSHADOWS_GLSL

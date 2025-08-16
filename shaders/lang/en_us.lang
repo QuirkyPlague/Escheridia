@@ -197,3 +197,5 @@ option.VL_ANISO_BACK = Volumetric Backscattering Anisotropy
 option.ZENITH_BLEND = Zenith Blend Point
 option.HORIZON_BLEND = Horizon Blend Point
 option.GROUND_BLEND = Ground Blend Point
+option.VL_BACKSCATTER_INTENSITY = Volumetric Backscattering Intensity
+option.VL_FRONTSCATTER_INTENSITY = Volumetric Frontscattering Intensity 

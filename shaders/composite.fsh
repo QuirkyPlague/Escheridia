@@ -85,7 +85,7 @@ void main() {
   float VoL = dot(normalize(feetPlayerPos), worldLightVector);
   vec3 sunColor;
   sunColor = currentSunColor(sunColor);
-  float  phase = 0.6 * CS(VL_ANISO, VoL) + 0.73 * CS(VL_ANISO_BACK, VoL);
+  float  phase = VL_FRONTSCATTER_INTENSITY * CS(VL_ANISO, VoL) + VL_BACKSCATTER_INTENSITY * CS(VL_ANISO_BACK, VoL);
   if (worldTime < 1000) {
     float t = smoothstep(0.0, 1000.0, float(worldTime));;
     scatterF *= mix(1.02, 1.0, t);
@@ -128,8 +128,7 @@ void main() {
     vec3 sampleInscatter = scatterF * phase * dist * sunColor * shadow;
     #ifdef DO_FOG_HEIGHT
     sampleInscatter *=
-      mix(sampleInscatter * 4, sampleInscatter * 12.5, worldSmooth) *
-      waveIntensityRolloff;
+      mix(sampleInscatter * 4, sampleInscatter * 32.5, worldSmooth);
     #endif
     vec3 sampleExtinction = absorbF * VOLUMETRIC_FOG_DENSITY;
     float sampleTransmittance = exp(-dist * VOLUMETRIC_FOG_DENSITY  * 0.1 );
@@ -143,13 +142,7 @@ void main() {
   scatter *= 0.07;
  
   color.rgb = mix(color.rgb, transmission + scatter, 1.0 + wetness);
-  if (depth == 1) {
-    #ifdef DO_FOG_HEIGHT
-    color.rgb = mix(color.rgb, (transmission + scatter), 1.0 + wetness);
-    #else
-    color.rgb = mix(color.rgb, (transmission + scatter) * 0.405, 1.0 + wetness);
-    #endif
-  }
+ 
 
   #endif
 
