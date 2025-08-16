@@ -14,7 +14,8 @@ void main() {
 
   bool isMetal = SpecMap.g >= 230.0 / 255.0;
   #if VOLUMETRIC_LIGHTING == 1 || VOLUMETRIC_LIGHTING == 2
-    color.rgb += texture(colortex3, texcoord).rgb;
+  color.rgb += texture(colortex3, texcoord).rgb;
   #endif
 
+  
 }

@@ -19,10 +19,5 @@ void main() {
     return;
   }
 
-  if (!inWater) {
-    vec3 distanceFog = distanceFog(color.rgb, viewPos, texcoord, depth);
-    color.rgb = distanceFog;
-  }
-
 }
 

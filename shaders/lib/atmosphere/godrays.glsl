@@ -9,12 +9,7 @@
 #include "/lib/blockID.glsl"
 #include "/lib/lighting/lighting.glsl"
 
-vec3 godrayAbsorp(vec3 color) {
-  color.r = GABSORB_R;
-  color.g = GABSORB_G;
-  color.b = GABSORB_B;
-  return color;
-}
+const vec3 GODRAY_ABSORPTION = vec3(GABSORB_R, GABSORB_G, GABSORB_B);
 
 vec3 sampleGodrays(
   vec3 godraySample,
@@ -56,7 +51,7 @@ vec3 sampleGodrays(
   bool isRaining = rainStrength <= 1.0 && rainStrength > 0.0;
 
   vec3 absorption = vec3(0.0);
-  absorption = godrayAbsorp(absorption);
+  absorption = GODRAY_ABSORPTION;
   vec3 sunColor = currentSunColor(godrayColor);
   vec3 inscatteringAmount = sunColor;
 
@@ -72,8 +67,8 @@ vec3 sampleGodrays(
 
   if (inWater) {
     weight += 0.93;
-    absorption = waterColor(godrayColor);
-    inscatteringAmount = waterScatter(inscatteringAmount);
+    absorption = WATER_ABOSRBTION * absorption;
+    inscatteringAmount = WATER_SCATTERING * inscatteringAmount;
     absorptionFactor = exp(
       -absorption * (dist * UNDERWATER_FOG_DENSITY + GODRAY_DENSITY)
     );
