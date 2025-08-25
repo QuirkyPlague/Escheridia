@@ -3,10 +3,10 @@
 
 #if TONEMAPPING_TYPE == 1
 vec3 uncharted2Tonemap(vec3 x) {
-  float A = 0.035f;
-  float B = 0.03f;
+  float A = 0.055f;
+  float B = 0.13f;
   float C = 0.30f;
-  float D = 1.10f;
+  float D = 1.30f;
   float E = 0.02f;
   float F = 0.10f;
   return (x * (A * x + C * B) + D * E) / (x * (A * x + B) + D * F) - E / F;

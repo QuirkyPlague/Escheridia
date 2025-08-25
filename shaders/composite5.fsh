@@ -16,26 +16,27 @@ in vec2 texcoord;
 /* RENDERTARGETS: 0 */
 layout(location = 0) out vec4 color;
 
-vec3 skyFallbackBlend(vec3 dir, vec3 sunColor, vec3 viewPos, vec2 uv, vec3 normal) {
-   vec3 feetPlayerPos = (gbufferModelViewInverse * vec4(viewPos, 1.0)).xyz;
-   vec3 eyePlayerPos =  feetPlayerPos - gbufferModelViewInverse[3].xyz;
-   normal = (gbufferModelViewInverse * vec4(normal, 1.0)).xyz;
-   normal = normal - gbufferModelViewInverse[3].xyz;
-   vec3 dir2 = reflect(eyePlayerPos, normal);
-  vec3 mie = calcMieSky(
-    dir,
-    worldLightVector,
-    sunColor,
-    viewPos,
-    uv
-  );
+vec3 skyFallbackBlend(
+  vec3 dir,
+  vec3 sunColor,
+  vec3 viewPos,
+  vec2 uv,
+  vec3 normal
+) {
+  vec3 feetPlayerPos = (gbufferModelViewInverse * vec4(viewPos, 1.0)).xyz;
+  vec3 eyePlayerPos = feetPlayerPos - gbufferModelViewInverse[3].xyz;
+  normal = (gbufferModelViewInverse * vec4(normal, 1.0)).xyz;
+  normal = normal - gbufferModelViewInverse[3].xyz;
+  vec3 dir2 = reflect(eyePlayerPos, normal);
+  vec3 mie = calcMieSky(dir, worldLightVector, sunColor, viewPos, uv);
   vec4 SpecMap = texture(colortex5, texcoord);
- 
+
   bool isMetal = SpecMap.g >= 230.0 / 255.0;
   vec3 sky = newSky(dir2) * 0.5;
-  vec3 sun = skyboxSun(lightVector, dir, sunColor) ; // keep sun *3 as in original
-  sky += mie * 0.15;
-  sky = sky + sun * 0.3;
+  vec3 sun = skyboxSun(lightVector, dir, sunColor);
+  sky += mie;
+  sky = sky + sun;
+
   return sky;
 }
 
@@ -72,7 +73,7 @@ void main() {
   viewPos = (gbufferModelView * vec4(feetPlayerPos, 1.0)).xyz;
   #endif
 
-  float farPlane = far / 0.35;
+  float farPlane = far / 0.45;
 
   vec3 normal = normalize((encodedNormal - 0.5) * 2.0);
   normal = mat3(gbufferModelView) * normal;
@@ -81,7 +82,7 @@ void main() {
   if (isWater) {
     float waveFalloff = length(feetPlayerPos) / farPlane;
     float waveIntensityRolloff = exp(
-      19.0 * WAVE_INTENSITY * (0.04 - waveFalloff)
+      19.0 * WAVE_INTENSITY * (0.01 - waveFalloff)
     );
     float waveIntensity = 0.35 * 0.66 * WAVE_INTENSITY * waveIntensityRolloff;
     float waveSoftness = 0.02 * WAVE_SOFTNESS;
@@ -106,7 +107,6 @@ void main() {
   // --- F0 and roughness
   vec3 f0;
   if (isMetal) {
-    
     f0 = albedo;
   } else if (isWater) {
     f0 = vec3(0.02);
@@ -151,33 +151,37 @@ void main() {
   vec3 reflectedViewPos = screenSpaceToViewSpace(reflectedPos);
   float reflectedDist = distance(viewPos, reflectedViewPos);
 
-  float lod = min(4.15 * (1.0 -pow(roughness, 12.0)), reflectedDist * 2);
+  float lod = min(4.15 * (1.0 - pow(roughness, 12.0)), reflectedDist);
   if (roughness <= 0.0 || isWater) lod = 0.0;
 
   #ifdef ROUGH_REFLECTION
- 
-  float sampleRadius = roughness * 0.015 * distance(reflectedViewPos, viewPos);
+
+  float sampleRadius = roughness * 0.085 * distance(reflectedViewPos, viewPos);
   for (int i = 0; i < ROUGH_SAMPLES; i++) {
-    float j = IGN(gl_FragCoord.xy, frameCounter * ROUGH_SAMPLES) * 0.3;
+    float j = IGN(gl_FragCoord.xy, frameCounter);
     vec2 offset = vogelDisc(i, ROUGH_SAMPLES, j) * sampleRadius;
     vec3 offsetReflectedPos = reflectedPos + vec3(offset, 0.0);
     reflectedPos = offsetReflectedPos;
   }
+
   #else
   lod = 0.0;
   #endif
 
- 
   if (reflectionHit) {
     if (canReflect || isMetal || isWater) {
       reflectedColor = texture2DLod(colortex0, reflectedPos.xy, lod).rgb;
     }
   }
 
-  
   if (!reflectionHit && canReflect && !inWater) {
-   
-    vec3 fb = skyFallbackBlend(reflectedDir, sunColor, viewPos, texcoord, normal);
+    vec3 fb = skyFallbackBlend(
+      reflectedDir,
+      sunColor,
+      viewPos,
+      texcoord,
+      normal
+    );
     reflectedColor = fb;
 
     float smoothLightmap = smoothstep(0.882, 1.0, lightmap.g);
@@ -201,11 +205,16 @@ void main() {
     if (!reflectionHit) {
       vec3 dirR = reflect(normalize(viewPos), normal);
       vec3 feetPlayerPos = (gbufferModelViewInverse * vec4(dirR, 1.0)).xyz;
-    vec3 eyePlayerPos =  feetPlayerPos - gbufferModelViewInverse[3].xyz;
-      vec3 mieR =
-        calcMieSky(dirR, worldLightVector, sunColor, viewPos, texcoord);
-      vec3 skyR = newSky(eyePlayerPos) ;
-      vec3 sunR = skyboxSun(lightVector, dirR, sunColor) ;
+      vec3 eyePlayerPos = feetPlayerPos - gbufferModelViewInverse[3].xyz;
+      vec3 mieR = calcMieSky(
+        dirR,
+        worldLightVector,
+        sunColor,
+        viewPos,
+        texcoord
+      );
+      vec3 skyR = newSky(eyePlayerPos);
+      vec3 sunR = skyboxSun(lightVector, dirR, sunColor);
       skyR = mix(sunR, skyR, 0.5);
       vec3 fullR = mix(skyR, mieR, 0.5);
       reflectedColor = fullR;

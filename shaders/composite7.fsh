@@ -17,7 +17,4 @@ void main() {
   color.rgb += texture(colortex3, texcoord).rgb;
   #endif
 
- 
-
-  
 }

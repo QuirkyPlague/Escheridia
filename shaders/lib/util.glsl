@@ -152,9 +152,8 @@ vec3 screenSpaceToViewSpace(vec3 screenPosition) {
   return viewPosition;
 }
 
-float Rayleigh(float mu)
-{
-	return 3.0 * (1.0 + mu * mu) / (16.0 * PI);
+float Rayleigh(float mu) {
+  return 3.0 * (1.0 + mu * mu) / (16.0 * PI);
 }
 
 vec3 skyboxSun(vec3 sunPos, vec3 dir, vec3 sunColor) {

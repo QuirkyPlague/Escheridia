@@ -8,14 +8,14 @@ vec3 rainHorizon = vec3(0.5765, 0.5765, 0.5765);
 vec3 rainZenith = vec3(0.1137, 0.1137, 0.1137);
 
 // Replace the color-setting functions with constants
-const vec3 DAY_ZENITH = vec3(DAY_ZEN_R,DAY_ZEN_G,DAY_ZEN_B );
+const vec3 DAY_ZENITH = vec3(DAY_ZEN_R, DAY_ZEN_G, DAY_ZEN_B);
 const vec3 DAY_HORIZON = vec3(DAY_HOR_R, DAY_HOR_G, DAY_HOR_B);
 const vec3 DAWN_ZENITH = vec3(DAWN_ZEN_R, DAWN_ZEN_G, DAWN_ZEN_B);
 const vec3 DAWN_HORIZON = vec3(DAWN_HOR_R, DAWN_HOR_G, DAWN_HOR_B);
 const vec3 DUSK_ZENITH = vec3(DUSK_ZEN_R, DUSK_ZEN_G, DUSK_ZEN_B);
-const vec3 DUSK_HORIZON = vec3(DUSK_HOR_R, DUSK_HOR_G,DUSK_HOR_B);
-const vec3 NIGHT_ZENITH_C = vec3(NIGHT_ZEN_R,NIGHT_ZEN_G,NIGHT_ZEN_B);
-const vec3 NIGHT_HORIZON_C = vec3(NIGHT_HOR_R,NIGHT_HOR_G,NIGHT_HOR_B);
+const vec3 DUSK_HORIZON = vec3(DUSK_HOR_R, DUSK_HOR_G, DUSK_HOR_B);
+const vec3 NIGHT_ZENITH_C = vec3(NIGHT_ZEN_R, NIGHT_ZEN_G, NIGHT_ZEN_B);
+const vec3 NIGHT_HORIZON_C = vec3(NIGHT_HOR_R, NIGHT_HOR_G, NIGHT_HOR_B);
 
 vec3 calcMieSky(
   vec3 pos,
@@ -25,26 +25,36 @@ vec3 calcMieSky(
   vec2 texcoord
 ) {
   //Mie scattering assignments
-  vec3 mieScatterColor =
-    vec3(0.0863, 0.0667, 0.051) * MIE_SCALE * (sunColor * 0.25);
-
+  vec3 mieScatterColor = vec3(0.1922, 0.149, 0.1137) * MIE_SCALE * sunColor;
+  vec3 moonMieScatterColor =
+    vec3(0.0549, 0.0549, 0.1529) * MIE_SCALE * sunColor;
   vec3 mieScat = mieScatterColor;
+  vec3 mMieScat = moonMieScatterColor;
   vec3 feetPlayerPos = (gbufferModelViewInverse * vec4(viewPos, 1.0)).xyz;
-  float VoL = dot(normalize(feetPlayerPos), lightPos);
+  vec3 sunPos = normalize(sunPosition);
+  vec3 worldSunPos = mat3(gbufferModelViewInverse) * sunPos;
+  vec3 moonPos = normalize(moonPosition);
+  vec3 worldMoonPos = mat3(gbufferModelViewInverse) * moonPos;
+  float sVoL = dot(normalize(feetPlayerPos), worldSunPos);
+  float mVoL = dot(normalize(feetPlayerPos), worldMoonPos);
+
   if (rainStrength <= 1.0 && rainStrength > 0.0) {
     float dryToWet = smoothstep(0.0, 1.0, float(rainStrength));
     mieScat = mix(mieScat, mieScat * 0.8, rainStrength);
   }
-  if (inWater) {
-    mieScat *= HG(0.75, VoL);
-  }
 
-  mieScat *= HG(0.75, VoL);
+  mieScat *= CS(0.72, sVoL);
+  if (isNight) {
+    mieScat *= 0.0;
+    mieScat = vec3(0.6275, 0.4824, 0.3686) * MIE_SCALE * sunColor;
+    mieScat *= CS(0.45, sVoL);
+  }
+  mMieScat *= CS(0.72, mVoL);
+  mieScat += mMieScat;
   return mieScat;
 }
 
 vec3 newSky(vec3 pos) {
-
   vec3 dir = normalize(pos);
   float VoL = dot(dir, worldLightVector);
   float rayleigh = Rayleigh(VoL) * RAYLEIGH_COEFF;
@@ -55,9 +65,9 @@ vec3 newSky(vec3 pos) {
   float midPos = upPos + negatedDownPos;
   float negatedMidPos = 1 - midPos;
 
- float zenithBlend = pow(upPos, 0.75);
-  float horizonBlend = pow(negatedMidPos, 5.5);
-  float groundBlend = pow(negatedDownPos, 0.65);
+  float zenithBlend = pow(upPos, ZENITH_BLEND);
+  float horizonBlend = pow(negatedMidPos, HORIZON_BLEND);
+  float groundBlend = pow(negatedDownPos, GROUND_BLEND);
 
   vec3 zenithCol;
   vec3 horizonCol;
@@ -75,22 +85,22 @@ vec3 newSky(vec3 pos) {
   );
 
   const vec3 zenithColors[keys] = vec3[keys](
-    DAWN_ZENITH,
+    DAWN_ZENITH * 2,
     DAY_ZENITH,
     DAY_ZENITH,
     DUSK_ZENITH * 0.7,
-    NIGHT_ZENITH_C * 0.15,
-    NIGHT_ZENITH_C * 0.15,
-    DAWN_ZENITH
+    NIGHT_ZENITH_C * 0.35,
+    NIGHT_ZENITH_C * 0.35,
+    DAWN_ZENITH * 2
   );
   const vec3 horizonColors[keys] = vec3[keys](
-    DAWN_HORIZON,
+    DAWN_HORIZON * 2,
     DAY_HORIZON,
     DAY_HORIZON,
     DUSK_HORIZON * 0.8,
-    NIGHT_HORIZON_C * 0.4,
-    NIGHT_HORIZON_C * 0.4,
-    DAWN_HORIZON
+    NIGHT_HORIZON_C * 0.8,
+    NIGHT_HORIZON_C * 0.8,
+    DAWN_HORIZON * 2
   );
 
   int i = 0;
@@ -110,10 +120,10 @@ vec3 newSky(vec3 pos) {
 
   zenithCol = mix(zenithCol, rainZenith, wetness);
   horizonCol = mix(horizonCol, rainZenith, wetness);
-  
-  zenithCol *= rayleigh * 25 * zenithBlend;
+
+  zenithCol *= rayleigh * 20 * zenithBlend;
   horizonCol *= rayleigh * 25 * horizonBlend;
-  vec3 groundCol = vec3(0.0588, 0.1059, 0.2235) * rayleigh * 15 * groundBlend;
+  vec3 groundCol = vec3(0.0588, 0.1059, 0.2235) * rayleigh * 20 * groundBlend;
 
   vec3 sky = zenithCol + horizonCol + groundCol;
 

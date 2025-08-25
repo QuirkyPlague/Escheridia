@@ -142,7 +142,7 @@ vec3 computeBloomMix(vec2 texcoord, float depth, bool isMetal) {
   vec3 blm = texture(colortex12, texcoord).rgb;
   float rain = texture(colortex9, texcoord).r;
 
-  float bloomStrength = 1.0 * BLOOM_STRENGTH;
+  float bloomStrength = BLOOM_STRENGTH;
   if (inWater) {
     bloomStrength = 4.0 * BLOOM_STRENGTH;
   }

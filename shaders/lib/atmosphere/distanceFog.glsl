@@ -28,7 +28,6 @@ vec3 distanceFog(vec3 color, vec3 eyePos, vec2 texcoord, float depth) {
     distFog = mix(distFog, distFog, dryToWet) * 0.15;
   }
 
-
   color = mix(color, distFog, clamp(fogFactor, 0, 1));
 
   return color;
@@ -49,7 +48,7 @@ vec3 distanceMieFog(vec3 color, vec3 viewPos, vec2 texcoord, float depth) {
   );
   +wetness;
   float dist = length(viewPos) / far;
-  float fogFactor = exp(-9.0 * (1.0 - dist));
+  float fogFactor = exp(-5.0 * (1.0 - dist));
   float rainFogFactor = exp(-15.5 * (1.0 - dist));
   bool isRaining = rainStrength <= 1.0 && rainStrength > 0.0;
   if (isRaining) {
@@ -82,16 +81,14 @@ vec3 atmosphericFog(
 ) {
   vec3 sunColor = vec3(0.0);
   sunColor = currentSunColor(sunColor);
-  float dist0 = length(viewPos) / 49;
+  float dist0 = length(viewPos) / 39;
 
   float farPlane = far / 4;
   float dist1 = length(viewPos) / farPlane;
 
- 
-
   vec3 absorption = vec3(1.0, 1.0, 1.0);
 
-  vec3 inscatteringAmount = newSky(viewPos);
+  vec3 inscatteringAmount = vec3(0.1216, 0.2392, 0.7569) * sunColor;
 
   inscatteringAmount *= eyeBrightnessSmooth.y;
   inscatteringAmount *= 0.0009;
