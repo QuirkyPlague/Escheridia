@@ -75,7 +75,7 @@ vec3 volumetricRaymarch(
       sampleExtinction;
     transmission *= sampleTransmittance;
   }
-  scatter *= 0.15;
+  scatter *= 0.135;
   return mix(sceneColor, transmission + scatter, 1.0 + wetness);
 }
 #endif //VOLUMETRICS_GLSL
