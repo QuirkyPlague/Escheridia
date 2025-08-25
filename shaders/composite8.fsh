@@ -19,13 +19,11 @@ void main() {
   vec3 NDCPos = vec3(texcoord, depth) * 2.0 - 1.0;
   vec3 viewPos = projectAndDivide(gbufferProjectionInverse, NDCPos);
   vec3 feetPlayerPos = (gbufferModelViewInverse * vec4(viewPos, 1.0)).xyz;
-   vec3 eyePlayerPos = feetPlayerPos - gbufferModelViewInverse[3].xyz;
+  vec3 eyePlayerPos = feetPlayerPos - gbufferModelViewInverse[3].xyz;
   bool isMetal = SpecMap.g >= 230.0 / 255.0;
-  if(depth ==1)
-  {
-    color += stars * 3;
+  if (depth == 1) {
+    color += stars;
     color += sun;
-    moon *= 0.3;
     color.rgb += moon;
   }
 

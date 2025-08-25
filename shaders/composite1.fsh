@@ -25,7 +25,7 @@ void main() {
     color.rgb = waterExtinction(color.rgb, texcoord, lightmap, depth, depth1);
   }
   if (inWater) {
-    vec3 waterScatter = waterFog(color.rgb, texcoord, lightmap, depth);
+    vec3 waterScatter = waterFog(color.rgb, texcoord, lightmap, depth1);
     color.rgb = waterScatter;
   }
 }

@@ -5,6 +5,7 @@
 #include "/lib/shadows/softShadows.glsl"
 #include "/lib/brdf.glsl"
 #include "/lib/blockID.glsl"
+#include "/lib/postProcessing.glsl"
 
 in vec2 texcoord;
 
@@ -77,9 +78,9 @@ void main() {
   float emission = SpecMap.a;
   vec3 emissive;
 
-  if (emission >= 0.0 / 255.0 && emission < 255.0 / 255.0) {
-    emissive += albedo * (emission * 4.6) * EMISSIVE_MULTIPLIER;
-
+  if (emission < 255.0/255.0) {
+    emissive += albedo * (emission * 4);
+    emissive = CSB(emissive, 1.0 * EMISSIVE_MULTIPLIER, EMISSIVE_DESATURATION * emission, 1.0);
   }
 
   vec3 shadow = getSoftShadow(feetPlayerPos, geoNormal, sss);

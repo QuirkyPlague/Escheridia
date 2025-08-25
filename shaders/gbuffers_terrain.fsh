@@ -3,6 +3,7 @@
 #include "/lib/uniforms.glsl"
 #include "/lib/blockID.glsl"
 #include "/lib/shadows/softShadows.glsl"
+#include "/lib/postProcessing.glsl"
 uniform sampler2D gtexture;
 
 in vec2 lmcoord;
@@ -53,8 +54,13 @@ void main() {
   #if RESOURCE_PACK_SUPPORT == 1
   color.rgb +=
     color.rgb *
-    (emission * 3) *
-    min(luminance(color.rgb) * abs(color.rgb), float(color.rgb * 5)) *
+    (emission * 2.15) *
+    min(luminance(color.rgb * 0.85) * abs(color.rgb), float(color.rgb * 6)) *
     EMISSIVE_MULTIPLIER;
+    if(emission > 0.0)
+    {
+      color.rgb = CSB(color.rgb, 1.0 * EMISSIVE_MULTIPLIER, EMISSIVE_DESATURATION * emission, 1.0);
+    }
+    
   #endif
 }

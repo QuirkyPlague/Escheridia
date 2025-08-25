@@ -5,15 +5,13 @@
 #include "/lib/util.glsl"
 
 const vec3 blocklightColor = vec3(1.0, 0.9137, 0.8784) * 1.15;
-const vec3 skylightColor = vec3(0.3765, 0.4824, 0.6039) * 3;
-const vec3 nightSkylightColor = vec3(0.0, 0.1647, 1.0) * 3.2;
-const vec3 sunlightColor = vec3(1.0, 0.7569, 0.4627) * 3.5;
+const vec3 skylightColor = vec3(0.5098, 0.5176, 0.8118) * 2;
+const vec3 nightSkylightColor = vec3(0.2235, 0.349, 0.9922) * 3.2;
+const vec3 sunlightColor = vec3(1.0, 0.9294, 0.6902) * 3.54;
 const vec3 morningSunlightColor = vec3(1.0, 0.5176, 0.2549) * 3.5;
 const vec3 eveningSunlightColor = vec3(1.0, 0.3529, 0.1216) * 2.4;
 const vec3 moonlightColor = vec3(0.0941, 0.3333, 0.7843) * 3;
 const vec3 rainSun = vec3(0.8353, 0.8353, 0.8353);
-
-
 
 vec3 doDiffuse(
   vec2 texcoord,
@@ -70,7 +68,6 @@ vec3 doDiffuse(
     0.3 // midnight
   );
 
-  
   const float keySkyI[K] = float[K](
     0.5, // midnight
     0.65, // sunrise
@@ -122,10 +119,10 @@ vec3 doDiffuse(
   float VoL = dot(normalize(feetPlayerPos), sunPos);
 
   vec3 scatterSun = sunlightBase * (shadow * sss) * 4.0;
-  vec3 SSSv = sunlightBase * (shadow * sss) * 2;
+  vec3 SSSv = sunlightBase * (shadow * sss) * 3.5;
   scatterSun *= CS(SSS_HG, VoL);
 
-  vec3 fullScatter = mix(SSSv, scatterSun, 0.5);
+  vec3 fullScatter = mix(SSSv, scatterSun, 0.5) * SSS_INTENSITY;
   vec3 sunlight = fullScatter * hasSSS;
 
   vec3 rainSunBase = vec3(0.8353, 0.8353, 0.8353) * rainSunI;
@@ -140,9 +137,8 @@ vec3 doDiffuse(
   blocklight += clamp(min(0.17 * pow(blocklight, vec3(0.8)), 5.2), 0.0, 1.0);
 
   vec3 ambientMood = vec3(0.7843, 0.7843, 0.7843);
-  vec3 ambientColorLocal = vec3(0.3098, 0.3098, 0.3098);
+  vec3 ambientColorLocal = vec3(0.4863, 0.4863, 0.4863);
   vec3 ambient = mix(ambientColorLocal, ambientMood, moodSmooth);
-  
 
   vec3 indirect = (blocklight + skylight) * ao;
 
@@ -150,7 +146,7 @@ vec3 doDiffuse(
   indirect = mix(indirect, indirect * 0.5, metalMask);
 
   vec3 diffuse = sunlight + indirect + ambient;
-  
+
   return diffuse;
 }
 

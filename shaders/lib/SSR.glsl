@@ -72,7 +72,7 @@ bool raytrace(
     minOf(
       abs(sign(rayDirection) - rayPosition) / max(abs(rayDirection), 0.00001)
     ) *
-    (1.0 / stepCount * 4);
+    (1.0 / stepCount);
 
   float depthLenience = max(
     abs(rayDirection.z) * 1.0,
