@@ -12,10 +12,12 @@ vec3 volumetricRaymarch(
   int stepCount,
   float jitter,
   vec3 feetPlayerPos,
-  vec3 sceneColor
+  vec3 sceneColor,
+  vec3 normal
 ) {
   vec4 rayPos = endPos - startPos;
   vec4 stepSize = rayPos * (1.0 / stepCount);
+  vec3 worldPos = feetPlayerPos +cameraPosition;
   float rayLength = clamp(length(feetPlayerPos) + 1, 0, far / 2);
   vec4 stepLength = startPos + jitter * stepSize;
   const float shadowMapPixelSize = 1.0 / float(SHADOW_RESOLUTION);
@@ -28,8 +30,8 @@ vec3 volumetricRaymarch(
   feetPlayerPos -= cameraPosition;
   #endif
 
-  vec3 absCoeff = vec3(1.0);
-  vec3 scatterCoeff = vec3(0.0019, 0.0012, 0.0013);
+  vec3 absCoeff = vec3(1.0, 1.0, 1.0);
+  vec3 scatterCoeff = vec3(0.00145, 0.00121, 0.0009);
 
   if(inWater)
   {
@@ -40,9 +42,14 @@ vec3 volumetricRaymarch(
 
   float VdotL = dot(normalize(feetPlayerPos), worldLightVector);
   float phase =
-    VL_FRONTSCATTER_INTENSITY * CS(VL_ANISO, VdotL) +
-    VL_BACKSCATTER_INTENSITY * CS(VL_ANISO_BACK, VdotL);
+    evalDraine(VdotL, 0.35, 0.8);
   vec3 sunColor;
+  vec3 biasAdjustFactor = vec3(
+    shadowMapPixelSize * 2.45,
+    shadowMapPixelSize * 2.45,
+    -0.00003803515625
+  );
+  vec3 shadowNormal = mat3(shadowModelView) * normal;
 
   vec3 shadow;
   for (int i = 0; i < stepCount; i++) {
@@ -54,6 +61,7 @@ vec3 volumetricRaymarch(
       offsetShadowClipPos.xyz = distortShadowClipPos(offsetShadowClipPos.xyz); // apply distortion
       vec3 shadowNDCPos = offsetShadowClipPos.xyz; // convert to NDC space
       vec3 shadowScreenPos = shadowNDCPos * 0.5 + 0.5; // convert to screen space
+      
       shadow += getShadow(shadowScreenPos);
     }
     shadow /= float(5); // divide sum by count, getting average shadow
@@ -62,6 +70,7 @@ vec3 volumetricRaymarch(
     distortedShadowPos.xyz = distortShadowClipPos(distortedShadowPos.xyz);
     vec3 shadowNDC = distortedShadowPos.xyz;
     vec3 shadowScreen = shadowNDC * 0.5 + 0.5;
+    
     shadow = getShadow(shadowScreen);
     #endif
     sunColor = currentSunColor(sunColor);
@@ -75,7 +84,7 @@ vec3 volumetricRaymarch(
       sampleExtinction;
     transmission *= sampleTransmittance;
   }
-  scatter *= 0.135;
+  scatter *= 0.074;
   return mix(sceneColor, transmission + scatter, 1.0 + wetness);
 }
 #endif //VOLUMETRICS_GLSL

@@ -45,45 +45,50 @@ void main() {
   vec3 feetPlayerPos = (gbufferModelViewInverse * vec4(viewPos, 1.0)).xyz;
   vec3 worldPos = cameraPosition + feetPlayerPos;
   vec3 viewDir = normalize(viewPos);
+  vec3 shadowViewPos = (shadowModelView * vec4(feetPlayerPos, 1.0)).xyz;
+  vec4 shadowClipPos = shadowProjection * vec4(shadowViewPos, 1.0);
+  shadowClipPos.xyz = distortShadowClipPos(shadowClipPos.xyz);
+  vec3 shadowNDCPos = shadowClipPos.xyz / shadowClipPos.w;
+  vec3 shadowScreenPos = shadowNDCPos * 0.5 + 0.5;
 
   //pbr
   float sss;
   float roughness;
   vec3 f0;
+  vec3 greyAlbedo = clamp(CSB(albedo, 1.0, 0.0,2.115), 0.0, 1.0);
   #if RESOURCE_PACK_SUPPORT == 1
   if (canScatter) {
-    sss = clamp(max(luminance(albedo), float(albedo * 2)), 0.0, 1.5);
+    greyAlbedo = clamp(CSB(albedo, 1.0, 0.0,0.3), 0.0, 1.0);
+    sss = clamp(max(luminance(greyAlbedo), float(greyAlbedo * 1)),0,1);
 
   } else {
     sss = 0.0;
     if (!isWater) {
-      roughness = min(luminance(albedo - 1.0), float(albedo * 3));
-
-      f0 = vec3(0.0);
-    }
-    if (isMetal) {
-      f0 = albedo;
-    } else if (isWater) {
-      f0 = vec3(0.02);
-    } else {
-      f0 = vec3(SpecMap.g);
+      roughness = min(luminance(greyAlbedo - 1.0), float(greyAlbedo));
+      vec3 greyAlbedo2 = CSB(albedo, 0.45, 0.0,1.3);
+      float albedoLum = luminance(greyAlbedo2);
+      f0 = clamp(min(albedo *albedoLum, (albedo )),0,1);
     }
 
   }
-  #else
+  #elif RESOURCE_PACK_SUPPORT == 0
   sss = SpecMap.b;
   roughness = pow(1.0 - SpecMap.r, 2.0);
+  #else
+  sss = 0.0;
+  roughness = 1.0;
   #endif
 
   float emission = SpecMap.a;
   vec3 emissive;
 
+  
   if (emission < 255.0/255.0) {
     emissive += albedo * (emission * 4);
-    emissive = CSB(emissive, 1.0 * EMISSIVE_MULTIPLIER, EMISSIVE_DESATURATION * emission, 1.0);
+    emissive = CSB(emissive, 1.0 * EMISSIVE_MULTIPLIER, EMISSIVE_DESATURATION , 1.0);
   }
-
-  vec3 shadow = getSoftShadow(feetPlayerPos, geoNormal, sss);
+vec4 noise = blueNoise(texcoord,  frameCounter);
+  vec3 shadow = getSoftShadow(feetPlayerPos, geoNormal, sss, noise.x);
 
   vec3 V = normalize(cameraPosition - worldPos);
   vec3 L = normalize(worldLightVector);
@@ -100,6 +105,8 @@ void main() {
     sss,
     feetPlayerPos,
     isMetal,
+    shadowScreenPos,
+    albedo,
     ao
   );
   vec3 sunlight;

@@ -97,7 +97,7 @@ vec3 sampleGodrays(
   if (inWater) {
     godraySample *= CS(0.6, VoL);
   } else {
-    godraySample *= CS(0.75, VoL);
+    godraySample *= evalDraine(VoL, 0.7, 0.9);
   }
 
   godraySample *= exposure;

@@ -6,6 +6,8 @@
 uniform mat4 gbufferProjection;
 uniform mat4 gbufferProjectionInverse;
 uniform mat4 gbufferModelViewInverse;
+uniform mat4 gbufferPreviousProjection;
+uniform mat4 gbufferPreviousModelView;
 uniform mat4 gbufferModelView;
 uniform mat4 shadowModelView;
 uniform mat4 shadowModelViewInverse;
@@ -28,6 +30,7 @@ uniform sampler2D colortex10;
 uniform sampler2D colortex11;
 uniform sampler2D colortex12;
 uniform sampler2D colortex13;
+
 //depth buffer
 uniform sampler2D depthtex0;
 uniform sampler2D depthtex1;
@@ -44,8 +47,10 @@ uniform sampler2D shadowcolor0;
 uniform sampler2D normals;
 uniform sampler2D specular;
 uniform sampler2D noisetex;
+uniform sampler2D blueNoiseTex;
 const float PI = float(3.14159);
 uniform int frameCounter;
+const int noiseTextureResolution = 1024;
 uniform float eyeAltitude;
 const float sunPathRotation = SUN_ROTATION;
 uniform float viewWidth;
@@ -54,6 +59,7 @@ uniform float far;
 uniform float near;
 uniform int isEyeInWater;
 uniform vec3 cameraPosition;
+uniform vec3 previousCameraPosition;
 uniform int worldTime;
 const float shadowDistance = SHADOW_DISTANCE;
 const float shadowFarPlane = 684.0;

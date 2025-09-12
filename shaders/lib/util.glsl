@@ -166,4 +166,49 @@ vec3 skyboxSun(vec3 sunPos, vec3 dir, vec3 sunColor) {
   return col;
 }
 
+#define BLUE_NOISE_RESOLUTION 1024
+
+vec4 blueNoise(vec2 texcoord) {
+  ivec2 sampleCoord = ivec2(texcoord * vec2(viewWidth, viewHeight));
+  sampleCoord = sampleCoord % ivec2(BLUE_NOISE_RESOLUTION);
+
+  return texelFetch(blueNoiseTex, sampleCoord, 0);
+}
+
+vec4 blueNoise(vec2 texcoord, int frame) {
+  const float g = 1.6180339887498948482;
+  float a1 = 1.0 /(g);
+  float a2 = 1.0/(pow(g, 2.0));
+
+  vec2 offset = vec2(mod(0.5 + a1 * frame, 1.0), mod(0.5 + a2 * frame, 1.0));
+  texcoord += offset;
+
+  return blueNoise(texcoord);
+}
+
+//from Zombye
+vec3 SampleVNDFGGX(
+    vec3 viewerDirection, // Direction pointing towards the viewer, oriented such that +Z corresponds to the surface normal
+    vec2 alpha, // Roughness parameter along X and Y of the distribution
+    vec2 xy // Pair of uniformly distributed numbers in [0, 1)
+) {
+    // Transform viewer direction to the hemisphere configuration
+    viewerDirection = normalize(vec3(alpha * viewerDirection.xy, viewerDirection.z));
+
+    // Sample a reflection direction off the hemisphere
+    const float tau = 6.2831853; // 2 * pi
+    float phi = tau * xy.x;
+    float cosTheta = fma(1.0 - xy.y,1.0 + viewerDirection.z, -viewerDirection.z);
+    float sinTheta = sqrt(clamp(1.0 - cosTheta * cosTheta, 0.0, 1.0));
+    vec3 reflected = vec3(vec2(cos(phi), sin(phi)) * sinTheta, cosTheta);
+
+    // Evaluate halfway direction
+    // This gives the normal on the hemisphere
+    vec3 halfway = (reflected + viewerDirection);
+    // Transform the halfway direction back to hemiellispoid configuation
+    // This gives the final sampled normal
+    return normalize(vec3(alpha * halfway.xy, halfway.z));
+}
+
+
 #endif //UTIL_GLSL

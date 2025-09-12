@@ -1,4 +1,4 @@
-#version 330 compatibility
+#version 400 compatibility
 
 #include "/lib/uniforms.glsl"
 #include "/lib/util.glsl"
@@ -22,7 +22,7 @@ vec3 rainHorizon = vec3(0.5765, 0.5765, 0.5765);
 vec3 rainZenith = vec3(0.1137, 0.1137, 0.1137);
 
 // Replace the color-setting functions with constants
-const vec3 DAY_ZENITH = vec3(DAY_ZEN_R, DAY_ZEN_G, DAY_ZEN_B);
+const vec3 DAY_ZENITH = vec3(DAY_ZEN_R, DAY_ZEN_G, DAY_ZEN_B * 0.4);
 const vec3 DAY_HORIZON = vec3(DAY_HOR_R, DAY_HOR_G, DAY_HOR_B);
 const vec3 DAWN_ZENITH = vec3(DAWN_ZEN_R, DAWN_ZEN_G, DAWN_ZEN_B);
 const vec3 DAWN_HORIZON = vec3(DAWN_HOR_R, DAWN_HOR_G, DAWN_HOR_B);
@@ -100,7 +100,7 @@ vec3 newSky(vec3 pos) {
 
   const vec3 zenithColors[keys] = vec3[keys](
     DAWN_ZENITH * 2,
-    DAY_ZENITH,
+    DAY_ZENITH ,
     DAY_ZENITH,
     DUSK_ZENITH * 0.7,
     NIGHT_ZENITH_C * 0.35,
@@ -152,7 +152,7 @@ vec3 calcSun(
   vec2 texcoord
 ) {
   //Mie scattering assignments
-  vec3 mieScatterColor = vec3(0.0784, 0.0471, 0.0118) * MIE_SCALE * sunColor;
+  vec3 mieScatterColor = vec3(0.1176, 0.1137, 0.102) * MIE_SCALE * sunColor;
 
   vec3 mieScat = mieScatterColor;
 
@@ -165,7 +165,7 @@ vec3 calcSun(
     mieScat = mix(mieScat, mieScat * 0.1, rainStrength);
   }
 
-  mieScat *= max(CS(0.9998, VoL), 0.00001);
+  mieScat *= max(evalDraine(VoL, 0.9996, 0.66), 0.00001);
 
   return mieScat;
 }

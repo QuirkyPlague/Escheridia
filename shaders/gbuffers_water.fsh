@@ -1,4 +1,4 @@
-#version 330 compatibility
+#version 400 compatibility
 
 #include "/lib/uniforms.glsl"
 #include "/lib/lighting/lighting.glsl"
@@ -19,28 +19,29 @@ in vec3 viewPos;
 in vec3 feetPlayerPos;
 flat in int blockID;
 in mat3 tbnMatrix;
-/* RENDERTARGETS: 0,1,2,4,5,7,12,11 */
+
+/* RENDERTARGETS: 0,1,2,5,6,11,12,4 */
 layout(location = 0) out vec4 color;
 layout(location = 1) out vec4 lightmapData;
 layout(location = 2) out vec4 encodedNormal;
-layout(location = 3) out vec4 waterMask;
-layout(location = 4) out vec4 specMap;
-layout(location = 5) out vec4 translucentMask;
+layout(location = 3) out vec4 specMap;
+layout(location = 4) out vec4 geoNormal;
+layout(location = 5) out vec4 sssMask;
 layout(location = 6) out vec4 bloom;
-layout(location = 7) out vec4 sssMask;
+layout(location = 7) out vec4 waterMask;
 
 void main() {
   color = texture(gtexture, texcoord) * glcolor;
   if (color.a < 0.1) {
     discard;
   }
-  vec3 normalMaps = texture(normals, texcoord).rgb;
+  vec3 normalMaps = texture(normals, texcoord, 0).rgb;
   normalMaps = normalMaps * 2.0 - 1.0;
   normalMaps.xy /= 254.0 / 255.0;
   normalMaps.z = sqrt(1.0 - dot(normalMaps.xy, normalMaps.xy));
   vec3 mappedNormal = tbnMatrix * normalMaps;
 
-  vec4 geoNormal = vec4(normal * 0.5 + 0.5, 1.0);
+  geoNormal = vec4(normal * 0.5 + 0.5, 1.0);
 
   lightmapData = vec4(lmcoord, 0.0, 1.0);
   encodedNormal = vec4(mappedNormal * 0.5 + 0.5, 1.0);
@@ -80,7 +81,8 @@ void main() {
 
   float sss = specMap.b;
   vec3 F = fresnelSchlick(max(dot(encodedNormal.rgb, V), 0.0), F0);
-  vec3 shadow = getSoftShadow(feetPlayerPos, geoNormal.rgb, sss);
+  vec4 noise = blueNoise(texcoord,  frameCounter);
+  vec3 shadow = getSoftShadow(feetPlayerPos, geoNormal.rgb, sss, noise.x);
   bool isMetal = specMap.g >= 230.0 / 255.0;
   float ao = texture(normals, texcoord).z;
   vec3 diffuse = doDiffuse(
@@ -93,6 +95,8 @@ void main() {
     sss,
     feetPlayerPos,
     isMetal,
+    shadowScreenPos,
+    albedo,
     ao
   );
   vec3 sunlight;
@@ -116,14 +120,13 @@ void main() {
   vec3 lighting = specular;
   if (blockID == WATER_ID) {
     waterMask = vec4(1.0, 1.0, 1.0, 1.0);
-    color.a *= 0.0;
+    color.a *= 0.25;
 
   } else if (blockID == TRANSLUCENT_ID) {
-    translucentMask = vec4(1.0, 1.0, 1.0, 1.0);
+
     lighting = emissive;
   } else {
     waterMask = vec4(0.0, 0.0, 0.0, 1.0);
-    translucentMask = vec4(0.0, 0.0, 0.0, 1.0);
 
   }
 

@@ -6,9 +6,9 @@ vec3 uncharted2Tonemap(vec3 x) {
   float A = 0.055f;
   float B = 0.13f;
   float C = 0.30f;
-  float D = 1.30f;
+  float D = 1.10f;
   float E = 0.02f;
-  float F = 0.10f;
+  float F = 0.40f;
   return (x * (A * x + C * B) + D * E) / (x * (A * x + B) + D * F) - E / F;
 }
 

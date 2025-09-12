@@ -48,7 +48,7 @@ vec3 distanceMieFog(vec3 color, vec3 viewPos, vec2 texcoord, float depth) {
   );
   +wetness;
   float dist = length(viewPos) / far;
-  float fogFactor = exp(-5.0 * (1.0 - dist));
+  float fogFactor = exp(-8.0 * (1.0 - dist));
   float rainFogFactor = exp(-15.5 * (1.0 - dist));
   bool isRaining = rainStrength <= 1.0 && rainStrength > 0.0;
   if (isRaining) {
@@ -88,10 +88,10 @@ vec3 atmosphericFog(
 
   vec3 absorption = vec3(1.0, 1.0, 1.0);
 
-  vec3 inscatteringAmount = vec3(0.1216, 0.2392, 0.7569) * sunColor;
+  vec3 inscatteringAmount = vec3(0.1686, 0.3216, 1.0) * sunColor;
 
   inscatteringAmount *= eyeBrightnessSmooth.y;
-  inscatteringAmount *= 0.0009;
+  inscatteringAmount *= 0.001;
   vec3 caveInscatter = vec3(0.0627, 0.0745, 0.1451);
   inscatteringAmount = mix(inscatteringAmount, caveInscatter * 4, moodSmooth);
 

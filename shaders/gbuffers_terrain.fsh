@@ -1,4 +1,4 @@
-#version 330 compatibility
+#version 400 compatibility
 
 #include "/lib/uniforms.glsl"
 #include "/lib/blockID.glsl"
@@ -16,7 +16,7 @@ in vec3 feetPlayerPos;
 flat in int blockID;
 in float emission;
 
-/* RENDERTARGETS: 0,1,2,5,6,11,12 */
+/* RENDERTARGETS: 0,1,2,5,6,11,12,13 */
 layout(location = 0) out vec4 color;
 layout(location = 1) out vec4 lightmapData;
 layout(location = 2) out vec4 encodedNormal;
@@ -24,6 +24,7 @@ layout(location = 3) out vec4 specMap;
 layout(location = 4) out vec4 geoNormal;
 layout(location = 5) out vec4 sssMask;
 layout(location = 6) out vec4 bloom;
+layout(location = 7) out vec4 historyBuffer;
 
 void main() {
   color = texture(gtexture, texcoord) * glcolor;
@@ -52,15 +53,16 @@ void main() {
   float sss = 1.0;
 
   #if RESOURCE_PACK_SUPPORT == 1
+  vec3 greyAlbedo = clamp(CSB(color.rgb, 0.85 + emission, 0.0,15.35), 0.0, 3.0);
   color.rgb +=
     color.rgb *
     (emission * 2.15) *
-    min(luminance(color.rgb * 0.85) * abs(color.rgb), float(color.rgb * 6)) *
+    min(luminance(greyAlbedo ), float(color.rgb )) *
     EMISSIVE_MULTIPLIER;
     if(emission > 0.0)
     {
-      color.rgb = CSB(color.rgb, 1.0 * EMISSIVE_MULTIPLIER, EMISSIVE_DESATURATION * emission, 1.0);
+      color.rgb = CSB(color.rgb, 1.0 * EMISSIVE_MULTIPLIER, 1.0, 1.0);
     }
-    
+    historyBuffer = color;
   #endif
 }

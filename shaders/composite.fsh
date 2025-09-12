@@ -1,4 +1,4 @@
-#version 330 compatibility
+#version 400 compatibility
 
 #include "/lib/uniforms.glsl"
 #include "/lib/atmosphere/godrays.glsl"
@@ -22,10 +22,13 @@ void main() {
   vec3 NDCPos = vec3(texcoord.xy, depth) * 2.0 - 1.0;
   vec3 viewPos = projectAndDivide(gbufferProjectionInverse, NDCPos);
   vec3 feetPlayerPos = (gbufferModelViewInverse * vec4(viewPos, 1.0)).xyz;
+  vec3 worldPos = cameraPosition + feetPlayerPos;
   vec4 waterMask = texture(colortex4, texcoord);
+  vec3 baseNormal = texture(colortex6, texcoord).rgb;
+  vec3 normal = normalize((baseNormal - 0.5) * 2.0);
   int blockID = int(waterMask) + 100;
   bool isWater = blockID == WATER_ID;
-  float jitter = IGN(gl_FragCoord.xy, frameCounter);
+ vec4 noiseB = blueNoise(texcoord,  frameCounter * GODRAYS_SAMPLES);
   int stepCount = GODRAYS_SAMPLES;
 
   #if VOLUMETRIC_LIGHTING == 1
@@ -45,9 +48,10 @@ void main() {
     shadowClipPos_start,
     shadowClipPos_end,
     GODRAYS_SAMPLES,
-    jitter,
+    noiseB.x,
     feetPlayerPos,
-    color.rgb
+    color.rgb,
+    normal
   );
 
   #endif

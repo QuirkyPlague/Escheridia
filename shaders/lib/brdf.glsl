@@ -61,14 +61,14 @@ vec3 brdf(
   orenDiffuse /= radians(180.0);
   #ifdef DO_SSR
   if (SpecMap.g >= 230.0 / 255.0) {
-    kD /= PI;
+    kD *= 0.0;
   }
   #else
   kD *= 1.0;
   #endif
   // add to outgoing radiance Lo
 
-  Lo = (kD * albedo + spec) * radiance * orenDiffuse;
+  Lo = (kD * albedo + spec * 3) * radiance * orenDiffuse;
 
   indirect *= albedo / PI;
 

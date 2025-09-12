@@ -1,4 +1,4 @@
-#version 330 compatibility
+#version 400 compatibility
 
 #include "/lib/uniforms.glsl"
 #include "/lib/atmosphere/distanceFog.glsl"
@@ -21,7 +21,7 @@ void main() {
     vec3 distanceFog = distanceFog(color.rgb, eyePlayerPos, texcoord, depth);
     vec3 mieFog = distanceMieFog(color.rgb, viewPos, texcoord, depth);
     vec3 fullFog = distanceFog + mieFog;
-    color.rgb = fullFog * 0.55;
+    color.rgb = fullFog;
   }
 
 }

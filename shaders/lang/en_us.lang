@@ -51,6 +51,9 @@ option.WATER_FOG_GLSL.comment = Enable or disable the water fog effect. §cNo pe
 option.EMISSIVE_MULTIPLIER = Emission Multiplier
 option.EMISSIVE_MULTIPLIER.comment = How much to multiply the strength of emissives by
 
+option.EMISSIVE_DESATURATION = Emission Desaturation
+option.EMISSIVE_DESATURATION.comment = How much desaturation to apply to bright objects
+
 option.FXAA_GLSL = FXAA
 option.FXAA_GLSL.comment = Enables the use of Fast Approximate anti aliasing (FXAA)
     value.FXAA_GLSL.0  = off
@@ -66,22 +69,20 @@ option.DO_SSR.comment = Enables the use of screenspace reflections (SSR)
     value.DO_SSR.0 = off
     value.DO_SSR.1 = on
 
-option.RESOURCE_PACK_SUPPORT = PBR Resource Pack Support
+option.RESOURCE_PACK_SUPPORT = PBR Mode
 option.RESOURCE_PACK_SUPPORT.comment = choose whether to use a labPBR Resource Pack or let the shader handle it
     value.RESOURCE_PACK_SUPPORT.0 = §2LabPBR
     value.RESOURCE_PACK_SUPPORT.1 = §6Hardcoded
+    value.RESOURCE_PACK_SUPPORT.2 = §3None
 
-option.BINARY_REFINEMENT = SSR Mode
-option.BINARY_REFINEMENT.comment = choose quality or performance SSR 
-    value.BINARY_REFINEMENT.0 = Performance
-    value.BINARY_REFINEMENT.1 = Quality
+option.BINARY_REFINEMENT = Binary Refinement Pass
+option.BINARY_REFINEMENT.comment = Improves SSR accuracy with extra refinement steps at the cost of performance
+    value.BINARY_REFINEMENT.0 = Off
+    value.BINARY_REFINEMENT.1 = On
 
 option.SSS_INTENSITY = SSS Intensity
 
-option.HARDCODED_METAL = Hardcoded Metals
-option.HARDCODED_METAL.comment = NOT FUNCTIONAL
-    value.HARDCODED_METAL.0 = §gLabPBR§g
-    value.HARDCODED_METAL.1 = Hardcoded
+
 option.NAME = Escheridia
     value.NAME.0 =§cBy QuirkyPlague§r
     value.NAME.1 =§bBy QuirkyPlague§g
