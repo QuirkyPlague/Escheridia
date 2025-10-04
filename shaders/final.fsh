@@ -20,6 +20,12 @@ void main() {
   color.rgb = aces_tonemap(color.rgb);
   #elif TONEMAPPING_TYPE == 2
   color.rgb = reinhard_jodie(color.rgb);
+  #elif TONEMAPPING_TYPE == 4
+  color.rgb = TonemapGeneric(color.rgb);
+   #elif TONEMAPPING_TYPE == 5
+  color.rgb = hejlBurgessTonemap(color.rgb);
+  #elif TONEMAPPING_TYPE == 6
+  color.rgb = lottesTonemap(color.rgb);
   #endif
 
   color.rgb = CSB(color.rgb, BRIGHTNESS, SATURATION, CONTRAST);

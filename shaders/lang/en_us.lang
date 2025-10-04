@@ -3,7 +3,9 @@ option.TONEMAPPING_TYPE = Tonemap operator
     value.TONEMAPPING_TYPE.1 = Uncharted 2 
     value.TONEMAPPING_TYPE.2 = Reinhard Jodie
     value.TONEMAPPING_TYPE.3 = AgX
-
+    value.TONEMAPPING_TYPE.4 = Generic
+    value.TONEMAPPING_TYPE.5 = Hejl Burgess
+    value.TONEMAPPING_TYPE.6 = Lottes
 
 option.WATER_FOG_DENSITY = Water Fog Density
 option.FOG_DENSITY.comment = How thick the underwater fog is

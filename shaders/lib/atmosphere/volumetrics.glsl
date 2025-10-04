@@ -17,8 +17,9 @@ vec3 volumetricRaymarch(
 ) {
   vec4 rayPos = endPos - startPos;
   vec4 stepSize = rayPos * (1.0 / stepCount);
+  vec3 eyePlayerPos = feetPlayerPos - gbufferModelViewInverse[3].xyz;
   vec3 worldPos = feetPlayerPos +cameraPosition;
-  float rayLength = clamp(length(feetPlayerPos) + 1, 0, far / 2);
+  float rayLength = clamp(length(eyePlayerPos) + 1, 0, far / 2);
   vec4 stepLength = startPos + jitter * stepSize;
   const float shadowMapPixelSize = 1.0 / float(SHADOW_RESOLUTION);
   float sampleRadius = SHADOW_SOFTNESS * shadowMapPixelSize * 0.74;
@@ -30,19 +31,24 @@ vec3 volumetricRaymarch(
   feetPlayerPos -= cameraPosition;
   #endif
 
-  vec3 absCoeff = vec3(1.0, 1.0, 1.0);
-  vec3 scatterCoeff = vec3(0.00145, 0.00121, 0.0009);
+  vec3 absCoeff = vec3(0.4431, 0.549, 0.7765);
+  vec3 scatterCoeff = vec3(0.00215, 0.00171, 0.00151);
 
-  if(inWater)
-  {
-    absCoeff = WATER_ABOSRBTION * 0.6;
-  }
+ 
   vec3 scatter = vec3(0.0);
   vec3 transmission = vec3(1.0);
-
+  const float falloffScale = 0.0085 / log(2.0);
+  float altitude = rayLength;
+  float fogHeightScale = exp(-max(altitude - 82, 0.0) * falloffScale);
   float VdotL = dot(normalize(feetPlayerPos), worldLightVector);
-  float phase =
-    evalDraine(VdotL, 0.35, 0.8);
+  float phase = mix(CS(0.65, VdotL), CS(-0.25, VdotL) * 0.65, 1.0 - clamp(VdotL, 0,1));
+   if(inWater)
+  {
+    absCoeff = WATER_ABOSRBTION * 0.9;
+    scatterCoeff = WATER_SCATTERING * 0.2;
+
+  }
+  float rayleigh = Rayleigh(VdotL);
   vec3 sunColor;
   vec3 biasAdjustFactor = vec3(
     shadowMapPixelSize * 2.45,
@@ -84,7 +90,8 @@ vec3 volumetricRaymarch(
       sampleExtinction;
     transmission *= sampleTransmittance;
   }
-  scatter *= 0.074;
+  scatter *= 0.144;
+  
   return mix(sceneColor, transmission + scatter, 1.0 + wetness);
 }
 #endif //VOLUMETRICS_GLSL

@@ -81,7 +81,7 @@ void main() {
 
   float sss = specMap.b;
   vec3 F = fresnelSchlick(max(dot(encodedNormal.rgb, V), 0.0), F0);
-  vec4 noise = blueNoise(texcoord,  frameCounter);
+  vec3 noise =  blue_noise(texcoord,  frameCounter);
   vec3 shadow = getSoftShadow(feetPlayerPos, geoNormal.rgb, sss, noise.x);
   bool isMetal = specMap.g >= 230.0 / 255.0;
   float ao = texture(normals, texcoord).z;

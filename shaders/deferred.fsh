@@ -87,14 +87,14 @@ void main() {
     emissive += albedo * (emission * 4);
     emissive = CSB(emissive, 1.0 * EMISSIVE_MULTIPLIER, EMISSIVE_DESATURATION , 1.0);
   }
-vec4 noise = blueNoise(texcoord,  frameCounter);
+vec3 noise =  blue_noise(gl_FragCoord.xy,  frameCounter, SHADOW_SAMPLES);
   vec3 shadow = getSoftShadow(feetPlayerPos, geoNormal, sss, noise.x);
 
   vec3 V = normalize(cameraPosition - worldPos);
   vec3 L = normalize(worldLightVector);
   vec3 H = normalize(V + L);
 
-  float ao = 1.0;
+  float ao = encodedNormal.z * 0.5 + 0.5;
   vec3 diffuse = doDiffuse(
     texcoord,
     lightmap,

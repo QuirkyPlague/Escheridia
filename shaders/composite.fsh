@@ -28,9 +28,9 @@ void main() {
   vec3 normal = normalize((baseNormal - 0.5) * 2.0);
   int blockID = int(waterMask) + 100;
   bool isWater = blockID == WATER_ID;
- vec4 noiseB = blueNoise(texcoord,  frameCounter * GODRAYS_SAMPLES);
+ vec3 noiseB = blue_noise(texcoord,  frameCounter, GODRAYS_SAMPLES);
   int stepCount = GODRAYS_SAMPLES;
-
+ float jitter = IGN(gl_FragCoord.xy, frameCounter);
   #if VOLUMETRIC_LIGHTING == 1
   color.rgb = sampleGodrays(color.rgb, texcoord, feetPlayerPos, depth);
 
@@ -48,7 +48,7 @@ void main() {
     shadowClipPos_start,
     shadowClipPos_end,
     GODRAYS_SAMPLES,
-    noiseB.x,
+    jitter,
     feetPlayerPos,
     color.rgb,
     normal

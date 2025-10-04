@@ -22,7 +22,7 @@ vec3 getSoftShadow(vec3 feetPlayerPos, vec3 normal, float SSS, float noise) {
     -0.00003803515625
   );
   #if PIXELATED_LIGHTING == 1
-  sampleRadius = SHADOW_SOFTNESS * shadowMapPixelSize * 0.24;
+  sampleRadius = SHADOW_SOFTNESS * shadowMapPixelSize * 0.45;
 
   feetPlayerPos = feetPlayerPos + cameraPosition;
   feetPlayerPos = floor(feetPlayerPos * 16 + 0.01) / 16;
@@ -35,7 +35,7 @@ vec3 getSoftShadow(vec3 feetPlayerPos, vec3 normal, float SSS, float noise) {
 
   float faceNdl = dot(normal, worldLightVector);
   if (faceNdl <= 1e-6 && SSS > 64.0 / 255.0) {
-    sampleRadius *= 1.0 + 9.0 * SSS;
+    sampleRadius *= 1.0 + 7.0 * SSS;
   }
 
   vec3 shadowAccum = vec3(0.0); // sum of all shadow samples

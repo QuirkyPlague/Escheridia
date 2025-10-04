@@ -168,22 +168,25 @@ vec3 skyboxSun(vec3 sunPos, vec3 dir, vec3 sunColor) {
 
 #define BLUE_NOISE_RESOLUTION 1024
 
-vec4 blueNoise(vec2 texcoord) {
-  ivec2 sampleCoord = ivec2(texcoord * vec2(viewWidth, viewHeight));
-  sampleCoord = sampleCoord % ivec2(BLUE_NOISE_RESOLUTION);
 
-  return texelFetch(blueNoiseTex, sampleCoord, 0);
+
+vec3 blue_noise(vec2 coord, int frame) {
+  return texelFetch(
+    blueNoiseTex,
+    ivec3(ivec2(coord) % 128, frame % 64),
+    0
+  ).rgb;
 }
 
-vec4 blueNoise(vec2 texcoord, int frame) {
-  const float g = 1.6180339887498948482;
-  float a1 = 1.0 /(g);
-  float a2 = 1.0/(pow(g, 2.0));
+// R2 sequence from
+// https://extremelearning.com.au/unreasonable-effectiveness-of-quasirandom-sequences/
+vec3 blue_noise(vec2 coord, int frame, int i) {
+  const float g = 1.32471795724474602596;
+  float a1 = 1.0/(g);
+  float a2 = 1.0/(pow(g,2));
 
-  vec2 offset = vec2(mod(0.5 + a1 * frame, 1.0), mod(0.5 + a2 * frame, 1.0));
-  texcoord += offset;
-
-  return blueNoise(texcoord);
+  vec2 offset = vec2(fract(0.5 + a1 * i), fract(0.5 + a2 * i));
+  return blue_noise(coord + offset, frame);
 }
 
 //from Zombye

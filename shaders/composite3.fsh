@@ -17,11 +17,10 @@ void main() {
 
   vec3 feetPlayerPos = (gbufferModelViewInverse * vec4(viewPos, 1.0)).xyz;
   vec3 eyePlayerPos = feetPlayerPos - gbufferModelViewInverse[3].xyz;
-  if (!inWater) {
+  if (!inWater && depth >= 1.0) {
     vec3 distanceFog = distanceFog(color.rgb, eyePlayerPos, texcoord, depth);
-    vec3 mieFog = distanceMieFog(color.rgb, viewPos, texcoord, depth);
-    vec3 fullFog = distanceFog + mieFog;
-    color.rgb = fullFog;
+  
+
   }
 
 }

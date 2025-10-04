@@ -3,7 +3,7 @@
 
 //taken fromn Blemu's training raytracer found at https://gist.github.com/BelmuTM/af0fe99ee5aab386b149a53775fe94a3
 #define BINARY_REFINEMENT 1 //[0 1]
-#define BINARY_COUNT 16
+#define BINARY_COUNT 4
 #define BINARY_DECREASE 0.5
 uint binarySteps = uint(BINARY_COUNT);
 

@@ -31,4 +31,19 @@ float sampleDraineCos(in float xi, in float g, in float a)
 	return (1 + g2 - pow(-0.5 * sqrt(T5) + sqrt(6 * (1 + g2) - (8 * T3) / (a * (-1 + g2) * sqrt(T5)) - T6) / 2., 2)) / (2. * g);
 }
 
+float henyeyGreensteinPhase(float mu, float g)
+{
+	
+	return (1.0 - g * g) / ((4.0 + PI) * pow(1.0 + g * g - 2.0 * g * mu, 1.5));
+}
+
+float miePhase(float cosTheta, float g) {
+    // g = anisotropy factor (-1..1), for atmosphere typically ~0.8 to 0.99
+    float g2 = g * g;
+    float denom = pow(1.0 + g2 - 2.0 * g * cosTheta, 1.5);
+    return (1.0 - g2) / (4.0 * 3.14159265 * denom);
+}
+
+
+
 #endif //PHASE_FUNCTIONS_GLSL

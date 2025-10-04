@@ -22,7 +22,7 @@ vec3 rainHorizon = vec3(0.5765, 0.5765, 0.5765);
 vec3 rainZenith = vec3(0.1137, 0.1137, 0.1137);
 
 // Replace the color-setting functions with constants
-const vec3 DAY_ZENITH = vec3(DAY_ZEN_R, DAY_ZEN_G, DAY_ZEN_B * 0.4);
+const vec3 DAY_ZENITH = vec3(DAY_ZEN_R, DAY_ZEN_G, DAY_ZEN_B * 0.5);
 const vec3 DAY_HORIZON = vec3(DAY_HOR_R, DAY_HOR_G, DAY_HOR_B);
 const vec3 DAWN_ZENITH = vec3(DAWN_ZEN_R, DAWN_ZEN_G, DAWN_ZEN_B);
 const vec3 DAWN_HORIZON = vec3(DAWN_HOR_R, DAWN_HOR_G, DAWN_HOR_B);
@@ -33,7 +33,6 @@ const vec3 NIGHT_HORIZON_C = vec3(NIGHT_HOR_R, NIGHT_HOR_G, NIGHT_HOR_B);
 
 vec3 calcMieSky(
   vec3 pos,
-  vec3 lightPos,
   vec3 sunColor,
   vec3 viewPos,
   vec2 texcoord
@@ -99,7 +98,7 @@ vec3 newSky(vec3 pos) {
   );
 
   const vec3 zenithColors[keys] = vec3[keys](
-    DAWN_ZENITH * 2,
+    DAWN_ZENITH ,
     DAY_ZENITH ,
     DAY_ZENITH,
     DUSK_ZENITH * 0.7,
@@ -108,7 +107,7 @@ vec3 newSky(vec3 pos) {
     DAWN_ZENITH * 2
   );
   const vec3 horizonColors[keys] = vec3[keys](
-    DAWN_HORIZON * 2,
+    DAWN_HORIZON ,
     DAY_HORIZON,
     DAY_HORIZON,
     DUSK_HORIZON * 0.8,
@@ -135,7 +134,7 @@ vec3 newSky(vec3 pos) {
   zenithCol = mix(zenithCol, rainZenith, wetness);
   horizonCol = mix(horizonCol, rainZenith, wetness);
 
-  zenithCol *= rayleigh * 20 * zenithBlend;
+  zenithCol *= rayleigh * 25 * zenithBlend;
   horizonCol *= rayleigh * 25 * horizonBlend;
   vec3 groundCol = vec3(0.0588, 0.1059, 0.2235) * rayleigh * 20 * groundBlend;
 
@@ -144,30 +143,26 @@ vec3 newSky(vec3 pos) {
   return sky;
 }
 
-vec3 calcSun(
-  vec3 pos,
-  vec3 lightPos,
-  vec3 sunColor,
-  vec3 viewPos,
-  vec2 texcoord
-) {
-  //Mie scattering assignments
-  vec3 mieScatterColor = vec3(0.1176, 0.1137, 0.102) * MIE_SCALE * sunColor;
+vec3 getSunBasic(vec3 dir)
+{
+    vec3 sunPos = normalize(sunPosition);
+    vec3 moonPos = normalize(moonPosition);
+    float cosTheta = dot(dir, sunPos);
+    float mDotL = dot(dir, moonPos);
 
-  vec3 mieScat = mieScatterColor;
+    float invCos = 1 - cosTheta;
+    float invCos1 = 1 - mDotL;
+    float angularDist = clamp(invCos, -1.0, 1.0);
+    float angularDist1 = clamp(invCos1, -1.0, 1.0);
+    float sun = smoothstep(0.0003, 0.0003 * 0.9, angularDist);
+    float moon = smoothstep(0.0002, 0.0001 * 0.03, angularDist1);
+    vec3 sunColor;
+    
+    sunColor = currentSunColor(sunColor);
 
-  bool inWater = isEyeInWater == 1.0;
-  vec3 sunPos = normalize(sunPosition);
-  vec3 worldSunPos = mat3(gbufferModelViewInverse) * sunPos;
-  float VoL = dot(normalize(feetPlayerPos), worldSunPos);
-  if (rainStrength <= 1.0 && rainStrength > 0.0) {
-    float dryToWet = smoothstep(0.0, 1.0, float(rainStrength));
-    mieScat = mix(mieScat, mieScat * 0.1, rainStrength);
-  }
-
-  mieScat *= max(evalDraine(VoL, 0.9996, 0.66), 0.00001);
-
-  return mieScat;
+   vec3 fullSun = sun * sunColor * 1500.0;
+   vec3 fullmoon = moon * sunColor * 6.3;
+   return fullSun + fullmoon;
 }
 
 
@@ -177,16 +172,17 @@ layout(location = 0) out vec4 color;
 layout(location = 1) out vec4 stars;
 layout(location = 2) out vec4 sun;
 void main() {
+ 
   if (renderStage == MC_RENDER_STAGE_STARS) {
     color = glcolor * 1.5;
 
     // precompute values once
-    float starBrightnessShift = length(feetPlayerPos) * 0.1;
+    float starBrightnessShift = length(feetPlayerPos) * 0.9;
     vec2 posShift;
     posShift = vec2(0.0, 1.0);
     float baseX =
-      dot(feetPlayerPos.xz, posShift) * 2.5 +
-      (frameTimeCounter * 4.9 + starBrightnessShift);
+      dot(feetPlayerPos.xz, posShift) * 0.5 +
+      (frameTimeCounter * 2.9 + starBrightnessShift);
 
     float starTwinkleFactor = exp(sin(baseX - 1.6));
     float starFluctuation = starTwinkleFactor - exp(cos(baseX - 1.0));
@@ -201,15 +197,13 @@ void main() {
     vec3 sunColor = currentSunColor(vec3(0.0));
 
     vec3 skyMie = vec3(
-      calcSun(normalize(pos), worldLightVector, sunColor, viewPos, texcoord)
+      calcMieSky(normalize(pos), sunColor, pos, texcoord)
     );
     vec3 eyePlayerPos = feetPlayerPos - gbufferModelViewInverse[3].xyz;
     vec3 skyMain = newSky(eyePlayerPos);
-    vec3 skySun = vec3(
-      calcSun(normalize(pos), worldLightVector, sunColor, viewPos, texcoord)
-    );
+    vec3 sunBasic = getSunBasic(normalize(pos));
 
-    color.rgb = skyMain + skySun + skyMie;
-    sun.rgb = skySun;
+    color.rgb = skyMain  + skyMie + sunBasic;
+    sun.rgb = getSunBasic(normalize(pos));
   }
 }
