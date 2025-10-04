@@ -60,7 +60,8 @@ vec3 skyFallbackBlend(
         vec3 skyCol = newSky(skyDir);
         vec3 sunCol = getSun(skyDir);
         
-        accumulated += (skyCol + sunCol );
+        accumulated += (skyCol + sunCol) * 0.65;
+        
     }
     vec3 sky = accumulated / float(ROUGH_SAMPLES);
     if(isWater || roughness <= 0)
@@ -69,7 +70,7 @@ vec3 skyFallbackBlend(
    
         vec3 skyCol = newSky(dir2);
         vec3 sunCol = getSun(dir2);
-         sky = sunCol + skyCol;
+         sky = (sunCol + skyCol) * 0.65;
     }
   #else
   dir2 = reflect(normalize(eyePlayerPos), normal);
@@ -130,7 +131,7 @@ void main() {
     float waveIntensityRolloff = exp(
       19.0 * WAVE_INTENSITY * (0.01 - waveFalloff)
     );
-    float waveIntensity = 0.17 * WAVE_INTENSITY * waveIntensityRolloff;
+    float waveIntensity = 0.1 * WAVE_INTENSITY * waveIntensityRolloff;
     float waveSoftness = 0.008 * WAVE_SOFTNESS;
 
     normal = waveNormal(
@@ -183,7 +184,7 @@ vec2 offset;
  float ndotL = dot(normal, lightVector);
     for (uint i = 0u; i < uint(ROUGH_SAMPLES); i++) {
         vec3 noise =  blue_noise(floor(gl_FragCoord.xy), frameCounter, int(i));
-        vec3 microFacit = clamp(SampleVNDFGGX(tangentView, vec2(roughness), noise.xy), 0, 1);
+        vec3 microFacit = clamp(SampleVNDFGGX(tangentView, vec2(roughness), noise.xz), 0, 1);
 
           
         vec3 tangentReflDir = reflect(-tangentView, microFacit) ;
@@ -222,12 +223,12 @@ vec2 offset;
 
    #ifdef ROUGH_REFLECTION
 
-    const float MAX_RADIUS = 1.15;
+    const float MAX_RADIUS = 3.15;
       float alpha = roughness * 1.25e-4;
     float sampleRadius = mix(0.0, MAX_RADIUS, alpha) * reflectedDist;
     for (int i = 0; i < ROUGH_SAMPLES; i++) {
        vec3 noise =  blue_noise(floor(gl_FragCoord.xy), frameCounter, int(i));
-    vec2 offset = vogelDisc(i, ROUGH_SAMPLES, noise.z) * sampleRadius;
+    vec2 offset = vogelDisc(i, ROUGH_SAMPLES, noise.x) * sampleRadius;
     vec3 offsetReflection = ssrPos + vec3(offset, 0.0); // add offset
     ssrPos = offsetReflection;
     }
@@ -239,7 +240,7 @@ vec2 offset;
 if ((canReflect || isMetal || isWater) && !inWater) {
   float smoothLightmap = smoothstep(0.882, 1.0, lightmap.g);
   vec3 sky = skyFallbackBlend(reflectedDir, sunColor, viewPos, texcoord, normal, roughness, isWater);
-  bool skyThreshold = roughness < 0.25;
+  bool skyThreshold = roughness < 0.3;
   vec3 skyRefl =  skyThreshold ? mix(color.rgb, sky, smoothLightmap): color.rgb;
   reflectedColor  = ssrPos.z < 0.5 ? skyRefl  : texelFetch(colortex0, ivec2(ssrPos.xy), int(0)).rgb;
 }
@@ -250,7 +251,7 @@ else if((canReflect || isMetal || isWater) && inWater)
 
   // Apply Fresnel and accumulate only in SSR path (matches original)
   reflectedColor *= F;
-  reflectedColor = min(reflectedColor, vec3(6.0)); // arbitrary threshold
+  reflectedColor = min(reflectedColor, vec3(16.0)); // arbitrary threshold
   color.rgb += reflectedColor;
 
   #else // !DO_SSR

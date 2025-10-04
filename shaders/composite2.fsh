@@ -36,7 +36,7 @@ void main() {
   vec3 fullFog = atmosphereFog;
    
   if (!inWater) {
-    color.rgb = mix(color.rgb, fullFog, 0.5);
+    color.rgb += atmosphereFog;
   }
  
   

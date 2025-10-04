@@ -119,7 +119,7 @@ vec3 newSky(vec3 pos) {
   vec3 sunColor;
   sunColor = currentSunColor(sunColor);
   //Mie scattering assignments
-  const vec3 sunriseScatter = vec3(1.0, 0.1882, 0.0039);
+  const vec3 sunriseScatter = vec3(1.0, 0.5451, 0.4431);
   const vec3 dayScatter = vec3(0.8745, 0.7882, 0.7098);
   const vec3  nightScatter = vec3(0.4627, 0.3412, 0.2745);
   vec3 moonMieScatterColor =
@@ -141,7 +141,7 @@ vec3 newSky(vec3 pos) {
 
   float mieScale;
   const float dayScale = 0.85;
-  const float sunriseScale = 0.55;
+  const float sunriseScale = 0.85;
   const float nightScale = 0.35;
 
   const float mieTimeScale[keys] = float[keys](
@@ -168,7 +168,7 @@ vec3 newSky(vec3 pos) {
   mieScat= mix(mieColor[i], mieColor[i + 1], segW);
 
   float miePhase = CS(mieScale, sVoL);
-  vec3 mieColors =  mieScat * miePhase * 0.5 ; // tweak multiplier
+  vec3 mieColors =  mieScat * miePhase * 0.8 ; // tweak multiplier
 
   float moonPhase = CS(0.95, mVoL);
   vec3 mieNight = mMieScat * moonPhase * 0.3;

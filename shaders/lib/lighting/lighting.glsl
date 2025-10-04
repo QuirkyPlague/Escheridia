@@ -8,10 +8,10 @@
 const vec3 blocklightColor = vec3(1.0, 0.8627, 0.698);
 const vec3 skylightColor = vec3(0.5765, 0.6706, 0.9098);
 const vec3 nightSkylightColor = vec3(0.0667, 0.149, 0.5686) ;
-const vec3 sunlightColor = vec3(1.0, 0.8431, 0.4706);
-const vec3 morningSunlightColor = vec3(1.0, 0.4, 0.0);
+const vec3 sunlightColor = vec3(1.0, 0.8784, 0.6353);
+const vec3 morningSunlightColor = vec3(1.0, 0.4824, 0.1373);
 const vec3 eveningSunlightColor = vec3(1.0, 0.298, 0.1216) * 1.16;
-const vec3 moonlightColor = vec3(0.0745, 0.1255, 0.3922) * 1.15;
+const vec3 moonlightColor = vec3(0.0, 0.1294, 0.7765);
 const vec3 rainSun = vec3(0.8353, 0.8353, 0.8353);
 
 vec3 doDiffuse(
@@ -63,12 +63,12 @@ vec3 doDiffuse(
   );
 
   const float keySkyI[K] = float[K](
-    0.7, // midnight
+    0.541, // midnight
     0.7, // sunrise
     0.7, // day
     0.25, // sunset
-    0.006,
-    0.006, // dusk
+    0.86,
+    0.86, // dusk
     0.75 // midnight
   );
 
@@ -125,7 +125,7 @@ vec3 doDiffuse(
 
   skylight = mix(skylight, lightmap.g * rainSkyTint, wetness);
   
-  skylight += max(6.95 * pow(skylight, vec3(3.15)), 0.0);
+  skylight += max(5.95 * pow(skylight, vec3(3.15)), 0.0);
   skylight *= 1.35;
   skylight += clamp(min(1.37 * pow(skylight, vec3(0.1)), 1.7), 0.0, 1.0);
   
@@ -134,12 +134,12 @@ vec3 doDiffuse(
   sunlight = mix(sunlight, rainSunBase, wetness);
   sunlight = mix(sunlight, rainScatterFactor, SSS_INTENSITY);
   
-   blocklight += max(2.9 * pow(blocklight, vec3(1.8)), 0.0);
-   
-  blocklight += clamp(min(0.17 * pow(blocklight, vec3(0.8)), 5.2), 0.0, 1.0);
+   blocklight += max(7.9 * pow(blocklight, vec3(3.38)), 0.0);
+   blocklight *= 1.55;
+  blocklight += clamp(min(0.17 * pow(blocklight, vec3(0.8)), 5.2), 0.0, 1.0) ;
 
   vec3 ambientMood = vec3(0.7843, 0.7843, 0.7843);
-  vec3 ambientColorLocal = vec3(0.149, 0.149, 0.149);
+  vec3 ambientColorLocal = vec3(0.2078, 0.2078, 0.2078);
   vec3 ambient = mix(ambientColorLocal, ambientMood, moodSmooth);
 
   vec3 indirect = (blocklight + skylight) * ao;

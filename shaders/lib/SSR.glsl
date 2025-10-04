@@ -118,18 +118,7 @@ vec3 rayTraceScene(in vec3 screenPos, in vec3 viewPos, in vec3 rayDir, in float 
     return vec3(binaryRefinement(screenRayPos, screenRayDir, sampledDepth, intersection), 1);
 }
 
-// A simple pseudo-random number generator function
-float random(vec2 st) {
-    return fract(sin(dot(st.xy, vec2(12.9898, 78.233))) * 43758.5453123);
-}
 
-// Generate a random vec3
-vec3 randomVec3(vec2 seed) {
-    float x = random(seed);
-    float y = random(seed + vec2(1.0, 0.0)); // Slightly different seed for Y
-    float z = random(seed + vec2(0.0, 1.0)); // Slightly different seed for Z
-    return vec3(x, y, z);
-}
 
 
       

@@ -37,11 +37,11 @@ vec3 volumetricRaymarch(
  
   vec3 scatter = vec3(0.0);
   vec3 transmission = vec3(1.0);
-  const float falloffScale = 0.0085 / log(2.0);
+  const float falloffScale = 0.0071 / log(2.0);
   float altitude = rayLength;
   float fogHeightScale = exp(-max(altitude - 82, 0.0) * falloffScale);
   float VdotL = dot(normalize(feetPlayerPos), worldLightVector);
-  float phase = mix(CS(0.65, VdotL), CS(-0.25, VdotL) * 0.65, 1.0 - clamp(VdotL, 0,1));
+  float phase = mix(CS(0.65, VdotL), CS(-0.25, VdotL), 1.0 - clamp(VdotL, 0,1));
    if(inWater)
   {
     absCoeff = WATER_ABOSRBTION * 0.9;
@@ -87,11 +87,15 @@ vec3 volumetricRaymarch(
     float sampleTransmittance = exp(-rayLength * VOLUMETRIC_FOG_DENSITY * 0.5);
     scatter +=
       (sampleInscatter - sampleInscatter * sampleTransmittance) /
-      sampleExtinction;
+      sampleExtinction ;
+      
     transmission *= sampleTransmittance;
   }
-  scatter *= 0.144;
-  
+  scatter *= 0.144 ;
+  if(!inWater)
+  {
+    scatter*=fogHeightScale;
+  }
   return mix(sceneColor, transmission + scatter, 1.0 + wetness);
 }
 #endif //VOLUMETRICS_GLSL

@@ -25,7 +25,7 @@ vec3 sampleGodrays(
   float depth1 = texture(depthtex1, texcoord).r;
   float dist1 = length(screenToView(texcoord, depth));
   //godray parameters
-  const float exposure = 0.3;
+  const float exposure = 0.8;
   const float decay = 1.0;
   const float density = 1.0;
   float weight = 0.6 * GODRAY_DENSITY;
@@ -97,7 +97,7 @@ vec3 sampleGodrays(
   if (inWater) {
     godraySample *= CS(0.6, VoL);
   } else {
-    godraySample *= evalDraine(VoL, 0.7, 0.9);
+    godraySample *= CS(0.75, VoL);
   }
 
   godraySample *= exposure;

@@ -3,7 +3,7 @@
 
 //implemented from  Very fast procedural ocean: https://www.shadertoy.com/view/MdXyzX
 
-#define DRAG_MULT (0.735 * WAVE_PULL) // changes how much waves pull on the water
+#define DRAG_MULT (0.535 * WAVE_PULL) // changes how much waves pull on the water
 
 // Calculates wave value and its derivative,
 // for the wave direction, position in space, wave frequency and time
@@ -16,11 +16,11 @@ vec2 wavedx(vec2 position, vec2 direction, float frequency, float timeshift) {
 
 // Calculates waves by summing octaves of various waves with various parameters
 float getwaves(vec2 position, int iterations) {
-  float wavePhaseShift = length(position) * 0.64 * WAVE_RANDOMNESS; // this is to avoid every octave having exactly the same phase everywhere
+  float wavePhaseShift = length(position) * 0.24 * WAVE_RANDOMNESS; // this is to avoid every octave having exactly the same phase everywhere
   float iter = 56.0; // this will help generating well distributed wave directions
   float frequency = 2.25; // frequency of the wave, this will change every iteration
   float timeMultiplier = 3.0; // time multiplier for the wave, this will change every iteration
-  float weight = 0.45; // weight in final sum for the wave, this will change every iteration
+  float weight = 0.35; // weight in final sum for the wave, this will change every iteration
   float sumOfValues = 0.0; // will store final sum of values
   float sumOfWeights = 0.0; // will store final sum of weights
   for (int i = 0; i < iterations; i++) {
@@ -43,7 +43,7 @@ float getwaves(vec2 position, int iterations) {
     sumOfWeights += weight;
 
     // modify next octave ;
-    weight = mix(weight, 0.0, 0.362);
+    weight = mix(weight, 0.0, 0.312);
     frequency *= 1.21 * WAVE_FREQUENCY;
     timeMultiplier *= 1.12 * WAVE_SPEED;
 
