@@ -13,7 +13,8 @@ vec3 volumetricRaymarch(
   float jitter,
   vec3 feetPlayerPos,
   vec3 sceneColor,
-  vec3 normal
+  vec3 normal,
+  vec2 lm
 ) {
   vec4 rayPos = endPos - startPos;
   vec4 stepSize = rayPos * (1.0 / stepCount);
@@ -22,7 +23,7 @@ vec3 volumetricRaymarch(
   float rayLength = clamp(length(eyePlayerPos) + 1, 0, far / 2);
   vec4 stepLength = startPos + jitter * stepSize;
   const float shadowMapPixelSize = 1.0 / float(SHADOW_RESOLUTION);
-  float sampleRadius = SHADOW_SOFTNESS * shadowMapPixelSize * 0.74;
+  float sampleRadius = SHADOW_SOFTNESS * shadowMapPixelSize * 0.54;
   #if PIXELATED_LIGHTING == 1
   sampleRadius = SHADOW_SOFTNESS * shadowMapPixelSize * 0.54;
 
@@ -32,16 +33,24 @@ vec3 volumetricRaymarch(
   #endif
 
   vec3 absCoeff = vec3(0.4431, 0.549, 0.7765);
-  vec3 scatterCoeff = vec3(0.00215, 0.00171, 0.00151);
+  
 
- 
+  vec3 scatterCoeff = vec3(0.00215, 0.00171, 0.00151);
+  absCoeff = mix(absCoeff, vec3(1.0), PaleGardenSmooth);
+  scatterCoeff = mix(scatterCoeff, vec3(0.00415), PaleGardenSmooth);
+
   vec3 scatter = vec3(0.0);
   vec3 transmission = vec3(1.0);
   const float falloffScale = 0.0071 / log(2.0);
   float altitude = rayLength;
   float fogHeightScale = exp(-max(altitude - 82, 0.0) * falloffScale);
   float VdotL = dot(normalize(feetPlayerPos), worldLightVector);
-  float phase = mix(CS(0.65, VdotL), CS(-0.25, VdotL), 1.0 - clamp(VdotL, 0,1));
+  float phaseIncFactor = smoothstep(215, 0, eyeBrightnessSmooth.y);
+  float phaseMult = mix(1.0,12.0,phaseIncFactor);
+  float phase = mix(CS(0.65, VdotL) , CS(-0.15, VdotL), 1.0 - clamp(VdotL, 0,1));
+ 
+   phase *= phaseMult;
+  
    if(inWater)
   {
     absCoeff = WATER_ABOSRBTION * 0.9;
@@ -91,11 +100,8 @@ vec3 volumetricRaymarch(
       
     transmission *= sampleTransmittance;
   }
-  scatter *= 0.144 ;
-  if(!inWater)
-  {
-    scatter*=fogHeightScale;
-  }
+  scatter *= 0.104 ;
+ 
   return mix(sceneColor, transmission + scatter, 1.0 + wetness);
 }
 #endif //VOLUMETRICS_GLSL

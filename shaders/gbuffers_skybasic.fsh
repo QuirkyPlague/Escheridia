@@ -77,7 +77,7 @@ vec3 getSunBasic(vec3 dir)
     sunColor = currentSunColor(sunColor);
 
    vec3 fullSun = sun * sunColor * 550.0;
-   vec3 fullmoon = moon * sunColor * 6.3;
+   vec3 fullmoon = moon * sunColor * 56.3;
    return fullSun + fullmoon;
 }
 

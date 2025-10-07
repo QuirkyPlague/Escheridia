@@ -8,7 +8,9 @@
 
 const vec3 rainHorizon = vec3(0.5765, 0.5765, 0.5765);
 const vec3 rainZenith = vec3(0.1137, 0.1137, 0.1137);
-
+ const vec3 paleHorizon = vec3(2.5);
+ const vec3 paleZenith = vec3(1.35);
+ const vec3 paleGround = vec3(0.5);
 // Replace the color-setting functions with constants
 const vec3 DAY_ZENITH = vec3(DAY_ZEN_R, DAY_ZEN_G, DAY_ZEN_B);
 const vec3 DAY_HORIZON = vec3(DAY_HOR_R, DAY_HOR_G, DAY_HOR_B);
@@ -110,6 +112,8 @@ vec3 newSky(vec3 pos) {
   zenithCol = mix(zenithCol, rainZenith, wetness);
   horizonCol = mix(horizonCol, rainZenith, wetness);
 
+  zenithCol = mix(zenithCol, paleZenith, PaleGardenSmooth);
+  horizonCol = mix(horizonCol, paleHorizon, PaleGardenSmooth);
   zenithCol *= rayleigh * 20 * zenithBlend;
   horizonCol *= rayleigh * 25 * horizonBlend;
   vec3 groundCol = vec3(0.0549, 0.1451, 0.3804) * rayleigh * 20 * groundBlend;

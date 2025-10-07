@@ -52,7 +52,7 @@ vec3 atmosphericFog(
   vec3 absorption = vec3(0.302, 0.302, 0.302);
 
   vec3 inscatteringAmount = vec3(0.2118, 0.3412, 0.9216);
-
+  inscatteringAmount = mix(inscatteringAmount, vec3(0.8784, 0.8784, 0.8784), PaleGardenSmooth);
   inscatteringAmount *= eyeBrightnessSmooth.y;
   inscatteringAmount *= 0.002;
   vec3 caveInscatter = vec3(0.0627, 0.0745, 0.1451);

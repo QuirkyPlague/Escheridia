@@ -84,7 +84,10 @@ void main() {
 
   
   if (emission < 255.0/255.0) {
-    emissive += albedo * (emission * 4);
+    emissive += albedo * (emission);
+    emissive += max(0.55 * pow(emissive, vec3(0.8)), 0.0);
+
+     emissive += min(luminance(emissive * 6.05) * pow(emissive, vec3(1.25)),33.15 ) ;
     emissive = CSB(emissive, 1.0 * EMISSIVE_MULTIPLIER, EMISSIVE_DESATURATION , 1.0);
   }
 vec3 noise =  blue_noise(gl_FragCoord.xy,  frameCounter, SHADOW_SAMPLES);

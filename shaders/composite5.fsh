@@ -216,7 +216,10 @@ vec2 offset;
   
 
   vec3 reflectedViewPos = screenSpaceToViewSpace(ssrPos);
-  float reflectedDist = distance(viewPos, reflectedViewPos);
+  vec3 reflectedFeetPlayer = (gbufferModelViewInverse * vec4(reflectedViewPos, 1.0)).xyz;
+  reflectedFeetPlayer += cameraPosition;
+  float reflectedDist = distance(cameraPosition, reflectedFeetPlayer);
+
 
   float lod = min(4.15 * (1.0 - pow(roughness, 12.0)), reflectedDist);
   if (roughness <= 0.0 || isWater) lod = 0.0;
@@ -224,11 +227,11 @@ vec2 offset;
    #ifdef ROUGH_REFLECTION
 
     const float MAX_RADIUS = 3.15;
-      float alpha = roughness * 1.25e-4;
+      float alpha = roughness * 2.25e-4;
     float sampleRadius = mix(0.0, MAX_RADIUS, alpha) * reflectedDist;
     for (int i = 0; i < ROUGH_SAMPLES; i++) {
        vec3 noise =  blue_noise(floor(gl_FragCoord.xy), frameCounter, int(i));
-    vec2 offset = vogelDisc(i, ROUGH_SAMPLES, noise.x) * sampleRadius;
+    vec2 offset = vogelDisc(i, ROUGH_SAMPLES, noise.z) * sampleRadius;
     vec3 offsetReflection = ssrPos + vec3(offset, 0.0); // add offset
     ssrPos = offsetReflection;
     }
@@ -240,7 +243,12 @@ vec2 offset;
 if ((canReflect || isMetal || isWater) && !inWater) {
   float smoothLightmap = smoothstep(0.882, 1.0, lightmap.g);
   vec3 sky = skyFallbackBlend(reflectedDir, sunColor, viewPos, texcoord, normal, roughness, isWater);
-  bool skyThreshold = roughness < 0.3;
+  if(!isWater)
+  {
+    sky *= smoothstep(0.0,0.35, roughness);
+  }
+  
+  bool skyThreshold = canReflect;
   vec3 skyRefl =  skyThreshold ? mix(color.rgb, sky, smoothLightmap): color.rgb;
   reflectedColor  = ssrPos.z < 0.5 ? skyRefl  : texelFetch(colortex0, ivec2(ssrPos.xy), int(0)).rgb;
 }

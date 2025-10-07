@@ -16,7 +16,7 @@ layout(location = 0) out vec4 color;
 void main() {
   float depth = texture(depthtex0, texcoord).r;
   float depth1 = texture(depthtex1, texcoord).r;
-
+  vec2 lightmap = texture(colortex1, texcoord).rg; // we only need the r and g components
   //space conversions
   vec3 screenPos = vec3(texcoord.xy, depth);
   vec3 NDCPos = vec3(texcoord.xy, depth) * 2.0 - 1.0;
@@ -51,7 +51,8 @@ void main() {
     jitter,
     feetPlayerPos,
     color.rgb,
-    normal
+    normal,
+    lightmap
   );
 
   #endif
