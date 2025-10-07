@@ -16,14 +16,14 @@ in vec3 eyePlayerPos;
 uniform int renderStage;
 
 //Day
-const vec3 dayZenCol=vec3(.2431,.4431,.8353);
-const vec3 dayHorCol=vec3(.6157,.8745,.9843);
-const vec3 dayGrndCol=vec3(.1765,.2941,.6824);
+const vec3 dayZenCol=vec3(0.2392, 0.4941, 1.0);
+const vec3 dayHorCol=vec3(0.3922, 0.6314, 0.8745);
+const vec3 dayGrndCol=vec3(0.298, 0.5412, 0.7843);
 
 //Dawn
-const vec3 dawnZenCol=vec3(0.3255, 0.502, 0.8549);
-const vec3 dawnHorCol=vec3(0.8118, 0.5216, 0.2863);
-const vec3 dawnGrndCol=vec3(0.4627, 0.3686, 0.2039);
+const vec3 dawnZenCol=vec3(0.2627, 0.4, 0.6706);
+const vec3 dawnHorCol=vec3(0.8353, 0.4902, 0.3059);
+const vec3 dawnGrndCol=vec3(0.2863, 0.4235, 0.6784);
 
 //Dusk
 const vec3 duskZenCol=vec3(0.4667, 0.5294, 0.851);
@@ -120,9 +120,9 @@ vec3 skyScattering(vec3 pos){
     horizonCol = mix(horizonColors[i], horizonColors[i + 1], timeInterp);
     groundCol = mix(groundColors[i], groundColors[i + 1], timeInterp);
 
-    float zenithBlend=pow(upPos,.55);
-    float horizonBlend=pow(negatedMidPos,3.5);
-    float groundBlend=pow(negatedDownPos,.31);
+    float zenithBlend= clamp(pow(upPos,.15),0,1);
+    float horizonBlend=clamp(pow(negatedMidPos,6.5),0,1);
+    float groundBlend=clamp(pow(negatedDownPos,.15),0,1);
     
     zenithCol *= rayleigh * 20 * zenithBlend;
     horizonCol *= rayleigh * 20 * horizonBlend;

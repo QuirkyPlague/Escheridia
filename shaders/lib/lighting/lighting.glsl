@@ -7,7 +7,7 @@
 #include "/lib/phaseFunctions.glsl"
 
 //Sun/moon
-const vec4 sunlightColor = vec4(1.0, 0.8784, 0.6353, 1.0);
+const vec4 sunlightColor = vec4(1.0, 0.8353, 0.6353, 0.95);
 const vec4 morningSunlightColor = vec4(1.0, 0.5529, 0.3451, 1.0);
 const vec4 eveningSunlightColor = vec4(1.0, 0.4471, 0.2118, 1.0);
 const vec4 moonlightColor = vec4(0.0471, 0.0941, 0.2157, 1.0);

@@ -60,17 +60,18 @@ vec3 skyFallbackBlend(
         vec3 skyCol = skyScattering(skyDir);
         vec3 sunCol = getSun(skyDir);
         
-        accumulated += (skyCol + sunCol) * 0.65;
+        accumulated += (skyCol + sunCol);
         
     }
     vec3 sky = accumulated / float(ROUGH_SAMPLES);
     if(isWater || roughness <= 0)
     {
-      dir2 = reflect(normalize(eyePlayerPos), normal);
+      dir2 = reflect(eyePlayerPos, normal);
    
-        vec3 skyCol = skyScattering(dir2);
-        vec3 sunCol = getSun(dir2);
+        vec3 skyCol = skyScattering(normalize(dir2));
+        vec3 sunCol = getSun(normalize(dir2));
          sky = (sunCol + skyCol) * 0.65;
+         
     }
   #else
   dir2 = reflect(normalize(eyePlayerPos), normal);
@@ -80,7 +81,7 @@ vec3 skyFallbackBlend(
         vec3 sky = sunCol + skyCol;
   #endif
 
-
+sky = pow(sky, vec3(2.2));
   return sky;
 }
 
@@ -239,7 +240,7 @@ vec2 offset;
   #endif
 
 
-if ((canReflect || isMetal || isWater) && !inWater) {
+if ((canReflect || isMetal || isWater)) {
   float smoothLightmap = smoothstep(0.882, 1.0, lightmap.g);
   vec3 sky = skyFallbackBlend(reflectedDir, vec3(1.0, 0.898, 0.698), viewPos, texcoord, normal, roughness, isWater);
   if(!isWater)

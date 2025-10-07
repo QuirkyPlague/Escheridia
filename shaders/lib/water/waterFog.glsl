@@ -51,7 +51,7 @@ vec3 waterFog(vec3 color, vec2 texcoord, vec2 lightmap, float depth) {
 
   float dist = dist0;
   vec3 sunColor = vec3(0.0);
-  sunColor = vec3(1.0, 0.898, 0.698);
+  sunColor = vec3(0.3373, 0.3373, 0.3373);
   vec3 absorptionColor = vec3(0.0);
   vec3 absorption = WATER_ABOSRBTION;
   vec3 inscatteringAmount = vec3(0.0);

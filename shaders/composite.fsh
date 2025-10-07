@@ -26,6 +26,7 @@ void main() {
   }
   if (inWater) {
     vec3 waterScatter = waterFog(color.rgb, texcoord, lightmap, depth1);
+  
     color.rgb = waterScatter;
   }
 }

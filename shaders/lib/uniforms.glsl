@@ -64,6 +64,7 @@ const float PI = float(3.14159);
 const float wetnessHalflife = 0.3;
 const float drynessHalflife = 3.0;
 const float sunPathRotation = SUN_ROTATION;
+const float eyeBrightnessHalflife = 5.0;
 
 //lights
 uniform vec3 sunPosition;

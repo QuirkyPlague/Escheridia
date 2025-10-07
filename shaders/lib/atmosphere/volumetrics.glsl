@@ -32,7 +32,7 @@ vec3 volumetricRaymarch(
   feetPlayerPos -= cameraPosition;
   #endif
 
-  vec3 absCoeff = vec3(0.4431, 0.549, 0.7765);
+  vec3 absCoeff = vec3(0.2157, 0.2941, 0.7373);
   
 
   vec3 scatterCoeff = vec3(0.00215, 0.00171, 0.00151);
@@ -41,20 +41,18 @@ vec3 volumetricRaymarch(
 
   if(inWater)
   {
-    absCoeff = WATER_ABOSRBTION * 0.9;
-    scatterCoeff = WATER_SCATTERING * 0.2;
+    absCoeff = WATER_ABOSRBTION * 2.39;
+    scatterCoeff = WATER_SCATTERING * 0.02;
 
   }
 
   vec3 scatter = vec3(0.0);
   vec3 transmission = vec3(1.0);
-  const float falloffScale = 0.0071 / log(2.0);
-  float altitude = rayLength;
-  float fogHeightScale = exp(-max(altitude - 82, 0.0) * falloffScale);
+
   float VdotL = dot(normalize(feetPlayerPos), worldLightVector);
-  float phaseIncFactor = smoothstep(215, 0, eyeBrightnessSmooth.y);
-  float phaseMult = mix(1.0,12.0,phaseIncFactor);
-  float phase = CS(0.65, VdotL);
+  float phaseIncFactor = smoothstep(225, 0, eyeBrightnessSmooth.y);
+  float phaseMult = mix(1.0,21.0,phaseIncFactor);
+  float phase = evalDraine(VdotL, 0.435, 1118.1); 
  
    phase *= phaseMult;
   
@@ -96,7 +94,7 @@ vec3 volumetricRaymarch(
       
     transmission *= sampleTransmittance;
   }
-  scatter *= 0.115;
+  scatter *= 0.075;
  
   return mix(sceneColor, transmission + scatter, 1.0 );
 }

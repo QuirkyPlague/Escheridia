@@ -5,14 +5,14 @@
 #include "/lib/lighting/lighting.glsl"
 
 //Day
-const vec3 dayZenCol=vec3(.2431,.4431,.8353);
-const vec3 dayHorCol=vec3(.6157,.8745,.9843);
-const vec3 dayGrndCol=vec3(.1765,.2941,.6824);
+const vec3 dayZenCol=vec3(0.2392, 0.4941, 1.0);
+const vec3 dayHorCol=vec3(0.3922, 0.6314, 0.8745);
+const vec3 dayGrndCol=vec3(0.298, 0.5412, 0.7843);
 
 //Dawn
 const vec3 dawnZenCol=vec3(0.3255, 0.502, 0.8549);
-const vec3 dawnHorCol=vec3(0.8118, 0.5216, 0.2863);
-const vec3 dawnGrndCol=vec3(0.4627, 0.3686, 0.2039);
+const vec3 dawnHorCol=vec3(0.8353, 0.4902, 0.3059);
+const vec3 dawnGrndCol=vec3(0.2863, 0.4235, 0.6784);
 
 //Dusk
 const vec3 duskZenCol=vec3(0.4667, 0.5294, 0.851);
@@ -20,12 +20,12 @@ const vec3 duskHorCol=vec3(0.8431, 0.4941, 0.3216);
 const vec3 duskGrndCol=vec3(0.7255, 0.251, 0.3608);
 
 //Night
-const vec3 nightZenCol=vec3(0.0, 0.051, 0.3294);
-const vec3 nightHorCol=vec3(0.0235, 0.0667, 0.1333);
+const vec3 nightZenCol=vec3(0.0392, 0.0745, 0.2824);
+const vec3 nightHorCol=vec3(0.1059, 0.1569, 0.2314);
 const vec3 nightGrndCol=vec3(0.0196, 0.0275, 0.1294);
 
 const vec4 sunriseScatter=vec4(0.7922, 0.5294, 0.2627, 0.8);
-const vec4 dayScatter=vec4(0.6863, 0.6275, 0.4706, 0.8);
+const vec4 dayScatter=vec4(0.6863, 0.6275, 0.4706, 0.75);
 const vec4 nightScatter=vec4(1.0, 1.0725, 1.1725, 0.55);
 
 vec3 getSun(vec3 dir)
@@ -131,9 +131,9 @@ vec3 skyScattering(vec3 pos){
     horizonCol = mix(horizonColors[i], horizonColors[i + 1], timeInterp);
     groundCol = mix(groundColors[i], groundColors[i + 1], timeInterp);
 
-    float zenithBlend=pow(upPos,.55);
-    float horizonBlend=pow(negatedMidPos,3.5);
-    float groundBlend=pow(negatedDownPos,.31);
+   float zenithBlend= clamp(pow(upPos,.15),0,1);
+    float horizonBlend=clamp(pow(negatedMidPos,6.5),0,1);
+    float groundBlend=clamp(pow(negatedDownPos,.15),0,1);
     
     zenithCol *= rayleigh * 20 * zenithBlend;
     horizonCol *= rayleigh * 20 * horizonBlend;
