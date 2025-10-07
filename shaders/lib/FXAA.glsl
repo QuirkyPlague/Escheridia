@@ -21,9 +21,11 @@ float QUALITY[12] = float[12](
   8.0
 );
 
-#define EDGE_THRESHOLD_MAX 0.1666
-#define EDGE_THRESHOLD_MIN 0.0503
-#define ITERATIONS 16
+#define EDGE_THRESHOLD_MAX 0.25
+#define EDGE_THRESHOLD_MIN 0.065
+float edgeThreshold = 0.063;
+float edgeThresholdMin = 0.0156;
+#define ITERATIONS 12
 #define SUBPIXEL_QUALITY 1.0
 
 vec3 FXAA(vec3 color, sampler2D cTex, vec2 texcoord) {

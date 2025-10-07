@@ -38,7 +38,10 @@ vec3 brdf(
   // calculate per-light radiance
   float dist = length(L);
   float attenuation = 1.0 * (dist * dist);
-  vec3 radiance = currentSunlight * shadow * attenuation;
+  currentSunlight  += max(0.75 * pow(currentSunlight , vec3(1.15)), 0.0);
+  currentSunlight *= 2.95;
+  currentSunlight  += (min(1.17 * pow(currentSunlight , vec3(3.3)), 0.7));
+  vec3 radiance = currentSunlight  * shadow * attenuation;
 
   vec3 F = fresnelSchlick(max(dot(H, V), 0.0), F0);
 
@@ -58,17 +61,17 @@ vec3 brdf(
   float NdotV = clamp(dot(N, V), 0.0, 1.0);
   float VdotH = clamp(dot(V, H), 0.0, 1.0);
   float orenDiffuse = OrenNayar(roughness, NdotL, NdotV, VdotH);
-  orenDiffuse /= radians(180.0);
+
   #ifdef DO_SSR
   if (SpecMap.g >= 230.0 / 255.0) {
-    kD /= PI;
+    kD *= 0.5;
   }
   #else
   kD *= 1.0;
   #endif
   // add to outgoing radiance Lo
 
-  Lo = (kD * albedo + spec) * radiance * orenDiffuse;
+  Lo = (kD * albedo / PI + (spec ) ) * radiance * NdotL ;
 
   indirect *= albedo / PI;
 

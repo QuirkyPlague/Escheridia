@@ -3,14 +3,16 @@
 
 #include "/lib/uniforms.glsl"
 #include "/lib/util.glsl"
+#include "/lib/phaseFunctions.glsl"
 
-const vec3 blocklightColor = vec3(1.0, 0.9137, 0.8784) * 1.15;
-const vec3 skylightColor = vec3(0.5098, 0.5176, 0.8118) * 2;
-const vec3 nightSkylightColor = vec3(0.2235, 0.349, 0.9922) * 3.2;
-const vec3 sunlightColor = vec3(1.0, 0.9294, 0.6902) * 3.54;
-const vec3 morningSunlightColor = vec3(1.0, 0.5176, 0.2549) * 3.5;
-const vec3 eveningSunlightColor = vec3(1.0, 0.3529, 0.1216) * 2.4;
-const vec3 moonlightColor = vec3(0.0941, 0.3333, 0.7843) * 3;
+const vec3 blocklightColor = vec3(1.0, 0.7961, 0.5451);
+const vec3 skylightColor = vec3(0.6, 0.6824, 0.898);
+const vec3 paleSkyColor = vec3(0.6314, 0.6314, 0.6314);
+const vec3 nightSkylightColor = vec3(0.0667, 0.149, 0.5686) ;
+const vec3 sunlightColor = vec3(1.0, 0.8784, 0.6353);
+const vec3 morningSunlightColor = vec3(1.0, 0.4824, 0.1373);
+const vec3 eveningSunlightColor = vec3(1.0, 0.298, 0.1216) * 1.16;
+const vec3 moonlightColor = vec3(0.2353, 0.3451, 0.8824);
 const vec3 rainSun = vec3(0.8353, 0.8353, 0.8353);
 
 vec3 doDiffuse(
@@ -23,17 +25,11 @@ vec3 doDiffuse(
   float sss,
   vec3 feetPlayerPos,
   bool isMetal,
+  vec3 shadowScreenPos,
+  vec3 albedo,
   float ao
 ) {
   float t = fract(worldTime / 24000.0);
-
-  // Key times across the day (monotonic, last=1.0 == midnight wrap)
-  //  0.000  = midnight
-  //  0.0417 ~ 1000/24000 = sunrise band start
-  //  0.2500 ~ 6000/24000 = day
-  //  0.4792 ~ 11500/24000 = sunset band start
-  //  0.5417 ~ 13000/24000 = dusk
-  //  1.000  = midnight again
 
   const int K = 7;
   const float keyT[K] = float[K](
@@ -52,30 +48,29 @@ vec3 doDiffuse(
     sunlightColor,
     sunlightColor,
     eveningSunlightColor,
-    moonlightColor * 0.5,
-    moonlightColor * 0.5,
+    moonlightColor,
+    moonlightColor,
     morningSunlightColor
   );
-
-  //Skylight keyframes
-  const float keyNight[K] = float[K](
-    0.3, // midnight
-    0.0, // sunrise
-    0.0, // day
-    0.4, // sunset
-    1.0,
-    1.0, // dusk
-    0.3 // midnight
+    //sunlight Keyframes
+  const vec3 keySky[K] = vec3[K](
+    skylightColor,
+    skylightColor,
+    skylightColor,
+    skylightColor,
+    nightSkylightColor,
+    nightSkylightColor,
+    skylightColor
   );
 
   const float keySkyI[K] = float[K](
-    0.5, // midnight
-    0.65, // sunrise
-    0.65, // day
-    0.4, // sunset
-    0.3,
-    0.3, // dusk
-    0.5 // midnight
+    0.741, // midnight
+    0.9, // sunrise
+    0.9, // day
+    0.25, // sunset
+    0.86,
+    0.86, // dusk
+    0.75 // midnight
   );
 
   // Rain “sun replacement” strength (you dimmed it near dusk/night)
@@ -102,27 +97,29 @@ vec3 doDiffuse(
   segW = smoothstep(0.0, 1.0, segW);
 
   // Interpolate keyframes
+  vec3 paleSky = mix(keySky[i], paleSkyColor, PaleGardenSmooth);
   vec3 sunlightBase = mix(keySun[i], keySun[i + 1], segW);
-  float nightFactor = mix(keyNight[i], keyNight[i + 1], segW);
+  vec3 skylightShift = mix(keySky[i], keySky[i + 1], segW);
+  skylightShift = mix(skylightShift, paleSky, PaleGardenSmooth);
   float skyI = mix(keySkyI[i], keySkyI[i + 1], segW);
   float rainSunI = mix(keyRainSunI[i], keyRainSunI[i + 1], segW);
 
   vec3 blocklight = lightmap.r * blocklightColor;
 
   // Skylight: blend day/night tints, then apply keyframed intensity
-  vec3 skyTint = mix(skylightColor, nightSkylightColor, nightFactor);
-  vec3 skylight = lightmap.g * skyTint * skyI;
+
+  vec3 skylight = lightmap.g * skylightShift * skyI;
 
   vec3 rainSkyTint = vec3(0.5412, 0.6235, 0.6667) * skyI;
 
-  float hasSSS = step(64.0 / 255.0, sss); // 1 if sss >= threshold, else 0
+  float hasSSS = step(64.0 / 255.0, sss); 
   float VoL = dot(normalize(feetPlayerPos), sunPos);
 
-  vec3 scatterSun = sunlightBase * (shadow * sss) * 4.0;
-  vec3 SSSv = sunlightBase * (shadow * sss) * 3.5;
-  scatterSun *= CS(SSS_HG, VoL);
+  vec3 scatterSun = sunlightBase * (shadow * sss);
+  vec3 SSSv = sunlightBase * (shadow * sss) ;
+  scatterSun *= mix(CS(0.65, VoL) * 5, henyeyGreensteinPhase(VoL, -0.15), 1.0 - clamp(VoL, 0,1)) ;
 
-  vec3 fullScatter = mix(SSSv, scatterSun, 0.5) * SSS_INTENSITY;
+  vec3 fullScatter = (SSSv + scatterSun) * 3.5;
   vec3 sunlight = fullScatter * hasSSS;
 
   vec3 rainSunBase = vec3(0.8353, 0.8353, 0.8353) * rainSunI;
@@ -130,20 +127,28 @@ vec3 doDiffuse(
   vec3 rainScatterFactor = mix(fullScatter, rainScatter, wetness);
 
   skylight = mix(skylight, lightmap.g * rainSkyTint, wetness);
+  
+  skylight += max(5.95 * pow(skylight, vec3(2.55)), 0.0);
+ 
+  skylight *= min(1.07 * pow(skylight, vec3(0.1)), 0.67);
+  
+  
+  
   sunlight = mix(sunlight, rainSunBase, wetness);
   sunlight = mix(sunlight, rainScatterFactor, SSS_INTENSITY);
+  
+   blocklight += max(4.9 * pow(blocklight, vec3(0.75)), 0.0);
+   blocklight *= 1.55;
+  blocklight *= clamp(min(0.17 * pow(blocklight, vec3(0.8)), 5.2), 0.0, 1.0) ;
 
-  blocklight += max(1.9 * pow(blocklight, vec3(4.8)), 0.0);
-  blocklight += clamp(min(0.17 * pow(blocklight, vec3(0.8)), 5.2), 0.0, 1.0);
-
-  vec3 ambientMood = vec3(0.7843, 0.7843, 0.7843);
-  vec3 ambientColorLocal = vec3(0.4863, 0.4863, 0.4863);
+  vec3 ambientMood = vec3(0.8392, 0.8392, 0.8392);
+  vec3 ambientColorLocal = vec3(0.5216, 0.5216, 0.5216);
   vec3 ambient = mix(ambientColorLocal, ambientMood, moodSmooth);
 
   vec3 indirect = (blocklight + skylight) * ao;
 
   float metalMask = isMetal ? 1.0 : 0.0;
-  indirect = mix(indirect, indirect * 0.5, metalMask);
+  indirect = mix(indirect, indirect * 0.35, metalMask);
 
   vec3 diffuse = sunlight + indirect + ambient;
 

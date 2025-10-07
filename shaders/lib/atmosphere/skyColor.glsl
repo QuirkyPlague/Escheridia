@@ -3,10 +3,14 @@
 
 #include "/lib/uniforms.glsl"
 #include "/lib/util.glsl"
+#include "/lib/phaseFunctions.glsl"
+#include "/lib/lighting/lighting.glsl"
 
-vec3 rainHorizon = vec3(0.5765, 0.5765, 0.5765);
-vec3 rainZenith = vec3(0.1137, 0.1137, 0.1137);
-
+const vec3 rainHorizon = vec3(0.5765, 0.5765, 0.5765);
+const vec3 rainZenith = vec3(0.1137, 0.1137, 0.1137);
+ const vec3 paleHorizon = vec3(2.5);
+ const vec3 paleZenith = vec3(1.35);
+ const vec3 paleGround = vec3(0.5);
 // Replace the color-setting functions with constants
 const vec3 DAY_ZENITH = vec3(DAY_ZEN_R, DAY_ZEN_G, DAY_ZEN_B);
 const vec3 DAY_HORIZON = vec3(DAY_HOR_R, DAY_HOR_G, DAY_HOR_B);
@@ -17,43 +21,30 @@ const vec3 DUSK_HORIZON = vec3(DUSK_HOR_R, DUSK_HOR_G, DUSK_HOR_B);
 const vec3 NIGHT_ZENITH_C = vec3(NIGHT_ZEN_R, NIGHT_ZEN_G, NIGHT_ZEN_B);
 const vec3 NIGHT_HORIZON_C = vec3(NIGHT_HOR_R, NIGHT_HOR_G, NIGHT_HOR_B);
 
-vec3 calcMieSky(
-  vec3 pos,
-  vec3 lightPos,
-  vec3 sunColor,
-  vec3 viewPos,
-  vec2 texcoord
-) {
-  //Mie scattering assignments
-  vec3 mieScatterColor = vec3(0.1922, 0.149, 0.1137) * MIE_SCALE * sunColor;
-  vec3 moonMieScatterColor =
-    vec3(0.0549, 0.0549, 0.1529) * MIE_SCALE * sunColor;
-  vec3 mieScat = mieScatterColor;
-  vec3 mMieScat = moonMieScatterColor;
-  vec3 feetPlayerPos = (gbufferModelViewInverse * vec4(viewPos, 1.0)).xyz;
+
+vec3 getSun(vec3 dir)
+{
   vec3 sunPos = normalize(sunPosition);
   vec3 worldSunPos = mat3(gbufferModelViewInverse) * sunPos;
   vec3 moonPos = normalize(moonPosition);
   vec3 worldMoonPos = mat3(gbufferModelViewInverse) * moonPos;
-  float sVoL = dot(normalize(feetPlayerPos), worldSunPos);
-  float mVoL = dot(normalize(feetPlayerPos), worldMoonPos);
+    float cosTheta = dot(dir, worldSunPos);
+    float mDotL = dot(dir,worldMoonPos);
 
-  if (rainStrength <= 1.0 && rainStrength > 0.0) {
-    float dryToWet = smoothstep(0.0, 1.0, float(rainStrength));
-    mieScat = mix(mieScat, mieScat * 0.8, rainStrength);
-  }
+    float invCos = 1 - cosTheta;
+    float invCos1 = 1 - mDotL;
+    float angularDist = clamp(invCos, -1.0, 1.0);
+    float angularDist1 = clamp(invCos1, -1.0, 1.0);
+    float sun = smoothstep(0.0003, 0.0001 * 0.5, angularDist);
+    float moon = smoothstep(0.0002, 0.0001 * 0.03, angularDist1);
+    vec3 sunColor;
+    
+    sunColor = currentSunColor(sunColor);
 
-  mieScat *= CS(0.72, sVoL);
-  if (isNight) {
-    mieScat *= 0.0;
-    mieScat = vec3(0.6275, 0.4824, 0.3686) * MIE_SCALE * sunColor;
-    mieScat *= CS(0.45, sVoL);
-  }
-  mMieScat *= CS(0.72, mVoL);
-  mieScat += mMieScat;
-  return mieScat;
+   vec3 fullSun = sun * sunColor * 15.0;
+   vec3 fullmoon = moon * sunColor * 15.3;
+   return fullSun + fullmoon;
 }
-
 vec3 newSky(vec3 pos) {
   vec3 dir = normalize(pos);
   float VoL = dot(dir, worldLightVector);
@@ -85,22 +76,22 @@ vec3 newSky(vec3 pos) {
   );
 
   const vec3 zenithColors[keys] = vec3[keys](
-    DAWN_ZENITH * 2,
+    DAWN_ZENITH ,
     DAY_ZENITH,
     DAY_ZENITH,
     DUSK_ZENITH * 0.7,
-    NIGHT_ZENITH_C * 0.35,
-    NIGHT_ZENITH_C * 0.35,
-    DAWN_ZENITH * 2
+    NIGHT_ZENITH_C * 0.15,
+    NIGHT_ZENITH_C * 0.15,
+    DAWN_ZENITH * 0.5
   );
   const vec3 horizonColors[keys] = vec3[keys](
-    DAWN_HORIZON * 2,
+    DAWN_HORIZON,
     DAY_HORIZON,
     DAY_HORIZON,
     DUSK_HORIZON * 0.8,
-    NIGHT_HORIZON_C * 0.8,
-    NIGHT_HORIZON_C * 0.8,
-    DAWN_HORIZON * 2
+    NIGHT_HORIZON_C * 0.35,
+    NIGHT_HORIZON_C * 0.35,
+    DAWN_HORIZON * 0.5
   );
 
   int i = 0;
@@ -121,13 +112,74 @@ vec3 newSky(vec3 pos) {
   zenithCol = mix(zenithCol, rainZenith, wetness);
   horizonCol = mix(horizonCol, rainZenith, wetness);
 
+  zenithCol = mix(zenithCol, paleZenith, PaleGardenSmooth);
+  horizonCol = mix(horizonCol, paleHorizon, PaleGardenSmooth);
   zenithCol *= rayleigh * 20 * zenithBlend;
   horizonCol *= rayleigh * 25 * horizonBlend;
-  vec3 groundCol = vec3(0.0588, 0.1059, 0.2235) * rayleigh * 20 * groundBlend;
+  vec3 groundCol = vec3(0.0549, 0.1451, 0.3804) * rayleigh * 20 * groundBlend;
 
   vec3 sky = zenithCol + horizonCol + groundCol;
+  // MIE Scattering
+  vec3 sunColor;
+  sunColor = currentSunColor(sunColor);
+  //Mie scattering assignments
+  const vec3 sunriseScatter = vec3(1.0, 0.5451, 0.4431);
+  const vec3 dayScatter = vec3(0.8745, 0.7882, 0.7098);
+  const vec3  nightScatter = vec3(0.4627, 0.3412, 0.2745);
+  vec3 moonMieScatterColor =
+    vec3(0.0706, 0.0706, 0.1961)  * sunColor;
+  vec3 mieScat;
+  vec3 mMieScat = moonMieScatterColor;
 
-  return sky;
+  vec3 sunPos = normalize(sunPosition);
+  vec3 worldSunPos = mat3(gbufferModelViewInverse) * sunPos;
+  vec3 moonPos = normalize(moonPosition);
+  vec3 worldMoonPos = mat3(gbufferModelViewInverse) * moonPos;
+  float sVoL = dot(normalize(pos), worldSunPos);
+  float mVoL = dot(normalize(pos), worldMoonPos);
+
+  if (rainStrength <= 1.0 && rainStrength > 0.0) {
+    float dryToWet = smoothstep(0.0, 1.0, float(rainStrength));
+    mieScat = mix(mieScat, mieScat * 0.8, rainStrength);
+  }
+
+  float mieScale;
+  const float dayScale = 0.85;
+  const float sunriseScale = 0.85;
+  const float nightScale = 0.35;
+
+  const float mieTimeScale[keys] = float[keys](
+    sunriseScale,
+    dayScale,
+    dayScale,
+    sunriseScale,
+    nightScale,
+    nightScale,
+    sunriseScale
+  );
+
+   const vec3 mieColor[keys] = vec3[keys](
+    sunriseScatter,
+    dayScatter,
+    dayScatter,
+    sunriseScatter,
+    nightScatter,
+    nightScatter,
+    sunriseScatter
+  );
+
+  mieScale = mix(mieTimeScale[i], mieTimeScale[i + 1], segW);
+  mieScat= mix(mieColor[i], mieColor[i + 1], segW);
+
+  float miePhase = CS(mieScale, sVoL);
+  vec3 mieColors =  mieScat * miePhase * 0.8 ; // tweak multiplier
+
+  float moonPhase = CS(0.95, mVoL);
+  vec3 mieNight = mMieScat * moonPhase * 0.3;
+  vec3 finalMie = mieColors + mieNight;
+ 
+
+  return sky + finalMie;
 }
 
 #endif //SKY_COLOR_GLSL

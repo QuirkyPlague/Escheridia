@@ -1,4 +1,4 @@
-#version 330 compatibility
+#version 400 compatibility
 
 #include "/lib/uniforms.glsl"
 #include "/lib/atmosphere/godrays.glsl"
@@ -16,18 +16,21 @@ layout(location = 0) out vec4 color;
 void main() {
   float depth = texture(depthtex0, texcoord).r;
   float depth1 = texture(depthtex1, texcoord).r;
-
+  vec2 lightmap = texture(colortex1, texcoord).rg; // we only need the r and g components
   //space conversions
   vec3 screenPos = vec3(texcoord.xy, depth);
   vec3 NDCPos = vec3(texcoord.xy, depth) * 2.0 - 1.0;
   vec3 viewPos = projectAndDivide(gbufferProjectionInverse, NDCPos);
   vec3 feetPlayerPos = (gbufferModelViewInverse * vec4(viewPos, 1.0)).xyz;
+  vec3 worldPos = cameraPosition + feetPlayerPos;
   vec4 waterMask = texture(colortex4, texcoord);
+  vec3 baseNormal = texture(colortex6, texcoord).rgb;
+  vec3 normal = normalize((baseNormal - 0.5) * 2.0);
   int blockID = int(waterMask) + 100;
   bool isWater = blockID == WATER_ID;
-  float jitter = IGN(gl_FragCoord.xy, frameCounter);
+ vec3 noiseB = blue_noise(texcoord,  frameCounter, GODRAYS_SAMPLES);
   int stepCount = GODRAYS_SAMPLES;
-
+ float jitter = IGN(gl_FragCoord.xy, frameCounter);
   #if VOLUMETRIC_LIGHTING == 1
   color.rgb = sampleGodrays(color.rgb, texcoord, feetPlayerPos, depth);
 
@@ -47,7 +50,9 @@ void main() {
     GODRAYS_SAMPLES,
     jitter,
     feetPlayerPos,
-    color.rgb
+    color.rgb,
+    normal,
+    lightmap
   );
 
   #endif

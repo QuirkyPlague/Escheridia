@@ -1,4 +1,4 @@
-#version 330 compatibility
+#version 400 compatibility
 
 uniform sampler2D gtexture;
 
@@ -13,7 +13,7 @@ layout(location = 1) out vec4 sunTex;
 layout(location = 2) out vec4 godraySample;
 void main() {
   color = texture(gtexture, texcoord) * glcolor;
-  sunTex = texture(gtexture, texcoord) * glcolor * 0.8;
+  sunTex = texture(gtexture, texcoord) * glcolor;
   if (color.a < alphaTestRef) {
     discard;
   }
