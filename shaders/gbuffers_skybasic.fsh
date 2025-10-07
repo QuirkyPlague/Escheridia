@@ -1,30 +1,176 @@
-#version 330 compatibility
+#version 400 compatibility
 
-uniform int renderStage;
-uniform float viewHeight;
-uniform float viewWidth;
-uniform mat4 gbufferModelView;
-uniform mat4 gbufferProjectionInverse;
-uniform vec3 fogColor;
-uniform vec3 skyColor;
+#include "/lib/util.glsl"
+#include "/lib/lighting/lighting.glsl"
 
+in vec3 normal;
+in mat3 tbnMatrix;
+vec3 horizon;
+vec3 zenith;
+in vec3 modelPos;
+in vec3 viewPos;
 in vec4 glcolor;
+in vec2 texcoord;
+in vec3 feetPlayerPos;
+in vec3 eyePlayerPos;
+uniform int renderStage;
 
-float fogify(float x, float w) {
-	return w / (x * x + w);
+//Day
+const vec3 dayZenCol=vec3(.2431,.4431,.8353);
+const vec3 dayHorCol=vec3(.6157,.8745,.9843);
+const vec3 dayGrndCol=vec3(.1765,.2941,.6824);
+
+//Dawn
+const vec3 dawnZenCol=vec3(0.3255, 0.502, 0.8549);
+const vec3 dawnHorCol=vec3(0.8118, 0.5216, 0.2863);
+const vec3 dawnGrndCol=vec3(0.4627, 0.3686, 0.2039);
+
+//Dusk
+const vec3 duskZenCol=vec3(0.4667, 0.5294, 0.851);
+const vec3 duskHorCol=vec3(0.8431, 0.4941, 0.3216);
+const vec3 duskGrndCol=vec3(0.7255, 0.251, 0.3608);
+
+//Night
+const vec3 nightZenCol=vec3(0.0392, 0.0745, 0.2824);
+const vec3 nightHorCol=vec3(0.1059, 0.1569, 0.2314);
+const vec3 nightGrndCol=vec3(0.0196, 0.0275, 0.1294);
+
+const vec4 sunriseScatter=vec4(0.7922, 0.5294, 0.2627, 0.8);
+const vec4 dayScatter=vec4(0.6863, 0.6275, 0.4706, 0.75);
+const vec4 nightScatter=vec4(1.0, 1.0725, 1.1725, 0.55);
+
+
+vec3 skyScattering(vec3 pos){
+    vec3 dir=normalize(pos);
+    float VoL=dot(dir,worldLightVector);
+    float rayleigh = Rayleigh(VoL);
+    float upPos=clamp(dir.y,0,1);
+    float downPos=clamp(dir.y,-1,0);
+    float negatedDownPos=-1*downPos;
+    float midPos=upPos+negatedDownPos;
+    float negatedMidPos=1-midPos;
+    
+    float t = fract(worldTime / 24000.0);
+
+    const int keys = 7;
+    const float keyFrames[keys] = float[keys](
+    0.0,        //sunrise
+    0.0417,     //day
+    0.25,       //noon
+    0.4792,     //sunset
+    0.5417,     //night
+    0.8417,     //midnight
+    1.0         //sunrise
+    );
+
+    const vec3 zenithColors[keys] = vec3[keys](
+    dawnZenCol,
+    dayZenCol,
+    dayZenCol,
+    duskZenCol * 0.7,
+    nightZenCol * 0.85,
+    nightZenCol * 0.85,
+    dawnZenCol * 0.5
+  );
+  const vec3 horizonColors[keys] = vec3[keys](
+    dawnHorCol,
+    dayHorCol,
+    dayHorCol,
+    duskHorCol * 0.8,
+    nightHorCol,
+    nightHorCol,
+    dawnHorCol * 0.5
+  );
+   const vec3 groundColors[keys] = vec3[keys](
+    dawnGrndCol,
+    dayGrndCol,
+    dayGrndCol,
+    duskGrndCol * 0.8,
+    nightGrndCol,
+    nightGrndCol,
+    dawnGrndCol * 0.5
+  );
+
+    const vec4 mieColor[keys] = vec4[keys](
+    sunriseScatter,
+    dayScatter,
+    dayScatter,
+    sunriseScatter,
+    nightScatter,
+    nightScatter,
+    sunriseScatter
+  );
+
+    int i = 0;
+    //assings the keyframes
+    for (int k = 0; k < keys - 1; ++k) {
+        i += int(step(keyFrames[k + 1], t));
+    }
+    i = clamp(i, 0, keys - 2);
+
+    //Interpolation factor based on the time
+    float timeInterp = (t - keyFrames[i]) / max(1e-6, keyFrames[i + 1] - keyFrames[i]);
+    timeInterp = smoothstep(0.0, 1.0, timeInterp);
+
+    //apply interpolation to color
+    vec3 zenithCol;
+    vec3 horizonCol;
+    vec3 groundCol;
+    zenithCol = mix(zenithColors[i], zenithColors[i + 1], timeInterp);
+    horizonCol = mix(horizonColors[i], horizonColors[i + 1], timeInterp);
+    groundCol = mix(groundColors[i], groundColors[i + 1], timeInterp);
+
+    float zenithBlend=pow(upPos,.55);
+    float horizonBlend=pow(negatedMidPos,3.5);
+    float groundBlend=pow(negatedDownPos,.31);
+    
+    zenithCol *= rayleigh * 20 * zenithBlend;
+    horizonCol *= rayleigh * 20 * horizonBlend;
+    groundCol *=groundBlend *rayleigh* 20;
+    
+    vec3 sky=zenithCol+horizonCol+groundCol;
+    // MIE Scattering
+    vec3 sunColor;
+    sunColor  = currentSunColor(sunColor);
+    //Mie scattering assignments
+   
+    vec3 moonMieScatterColor=
+    vec3(0.2196, 0.2196, 0.2353)*sunColor;
+    vec3 mieScat = mix(mieColor[i].rgb, mieColor[i + 1].rgb, timeInterp);
+    float mieScale = mix(mieColor[i].a, mieColor[i + 1].a, timeInterp);
+
+    vec3 mMieScat=moonMieScatterColor;
+    
+    
+    float sVoL=dot(normalize(pos),worldSunDir);
+    float mVoL=dot(normalize(pos),worldMoonDir);
+    
+    float miePhase=CS(mieScale,sVoL);
+    vec3 mieColors=mieScat*miePhase*.5;// tweak multiplier
+    
+    float moonPhase=CS(.935,mVoL);
+    vec3 mieNight=mMieScat*moonPhase*.7;
+    vec3 finalMie=mieColors+mieNight;
+    //sun
+    
+   
+    float cosTheta = dot(dir, worldSunDir);
+    float mDotL = dot(dir,worldMoonDir);
+
+    float invCos = 1 - cosTheta;
+    float invCos1 = 1 - mDotL;
+    float angularDist = clamp(invCos, -1.0, 1.0);
+    float angularDist1 = clamp(invCos1, -1.0, 1.0);
+    float sun = smoothstep(0.0005, 0.0005 * 0.5, angularDist);
+    float moon = smoothstep(0.0002, 0.0001 * 0.03, angularDist1);
+    
+ 
+
+   vec3 fullSun = sun * sunColor * 35.0;
+   vec3 fullmoon = moon * sunColor * 6.3;
+   
+    return sky+finalMie+ fullSun + fullmoon;
 }
-
-vec3 calcSkyColor(vec3 pos) {
-	float upDot = dot(pos, gbufferModelView[1].xyz); //not much, what's up with you?
-	return mix(skyColor, fogColor, fogify(max(upDot, 0.0), 0.25));
-}
-
-vec3 screenToView(vec3 screenPos) {
-	vec4 ndcPos = vec4(screenPos, 1.0) * 2.0 - 1.0;
-	vec4 tmp = gbufferProjectionInverse * ndcPos;
-	return tmp.xyz / tmp.w;
-}
-
 /* RENDERTARGETS: 0 */
 layout(location = 0) out vec4 color;
 
@@ -32,7 +178,10 @@ void main() {
 	if (renderStage == MC_RENDER_STAGE_STARS) {
 		color = glcolor;
 	} else {
-		vec3 pos = screenToView(vec3(gl_FragCoord.xy / vec2(viewWidth, viewHeight), 1.0));
-		color = vec4(calcSkyColor(normalize(pos)), 1.0);
+		
+		vec3 pos = eyePlayerPos;
+		
+		color.rgb = skyScattering(eyePlayerPos);
+
 	}
 }
