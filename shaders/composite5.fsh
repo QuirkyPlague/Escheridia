@@ -70,7 +70,7 @@ vec3 skyFallbackBlend(
    
         vec3 skyCol = skyScattering(normalize(dir2));
         vec3 sunCol = getSun(normalize(dir2));
-         sky = (sunCol + skyCol) * 0.65;
+         sky = (sunCol + skyCol) ;
          
     }
   #else
@@ -82,7 +82,7 @@ vec3 skyFallbackBlend(
   #endif
 
 sky = pow(sky, vec3(2.2));
-  return sky;
+  return sky* 0.85;
 }
 
 

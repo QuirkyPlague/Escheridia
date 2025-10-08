@@ -50,6 +50,7 @@ uniform sampler3D blueNoiseTex;
 uniform vec3 cameraPosition;
 uniform int frameCounter;
 uniform float far;
+uniform float near;
 uniform float PaleGardenSmooth;
 uniform ivec2 eyeBrightnessSmooth;
 uniform float frameTimeCounter;
@@ -65,6 +66,9 @@ const float wetnessHalflife = 0.3;
 const float drynessHalflife = 3.0;
 const float sunPathRotation = SUN_ROTATION;
 const float eyeBrightnessHalflife = 5.0;
+const float shadowDistance = SHADOW_DISTANCE;
+const float shadowFarPlane = 684.0;
+const float shadowDistanceRenderMul = 1.0;
 
 //lights
 uniform vec3 sunPosition;

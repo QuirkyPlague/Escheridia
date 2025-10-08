@@ -26,15 +26,14 @@ void main() {
   	vec3 shadowViewPos_end = (shadowModelView * vec4(feetPlayerPos, 1.0)).xyz;
   	vec4 shadowClipPos_end = shadowProjection * vec4(shadowViewPos_end, 1.0);
 
-  	color.rgb += volumetricRaymarch(
+	 color.rgb += volumetricRaymarch(
     shadowClipPos_start,
     shadowClipPos_end,
-    24,
+    VL_SAMPLES,
     noise.x,
     feetPlayerPos,
     color.rgb,
     normal,
     lightmap
   );
-  
 }

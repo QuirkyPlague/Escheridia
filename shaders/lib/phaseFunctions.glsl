@@ -44,6 +44,26 @@ float miePhase(float cosTheta, float g) {
     return (1.0 - g2) / (4.0 * 3.14159265 * denom);
 }
 
+float draine_phase(float cos_theta, float g, float a) {
+  return (1 - g * g) *
+  (1 + a * cos_theta * cos_theta) /
+  (4.0 *
+    (1 + a * (1 + 2 * g * g) / 3.0) *
+    PI *
+    pow(1 + g * g - 2 * g * cos_theta, 1.5));
+}
 
+float hg_draine_phase(float cos_theta, const float d) {
+  const float g_hg = exp(-0.0990567 / (d - 1.67154));
+  const float g_d = exp(-2.20679 / (d + 3.91029) - 0.428934);
+  const float a = exp(3.62489 - 8.29288 / (d + 5.52825));
+  const float w = exp(-0.599085 / (d - 0.641583) - 0.665888);
+
+  return mix(
+    henyeyGreensteinPhase(cos_theta, g_hg),
+    draine_phase(cos_theta, g_d, a),
+    w
+  );
+}
 
 #endif //PHASE_FUNCTIONS_GLSL

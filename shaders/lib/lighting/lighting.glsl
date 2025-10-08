@@ -7,13 +7,13 @@
 #include "/lib/phaseFunctions.glsl"
 
 //Sun/moon
-const vec4 sunlightColor = vec4(1.0, 0.8353, 0.6353, 0.95);
-const vec4 morningSunlightColor = vec4(1.0, 0.5529, 0.3451, 1.0);
+const vec4 sunlightColor = vec4(1.0, 0.8627, 0.749, 1.0);
+const vec4 morningSunlightColor = vec4(0.5843, 0.2078, 0.0314, 1.0);
 const vec4 eveningSunlightColor = vec4(1.0, 0.4471, 0.2118, 1.0);
 const vec4 moonlightColor = vec4(0.0471, 0.0941, 0.2157, 1.0);
 
 const vec4 skylightColor = vec4(0.549, 0.6706, 0.9765, 0.791);
-const vec4 morningSkylightColor = vec4(0.4863, 0.6667, 0.8745, 0.651);
+const vec4 morningSkylightColor = vec4(0.4863, 0.6667, 0.8745, 0.751);
 const vec4 eveningSkylightColor = vec4(0.3294, 0.4549, 0.8235, 0.621);
 const vec4 nightSkylightColor = vec4(0.0353, 0.0784, 0.1882, 0.451);
 
@@ -66,9 +66,11 @@ vec3 getLighting(vec3 color, vec2 lightmap, vec3 normal, vec3 shadow, vec3 H, ve
     float timeInterp = (t - keyFrames[i]) / max(1e-6, keyFrames[i + 1] - keyFrames[i]);
     timeInterp = smoothstep(0.0, 1.0, timeInterp);
     
+  
     vec3 sunlight =  mix(sunCol[i].rgb, sunCol[i + 1].rgb, timeInterp);
     float sunIntensity = mix(sunCol[i].a, sunCol[i + 1].a, timeInterp);
     sunlight *= sunIntensity;
+   
 
     vec3 skylight = mix(skyCol[i].rgb, skyCol[i + 1].rgb, timeInterp) * lightmap.g;
     float skyIntensity = mix(skyCol[i].a, skyCol[i + 1].a, timeInterp);;
@@ -119,7 +121,7 @@ vec3 currentSunColor(vec3 color) {
     eveningSunlightColor,
     moonlightColor,
     moonlightColor,
-    morningSunlightColor
+    morningSunlightColor * 0.4
     );
 
 
