@@ -146,7 +146,7 @@ vec3 skyScattering(vec3 pos){
 
     vec3 sky = zenithCol + horizonCol + groundCol;
 
-    // --- Mie Scattering & Sun/Moon (unchanged) ---
+
     vec3 sunColor;
     sunColor = currentSunColor(sunColor);
 
@@ -165,7 +165,6 @@ vec3 skyScattering(vec3 pos){
 
     vec3 finalMie = mieColors + mieNight;
 
-    // --- Dawn/Dusk Mie Horizon Curve ---
     float dawnDuskMieFactor = smoothstep(-0.035, 0.035, dir.y);
     float dawnDuskTimeFactor = smoothstep(0.0, 0.1, t) * smoothstep(0.4, 0.6, t);
     finalMie *= mix(1.0, dawnDuskMieFactor, dawnDuskTimeFactor);

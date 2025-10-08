@@ -68,7 +68,7 @@ vec3 volumetricRaymarch(
   for (int i = 0; i < stepCount; i++) {
     stepLength += stepSize;
 
-    // Average shadow sampling (soft shadows)
+  
     for (int i = 0; i < 5; i++) {
       vec2 offset = vogelDisc(i, 5, jitter) * sampleRadius;
       vec4 offsetShadowClipPos = stepLength + vec4(offset, 0.0, 0.0);
@@ -79,18 +79,17 @@ vec3 volumetricRaymarch(
     }
     shadow /= 5.0;
   
-    // Direct extinction
+  
     transmission *= exp(-absCoeff * rayLength);
 
-    // In-scattering (single)
+    
     vec3 sampleInscatter = scatterCoeff * phase * rayLength * sunColor * shadow;
 
-    // Multiple scattering approximation (iterative bounce energy)
-    vec3 msLight = sunColor * (0.35 + 0.65 * shadow);  // blend ambient + lit
-    vec3 multiScatter = scatterCoeff * msLight * 0.25 * phaseMult; // reduce MS intensity
-    multiScatter *= exp(-absCoeff * (float(i) / stepCount)); // fade with depth
+    vec3 msLight = sunColor * (0.35 + 0.65 * shadow);  
+    vec3 multiScatter = scatterCoeff * msLight * 0.25 * phaseMult; 
+    multiScatter *= exp(-absCoeff * (float(i) / stepCount)); 
 
-    vec3 ambientFog = sceneColor * 0.025 + vec3(0.05, 0.06, 0.07); // low-level ambient tone
+    vec3 ambientFog = sceneColor * 0.025 + vec3(0.05, 0.06, 0.07); 
 
     // Combine scattering effects
     vec3 sampleExtinction = absCoeff * 1.0;
@@ -103,9 +102,9 @@ vec3 volumetricRaymarch(
     transmission *= sampleTransmittance;
   }
 
-  // Final tone balancing
+  
   scatter *= 0.135;
-  scatter = mix(scatter, normalize(scatter), 0.035); // reduce sky blowout
+  scatter = mix(scatter, normalize(scatter), 0.035); 
   scatter = clamp(scatter, 0.0, 6.5);
 
   return scatter + transmission;
