@@ -41,7 +41,7 @@ const vec3 nightHorCol=vec3(0.1059, 0.1569, 0.2314);
 const vec3 nightGrndCol=vec3(0.0196, 0.0275, 0.1294);
 
 const vec4 sunriseScatter=vec4(0.7922, 0.5294, 0.2627, 0.8);
-const vec4 dayScatter=vec4(0.6863, 0.5961, 0.4706, 0.815);
+const vec4 dayScatter=vec4(0.6863, 0.5961, 0.4706, 0.715);
 const vec4 nightScatter= vec4(0.8824, 0.6196, 0.2745, 0.65);
 
 
@@ -59,14 +59,14 @@ vec3 skyScattering(vec3 pos){
     float t = fract(worldTime / 24000.0);
 
     const int keys = 7;
-    const float keyFrames[keys] = float[keys](
-        0.0,        //sunrise
-        0.0417,     //day
-        0.25,       //noon
-        0.4792,     //sunset
-        0.5417,     //night
-        0.8417,     //midnight
-        1.0         //sunrise
+  const float keyFrames[keys] = float[keys](
+    0.0,        //sunrise
+    0.0417,     //day
+    0.45,       //noon
+    0.5192,     //sunset
+    0.5417,     //night
+    0.9417,     //midnight
+    1.0         //sunrise
     );
 
     const vec3 zenithColors[keys] = vec3[keys](
@@ -165,13 +165,13 @@ vec3 skyScattering(vec3 pos){
     float invCos1 = 1.0 - mDotL;
     float angularDist = clamp(invCos, -1.0, 1.0);
     float angularDist1 = clamp(invCos1, -1.0, 1.0);
-    float sunHeightFactor = smoothstep(groundBlend, groundBlend + 0.45, dir.y);
-    float sun = smoothstep(0.0005, 0.0005 * 0.9, angularDist);
+    float sunHeightFactor = smoothstep(groundBlend, groundBlend + 0.28, dir.y);
+    float sun = smoothstep(0.0002, 0.0002 * 0.9, angularDist);
     float moon = smoothstep(0.0002, 0.0001 * 0.03, angularDist1);
 
    
    
-    vec3 fullSun = sun  * sunColor * 135.0 * sunHeightFactor;
+    vec3 fullSun = sun  * sunColor * 40.0 * sunHeightFactor;
 
     vec3 moonColor = vec3(0.098, 0.1294, 0.1843);
     vec3 fullmoon = moon * moonColor * 6.3;

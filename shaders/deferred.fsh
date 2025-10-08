@@ -13,7 +13,7 @@ layout(location = 0) out vec4 color;
 void main() {
 	//assign colortex buffers
 	color = texture(colortex0, texcoord);
-
+	vec3 albedo = color.rgb;
 	vec2 lightmap = texture(colortex1, texcoord).rg;
 	vec4 SpecMap = texture(colortex3, texcoord); 
   	vec3 encodedNormal = texture(colortex2, texcoord).rgb;
@@ -47,14 +47,15 @@ void main() {
     	emissive += max(0.55 * pow(emissive, vec3(0.8)), 0.0);
 
     	emissive += min(luminance(emissive * 6.05) * pow(emissive, vec3(1.25)),33.15 ) ;
-   		emissive = CSB(emissive, 1.0 * 1.0, 1.0 , 1.0);
+   		emissive = CSB(emissive, 1.0 , 0.55 , 1.0);
   	}
 	
 	vec3 shadow = getSoftShadow(feetPlayerPos, geoNormal, sss);
 	vec3 f0;
   	if (isMetal) 
 	{
-   	 	f0 = color.rgb;
+   	 	
+		f0 = vec3(SpecMap.g);
   	} 
   	else 
   	{

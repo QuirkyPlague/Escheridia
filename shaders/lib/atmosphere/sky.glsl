@@ -71,14 +71,14 @@ vec3 skyScattering(vec3 pos){
     float t = fract(worldTime / 24000.0);
 
     const int keys = 7;
-    const float keyFrames[keys] = float[keys](
-        0.0,        //sunrise
-        0.0417,     //day
-        0.25,       //noon
-        0.4792,     //sunset
-        0.5417,     //night
-        0.8417,     //midnight
-        1.0         //sunrise
+ const float keyFrames[keys] = float[keys](
+    0.0,        //sunrise
+    0.0417,     //day
+    0.45,       //noon
+    0.5192,     //sunset
+    0.5417,     //night
+    0.9417,     //midnight
+    1.0         //sunrise
     );
 
     const vec3 zenithColors[keys] = vec3[keys](

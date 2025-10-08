@@ -129,7 +129,7 @@ void main() {
   if (isWater) {
     float waveFalloff = length(feetPlayerPos) / farPlane;
     float waveIntensityRolloff = exp(
-      19.0 * WAVE_INTENSITY * (0.01 - waveFalloff)
+      30.0 * WAVE_INTENSITY * (0.005 - waveFalloff)
     );
     float waveIntensity = 0.1 * WAVE_INTENSITY * waveIntensityRolloff;
     float waveSoftness = 0.008 * WAVE_SOFTNESS;
@@ -167,7 +167,7 @@ void main() {
   float baseRoughness = pow(1.0 - SpecMap.r, 2.0);
   float roughness = isWater ? 0.000 : baseRoughness;
 
-  bool canReflect = roughness < 0.4;
+  bool canReflect = roughness < 0.3;
 vec3 noiseB =  blue_noise(floor(gl_FragCoord.xy), frameCounter, SSR_STEPS);
 vec2 offset;
   // --- Reflection vectors
@@ -243,10 +243,7 @@ vec2 offset;
 if ((canReflect || isMetal || isWater)) {
   float smoothLightmap = smoothstep(0.882, 1.0, lightmap.g);
   vec3 sky = skyFallbackBlend(reflectedDir, vec3(1.0, 0.898, 0.698), viewPos, texcoord, normal, roughness, isWater);
-  if(!isWater)
-  {
-    sky *= smoothstep(0.0,0.35, roughness);
-  }
+ 
   
   bool skyThreshold = canReflect;
   vec3 skyRefl =  skyThreshold ? mix(color.rgb, sky, smoothLightmap): color.rgb;

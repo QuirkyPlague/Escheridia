@@ -8,8 +8,9 @@
 
 //Sun/moon
 const vec4 sunlightColor = vec4(1.0, 0.8627, 0.749, 1.0);
+const vec4 noonSunlightColor = vec4(1.0, 1.0, 1.0, 1.15);
 const vec4 morningSunlightColor = vec4(0.5843, 0.2078, 0.0314, 1.0);
-const vec4 eveningSunlightColor = vec4(1.0, 0.4471, 0.2118, 1.0);
+const vec4 eveningSunlightColor = vec4(0.4667, 0.1451, 0.0078, 1.0);
 const vec4 moonlightColor = vec4(0.0471, 0.0941, 0.2157, 1.0);
 
 const vec4 skylightColor = vec4(0.549, 0.6706, 0.9765, 0.791);
@@ -27,10 +28,10 @@ vec3 getLighting(vec3 color, vec2 lightmap, vec3 normal, vec3 shadow, vec3 H, ve
     const float keyFrames[keys] = float[keys](
     0.0,        //sunrise
     0.0417,     //day
-    0.25,       //noon
-    0.4792,     //sunset
+    0.45,       //noon
+    0.5192,     //sunset
     0.5417,     //night
-    0.8417,     //midnight
+    0.9417,     //midnight
     1.0         //sunrise
     );
     
@@ -38,7 +39,7 @@ vec3 getLighting(vec3 color, vec2 lightmap, vec3 normal, vec3 shadow, vec3 H, ve
     const vec4 sunCol[keys] = vec4[keys](
     morningSunlightColor,
     sunlightColor,
-    sunlightColor,
+    noonSunlightColor,
     eveningSunlightColor,
     moonlightColor,
     moonlightColor,
@@ -83,20 +84,27 @@ vec3 getLighting(vec3 color, vec2 lightmap, vec3 normal, vec3 shadow, vec3 H, ve
     blocklight *= 1.55;
     blocklight *= clamp(min(0.17 * pow(blocklight, vec3(0.8)), 5.2), 0.0, 1.0);
 
+
+     float hasSSS = step(64.0 / 255.0, sss); 
+    float phase = mix(CS(0.65, VdotL) * 1.5, henyeyGreensteinPhase(VdotL, -0.15), 1.0 - clamp(VdotL, 0,1)) ;
+    vec3 scatter = (sunlight * 2) * phase * shadow * color;
+    vec3 baseScatter = sunlight * shadow * color;
+    scatter += baseScatter;
+    scatter *= hasSSS;
+    
+    vec3 blocklightSSS = blocklight * color;
+    blocklightSSS *= exp(-lightmap.r * sss / 0.51);
+    blocklightSSS *= clamp(min(21.17 * pow(blocklightSSS, vec3(3.8)), 0.5 * sss), 0.0, 1.0);
+    blocklightSSS *= hasSSS;
+
     vec3 ambientLight = ambientColor.rgb * color;
     vec3 indirect = (skylight + blocklight) * ao;
     float metalMask = isMetal ? 1.0 : 0.0;
     indirect = mix(indirect, indirect * 0.35, metalMask);
     vec3 specular = brdf(color, F0, sunlight,normal, H, V, roughness, indirect, shadow, isMetal);
 
-    float hasSSS = step(64.0 / 255.0, sss); 
-    float phase = mix(CS(0.65, VdotL) * 1.5, henyeyGreensteinPhase(VdotL, -0.15), 1.0 - clamp(VdotL, 0,1)) ;
-    vec3 scatter = (sunlight * 2) * phase * shadow * color;
-    vec3 baseScatter = sunlight * shadow * color;
-    scatter += baseScatter;
-    scatter *= hasSSS;
-
-    return  specular + ambientLight + scatter;
+   
+    return  specular + ambientLight + scatter + blocklightSSS;
 
 }
 
@@ -106,10 +114,10 @@ vec3 currentSunColor(vec3 color) {
     const float keyFrames[keys] = float[keys](
     0.0,        //sunrise
     0.0417,     //day
-    0.25,       //noon
-    0.4792,     //sunset
-    0.5417,     //night
-    0.8417,     //midnight
+    0.45,       //noon
+    0.5192,     //sunset
+    0.6417,     //night
+    0.9417,     //midnight
     1.0         //sunrise
     );
     

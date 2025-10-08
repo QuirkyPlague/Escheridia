@@ -19,9 +19,8 @@ vec3 brdf(
   // calculate per-light radiance
   float dist = length(L);
   float attenuation = 1.0 * (dist * dist);
-  currentSunlight  += max(0.75 * pow(currentSunlight , vec3(1.15)), 0.0);
-  currentSunlight *= 2.95;
-  currentSunlight  += (min(1.17 * pow(currentSunlight , vec3(3.3)), 0.7));
+  currentSunlight  += max(7.75 * pow(currentSunlight , vec3(1.15)), 0.0);
+  currentSunlight  *= (min(2.17 * pow(currentSunlight , vec3(3.3)), 0.7));
   vec3 radiance = currentSunlight  * shadow * attenuation;
 
   vec3 F = fresnelSchlick(max(dot(H, V), 0.0), F0);
@@ -45,7 +44,8 @@ vec3 brdf(
 
   #ifdef DO_SSR
   if (isMetal) {
-    kD *= 0.5;
+    kD *= 0.45;
+    spec *= 0.3;
   }
   #else
   kD *= 1.0;
@@ -53,7 +53,7 @@ vec3 brdf(
   
   // add to outgoing radiance Lo
 
-  Lo = (kD * albedo / PI + (spec ) ) * radiance * NdotL ;
+  Lo = (kD * albedo / PI + (spec  ) ) * radiance * NdotL ;
 
   indirect *= albedo / PI;
 

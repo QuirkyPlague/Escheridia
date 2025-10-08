@@ -148,7 +148,7 @@ vec3 computeBloomMix(vec2 texcoord, float depth, bool isMetal) {
     hdr,
     blm,
     clamp(
-      0.015 * bloomStrength +
+      0.013 * bloomStrength +
         wetness * 0.01 * eyeBrightnessSmooth.y * 0.05,
       0,
       1

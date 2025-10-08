@@ -48,8 +48,9 @@ vec3 volumetricRaymarch(
 
   float VdotL = dot(normalize(feetPlayerPos), worldLightVector);
   float phaseIncFactor = smoothstep(225, 0, eyeBrightnessSmooth.y);
-  float phaseMult = mix(1.0, 21.0, phaseIncFactor);
-  float phase = evalDraine(VdotL, 0.635, 1118.1); 
+  float phaseMult = mix(1.0, 15.0, phaseIncFactor);
+  float ambientMult = mix(1.0, 0.0, phaseIncFactor);
+  float phase = henyeyGreensteinPhase(VdotL,0.65) * 0.5 + henyeyGreensteinPhase(VdotL, -0.15) * 0.54; 
   phase *= phaseMult;
 
   float rayleigh = Rayleigh(VdotL);
@@ -89,13 +90,13 @@ vec3 volumetricRaymarch(
     vec3 multiScatter = scatterCoeff * msLight * 0.25 * phaseMult; 
     multiScatter *= exp(-absCoeff * (float(i) / stepCount)); 
 
-    vec3 ambientFog = sceneColor * 0.025 + vec3(0.05, 0.06, 0.07); 
+    vec3 ambientFog = sceneColor * 0.025 + vec3(0.0392, 0.0588, 0.0902); 
 
     // Combine scattering effects
     vec3 sampleExtinction = absCoeff * 1.0;
     float sampleTransmittance = exp(-rayLength * 1.0 * 0.5);
 
-    scatter += ((sampleInscatter + multiScatter + ambientFog * 0.135)
+    scatter += ((sampleInscatter + multiScatter + (ambientFog * 0.235 * ambientMult))
                - (sampleInscatter * sampleTransmittance))
                / sampleExtinction;
 
@@ -103,9 +104,9 @@ vec3 volumetricRaymarch(
   }
 
   
-  scatter *= 0.135;
-  scatter = mix(scatter, normalize(scatter), 0.035); 
-  scatter = clamp(scatter, 0.0, 6.5);
+  scatter *= 0.105;
+   
+ 
 
   return scatter + transmission;
 }

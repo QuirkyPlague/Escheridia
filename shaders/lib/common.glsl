@@ -8,10 +8,12 @@
 #if BUFFER_QUALITY == 0
 /*
     const int colortex0Format = R11F_G11F_B10F;
+    const int colortex6Format = RGB16F;
 */
 #elif BUFFER_QUALITY == 1
 /*
     const int colortex0Format = RGB16F;
+    const int colortex6Format = RGB16F;
 */
 #else
 /*
