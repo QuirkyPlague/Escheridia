@@ -15,23 +15,23 @@ vec4 getShadowClipPos(vec3 feetPlayerPos) {
 vec3 getSoftShadow(vec3 feetPlayerPos, vec3 normal, float SSS) {
   vec3 shadowNormal = mat3(shadowModelView) * normal;
   const float shadowMapPixelSize = 1.0 / float(SHADOW_RESOLUTION);
-  float sampleRadius = SHADOW_SOFTNESS * shadowMapPixelSize * 0.74;
+  float sampleRadius = SHADOW_SOFTNESS * shadowMapPixelSize;
   vec3 biasAdjustFactor = vec3(
     shadowMapPixelSize * 2.45,
     shadowMapPixelSize * 2.45,
     -0.00003803515625
   );
- 
+
   vec4 shadowClipPos = getShadowClipPos(feetPlayerPos);
 
   float faceNdl = dot(normal, worldLightVector);
   if (faceNdl <= 1e-6 && SSS > 64.0 / 255.0) {
-    sampleRadius *= 1.0 + 7.0 * SSS;
+    sampleRadius *= 1.0 + 4.0 * SSS;
   }
 
   vec3 shadowAccum = vec3(0.0); // sum of all shadow samples
   for (int i = 0; i < SHADOW_SAMPLES; i++) {
-    vec3 noise =  blue_noise(floor(gl_FragCoord.xy), frameCounter, int(i));
+    vec3 noise = blue_noise(floor(gl_FragCoord.xy), frameCounter, int(i));
     vec2 offset = vogelDisc(i, SHADOW_SAMPLES, noise.x) * sampleRadius;
     vec4 offsetShadowClipPos = shadowClipPos + vec4(offset, 0.0, 0.0); // add offset
     offsetShadowClipPos.xyz = distortShadowClipPos(offsetShadowClipPos.xyz); // apply distortion

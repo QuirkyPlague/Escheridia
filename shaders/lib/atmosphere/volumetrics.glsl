@@ -5,6 +5,7 @@
 #include "/lib/util.glsl"
 #include "/lib/water/waterFog.glsl"
 #include "/lib/lighting/lighting.glsl"
+#include "/lib/tonemapping.glsl"
 
 vec3 volumetricRaymarch(
   vec4 startPos,
@@ -16,27 +17,71 @@ vec3 volumetricRaymarch(
   vec3 normal,
   vec2 lightmap
 ) {
+  float t = fract(worldTime / 24000.0);
+  const int keys = 7;
+  const float keyFrames[keys] = float[keys](
+    0.0, //sunrise
+    0.0417, //day
+    0.45, //noon
+    0.5192, //sunset
+    0.5417, //night
+    0.9527, //midnight
+    1.0 //sunrise
+  );
+
+  const float morningFogPhase = MORNING_PHASE;
+  const float dayFogPhase = DAY_PHASE;
+  const float noonFogPhase = NOON_PHASE;
+  const float eveningFogPhase = EVENING_PHASE;
+  const float nightFogPhase = NIGHT_PHASE;
+
+  const float fogPhase[keys] = float[keys](
+    morningFogPhase,
+    dayFogPhase,
+    noonFogPhase,
+    eveningFogPhase,
+    nightFogPhase,
+    nightFogPhase,
+    morningFogPhase
+  );
+  const float ambientI[keys] = float[keys](0.5, 1.0, 1.0, 0.5, 0.15, 0.15, 0.5);
+  int i = 0;
+  //assings the keyframes
+  for (int k = 0; k < keys - 1; ++k) {
+    i += int(step(keyFrames[k + 1], t));
+  }
+  i = clamp(i, 0, keys - 2);
+
+  //Interpolation factor based on the time
+  float timeInterp =
+    (t - keyFrames[i]) / max(1e-6, keyFrames[i + 1] - keyFrames[i]);
+  timeInterp = smoothstep(0.0, 1.0, timeInterp);
+
+  float phaseVal = mix(fogPhase[i], fogPhase[i + 1], timeInterp);
+  float ambientIntensity = mix(ambientI[i], ambientI[i + 1], timeInterp);
   vec4 rayPos = endPos - startPos;
   vec4 stepSize = rayPos * (1.0 / stepCount);
   vec3 eyePlayerPos = feetPlayerPos - gbufferModelViewInverse[3].xyz;
   vec3 worldPos = feetPlayerPos + cameraPosition;
   float rayLength = clamp(length(eyePlayerPos) + 1, 0, far / 2);
-  vec4 stepLength = startPos + jitter * stepSize;
+  vec4 stepLength = startPos + (jitter + 0.5) * stepSize;
   const float shadowMapPixelSize = 1.0 / float(SHADOW_RESOLUTION);
   float sampleRadius = SHADOW_SOFTNESS * shadowMapPixelSize * 0.54;
 
   #if PIXELATED_LIGHTING == 1
-    sampleRadius = SHADOW_SOFTNESS * shadowMapPixelSize * 0.54;
-    feetPlayerPos = feetPlayerPos + cameraPosition;
-    feetPlayerPos = floor(feetPlayerPos * 8 + 0.01) / 8;
-    feetPlayerPos -= cameraPosition;
+  sampleRadius = SHADOW_SOFTNESS * shadowMapPixelSize * 0.54;
+  feetPlayerPos = feetPlayerPos + cameraPosition;
+  feetPlayerPos = floor(feetPlayerPos * 8 + 0.01) / 8;
+  feetPlayerPos -= cameraPosition;
   #endif
 
   vec3 absCoeff = vec3(0.6039, 0.7451, 0.9059);
-  vec3 scatterCoeff = vec3(0.00375, 0.00331, 0.00291);
-  
-  absCoeff = mix(absCoeff, vec3(1.0), PaleGardenSmooth);
+  vec3 scatterCoeff = vec3(0.00375, 0.00331, 0.00241);
+
+  //absCoeff = mix(absCoeff, vec3(1.0), PaleGardenSmooth);
   scatterCoeff = mix(scatterCoeff, vec3(0.00715), PaleGardenSmooth);
+
+  scatterCoeff = mix(scatterCoeff, vec3(0.00515), wetness);
 
   if (inWater) {
     absCoeff = WATER_ABOSRBTION * 2.39;
@@ -50,7 +95,10 @@ vec3 volumetricRaymarch(
   float phaseIncFactor = smoothstep(225, 0, eyeBrightnessSmooth.y);
   float phaseMult = mix(1.0, 15.0, phaseIncFactor);
   float ambientMult = mix(1.0, 0.0, phaseIncFactor);
-  float phase = henyeyGreensteinPhase(VdotL,0.65) * 0.5 + henyeyGreensteinPhase(VdotL, -0.15) * 0.54; 
+  float phase =
+    henyeyGreensteinPhase(VdotL, phaseVal) * FORWARD_PHASE_INTENSITY +
+    henyeyGreensteinPhase(VdotL, -0.15) * BACKWARD_PHASE_INTENSITY;
+
   phase *= phaseMult;
 
   float rayleigh = Rayleigh(VdotL);
@@ -69,7 +117,6 @@ vec3 volumetricRaymarch(
   for (int i = 0; i < stepCount; i++) {
     stepLength += stepSize;
 
-  
     for (int i = 0; i < 5; i++) {
       vec2 offset = vogelDisc(i, 5, jitter) * sampleRadius;
       vec4 offsetShadowClipPos = stepLength + vec4(offset, 0.0, 0.0);
@@ -79,34 +126,40 @@ vec3 volumetricRaymarch(
       shadow += getShadow(shadowScreenPos);
     }
     shadow /= 5.0;
-  
-  
+
     transmission *= exp(-absCoeff * rayLength);
 
-    
-    vec3 sampleInscatter = scatterCoeff * phase * rayLength * sunColor * shadow;
+    // --- Ambient lighting ---
+    vec3 ambientFogColor =
+      sceneColor * 0.025 + vec3(0.0588, 0.0706, 0.0784) * AMBIENT_FOG_MULT;
+    ambientFogColor = mix(
+      ambientFogColor,
+      vec3(0.0706, 0.0706, 0.0706),
+      wetness
+    );
+    vec3 ambient = ambientFogColor * 0.35 * ambientMult * ambientIntensity;
 
-    vec3 msLight = sunColor * (0.35 + 0.65 * shadow);  
-    vec3 multiScatter = scatterCoeff * msLight * 0.25 * phaseMult; 
-    multiScatter *= exp(-absCoeff * (float(i) / stepCount)); 
+    // --- Direct inscattering ---
+    vec3 singleScatter = scatterCoeff * phase * rayLength * sunColor * shadow;
 
-    vec3 ambientFog = sceneColor * 0.025 + vec3(0.0392, 0.0588, 0.0902); 
+    vec3 multipleScatter =
+      singleScatter * 0.35 * MULTI_SCATTER_INTENSITY * (1.0 - transmission);
 
-    // Combine scattering effects
+    multipleScatter += ambient * 0.5 * (1.0 - shadow);
+
     vec3 sampleExtinction = absCoeff * 1.0;
     float sampleTransmittance = exp(-rayLength * 1.0 * 0.5);
 
-    scatter += ((sampleInscatter + multiScatter + (ambientFog * 0.235 * ambientMult))
-               - (sampleInscatter * sampleTransmittance))
-               / sampleExtinction;
+    // combine single + multiple scattering
+    vec3 totalInscatter = singleScatter + multipleScatter;
 
+    scatter +=
+      (totalInscatter - totalInscatter * sampleTransmittance) /
+      sampleExtinction;
     transmission *= sampleTransmittance;
   }
 
-  
-  scatter *= 0.105;
-   
- 
+  scatter *= 0.125;
 
   return scatter + transmission;
 }

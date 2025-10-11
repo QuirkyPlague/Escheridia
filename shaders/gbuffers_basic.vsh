@@ -9,7 +9,8 @@ out vec2 texcoord;
 out vec4 glcolor;
 out vec3 normal;
 out mat3 tbnMatrix;
-
+flat out int blockID;
+in vec2 mc_Entity;
 
 void main() {
   gl_Position = ftransform();
@@ -29,6 +30,6 @@ void main() {
   vec3 binormal = normalize(cross(tangent, normal) * handedness);
   tbnMatrix = mat3(tangent, binormal, normal);
 
- 
+  blockID = int(mc_Entity.x + 0.5);
 
 }

@@ -15,7 +15,6 @@ uniform mat4 shadowModelViewInverse;
 uniform mat4 shadowProjection;
 uniform mat4 shadowProjectionInverse;
 
-
 //buffers
 uniform sampler2D colortex0;
 uniform sampler2D colortex1;
@@ -24,19 +23,17 @@ uniform sampler2D colortex3;
 uniform sampler2D colortex4;
 uniform sampler2D colortex5;
 uniform sampler2D colortex6;
+uniform sampler2D colortex7;
+uniform sampler2D colortex8;
 
 //depth buffer
 uniform sampler2D depthtex0;
 uniform sampler2D depthtex1;
 uniform sampler2D depthtex2;
-uniform sampler2D dhDepthTex0;
-uniform sampler2D dhDepthTex1;
 
 //shadow buffer
 uniform sampler2D shadowtex0;
 uniform sampler2D shadowtex1;
-uniform sampler2DShadow shadowtex1HW;
-uniform sampler2DShadow shadowtex0HW;
 uniform sampler2D shadowcolor0;
 
 //normal/speculars
@@ -45,6 +42,7 @@ uniform sampler2D specular;
 
 //noises
 uniform sampler3D blueNoiseTex;
+
 
 //additional uniforms
 uniform vec3 cameraPosition;
@@ -59,6 +57,7 @@ uniform float viewHeight;
 uniform float wetness;
 uniform int isEyeInWater;
 uniform int worldTime;
+uniform vec4 entityColor;
 
 //constants
 const float PI = float(3.14159);

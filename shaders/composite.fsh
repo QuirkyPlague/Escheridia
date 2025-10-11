@@ -9,7 +9,7 @@ in vec2 texcoord;
 layout(location = 0) out vec4 color;
 
 void main() {
-  color = texture(colortex0, texcoord);
+  color = textureLod(colortex0, texcoord, 0);
   color.rgb = pow(color.rgb, vec3(2.2));
   vec4 waterMask = texture(colortex5, texcoord);
 
@@ -19,14 +19,14 @@ void main() {
   int blockID = int(waterMask) + 100;
 
   bool isWater = blockID == WATER_ID;
-  vec2 lightmap = texture(colortex1, texcoord).rg; // we only need the r and g components
+  vec2 lightmap = texture(colortex1, texcoord).rg;
 
   if (isWater && !inWater) {
     color.rgb = waterExtinction(color.rgb, texcoord, lightmap, depth, depth1);
   }
   if (inWater) {
     vec3 waterScatter = waterFog(color.rgb, texcoord, lightmap, depth1);
-  
+
     color.rgb = waterScatter;
   }
 }

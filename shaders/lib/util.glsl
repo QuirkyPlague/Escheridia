@@ -9,6 +9,15 @@ vec3 projectAndDivide(mat4 projectionMatrix, vec3 position) {
   return homPos.xyz / homPos.w;
 }
 
+float IGN(vec2 coord) {
+  return fract(
+    52.9829189f * fract(0.06711056f * coord.x + 0.00583715f * coord.y)
+  );
+}
+
+float IGN(vec2 coord, int frame) {
+  return IGN(coord + 5.588238 * (frame % 63));
+}
 
 vec2 vogelDisc(int stepIndex, int stepCount, float noise) {
   float rotation = noise * 2 * PI;
@@ -145,19 +154,15 @@ float Rayleigh(float mu) {
 
 
 vec3 blue_noise(vec2 coord, int frame) {
-  return texelFetch(
-    blueNoiseTex,
-    ivec3(ivec2(coord) % 128, frame % 64),
-    0
-  ).rgb;
+  return texelFetch(blueNoiseTex, ivec3(ivec2(coord) % 128, frame % 64), 0).rgb;
 }
 
 // R2 sequence from
 // https://extremelearning.com.au/unreasonable-effectiveness-of-quasirandom-sequences/
 vec3 blue_noise(vec2 coord, int frame, int i) {
   const float g = 1.32471795724474602596;
-  float a1 = 1.0/(g);
-  float a2 = 1.0/(pow(g,2));
+  float a1 = 1.0 / g;
+  float a2 = 1.0 / pow(g, 2);
 
   vec2 offset = vec2(fract(0.5 + a1 * i), fract(0.5 + a2 * i));
   return blue_noise(coord + offset, frame);
@@ -165,27 +170,28 @@ vec3 blue_noise(vec2 coord, int frame, int i) {
 
 //from Zombye
 vec3 SampleVNDFGGX(
-    vec3 viewerDirection, // Direction pointing towards the viewer, oriented such that +Z corresponds to the surface normal
-    vec2 alpha, // Roughness parameter along X and Y of the distribution
-    vec2 xy // Pair of uniformly distributed numbers in [0, 1)
+  vec3 viewerDirection, // Direction pointing towards the viewer, oriented such that +Z corresponds to the surface normal
+  vec2 alpha, // Roughness parameter along X and Y of the distribution
+  vec2 xy // Pair of uniformly distributed numbers in [0, 1)
 ) {
-    // Transform viewer direction to the hemisphere configuration
-    viewerDirection = normalize(vec3(alpha * viewerDirection.xy, viewerDirection.z));
+  // Transform viewer direction to the hemisphere configuration
+  viewerDirection = normalize(
+    vec3(alpha * viewerDirection.xy, viewerDirection.z)
+  );
 
-    // Sample a reflection direction off the hemisphere
-    const float tau = 6.2831853; // 2 * pi
-    float phi = tau * xy.x;
-    float cosTheta = fma(1.0 - xy.y,1.0 + viewerDirection.z, -viewerDirection.z);
-    float sinTheta = sqrt(clamp(1.0 - cosTheta * cosTheta, 0.0, 1.0));
-    vec3 reflected = vec3(vec2(cos(phi), sin(phi)) * sinTheta, cosTheta);
+  // Sample a reflection direction off the hemisphere
+  const float tau = 6.2831853; // 2 * pi
+  float phi = tau * xy.x;
+  float cosTheta = fma(1.0 - xy.y, 1.0 + viewerDirection.z, -viewerDirection.z);
+  float sinTheta = sqrt(clamp(1.0 - cosTheta * cosTheta, 0.0, 1.0));
+  vec3 reflected = vec3(vec2(cos(phi), sin(phi)) * sinTheta, cosTheta);
 
-    // Evaluate halfway direction
-    // This gives the normal on the hemisphere
-    vec3 halfway = (reflected + viewerDirection);
-    // Transform the halfway direction back to hemiellispoid configuation
-    // This gives the final sampled normal
-    return normalize(vec3(alpha * halfway.xy, halfway.z));
+  // Evaluate halfway direction
+  // This gives the normal on the hemisphere
+  vec3 halfway = reflected + viewerDirection;
+  // Transform the halfway direction back to hemiellispoid configuation
+  // This gives the final sampled normal
+  return normalize(vec3(alpha * halfway.xy, halfway.z));
 }
-
 
 #endif //UTIL_GLSL
