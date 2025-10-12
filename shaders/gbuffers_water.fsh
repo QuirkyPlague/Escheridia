@@ -77,7 +77,7 @@ void main() {
   } else {
     f0 = vec3(specData.g);
   }
-  float ao = encodedNormal.z * 0.5 + 0.5;
+  float ao = texture(normals, texcoord).z;
 
   if (blockID == WATER_ID) {
     mask = vec4(1.0, 1.0, 1.0, 1.0);
@@ -91,7 +91,7 @@ void main() {
   vec3 lighting = getLighting(
     color.rgb,
     lightmap.rg,
-    normal,
+    mappedNormal.rgb,
     shadow,
     H,
     f0,
@@ -100,7 +100,9 @@ void main() {
     ao,
     sss,
     VdotL,
-    isMetal
+    isMetal,
+    normal
   );
+ 
   color = vec4(lighting, color.a);
 }

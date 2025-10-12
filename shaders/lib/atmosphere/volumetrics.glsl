@@ -75,7 +75,7 @@ vec3 volumetricRaymarch(
   feetPlayerPos -= cameraPosition;
   #endif
 
-  vec3 absCoeff = vec3(0.6039, 0.7451, 0.9059);
+  vec3 absCoeff = vec3(1.0, 1.0, 1.0);
   vec3 scatterCoeff = vec3(0.00375, 0.00331, 0.00241);
 
   //absCoeff = mix(absCoeff, vec3(1.0), PaleGardenSmooth);
@@ -84,8 +84,8 @@ vec3 volumetricRaymarch(
   scatterCoeff = mix(scatterCoeff, vec3(0.00515), wetness);
 
   if (inWater) {
-    absCoeff = WATER_ABOSRBTION * 2.39;
-    scatterCoeff = WATER_SCATTERING * 0.02;
+    absCoeff = WATER_ABOSRBTION * 1.39;
+    scatterCoeff = WATER_SCATTERING * 0.05;
   }
 
   vec3 scatter = vec3(0.0);
@@ -93,11 +93,15 @@ vec3 volumetricRaymarch(
 
   float VdotL = dot(normalize(feetPlayerPos), worldLightVector);
   float phaseIncFactor = smoothstep(225, 0, eyeBrightnessSmooth.y);
-  float phaseMult = mix(1.0, 15.0, phaseIncFactor);
+  float phaseMult = mix(1.0, 8.0, phaseIncFactor);
+  if(inWater)
+  {
+    phaseMult = 1.0;
+  }
   float ambientMult = mix(1.0, 0.0, phaseIncFactor);
   float phase =
     henyeyGreensteinPhase(VdotL, phaseVal) * FORWARD_PHASE_INTENSITY +
-    henyeyGreensteinPhase(VdotL, -0.15) * BACKWARD_PHASE_INTENSITY;
+    henyeyGreensteinPhase(VdotL, -0.25) * BACKWARD_PHASE_INTENSITY;
 
   phase *= phaseMult;
 
@@ -137,8 +141,11 @@ vec3 volumetricRaymarch(
       vec3(0.0706, 0.0706, 0.0706),
       wetness
     );
-    vec3 ambient = ambientFogColor * 0.35 * ambientMult * ambientIntensity;
-
+    vec3 ambient = vec3(0.0);
+    if(!inWater)
+    {
+      ambient = ambientFogColor * 0.35 * ambientMult * ambientIntensity;
+    }
     // --- Direct inscattering ---
     vec3 singleScatter = scatterCoeff * phase * rayLength * sunColor * shadow;
 
@@ -159,7 +166,7 @@ vec3 volumetricRaymarch(
     transmission *= sampleTransmittance;
   }
 
-  scatter *= 0.125;
+  scatter *= 0.155;
 
   return scatter + transmission;
 }

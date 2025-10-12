@@ -20,7 +20,7 @@ vec3 brdf(
   // calculate per-light radiance
   float dist = length(L);
   float attenuation = 1.0 / (dist * dist);
-  currentSunlight += max(6.75 * pow(currentSunlight, vec3(0.75)), 0.0);
+  currentSunlight += max(4.75 * pow(currentSunlight, vec3(0.75)), 0.0);
 
   vec3 radiance = currentSunlight * shadow * attenuation;
 
@@ -50,7 +50,7 @@ vec3 brdf(
 
   #ifdef DO_SSR
   if (isMetal) {
-    kD *= 0.45;
+    kD *= 0.0;
 
   }
   #else

@@ -42,7 +42,7 @@ uniform sampler2D specular;
 
 //noises
 uniform sampler3D blueNoiseTex;
-
+uniform sampler2D looigi;
 
 //additional uniforms
 uniform vec3 cameraPosition;

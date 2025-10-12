@@ -14,7 +14,7 @@ in vec3 normal;
 in mat3 tbnMatrix;
 flat in int blockID;
 
-/* RENDERTARGETS: 0,1,2,3,4,6,7 */
+/* RENDERTARGETS: 0,1,2,3,4,6,7,5 */
 layout(location = 0) out vec4 color;
 layout(location = 1) out vec4 lightmap;
 layout(location = 2) out vec4 encodedNormal;
@@ -22,10 +22,11 @@ layout(location = 3) out vec4 specData;
 layout(location = 4) out vec4 geoNormal;
 layout(location = 5) out vec4 bloom;
 layout(location = 6) out vec4 mask;
+layout(location = 7) out vec4 wMask;
 
 void main() {
   color = texture(gtexture, texcoord) * glcolor;
-
+ 
   vec3 normalMaps = texture(normals, texcoord).rgb;
   normalMaps = normalMaps * 2.0 - 1.0;
   normalMaps.xy /= 254.0 / 255.0;
@@ -45,6 +46,13 @@ void main() {
     mask = vec4(1.0, 1.0, 1.0, 1.0);
   } else {
     mask = vec4(0.0, 0.0, 0.0, 1.0);
+  }
+
+    if (blockID == WATER_ID) {
+    wMask = vec4(1.0, 1.0, 1.0, 1.0);
+    color.a *= 0.0;
+  } else {
+    wMask  = vec4(0.0, 0.0, 0.0, 1.0);
 
   }
 }

@@ -78,7 +78,7 @@ vec3 skyFallbackBlend(
   #endif
 
   sky = pow(sky, vec3(2.2));
-  return sky * 0.85;
+  return sky;
 }
 
 void main() {
@@ -115,7 +115,9 @@ void main() {
   #endif
 
   float farPlane = far / 0.75;
-
+ 
+  
+    
   vec3 normal = normalize((encodedNormal - 0.5) * 2.0);
   normal = mat3(gbufferModelView) * normal;
 
@@ -184,7 +186,7 @@ void main() {
       SampleVNDFGGX(tangentView, vec2(roughness), noise.xy),
       0,
       1
-    );
+    ); 
 
     vec3 tangentReflDir = reflect(-tangentView, microFacit);
 
@@ -226,15 +228,15 @@ void main() {
   float sampleRadius = mix(0.0, MAX_RADIUS, alpha) * reflectedDist;
   for (int i = 0; i < ROUGH_SAMPLES; i++) {
     vec3 noise = blue_noise(floor(gl_FragCoord.xy), frameCounter, int(i));
-    vec2 offset = vogelDisc(i, ROUGH_SAMPLES, noise.z * 0.53) * sampleRadius;
+    vec2 offset = vogelDisc(i, ROUGH_SAMPLES, noise.x) * sampleRadius;
     vec3 offsetReflection = ssrPos + vec3(offset, 0.0); // add offset
-    ssrPos = offsetReflection;
+    //ssrPos = offsetReflection;
   }
   #else
   lod = 0.0;
   #endif
 
-  if (canReflect || isMetal || isWater) {
+  if (canReflect || isMetal || isWater && !inWater) {
     
     vec3 sky = skyFallbackBlend(
       reflectedDir,
@@ -255,6 +257,7 @@ void main() {
         ? skyRefl
         : texelFetch(colortex0, ivec2(ssrPos.xy), 0).rgb;
   } else if ((canReflect || isMetal || isWater) && inWater) {
+  
     reflectedColor =
       ssrPos.z < 0.5
         ? color.rgb

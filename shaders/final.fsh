@@ -13,4 +13,8 @@ void main() {
 
   color.rgb = lottesTonemap(color.rgb);
   color.rgb = CSB(color.rgb, BRIGHTNESS, SATURATION, CONTRAST);
+
+   
+
+  
 }

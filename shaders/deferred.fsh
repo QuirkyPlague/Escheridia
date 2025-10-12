@@ -48,8 +48,8 @@ void main() {
   vec3 greyAlbedo = clamp(CSB(albedo, 1.0, 0.0, 2.115), 0.0, 1.0);
   #if HC_SSS == 1
   if (canScatter) {
-    greyAlbedo = clamp(CSB(albedo, 1.15, 0.0, 0.4), 0.0, 1.0);
-    sss = clamp(max(luminance(greyAlbedo), float(greyAlbedo * 1)), 0, 1);
+    greyAlbedo = clamp(CSB(albedo, 1.0, 0.0, 0.4), 0.0, 1.0);
+    sss = clamp(max(luminance(greyAlbedo), float(greyAlbedo)), 0, 1);
   } else {
     sss = 0.0;
   }
@@ -59,13 +59,14 @@ void main() {
 
   float emission = SpecMap.a;
   vec3 emissive = vec3(0.0);
+  #ifndef HC_EMISSION
   if (emission < 255.0 / 255.0) {
     emissive += color.rgb * emission;
     emissive += max(8.25 * pow(emissive, vec3(1.28)), 0.0);
 
     emissive = CSB(emissive, 1.0, 0.75, 1.0);
   }
-
+#endif //HC_EMISSION
   vec3 shadow = getSoftShadow(feetPlayerPos, geoNormal, sss);
   vec3 f0 = vec3(0.0);
   if (isMetal) {
@@ -88,7 +89,9 @@ void main() {
       ao,
       sss,
       VdotL,
-      isMetal
+      isMetal,
+      geoNormal
     ) +
     emissive;
+    
 }

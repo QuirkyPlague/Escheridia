@@ -8,18 +8,18 @@
 #include "/lib/tonemapping.glsl"
 
 //Sun/moon
-const vec4 sunlightColor = vec4(0.7098, 0.6, 0.4, 0.91);
+const vec4 sunlightColor = vec4(1.1, 0.83627, 0.602, 0.81);
 const vec4 noonSunlightColor = vec4(0.6824, 0.6824, 0.6824, 1.0);
-const vec4 morningSunlightColor = vec4(0.5451, 0.3137, 0.2078, 1.0);
+const vec4 morningSunlightColor = vec4(0.7451, 0.3137, 0.1078, 0.85);
 const vec4 eveningSunlightColor = vec4(0.7529, 0.3765, 0.1451, 1.0);
-const vec4 moonlightColor = vec4(0.0549, 0.098, 0.2353, 0.3);
+const vec4 moonlightColor = vec4(0.0549, 0.098, 0.2353, 0.8);
 
 const vec4 skylightColor = vec4(0.7216, 0.8, 1.0, 0.891);
 const vec4 morningSkylightColor = vec4(0.4863, 0.6667, 0.8745, 0.821);
 const vec4 eveningSkylightColor = vec4(0.3294, 0.4549, 0.8235, 0.721);
 const vec4 nightSkylightColor = vec4(0.1647, 0.3255, 0.7333, 0.651);
 
-const vec4 blocklightColor = vec4(1.0, 0.7961, 0.5451, 1.0);
+const vec4 blocklightColor = vec4(1.0, 0.8824, 0.7294, 1.0);
 const vec4 ambientColor = vec4(0.2392, 0.2392, 0.2392, 1.0);
 
 vec3 getLighting(
@@ -34,7 +34,8 @@ vec3 getLighting(
   float ao,
   float sss,
   float VdotL,
-  bool isMetal
+  bool isMetal,
+  vec3 faceNormal
 ) {
   float t = fract(worldTime / 24000.0);
   const int keys = 7;
@@ -92,6 +93,7 @@ vec3 getLighting(
 
   vec3 skylight =
     mix(skyCol[i].rgb, skyCol[i + 1].rgb, timeInterp) * lightmap.g;
+    skylight = mix(skylight, vec3(0.1882, 0.1882, 0.1882) * lightmap.g, wetness);
   float skyIntensity = mix(skyCol[i].a, skyCol[i + 1].a, timeInterp);
   ;
   skylight *= skyIntensity;
@@ -99,43 +101,41 @@ vec3 getLighting(
   skylight *= min(1.07 * pow(skylight, vec3(0.6)), 0.67);
 
   vec3 blocklight = blocklightColor.rgb * lightmap.r;
-  blocklight += max(4.9 * pow(blocklight, vec3(0.75)), 0.0);
-  blocklight *= 1.55;
-  blocklight *= clamp(min(0.17 * pow(blocklight, vec3(0.8)), 5.2), 0.0, 1.0);
+  
+  blocklight *= max(1.39 * pow(blocklight, vec3(3.75)), 0.0);
+  blocklight += min(4.7 * pow(blocklight, vec3(0.5)), 3.9);
+  blocklight  *= smoothstep(0.0, 0.125, blocklight); 
 
+  float faceNdl = dot(faceNormal, worldLightVector);
+ 
   float hasSSS = step(64.0 / 255.0, sss);
   float phase =
-    henyeyGreensteinPhase(VdotL, 0.675) * 6 +
-    henyeyGreensteinPhase(VdotL, -0.15);
+    henyeyGreensteinPhase(VdotL, 0.635) * 4;
 
-  vec3 scatter = sunlight * phase * shadow * color;
-  vec3 baseScatter = sunlight * shadow * color;
-  scatter += baseScatter * 2;
+vec3 skylightSSS = vec3(0.0);
+vec3 scatter = vec3(0.0);
+  if (faceNdl <= 1e-6) {
+  scatter = sunlight * phase * shadow;
+  vec3 baseScatter = sunlight * shadow;
+  scatter += baseScatter * 2 ;
   scatter *= hasSSS;
   scatter *= sss;
-
-  vec3 blocklightSSS = blocklight * color;
-  blocklightSSS *= exp(-lightmap.r * sss / 0.61);
-  blocklightSSS *= clamp(
-    min(21.17 * pow(blocklightSSS, vec3(2.8)), 0.5 * sss),
-    0.0,
-    1.0
-  );
-  blocklightSSS *= hasSSS;
-
-  vec3 skylightSSS = skylight * color;
-  skylightSSS *= exp(-lightmap.g * sss / 0.71);
+  }
+ 
+  skylightSSS = skylight;
+  skylightSSS *= exp(-lightmap.g * sss / 0.61);
   skylightSSS *= clamp(
-    min(21.17 * pow(skylightSSS, vec3(2.8)), 0.55 * sss),
+    min(21.17 * pow(skylightSSS, vec3(2.8)),  sss),
     0.0,
     1.0
   );
   skylightSSS *= hasSSS;
+  
 
   vec3 ambientLight = ambientColor.rgb * color;
   vec3 indirect = (skylight + blocklight) * ao;
   float metalMask = isMetal ? 1.0 : 0.0;
-  indirect = mix(indirect, indirect * 0.35, metalMask);
+  indirect = mix(indirect, indirect * 0.0, metalMask);
   vec3 specular = brdf(
     color,
     F0,
@@ -148,9 +148,11 @@ vec3 getLighting(
     shadow,
     isMetal
   );
-  scatter = clamp(scatter, 0, 1);
-  scatter += blocklightSSS + skylightSSS;
-  return specular + ambientLight + scatter;
+  
+  scatter += (skylightSSS);
+  scatter *= ao;
+  scatter *= color;
+  return specular + scatter + ambientLight ;
 
 }
 

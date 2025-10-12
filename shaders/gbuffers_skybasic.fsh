@@ -28,7 +28,7 @@ const vec3 rainGrndCol = vec3(0.2353, 0.2353, 0.2353);
 //Day
 const vec3 dayZenCol = vec3(0.32, 0.52, 1.0);
 const vec3 dayHorCol = vec3(0.8353, 0.9176, 1.0);
-const vec3 dayGrndCol = vec3(0.1686, 0.3451, 0.5216);
+const vec3 dayGrndCol = vec3(0.1647, 0.3451, 0.6353);
 
 //Dawn
 const vec3 dawnZenCol = vec3(0.4392, 0.6353, 1.0);
@@ -152,7 +152,7 @@ vec3 skyScattering(vec3 pos) {
 
   float zenithBlend = clamp(pow(upPos, 0.35), 0, 1);
   float horizonBlend = clamp(pow(negatedMidPos, 4.5), 0, 1);
-  float groundBlend = clamp(pow(negatedDownPos, 0.35), 0, 1);
+  float groundBlend = clamp(pow(negatedDownPos, 0.25), 0, 1);
 
   zenithCol *= rayleigh * zenithBlend;
   horizonCol *= rayleigh * horizonBlend;

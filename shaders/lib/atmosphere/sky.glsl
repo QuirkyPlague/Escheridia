@@ -17,7 +17,7 @@ const vec3 rainGrndCol = vec3(0.2353, 0.2353, 0.2353);
 //Day
 const vec3 dayZenCol = vec3(0.32, 0.52, 1.0);
 const vec3 dayHorCol = vec3(0.8353, 0.9176, 1.0);
-const vec3 dayGrndCol = vec3(0.1686, 0.3451, 0.5216);
+const vec3 dayGrndCol = vec3(0.1647, 0.3451, 0.6353);
 
 //Dawn
 const vec3 dawnZenCol = vec3(0.4392, 0.6353, 1.0);
@@ -49,7 +49,7 @@ vec3 getSun(vec3 dir) {
   float negatedMidPos = 1.0 - midPos;
   float zenithBlend = clamp(pow(upPos, 0.35), 0, 1);
   float horizonBlend = clamp(pow(negatedMidPos, 4.5), 0, 1);
-  float groundBlend = clamp(pow(negatedDownPos, 0.35), 0, 1);
+  float groundBlend = clamp(pow(negatedDownPos, 0.25), 0, 1);
 
   float invCos = 1.0 - cosThetaSun;
   float invCos1 = 1.0 - mDotL;
@@ -70,7 +70,7 @@ vec3 getSun(vec3 dir) {
   vec3 sunColor;
   sunColor = currentSunColor(sunColor);
 
-  vec3 fullSun = sun * sunColor * 40.0 * sunHeightFactor;
+  vec3 fullSun = sun * sunColor * 15.0 * sunHeightFactor;
 
   vec3 moonColor = vec3(0.098, 0.1294, 0.1843);
   vec3 fullmoon = moon * moonColor * 13.3;
