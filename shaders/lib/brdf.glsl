@@ -50,7 +50,7 @@ vec3 brdf(
 
   #ifdef DO_SSR
   if (isMetal) {
-    kD *= 0.0;
+    kD *= 0.25;
 
   }
   #else

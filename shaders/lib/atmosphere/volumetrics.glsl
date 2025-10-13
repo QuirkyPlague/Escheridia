@@ -44,6 +44,17 @@ vec3 volumetricRaymarch(
     nightFogPhase,
     morningFogPhase
   );
+
+   const float rainFog[keys] = float[keys](
+    0.75,
+    1.0,
+    0.85,
+    0.75,
+    0.15,
+    0.15,
+    0.75
+
+  );
   const float ambientI[keys] = float[keys](0.5, 1.0, 1.0, 0.5, 0.15, 0.15, 0.5);
   int i = 0;
   //assings the keyframes
@@ -58,6 +69,7 @@ vec3 volumetricRaymarch(
   timeInterp = smoothstep(0.0, 1.0, timeInterp);
 
   float phaseVal = mix(fogPhase[i], fogPhase[i + 1], timeInterp);
+  float rain = mix(rainFog[i], rainFog[i + 1], timeInterp);
   float ambientIntensity = mix(ambientI[i], ambientI[i + 1], timeInterp);
   vec4 rayPos = endPos - startPos;
   vec4 stepSize = rayPos * (1.0 / stepCount);
@@ -81,7 +93,7 @@ vec3 volumetricRaymarch(
   //absCoeff = mix(absCoeff, vec3(1.0), PaleGardenSmooth);
   scatterCoeff = mix(scatterCoeff, vec3(0.00715), PaleGardenSmooth);
 
-  scatterCoeff = mix(scatterCoeff, vec3(0.00515), wetness);
+  scatterCoeff = mix(scatterCoeff, vec3(0.00315), wetness);
 
   if (inWater) {
     absCoeff = WATER_ABOSRBTION * 1.39;
@@ -103,6 +115,8 @@ vec3 volumetricRaymarch(
     henyeyGreensteinPhase(VdotL, phaseVal) * FORWARD_PHASE_INTENSITY +
     henyeyGreensteinPhase(VdotL, -0.25) * BACKWARD_PHASE_INTENSITY;
 
+  phase = mix(phase,henyeyGreensteinPhase(VdotL, 0.45) * rain +
+    henyeyGreensteinPhase(VdotL, -0.15) * 1.8 * rain, wetness);
   phase *= phaseMult;
 
   float rayleigh = Rayleigh(VdotL);
@@ -138,13 +152,13 @@ vec3 volumetricRaymarch(
       sceneColor * 0.025 + vec3(0.0588, 0.0706, 0.0784) * AMBIENT_FOG_MULT;
     ambientFogColor = mix(
       ambientFogColor,
-      vec3(0.0706, 0.0706, 0.0706),
+      vec3(0.1922, 0.1922, 0.1922),
       wetness
     );
     vec3 ambient = vec3(0.0);
     if(!inWater)
     {
-      ambient = ambientFogColor * 0.35 * ambientMult * ambientIntensity;
+      ambient = ambientFogColor * 0.15 * ambientMult * ambientIntensity;
     }
     // --- Direct inscattering ---
     vec3 singleScatter = scatterCoeff * phase * rayLength * sunColor * shadow;
@@ -154,8 +168,8 @@ vec3 volumetricRaymarch(
 
     multipleScatter += ambient * 0.5 * (1.0 - shadow);
 
-    vec3 sampleExtinction = absCoeff * 1.0;
-    float sampleTransmittance = exp(-rayLength * 1.0 * 0.5);
+    vec3 sampleExtinction = absCoeff * VL_EXT;
+    float sampleTransmittance = exp(-rayLength * 1.0 * 0.15);
 
     // combine single + multiple scattering
     vec3 totalInscatter = singleScatter + multipleScatter;
@@ -166,7 +180,7 @@ vec3 volumetricRaymarch(
     transmission *= sampleTransmittance;
   }
 
-  scatter *= 0.155;
+  scatter *= 0.075;
 
   return scatter + transmission;
 }

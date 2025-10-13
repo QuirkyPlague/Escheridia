@@ -6,6 +6,7 @@
 #include "/lib/postProcessing.glsl"
 #include "/lib/blockID.glsl"
 #include "/lib/tonemapping.glsl"
+#include "/lib/water/waves.glsl"
 
 in vec2 texcoord;
 
@@ -24,7 +25,7 @@ void main() {
   vec3 geoNormal = normalize((surfNorm - 0.5) * 2.0);
   float depth = texture(depthtex1, texcoord).r;
   vec4 mask = texture(colortex7, texcoord);
-
+  vec4 ao = texture(colortex9, texcoord);
   int blockID = int(mask) + 103;
   if (depth == 1) return; //return out of function to prevent lighting interating with sky
 
@@ -41,12 +42,46 @@ void main() {
 
   bool isMetal = SpecMap.g >= 230.0 / 255.0;
   bool canScatter = blockID == SSS_ID;
+  const float handDepth = MC_HAND_DEPTH * 0.5 + 0.5;
+  float flatness = max(dot(normalize(geoNormal), vec3(0.0, 1.0, 0.0)), 0.0);
+  float rainFactor =
+    clamp(smoothstep(13.5 / 15.0, 14.5 / 15.0, lightmap.y),0,1) * wetness;
+      rainFactor *= smoothstep(
+    0.2,
+    0.5,
+    texture(
+      puddleTex,
+      mod((feetPlayerPos.xz + cameraPosition.xz) / 2.0, 128.0) / 128.0
+    ).r
+  );
 
+  
+  #ifdef WAVES
+  if (flatness >= 1e-6 ) {
+ float farPlane = far / 0.75;
+   float waveFalloff = length(feetPlayerPos) / farPlane;
+    float waveIntensityRolloff = exp(
+      12.0 * WAVE_INTENSITY * (0.05 - waveFalloff)
+    );
+    float waveIntensity = 0.035 * WAVE_INTENSITY * waveIntensityRolloff * rainFactor;
+    float waveSoftness = 0.68 * WAVE_SOFTNESS;
+
+    vec3 rainNormal = rainNormals(
+      feetPlayerPos.xz + cameraPosition.xz,
+      waveSoftness,
+      waveIntensity, rainFactor
+    );
+   
+    
+      normal = mix(normal, rainNormal, rainFactor);
+  }
+      #endif
   //PBR
   float roughness = pow(1.0 - SpecMap.r, 2.0);
   float sss = 0.0;
   vec3 greyAlbedo = clamp(CSB(albedo, 1.0, 0.0, 2.115), 0.0, 1.0);
-  #if HC_SSS == 1
+
+  #ifdef HC_SSS
   if (canScatter) {
     greyAlbedo = clamp(CSB(albedo, 1.0, 0.0, 0.4), 0.0, 1.0);
     sss = clamp(max(luminance(greyAlbedo), float(greyAlbedo)), 0, 1);
@@ -57,16 +92,32 @@ void main() {
   sss = SpecMap.b;
   #endif
 
+   float porosity;
+   #ifndef HC_SSS
+   if (SpecMap.b <= 64.0/255.0)
+   {
+    porosity = SpecMap.b * 4.0;
+    sss = 0.0;
+   }
+   else
+   {
+    sss = SpecMap.b;
+    porosity = 0.0;
+   }
+#endif
+
+  
   float emission = SpecMap.a;
   vec3 emissive = vec3(0.0);
   #ifndef HC_EMISSION
   if (emission < 255.0 / 255.0) {
     emissive += color.rgb * emission;
-    emissive += max(8.25 * pow(emissive, vec3(1.28)), 0.0);
+    emissive += max(2.25 * pow(emissive, vec3(0.58)), 0.0);
 
     emissive = CSB(emissive, 1.0, 0.75, 1.0);
   }
 #endif //HC_EMISSION
+
   vec3 shadow = getSoftShadow(feetPlayerPos, geoNormal, sss);
   vec3 f0 = vec3(0.0);
   if (isMetal) {
@@ -74,7 +125,9 @@ void main() {
   } else {
     f0 = vec3(SpecMap.g);
   }
-  float ao = encodedNormal.z * 0.5 + 0.5;
+  
+  roughness = mix(roughness,roughness *0.013, rainFactor * (1.0 - porosity) * 0.8);
+  color.rgb *= 1.0 - 0.5 * rainFactor * porosity;
 
   color.rgb =
     getLighting(
@@ -86,7 +139,7 @@ void main() {
       f0,
       roughness,
       V,
-      ao,
+      ao.a,
       sss,
       VdotL,
       isMetal,

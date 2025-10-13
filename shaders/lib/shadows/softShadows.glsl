@@ -17,8 +17,8 @@ vec3 getSoftShadow(vec3 feetPlayerPos, vec3 normal, float SSS) {
   const float shadowMapPixelSize = 1.0 / float(SHADOW_RESOLUTION);
   float sampleRadius = SHADOW_SOFTNESS * shadowMapPixelSize;
   vec3 biasAdjustFactor = vec3(
-    shadowMapPixelSize * 2.45,
-    shadowMapPixelSize * 2.45,
+    shadowMapPixelSize * 3.15,
+    shadowMapPixelSize * 3.15,
     -0.00003803515625
   );
 

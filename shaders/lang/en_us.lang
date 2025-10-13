@@ -1,0 +1,133 @@
+option.TONEMAPPING_TYPE = Tonemap operator
+    value.TONEMAPPING_TYPE.0 = Aces 
+    value.TONEMAPPING_TYPE.1 = Uncharted 2 
+    value.TONEMAPPING_TYPE.2 = Reinhard Jodie
+    value.TONEMAPPING_TYPE.3 = AgX
+    value.TONEMAPPING_TYPE.4 = Generic
+    value.TONEMAPPING_TYPE.5 = Hejl Burgess
+    value.TONEMAPPING_TYPE.6 = Lottes
+
+option.WATER_FOG_DENSITY = Water Fog Density
+option.FOG_DENSITY.comment = How thick the underwater fog is
+
+option.SUN_ROTATION = Sun Angle
+option.SUN_ROTATION.comment = How much the sun is offset from the center
+
+option.SHADOW_SOFTNESS = Shadow softness
+option.SHADOW_SOFTNESS.comment = How smooth or sharp your shadows are. also affects their clarity
+
+option.SHADOW_RESOLUTION = Shadow resolution
+option.SHADOW_RESOLUTION.comment = Resolution of the shadowmap. How much detail is in the shadows. §cHigh performance impact§r
+
+option.SHADOW_SAMPLES = Shadow Sample Count
+option.SHADOW_SAMPLES.comment = Increses samples used by the shadow filter §cHigh performance impact§r
+
+option.SHADOW_DISTANCE = Shadow distance
+option.SHADOW_DISTANCE.comment = Increase the range of the shadows §cHigh performance impact§r
+    value.SHADOW_DISTANCE.64.0 = 4 chunks
+    value.SHADOW_DISTANCE.128.0 = 8 chunks
+    value.SHADOW_DISTANCE.192.0 = 12 chunks
+    value.SHADOW_DISTANCE.256.0 = 16 chunks
+    value.SHADOW_DISTANCE.384.0 = 24 chunks
+    value.SHADOW_DISTANCE.512.0 = 32 chunks
+    
+option.VOLUMETRICS = Volumetric Fog
+option.VL_SAMPLES = Volumetric sample count
+option.VL_SAMPLES.comment = Increase the quality of volumetrics. §cPotentially major performance impact§r
+option.VL_EXT = Volumetric Fog Extinction
+option.VL_EXT.commone = Adjusts the density of the fog (lower = more fog)
+
+option.AMBIENT_FOG_MULT = Ambient fog multiplier
+option.AMBIENT_FOG_MULT.comment = Adjust how much fog is present within shadow
+
+option.MULTI_SCATTER_INTENSITY = Multiple Scattering Intensity
+option.MULTI_SCATTER_INTENSITY.comment = Adjust the strength of multiple scattering (amplifies the brighter tones of fog)
+
+option.WATER_FOG_GLSL = Enable water fog
+option.WATER_FOG_GLSL.comment = Enable or disable the water fog effect. §cNo performance impact!§r
+    value.WATER_FOG_GLSL.0  = off
+    value.WATER_FOG_GLSL.1  = on
+
+
+option.FXAA_GLSL = FXAA
+option.FXAA_GLSL.comment = Enables the use of Fast Approximate anti aliasing (FXAA)
+    value.FXAA_GLSL.0  = off
+    value.FXAA_GLSL.1  = on
+
+
+
+option.DO_SSR = SSR
+option.DO_SSR.comment = Enables the use of screenspace reflections (SSR)
+    value.DO_SSR.0 = off
+    value.DO_SSR.1 = on
+
+
+option.BINARY_REFINEMENT = Binary Refinement Pass
+option.BINARY_REFINEMENT.comment = Improves SSR accuracy with extra refinement steps at the cost of performance
+    value.BINARY_REFINEMENT.0 = Off
+    value.BINARY_REFINEMENT.1 = On
+
+option.NAME = Escheridia V3
+    value.NAME.0 =§cBy QuirkyPlague§r
+    value.NAME.1 =§bBy QuirkyPlague§g
+
+option.ROUGH_REFLECTION = Rough Reflections 
+option.ROUGH_REFLECTION.comment = Enables the use of roughness varied rough reflections §3Will introduce noise
+
+
+
+option.ABSORPTION_R = Red Absorption
+option.ABSORPTION_G = Green Absorption
+option.ABSORPTION_B = Blue Absorption
+    suffix.ABSORPTION_R = %
+    suffix.ABSORPTION_G = %
+    suffix.ABSORPTION_B = %
+
+option.SCATTER_R = Red Scattering
+option.SCATTER_G = Green Scattering
+option.SCATTER_B = Blue Scattering
+    suffix.SCATTER_R = %
+    suffix.SCATTER_G = %
+    suffix.SCATTER_B = %
+    
+option.SCATTER_COEFF = Scattering Amount
+option.ABSORPTION_COEFF = Absorption Amount
+
+option.RAYLEIGH_COEFF = Rayleigh Coefficient
+option.SUN_ANGULAR_RADIUS_MULT = Sun Size
+option.MOON_ANGULAR_RADIUS_MULT = Moon Size
+option.SUN_BRIGHTNESS_MULT = Sun Brightness
+option.MOON_BRIGHTNESS_MULT = Moon Brightness
+
+option.BLOOM_RADIUS = Bloom Radius 
+option.BLOOM_QUALITY = Bloom Quality
+option.BLOOM_GLSL = Bloom:
+    value.BLOOM_GLSL.0 = Off 
+    value.BLOOM_GLSL.1 = On 
+
+option.WAVE_FREQUENCY  = Wave Frequency 
+option.WAVE_SPEED = Wave Speed
+option.WAVE_INTENSITY = Wave Intensity
+option.WAVE_SOFTNESS = Wave Softness
+option.WAVE_SOFTNESS.comment = How sharp each octave is
+option.WAVE_OCTAVES = Wave Octaves 
+option.WAVE_PULL = Wave Pull Factor
+option.WAVE_PULL.comment = Defines the general wave shape
+option.WAVE_RANDOMNESS = Wave Randomness
+option.WAVE_RANDOMNESS.comment = Higher values result in less random waves
+
+option.UNDERWATER_FOG_DENSITY = Underwater Fog Density
+option.WAVES = Water Waves
+
+option.MORNING_PHASE = Morning Fog Anisotropy
+option.DAY_PHASE = Day Fog Anisotropy
+option.NOON_PHASE = Noon Fog Anisotropy
+option.EVENING_PHASE = Evening Fog Anisotropy
+option.NIGHT_PHASE = Night Fog Anisotropy
+
+option.ZENITH_BLEND = Zenith Blend Point
+option.HORIZON_BLEND = Horizon Blend Point
+option.GROUND_BLEND = Ground Blend Point
+
+option.HC_SSS = Integrated Subsurface Scattering
+option.HC_EMISSION = Integrated Emission

@@ -33,7 +33,7 @@ const vec3 dayGrndCol = vec3(0.1647, 0.3451, 0.6353);
 //Dawn
 const vec3 dawnZenCol = vec3(0.4392, 0.6353, 1.0);
 const vec3 dawnHorCol = vec3(0.8627, 0.6902, 0.4941);
-const vec3 dawnGrndCol = vec3(0.1804, 0.4902, 0.7098);
+const vec3 dawnGrndCol = vec3(0.2549, 0.3922, 0.6118);
 
 //Dusk
 const vec3 duskZenCol = vec3(0.3098, 0.4353, 0.6157);
@@ -193,13 +193,13 @@ vec3 skyScattering(vec3 pos) {
   float angularDist1 = clamp(invCos1, -1.0, 1.0);
   float sunHeightFactor = smoothstep(groundBlend, groundBlend + 0.28, dir.y);
   float sun = smoothstep(
-    0.0003 * SUN_ANGLUAR_RADIUS_MULT,
-    0.0003 * SUN_ANGLUAR_RADIUS_MULT * 0.9,
+    0.0003 * SUN_ANGULAR_RADIUS_MULT,
+    0.0003 * SUN_ANGULAR_RADIUS_MULT * 0.9,
     angularDist
   );
   float moon = smoothstep(
-    0.0002 * MOON_ANGLUAR_RADIUS_MULT,
-    0.0001 * MOON_ANGLUAR_RADIUS_MULT * 0.03,
+    0.0002 * MOON_ANGULAR_RADIUS_MULT,
+    0.0001 * MOON_ANGULAR_RADIUS_MULT * 0.03,
     angularDist1
   );
 

@@ -25,6 +25,7 @@ uniform sampler2D colortex5;
 uniform sampler2D colortex6;
 uniform sampler2D colortex7;
 uniform sampler2D colortex8;
+uniform sampler2D colortex9;
 
 //depth buffer
 uniform sampler2D depthtex0;
@@ -42,7 +43,8 @@ uniform sampler2D specular;
 
 //noises
 uniform sampler3D blueNoiseTex;
-uniform sampler2D looigi;
+uniform sampler2D puddleTex;
+uniform sampler2D noisetex;
 
 //additional uniforms
 uniform vec3 cameraPosition;
@@ -61,12 +63,12 @@ uniform vec4 entityColor;
 
 //constants
 const float PI = float(3.14159);
-const float wetnessHalflife = 0.3;
-const float drynessHalflife = 3.0;
+const float wetnessHalflife = 35.3;
+const float drynessHalflife = 75.0;
 const float sunPathRotation = SUN_ROTATION;
 const float eyeBrightnessHalflife = 5.0;
 const float shadowDistance = SHADOW_DISTANCE;
-const float shadowFarPlane = 684.0;
+const float shadowFarPlane = 512.0;
 const float shadowDistanceRenderMul = 1.0;
 
 //lights

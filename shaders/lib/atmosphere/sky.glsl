@@ -57,13 +57,13 @@ vec3 getSun(vec3 dir) {
   float angularDist1 = clamp(invCos1, -1.0, 1.0);
   float sunHeightFactor = smoothstep(groundBlend, groundBlend + 0.28, dir.y);
   float sun = smoothstep(
-    0.0003 * SUN_ANGLUAR_RADIUS_MULT,
-    0.0003 * SUN_ANGLUAR_RADIUS_MULT * 0.9,
+    0.0003 * SUN_ANGULAR_RADIUS_MULT,
+    0.0003 * SUN_ANGULAR_RADIUS_MULT * 0.9,
     angularDist
   );
   float moon = smoothstep(
-    0.0002 * MOON_ANGLUAR_RADIUS_MULT,
-    0.0001 * MOON_ANGLUAR_RADIUS_MULT * 0.03,
+    0.0002 * MOON_ANGULAR_RADIUS_MULT,
+    0.0001 * MOON_ANGULAR_RADIUS_MULT * 0.03,
     angularDist1
   );
 

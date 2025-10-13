@@ -92,7 +92,9 @@ void main() {
   vec3 encodedNormal = texture(colortex2, texcoord).rgb;
   vec2 lightmap = texture(colortex1, texcoord).rg;
   vec4 waterMask = texture(colortex5, texcoord);
-  
+  vec3 surfNorm = texture(colortex4, texcoord).rgb;
+  vec3 geoNormal = normalize((surfNorm - 0.5) * 2.0);
+
   vec3 albedo = color.rgb;
 
   int blockID = int(waterMask) + 100;
@@ -120,14 +122,40 @@ void main() {
     
   vec3 normal = normalize((encodedNormal - 0.5) * 2.0);
   normal = mat3(gbufferModelView) * normal;
+  
+  const float handDepth = MC_HAND_DEPTH * 0.5 + 0.5;
+  float flatness = max(dot(normalize(geoNormal), vec3(0.0, 1.0, 0.0)), 0.0);
+  float baseRoughness = pow(1.0 - SpecMap.r, 2.0);
+  float roughness = isWater ? 0.0 : baseRoughness;
+  float smoothLightmap = smoothstep(0.812, 1.0, lightmap.g);
+  float rainFactor =0.0;
+    if(depth > handDepth )
+    {
+      if(!isWater)
+      {
+         rainFactor =
+    clamp(smoothstep(13.5 / 15.0, 14.5 / 15.0, lightmap.y),0,1) * wetness;
+      rainFactor *= smoothstep(
+    0.2,
+    0.5,
+    texture(
+      puddleTex,
+      mod((feetPlayerPos.xz + cameraPosition.xz) / 2.0, 128.0) / 128.0
+    ).r
+  ) * flatness;
+      }
+     
+    }
 
+  
+ 
   #ifdef WAVES
-  if (isWater) {
+  if (isWater && flatness >= 1e-6 ) {
     float waveFalloff = length(feetPlayerPos) / farPlane;
     float waveIntensityRolloff = exp(
       12.0 * WAVE_INTENSITY * (0.05 - waveFalloff)
     );
-    float waveIntensity = 0.237 * WAVE_INTENSITY * waveIntensityRolloff;
+    float waveIntensity = 0.137 * WAVE_INTENSITY * waveIntensityRolloff;
     float waveSoftness = 0.018 * WAVE_SOFTNESS;
 
     normal = waveNormal(
@@ -137,8 +165,23 @@ void main() {
     );
     normal = mat3(gbufferModelView) * normal;
   }
+   float waveFalloff = length(feetPlayerPos) / farPlane;
+    float waveIntensityRolloff = exp(
+      12.0 * WAVE_INTENSITY * (0.05 - waveFalloff)
+    );
+    float waveIntensity = 0.035 * WAVE_INTENSITY * waveIntensityRolloff * rainFactor;
+    float waveSoftness = 0.68 * WAVE_SOFTNESS;
+
+    vec3 rainNormal = rainNormals(
+      feetPlayerPos.xz + cameraPosition.xz,
+      waveSoftness,
+      waveIntensity, rainFactor
+    );
+    rainNormal = mat3(gbufferModelView) * rainNormal;
+    
+      normal = mix(normal, rainNormal, rainFactor);
   #else
-  // keep branch to preserve exact original behavior for water path
+
   if (isWater) {
     normal = normal;
   }
@@ -156,13 +199,12 @@ void main() {
   if (inWater && isWater) {
     f0 = vec3(1.0);
   }
-
-  float baseRoughness = pow(1.0 - SpecMap.r, 2.0);
-  float roughness = isWater ? 0.0 : baseRoughness;
-  float smoothLightmap = smoothstep(0.812, 1.0, lightmap.g);
-  float wetRoughness = mix(roughness, roughness * 0.06, wetness);
- 
-  roughness = mix(roughness,wetRoughness, smoothLightmap);
+  
+  
+  f0 = mix(f0, vec3(0.02), rainFactor);
+  float wetRoughness = mix(roughness* 0.7, roughness * 0.0, rainFactor);
+  
+  roughness = mix(roughness,wetRoughness, wetness);
   
   bool canReflect = roughness < 0.3;
   vec3 noiseB = blue_noise(floor(gl_FragCoord.xy), frameCounter, SSR_STEPS);
@@ -265,8 +307,8 @@ void main() {
   }
 
   reflectedColor *= F;
- 
- 
+  vec3 wetReflectedColor = mix(color.rgb, reflectedColor  , rainFactor);
+  reflectedColor = mix(reflectedColor, wetReflectedColor, wetness);
   color.rgb += reflectedColor;
 
   #else
