@@ -47,13 +47,13 @@ void main() {
   float rainFactor =
     clamp(smoothstep(13.5 / 15.0, 14.5 / 15.0, lightmap.y),0,1) * wetness;
       rainFactor *= smoothstep(
-    0.2,
-    0.5,
+    -0.3,
+    0.8,
     texture(
       puddleTex,
-      mod((feetPlayerPos.xz + cameraPosition.xz) / 2.0, 128.0) / 128.0
+      mod((feetPlayerPos.xz + cameraPosition.xz) / 2.0, 64.0) / 64.0
     ).r
-  );
+  ) * snowBiomeSmooth * hotBiomeSmooth;
 
   
   #ifdef WAVES
@@ -96,7 +96,7 @@ void main() {
    #ifndef HC_SSS
    if (SpecMap.b <= 64.0/255.0)
    {
-    porosity = SpecMap.b * 4.0;
+    porosity = SpecMap.b * 6.0;
     sss = 0.0;
    }
    else

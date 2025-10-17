@@ -23,7 +23,7 @@ layout(location = 4) out vec4 rainMask;
 
 
 void main() {
-  color = texture(gtexture, texcoord * 2) * glcolor;
+  color = texture(gtexture, texcoord * 1.5) * glcolor;
 
   vec3 normalMaps = texture(normals, texcoord).rgb;
   normalMaps = normalMaps * 2.0 - 1.0;

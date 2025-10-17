@@ -62,5 +62,5 @@ void main() {
   #endif
   color.rgb += emissive;
   ao.a = texture(normals,texcoord).z * 0.5 + 0.5;
-  
+  color.rgb = mix(color.rgb, entityColor.rgb, entityColor.a);
 }

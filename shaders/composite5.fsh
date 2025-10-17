@@ -127,8 +127,9 @@ void main() {
   float flatness = max(dot(normalize(geoNormal), vec3(0.0, 1.0, 0.0)), 0.0);
   float baseRoughness = pow(1.0 - SpecMap.r, 2.0);
   float roughness = isWater ? 0.0 : baseRoughness;
-  float smoothLightmap = smoothstep(0.812, 1.0, lightmap.g);
-  float rainFactor =0.0;
+  float smoothLightmap = clamp(smoothstep(13.5 / 15.0, 14.5 / 15.0, lightmap.y),0,1);
+
+  float rainFactor = 0.0;
     if(depth > handDepth )
     {
       if(!isWater)
@@ -136,13 +137,13 @@ void main() {
          rainFactor =
     clamp(smoothstep(13.5 / 15.0, 14.5 / 15.0, lightmap.y),0,1) * wetness;
       rainFactor *= smoothstep(
-    0.2,
-    0.5,
+    -0.15,
+    0.8,
     texture(
       puddleTex,
-      mod((feetPlayerPos.xz + cameraPosition.xz) / 2.0, 128.0) / 128.0
+      mod((feetPlayerPos.xz + cameraPosition.xz) / 2.0, 64.0) / 64.0
     ).r
-  ) * flatness;
+  ) * flatness * snowBiomeSmooth * hotBiomeSmooth;
       }
      
     }
@@ -150,8 +151,27 @@ void main() {
   
  
   #ifdef WAVES
-  if (isWater && flatness >= 1e-6 ) {
-    float waveFalloff = length(feetPlayerPos) / farPlane;
+  if (isWater) {
+    if(flatness >= 1e-6)
+    {
+      float waveFalloff = length(feetPlayerPos) / farPlane;
+    float waveIntensityRolloff = exp(
+      12.0 * WAVE_INTENSITY * (0.05 - waveFalloff)
+    );
+    float waveIntensity = 0.137 * WAVE_INTENSITY * waveIntensityRolloff;
+    float waveSoftness = 0.018 * WAVE_SOFTNESS;
+
+    normal = waveNormal(
+      feetPlayerPos.xz + cameraPosition.xz,
+      waveSoftness,
+      waveIntensity
+    );
+    normal = mat3(gbufferModelView) * normal;
+    }
+  }
+  if(inWater && isWater)
+  {
+       float waveFalloff = length(feetPlayerPos) / farPlane;
     float waveIntensityRolloff = exp(
       12.0 * WAVE_INTENSITY * (0.05 - waveFalloff)
     );
@@ -165,11 +185,12 @@ void main() {
     );
     normal = mat3(gbufferModelView) * normal;
   }
+
    float waveFalloff = length(feetPlayerPos) / farPlane;
     float waveIntensityRolloff = exp(
       12.0 * WAVE_INTENSITY * (0.05 - waveFalloff)
     );
-    float waveIntensity = 0.035 * WAVE_INTENSITY * waveIntensityRolloff * rainFactor;
+    float waveIntensity = 0.085 * WAVE_INTENSITY  * rainFactor;
     float waveSoftness = 0.68 * WAVE_SOFTNESS;
 
     vec3 rainNormal = rainNormals(
@@ -202,8 +223,10 @@ void main() {
   
   
   f0 = mix(f0, vec3(0.02), rainFactor);
+  float bRough = roughness;
   float wetRoughness = mix(roughness* 0.7, roughness * 0.0, rainFactor);
   
+
   roughness = mix(roughness,wetRoughness, wetness);
   
   bool canReflect = roughness < 0.3;
@@ -308,7 +331,7 @@ void main() {
 
   reflectedColor *= F;
   vec3 wetReflectedColor = mix(color.rgb, reflectedColor  , rainFactor);
-  reflectedColor = mix(reflectedColor, wetReflectedColor, wetness);
+  reflectedColor = mix(reflectedColor, wetReflectedColor, rainFactor);
   color.rgb += reflectedColor;
 
   #else

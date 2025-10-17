@@ -60,6 +60,9 @@ uniform float wetness;
 uniform int isEyeInWater;
 uniform int worldTime;
 uniform vec4 entityColor;
+uniform bool isColdBiome;
+uniform float snowBiomeSmooth;
+uniform float hotBiomeSmooth;
 
 //constants
 const float PI = float(3.14159);
