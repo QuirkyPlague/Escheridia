@@ -26,7 +26,7 @@ const vec3 rainHorCol = vec3(0.7059, 0.7569, 0.7961);
 const vec3 rainGrndCol = vec3(0.1569, 0.1922, 0.2314);
 
 //Day
-const vec3 dayZenCol = vec3(0.32, 0.52, 1.0);
+const vec3 dayZenCol = vec3(0.5255, 0.6667, 1.0);
 const vec3 dayHorCol = vec3(0.8353, 0.9176, 1.0);
 const vec3 dayGrndCol = vec3(0.1647, 0.3451, 0.6353);
 
@@ -36,8 +36,8 @@ const vec3 dawnHorCol = vec3(0.8627, 0.6902, 0.4941);
 const vec3 dawnGrndCol = vec3(0.2549, 0.3922, 0.6118);
 
 //Dusk
-const vec3 duskZenCol = vec3(0.3098, 0.4353, 0.6157);
-const vec3 duskHorCol = vec3(0.8314, 0.5765, 0.3961);
+const vec3 duskZenCol = vec3(0.3922, 0.5529, 0.7765);
+const vec3 duskHorCol = vec3(0.8784, 0.5451, 0.3059);
 const vec3 duskGrndCol = vec3(0.2118, 0.2706, 0.6118);
 
 //Night
@@ -46,15 +46,15 @@ const vec3 nightHorCol = vec3(0.1059, 0.1569, 0.2314);
 const vec3 nightGrndCol = vec3(0.0196, 0.0275, 0.1294);
 
 const vec4 sunriseScatter = vec4(1.0, 0.7137, 0.4275, 0.73);
-const vec4 dayScatter = vec4(0.7333, 0.5922, 0.3922, 0.715);
+const vec4 dayScatter = vec4(0.5765, 0.4863, 0.3451, 0.715);
 const vec4 noonScatter = vec4(0.7569, 0.6588, 0.5255, 0.845);
 const vec4 nightScatter = vec4(0.8824, 0.6196, 0.2745, 0.65);
 
 vec3 skyScattering(vec3 pos) {
   vec3 dir = normalize(pos);
-  float VoL = dot(dir, worldLightVector);
+  float VoL = dot(dir, worldSunDir);
   float rayleigh =
-    Rayleigh(VoL) * mix(8.0, 17.0, clamp(worldSunDir.y * 0.5 + 0.5, 0.0, 1.0));
+    Rayleigh(VoL) * 12.1;
 
   float upPos = clamp(dir.y, 0, 1);
   float downPos = clamp(dir.y, -1, 0);
@@ -203,13 +203,18 @@ vec3 skyScattering(vec3 pos) {
     angularDist1
   );
 
-  vec3 fullSun = sun * sunColor * 40.0 * sunHeightFactor * SUN_BRIGHTNESS_MULT;
+  vec3 fullSun = sun * sunColor *  10.0 * sunHeightFactor * SUN_BRIGHTNESS_MULT;
 
   vec3 moonColor = vec3(0.098, 0.1294, 0.1843);
   vec3 fullmoon =
     moon * moonColor * 6.3 * sunHeightFactor * MOON_BRIGHTNESS_MULT;
 
-  return sky + finalMie + fullSun + fullmoon;
+  vec3 color = sky + finalMie + fullSun + fullmoon;
+  float skyLuminance = dot(color, vec3(1.0));
+	color = pow(color, vec3(1.5));
+	color *= skyLuminance / dot(color, vec3(1.0));
+
+  return color;
 }
 
 /* RENDERTARGETS: 0 */

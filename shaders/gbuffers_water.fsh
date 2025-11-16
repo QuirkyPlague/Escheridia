@@ -5,7 +5,7 @@
 #include "/lib/shadows/softShadows.glsl"
 #include "/lib/postProcessing.glsl"
 #include "/lib/blockID.glsl"
-
+#include "/lib/atmosphere/distanceFog.glsl"
 uniform sampler2D gtexture;
 
 uniform float alphaTestRef = 0.1;
@@ -20,6 +20,7 @@ in vec3 viewPos;
 in vec3 feetPlayerPos;
 in vec3 worldPos;
 flat in int blockID;
+in float emission;
 
 /* RENDERTARGETS: 0,1,2,3,4,5 */
 layout(location = 0) out vec4 color;
@@ -46,6 +47,8 @@ void main() {
   if (color.a < 0.1) {
     discard;
   }
+  vec3 shadowViewPos = (shadowModelView * vec4(feetPlayerPos, 1.0)).xyz;
+  vec4 shadowClipPos = shadowProjection * vec4(shadowViewPos, 1.0);
   vec3 viewDir = normalize(viewPos);
   vec3 V = normalize(cameraPosition - worldPos);
   vec3 L = normalize(worldLightVector);
@@ -70,7 +73,7 @@ void main() {
     emissive = CSB(emissive, 1.0 * 1.0, 1.0, 1.0);
   }
 
-  vec3 shadow = getSoftShadow(feetPlayerPos, geoNormal.rgb, sss);
+  vec3 shadow = getSoftShadow(shadowClipPos, geoNormal.rgb, sss);
   vec3 f0 = vec3(0.0);
   if (isMetal) {
     f0 = color.rgb;
@@ -102,7 +105,12 @@ void main() {
     VdotL,
     isMetal,
     normal
-  );
- 
+  ) + emissive;
+  
+
+
   color = vec4(lighting, color.a);
+  float depth = texture(depthtex0, texcoord).r;
+  vec3 eyePlayerPos = feetPlayerPos - gbufferModelViewInverse[3].xyz;
+  color = vec4(borderFog(color.rgb, eyePlayerPos, depth), color.a);
 }

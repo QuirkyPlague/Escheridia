@@ -8,14 +8,14 @@
 #include "/lib/tonemapping.glsl"
 
 //Sun/moon
-const vec4 sunlightColor = vec4(1.1, 0.83627, 0.692, 0.81);
+const vec4 sunlightColor = vec4(1.1, 0.860, 0.522, 0.81);
 const vec4 noonSunlightColor = vec4(0.6824, 0.6824, 0.6824, 1.0);
 const vec4 morningSunlightColor = vec4(0.7451, 0.3137, 0.1078, 0.85);
-const vec4 eveningSunlightColor = vec4(0.7529, 0.3765, 0.1451, 1.0);
+const vec4 eveningSunlightColor = vec4(0.7725, 0.2863, 0.0824, 1.0);
 const vec4 moonlightColor = vec4(0.0549, 0.098, 0.2353, 0.4);
 
-const vec4 skylightColor = vec4(0.8314, 0.8784, 1.0, 0.731);
-const vec4 morningSkylightColor = vec4(0.4863, 0.6667, 0.8745, 0.821);
+const vec4 skylightColor = vec4(0.7412, 0.8157, 1.0, 0.618);
+const vec4 morningSkylightColor = vec4(0.4863, 0.6667, 0.8745, 0.521);
 const vec4 eveningSkylightColor = vec4(0.3294, 0.4549, 0.8235, 0.721);
 const vec4 nightSkylightColor = vec4(0.2078, 0.302, 0.5412, 0.951);
 
@@ -44,7 +44,7 @@ vec3 getLighting(
     0.0, //sunrise
     0.0417, //day
     0.45, //noon
-    0.5192, //sunset
+    0.4892, //sunset
     0.5417, //night
     0.9527, //midnight
     1.0 //sunrise
@@ -98,7 +98,7 @@ vec3 getLighting(
   float sunIntensity = mix(sunCol[i].a, sunCol[i + 1].a, timeInterp);
   float rain = mix(rainLight[i], rainLight[i + 1], timeInterp);
   float sunHeight = dot(worldLightVector, vec3(0.0, 1.0, 0.0));
-  float shadowFade = smoothstep(0.05, 0.1, worldLightVector.y);
+  float shadowFade = smoothstep(0.005, 0.1, worldLightVector.y);
   float shadowSmooth = exp(-1.0 * SHADOW_DISTANCE);
   float shadowSmoothFade = smoothstep(1.0, 0.0, shadowSmooth);
   shadow *= shadowSmoothFade;
@@ -117,12 +117,12 @@ vec3 getLighting(
   float skyIntensity = mix(skyCol[i].a, skyCol[i + 1].a, timeInterp);
   ;
   skylight *= skyIntensity;
-  skylight += max(5.95 * pow(skylight, vec3(2.55)), 0.0);
-  skylight *= min(1.07 * pow(skylight, vec3(0.6)), 0.67);
+  skylight += max(9.95 * pow(skylight, vec3(2.55)), 0.0);
+  skylight *= min(3.07 * pow(skylight, vec3(1.8)), 0.67);
 
   vec3 blocklight = blocklightColor.rgb * lightmap.r;
   
-  blocklight *= max(2.39 * pow(blocklight, vec3(3.75)), 0.0);
+  blocklight *= max(1.59 * pow(blocklight, vec3(3.75)), 0.0);
   blocklight += min(1.7 * pow(blocklight, vec3(0.5)), 3.9);
   blocklight  *= smoothstep(0.0, 0.125, blocklight); 
 
@@ -134,12 +134,13 @@ vec3 getLighting(
 
 vec3 skylightSSS = vec3(0.0);
 vec3 scatter = vec3(0.0);
-  if (faceNdl <= 1e-6) {
-  scatter = sunlight * phase * shadow;
+ scatter = sunlight * phase * shadow;
   vec3 baseScatter = sunlight * shadow;
   scatter += baseScatter * 2 ;
   scatter *= hasSSS;
   scatter *= sss;
+  if (faceNdl >= 1e-6) {
+    scatter *= 0.45;
   }
  
   skylightSSS = skylight;
@@ -157,7 +158,7 @@ vec3 scatter = vec3(0.0);
   
   vec3 indirect = (skylight + blocklight) * ao;
   float metalMask = isMetal ? 1.0 : 0.0;
-  indirect = mix(indirect, indirect * 0.35, metalMask);
+  indirect = mix(indirect, indirect * 0.15, metalMask);
   vec3 specular = brdf(
     color,
     F0,
@@ -184,7 +185,7 @@ vec3 currentSunColor(vec3 color) {
     0.0, //sunrise
     0.0417, //day
     0.45, //noon
-    0.5192, //sunset
+    0.4892, //sunset
     0.5417, //night
     0.9417, //midnight
     1.0 //sunrise

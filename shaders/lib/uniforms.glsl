@@ -44,7 +44,7 @@ uniform sampler2D specular;
 //noises
 uniform sampler3D blueNoiseTex;
 uniform sampler2D puddleTex;
-uniform sampler2D noisetex;
+uniform sampler2D waterTex;
 
 //additional uniforms
 uniform vec3 cameraPosition;
@@ -60,6 +60,8 @@ uniform float wetness;
 uniform int isEyeInWater;
 uniform int worldTime;
 uniform vec4 entityColor;
+uniform int biome;
+uniform int biome_category;
 uniform bool isColdBiome;
 uniform float snowBiomeSmooth;
 uniform float hotBiomeSmooth;
@@ -73,7 +75,7 @@ const float eyeBrightnessHalflife = 5.0;
 const float shadowDistance = SHADOW_DISTANCE;
 const float shadowFarPlane = 512.0;
 const float shadowDistanceRenderMul = 1.0;
-
+const float ambientOcclusionLevel = 1.0;
 //lights
 uniform vec3 sunPosition;
 uniform vec3 moonPosition;

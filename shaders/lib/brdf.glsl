@@ -3,6 +3,34 @@
 
 #include "/lib/tonemapping.glsl"
 
+float BurleyFrostbite(float roughness, float n_dot_l, float n_dot_v, float v_dot_h)
+{
+    float energyBias = 0.5 * roughness;
+    float energyFactor = mix(1.0, 1.0 / 1.51, roughness);
+
+    float FD90MinusOne = energyBias + 2.0 * v_dot_h * v_dot_h * roughness - 1.0f;
+    float FDL = 1.0f + (FD90MinusOne * pow(1.0f - n_dot_l, 5.0f));
+    float FDV = 1.0f + (FD90MinusOne * pow(1.0f - n_dot_v, 5.0f));
+
+    return FDL * FDV * energyFactor;
+}
+
+#define BRDF_GTR_GAMMA 1.5
+float BRDF_D(float roughness, float n_dot_h)
+{
+    float m = roughness * roughness;
+    float m2 = m * m;
+    float d = (n_dot_h * m2 - n_dot_h) * n_dot_h + 1.0;
+
+    float t1 = pow(d, -BRDF_GTR_GAMMA);
+    float t2 = 1.0 - pow(m2, -(BRDF_GTR_GAMMA - 1.0));
+
+    return (BRDF_GTR_GAMMA - 1.0) * (m2 * t1 - t1) / t2;
+}
+
+
+
+
 vec3 brdf(
   vec3 albedo,
   vec3 F0,
@@ -20,27 +48,33 @@ vec3 brdf(
   // calculate per-light radiance
   float dist = length(L);
   float attenuation = 1.0 / (dist * dist);
-  currentSunlight += max(4.75 * pow(currentSunlight, vec3(0.75)), 0.0);
+  currentSunlight += max(3.95 * pow(currentSunlight, vec3(0.85)), 0.0);
 
   vec3 radiance = currentSunlight * shadow * attenuation;
 
-  vec3 F = fresnelSchlick(max(dot(H, V), 0.0001), F0);
-
-  // cook-torrance brdf
-  float NDF = DistributionGGX(N, H, roughness);
-  float G = GeometrySmith(N, V, L, roughness);
-
-  vec3 numerator = NDF * G * F;
-
+  
   float NdotL = clamp(dot(N, L), 0.0, 1.0);
   float NdotV = clamp(dot(N, V), 0.0, 1.0);
+  float NdotH = clamp(dot(N, V), 0.0, 1.0);
   float VdotH = clamp(dot(V, H), 0.0, 1.0);
+  vec3 F = fresnelSchlick(max(dot(H, V), 0.0001), F0);
+  
+  // cook-torrance brdf
 
-  float denominator = 4.0 * NdotV * NdotL + 0.0001;
+  float NDF = DistributionGGX(N, H, roughness);
+  float G = GeometrySmith(N, V, L, roughness);
+  
+  vec3 numerator = NDF * G * F;
+
+
+
+  float denominator = 3.0 * NdotV * NdotL + 0.0001;
   vec3 spec = numerator / denominator;
   
   spec = lottesTonemap(spec);
-
+  spec *= 3.2;
+  float diff = BurleyFrostbite(roughness, NdotL,NdotV, VdotH);
+  diff /= PI;
   vec3 kS = F;
   vec3 kD = vec3(1.0) - kS;
 
@@ -59,7 +93,7 @@ vec3 brdf(
 
   // add to outgoing radiance Lo
 
-  Lo = (kD * albedo / PI + spec) * radiance * NdotL;
+  Lo = (kD* albedo  + spec) * diff * radiance * NdotL;
 
   indirect *= albedo / PI;
 

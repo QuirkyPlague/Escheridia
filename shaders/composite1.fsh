@@ -21,6 +21,6 @@ void main() {
   vec3 eyePlayerPos = feetPlayerPos - gbufferModelViewInverse[3].xyz;
    if(!inWater)
   {
-    color.rgb = borderFog(color.rgb, eyePlayerPos, depth);
+    //color.rgb = borderFog(color.rgb, eyePlayerPos, depth);
   }
 }

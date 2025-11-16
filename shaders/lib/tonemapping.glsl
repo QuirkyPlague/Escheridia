@@ -185,7 +185,7 @@ vec3 hejlBurgessTonemap(vec3 v) {
 
 // https://github.com/dmnsgn/glsl-tone-map/blob/main/lottes.glsl
 vec3 lottesTonemap(vec3 x) {
-  x *= 0.3;
+  x *= 0.4;
 
   const vec3 a = vec3(1.6);
   const vec3 d = vec3(0.977);

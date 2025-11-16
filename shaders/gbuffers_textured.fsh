@@ -46,6 +46,8 @@ void main() {
   if (color.a < 0.1) {
     discard;
   }
+  vec3 shadowViewPos = (shadowModelView * vec4(feetPlayerPos, 1.0)).xyz;
+  vec4 shadowClipPos = shadowProjection * vec4(shadowViewPos, 1.0);
   vec3 viewDir = normalize(viewPos);
   vec3 V = normalize(cameraPosition - worldPos);
   vec3 L = normalize(worldLightVector);
@@ -70,7 +72,7 @@ void main() {
     emissive = CSB(emissive, 1.0 * 1.0, 1.0, 1.0);
   }
 
-  vec3 shadow = getSoftShadow(feetPlayerPos, geoNormal.rgb, sss);
+  vec3 shadow = getSoftShadow(shadowClipPos, geoNormal.rgb, sss);
   vec3 f0 = vec3(0.0);
   if (isMetal) {
     f0 = color.rgb;

@@ -12,21 +12,19 @@ vec4 getShadowClipPos(vec3 feetPlayerPos) {
   return shadowClipPos;
 }
 
-vec3 getSoftShadow(vec3 feetPlayerPos, vec3 normal, float SSS) {
-  vec3 shadowNormal = mat3(shadowModelView) * normal;
+vec3 getSoftShadow(vec4 shadowClipPos, vec3 normal, float SSS) {
+  vec3 shadowNormal = mat3(shadowModelView) * normal ;
   const float shadowMapPixelSize = 1.0 / float(SHADOW_RESOLUTION);
-  float sampleRadius = SHADOW_SOFTNESS * shadowMapPixelSize;
+  float sampleRadius = SHADOW_SOFTNESS * shadowMapPixelSize *0.65;
   vec3 biasAdjustFactor = vec3(
-    shadowMapPixelSize * 3.15,
-    shadowMapPixelSize * 3.15,
-    -0.00003803515625
+    shadowMapPixelSize * 1.75,
+    shadowMapPixelSize * 1.75,
+    -0.00007803515625
   );
-
-  vec4 shadowClipPos = getShadowClipPos(feetPlayerPos);
 
   float faceNdl = dot(normal, worldLightVector);
   if (faceNdl <= 1e-6 && SSS > 64.0 / 255.0) {
-    sampleRadius *= 1.0 + 5.0 * SSS;
+    sampleRadius *= 1.0 + 8.0 * SSS;
   }
 
   vec3 shadowAccum = vec3(0.0); // sum of all shadow samples

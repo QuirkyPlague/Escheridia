@@ -109,12 +109,7 @@ void main() {
   vec3 viewDir = normalize(viewPos);
   vec3 feetPlayerPos = (gbufferModelViewInverse * vec4(viewPos, 1.0)).xyz;
 
-  #if PIXELATED_LIGHTING == 1
-  feetPlayerPos += cameraPosition;
-  feetPlayerPos = floor(feetPlayerPos * 16.0 + 0.01) / 16.0;
-  feetPlayerPos -= cameraPosition;
-  viewPos = (gbufferModelView * vec4(feetPlayerPos, 1.0)).xyz;
-  #endif
+
 
   float farPlane = far / 0.75;
  
@@ -156,9 +151,9 @@ void main() {
     {
       float waveFalloff = length(feetPlayerPos) / farPlane;
     float waveIntensityRolloff = exp(
-      12.0 * WAVE_INTENSITY * (0.05 - waveFalloff)
+      3.0 * WAVE_INTENSITY * (0.05 - waveFalloff)
     );
-    float waveIntensity = 0.137 * WAVE_INTENSITY * waveIntensityRolloff;
+    float waveIntensity = 0.097 * WAVE_INTENSITY * waveIntensityRolloff;
     float waveSoftness = 0.018 * WAVE_SOFTNESS;
 
     normal = waveNormal(
@@ -275,33 +270,25 @@ void main() {
   #ifdef DO_SSR
   // SSR raytrace
 
-  vec3 ssrPos = rayTraceScene(screenPos, viewPos, reflectedDir, jitter);
+ bool reflectionHit = raytrace(
+    viewPos,
+    reflectedDir,
+    SSR_STEPS,
+    noiseB.x,
+    reflectedPos
+  );
 
-  vec3 reflectedViewPos = screenSpaceToViewSpace(ssrPos);
+  vec3 reflectedViewPos = screenSpaceToViewSpace(reflectedPos);
   vec3 reflectedFeetPlayer = (gbufferModelViewInverse *
     vec4(reflectedViewPos, 1.0)).xyz;
   reflectedFeetPlayer += cameraPosition;
   float reflectedDist = distance(cameraPosition, reflectedFeetPlayer);
 
-  float lod = min(0.15 * (1.0 - pow(roughness, 1.0)), reflectedDist);
+  float lod = 0.55 * (7.0 - pow(roughness, 0.8));
   if (roughness <= 0.0 || isWater) lod = 0.0;
 
-  #ifdef ROUGH_REFLECTION
 
-  const float MAX_RADIUS = 3.15;
-  float alpha = roughness * 2.25e-4;
-  float sampleRadius = mix(0.0, MAX_RADIUS, alpha) * reflectedDist;
-  for (int i = 0; i < ROUGH_SAMPLES; i++) {
-    vec3 noise = blue_noise(floor(gl_FragCoord.xy), frameCounter, int(i));
-    vec2 offset = vogelDisc(i, ROUGH_SAMPLES, noise.x) * sampleRadius;
-    vec3 offsetReflection = ssrPos + vec3(offset, 0.0); // add offset
-    //ssrPos = offsetReflection;
-  }
-  #else
-  lod = 0.0;
-  #endif
 
-  if (canReflect || isMetal || isWater && !inWater) {
     
     vec3 sky = skyFallbackBlend(
       reflectedDir,
@@ -313,22 +300,20 @@ void main() {
       isWater
     );
 
-    bool skyThreshold = canReflect;
-    vec3 skyRefl = skyThreshold
-      ? mix(color.rgb, sky, smoothLightmap)
-      : color.rgb;
-    reflectedColor =
-      ssrPos.z < 0.5
-        ? skyRefl
-        : texelFetch(colortex0, ivec2(ssrPos.xy), 0).rgb;
-  } else if ((canReflect || isMetal || isWater) && inWater) {
-  
-    reflectedColor =
-      ssrPos.z < 0.5
-        ? color.rgb
-        : texelFetch(colortex0, ivec2(ssrPos.xy), int(0)).rgb;
+    if (reflectionHit) {
+    if (canReflect || isMetal || isWater) {
+      reflectedColor = texture2DLod(colortex0, reflectedPos.xy, lod).rgb;
+    }
   }
 
+  if (!reflectionHit && canReflect && !inWater) {
+    
+    reflectedColor = sky;
+
+    float smoothLightmap = smoothstep(0.882, 1.0, lightmap.g);
+    reflectedColor = mix(color.rgb, reflectedColor, smoothLightmap);
+  
+  }
   reflectedColor *= F;
   vec3 wetReflectedColor = mix(color.rgb, reflectedColor  , rainFactor);
   reflectedColor = mix(reflectedColor, wetReflectedColor, rainFactor);
@@ -349,4 +334,6 @@ void main() {
   }
 
   #endif // DO_SSR
+
 }
+

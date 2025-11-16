@@ -11,6 +11,7 @@ out vec3 normal;
 out mat3 tbnMatrix;
 flat out int blockID;
 in vec2 mc_Entity;
+out vec3 viewPos;
 
 void main() {
   gl_Position = ftransform();
@@ -31,5 +32,10 @@ void main() {
   tbnMatrix = mat3(tangent, binormal, normal);
 
   blockID = int(mc_Entity.x + 0.5);
+  viewPos = (gl_ModelViewMatrix * gl_Vertex).xyz;
+  vec3 feetPlayerPos = (gbufferModelViewInverse * vec4(viewPos, 1.0)).xyz;
+  feetPlayerPos.xz += feetPlayerPos.y * -0.05;
+  viewPos = (gbufferModelView * vec4(feetPlayerPos, 1.0)).xyz;
 
+  gl_Position = gbufferProjection * vec4(viewPos, 1.0);
 }

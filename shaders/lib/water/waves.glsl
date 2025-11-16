@@ -3,24 +3,28 @@
 
 //implemented from  Very fast procedural ocean: https://www.shadertoy.com/view/MdXyzX
 
-#define DRAG_MULT (0.54235 * WAVE_PULL) // changes how much waves pull on the water
+#define DRAG_MULT (WAVE_PULL) // changes how much waves pull on the water
 
 // Calculates wave value and its derivative,
 // for the wave direction, position in space, wave frequency and time
 vec2 wavedx(vec2 position, vec2 direction, float frequency, float timeshift) {
+  float noise = texture(waterTex,mod((position) / 2.0, 64.0) / 64.0).r;
   float x = dot(direction, position) * frequency + timeshift;
-  float wave = exp(sin(x) - 1.0);
-  float dx = wave * cos(x);
+  float y = dot(direction, (position + (noise * 3.1))) * frequency + timeshift;
+  float wave = exp(sin(x) - 1.0) + exp(cos(y) - 0.46);
+  float dx = wave  * cos(x) * cos(y);
   return vec2(wave, -dx);
 }
 
 // Calculates waves by summing octaves of various waves with various parameters
 float getwaves(vec2 position, int iterations) {
-  float wavePhaseShift = length(position) * 0.34 * WAVE_RANDOMNESS; // this is to avoid every octave having exactly the same phase everywhere
+  float noise = texture(waterTex,mod((position) / 2.0, 256.0) / 256.0).r;
+  float wavePhaseShift = length(position) * 0.314 * WAVE_RANDOMNESS; // this is to avoid every octave having exactly the same phase everywhere
+  wavePhaseShift = mix(wavePhaseShift, wavePhaseShift * 1.012, noise);
   float iter = 30.0; // this will help generating well distributed wave directions
   float frequency = 1.85; // frequency of the wave, this will change every iteration
-  float timeMultiplier = 3.0; // time multiplier for the wave, this will change every iteration
-  float weight = 0.45; // weight in final sum for the wave, this will change every iteration
+  float timeMultiplier = 3.0 ; // time multiplier for the wave, this will change every iteration
+  float weight = 0.15; // weight in final sum for the wave, this will change every iteration
   float sumOfValues = 0.0; // will store final sum of values
   float sumOfWeights = 0.0; // will store final sum of weights
   for (int i = 0; i < iterations; i++) {
@@ -35,6 +39,7 @@ float getwaves(vec2 position, int iterations) {
       frameTimeCounter * timeMultiplier + wavePhaseShift
     );
 
+  res = mix(res, res * 0.517, noise *2.3);
     // shift position around according to wave drag and derivative of the wave
     position += p * res.y * weight * DRAG_MULT;
 
@@ -133,4 +138,6 @@ vec3 rainNormals(vec2 pos, float e, float depth, float rainAmount) {
     )
   );
 }
+
+
 #endif //WAVES_GLSL

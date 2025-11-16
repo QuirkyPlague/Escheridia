@@ -15,6 +15,7 @@ out vec3 worldPos;
 out vec3 feetPlayerPos;
 flat out int blockID;
 in vec2 mc_Entity;
+out vec3 eyePlayerPos;
 
 void main() {
   gl_Position = ftransform();
@@ -37,6 +38,7 @@ void main() {
   modelPos = gl_Vertex.xyz;
   viewPos = (gl_ModelViewMatrix * gl_Vertex).xyz;
   feetPlayerPos = (gbufferModelViewInverse * vec4(viewPos, 1.0)).xyz;
+  eyePlayerPos = feetPlayerPos - gbufferModelViewInverse[3].xyz;
   worldPos = cameraPosition + feetPlayerPos;
   blockID = int(mc_Entity.x + 0.5);
 }
