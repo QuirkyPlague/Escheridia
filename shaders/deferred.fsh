@@ -13,7 +13,7 @@ in vec2 texcoord;
 
 /* RENDERTARGETS: 0 */
 layout(location = 0) out vec4 color;
-
+layout(location = 1) out vec4 prevBuffer;
 void main() {
   //assign colortex buffers
   color = textureLod(colortex0, texcoord, 0);
@@ -27,6 +27,10 @@ void main() {
   float depth = texture(depthtex1, texcoord).r;
   vec4 mask = texture(colortex7, texcoord);
   vec4 ao = texture(colortex9, texcoord);
+
+
+  
+  
   int blockID = int(mask) + 103;
   if (depth == 1) return; //return out of function to prevent lighting interating with sky
 
@@ -43,6 +47,12 @@ void main() {
   vec3 H = normalize(V + L);
   float VdotL = dot(normalize(feetPlayerPos), worldLightVector);
 
+  vec3 previousView = (gbufferPreviousModelView * vec4(feetPlayerPos, 1.0)).xyz;
+  vec4 previousClip = gbufferPreviousProjection * vec4(previousView, 1.0);
+  vec3 previousScreen = (previousClip.xyz / previousClip.w) * 0.5 + 0.5;
+  vec2 prevCoord = previousScreen.xy;
+  prevBuffer = texture(colortex9, prevCoord);
+  
   bool isMetal = SpecMap.g >= 230.0 / 255.0;
   bool canScatter = blockID == SSS_ID;
   const float handDepth = MC_HAND_DEPTH * 0.5 + 0.5;
@@ -115,9 +125,10 @@ void main() {
   #ifndef HC_EMISSION
   if (emission < 255.0 / 255.0) {
     emissive += color.rgb * emission;
-    emissive += max(2.25 * pow(emissive, vec3(0.58)), 0.0);
+    emissive += max(3.25 * pow(emissive, vec3(0.58)), 0.0);
 
     emissive = CSB(emissive, 1.0, 0.75, 1.0);
+    emissive = pow(emissive, vec3(2.2));
   }
 #endif //HC_EMISSION
 
@@ -150,6 +161,7 @@ void main() {
       geoNormal
     ) +
     emissive;
+
 
     
 }

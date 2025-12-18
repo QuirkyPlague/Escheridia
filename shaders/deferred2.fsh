@@ -1,7 +1,7 @@
 #version 400 compatibility
 
 #include "/lib/util.glsl"
-#include "/lib/atmosphere/distanceFog.glsl"
+#include "/lib/atmosphere/clouds.glsl"
 
 in vec2 texcoord;
 
@@ -19,9 +19,12 @@ void main() {
   vec3 viewPos = projectAndDivide(gbufferProjectionInverse, NDCPos);
   vec3 feetPlayerPos = (gbufferModelViewInverse * vec4(viewPos, 1.0)).xyz;
   vec3 eyePlayerPos = feetPlayerPos - gbufferModelViewInverse[3].xyz;
-   
-    if(!inWater)
-  {
-    color.rgb = borderFog(color.rgb, eyePlayerPos, depth);
-  }
+  vec3 noiseB = blue_noise(floor(gl_FragCoord.xy), frameCounter, 128);
+  float distToTerrain = (depth == 1.0) ? -1.0 : length(viewPos) * CLOUD_SCALE;
+
+  vec3 origin = vec3(0.0, CLOUD_SCALE * (eyeAltitude - 64.0), 0.0) + CLOUD_SCALE * gbufferModelViewInverse[3].xyz;
+  vec3 direction =  mat3(gbufferModelViewInverse) * normalize(viewPos);
+  vec3 clouds = cloudRaymarch(origin, direction, 128, noiseB, feetPlayerPos, distToTerrain);
+  
+  //color.rgb *= clouds;
 }

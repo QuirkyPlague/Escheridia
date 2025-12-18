@@ -26,6 +26,8 @@ uniform sampler2D colortex6;
 uniform sampler2D colortex7;
 uniform sampler2D colortex8;
 uniform sampler2D colortex9;
+uniform sampler2D colortex10;
+uniform sampler2D colortex11;
 
 //depth buffer
 uniform sampler2D depthtex0;
@@ -36,6 +38,8 @@ uniform sampler2D depthtex2;
 uniform sampler2D shadowtex0;
 uniform sampler2D shadowtex1;
 uniform sampler2D shadowcolor0;
+uniform sampler2DShadow shadowtex1HW;
+uniform sampler2DShadow shadowtex0HW;
 
 //normal/speculars
 uniform sampler2D normals;
@@ -65,8 +69,10 @@ uniform int biome_category;
 uniform bool isColdBiome;
 uniform float snowBiomeSmooth;
 uniform float hotBiomeSmooth;
-
+uniform float eyeAltitude;
+uniform vec3 previousCameraPosition;
 //constants
+
 const float PI = float(3.14159);
 const float wetnessHalflife = 35.3;
 const float drynessHalflife = 75.0;
@@ -74,6 +80,7 @@ const float sunPathRotation = SUN_ROTATION;
 const float eyeBrightnessHalflife = 5.0;
 const float shadowDistance = SHADOW_DISTANCE;
 const float shadowFarPlane = 512.0;
+
 const float shadowDistanceRenderMul = 1.0;
 const float ambientOcclusionLevel = 1.0;
 //lights
@@ -87,6 +94,7 @@ vec3 worldSunDir = mat3(gbufferModelViewInverse) * sunDir;
 vec3 moonDir = normalize(moonPosition);
 vec3 worldMoonDir = mat3(gbufferModelViewInverse) * moonDir;
 
+vec2 resolution = vec2(viewWidth, viewHeight);
 //boolens
 bool inWater = isEyeInWater == 1.0;
 #endif //UNIFORMS

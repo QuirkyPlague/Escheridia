@@ -10,7 +10,7 @@ layout(location = 0) out vec4 color;
 
 void main() {
   color = textureLod(colortex0, texcoord, 0);
-  color.rgb = pow(color.rgb, vec3(2.2));
+
   vec4 waterMask = texture(colortex5, texcoord);
 
   float depth = texture(depthtex0, texcoord).r;

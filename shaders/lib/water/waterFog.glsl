@@ -16,6 +16,7 @@ vec3 waterExtinction(
   float depth,
   float depth1
 ) {
+ 
   float t = fract(worldTime / 24000.0);
 
   const int keys = 7;
@@ -83,11 +84,12 @@ vec3 waterExtinction(
    return color;
 }
 vec3 waterFog(vec3 color, vec2 texcoord, vec2 lightmap, float depth) {
+  
   float dist0 = length(screenToView(texcoord, depth));
 
   float dist = dist0;
   vec3 sunColor = vec3(0.0);
-  sunColor = vec3(0.3373, 0.3373, 0.3373);
+  sunColor = vec3(0.7765, 0.7255, 0.6392);
   vec3 absorptionColor = vec3(0.0);
   vec3 absorption = WATER_ABOSRBTION;
   vec3 inscatteringAmount = vec3(0.0);

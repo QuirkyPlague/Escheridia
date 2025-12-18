@@ -39,7 +39,7 @@ float getwaves(vec2 position, int iterations) {
       frameTimeCounter * timeMultiplier + wavePhaseShift
     );
 
-  res = mix(res, res * 0.517, noise *2.3);
+  res = mix(res, res * 0.317, noise *2.3);
     // shift position around according to wave drag and derivative of the wave
     position += p * res.y * weight * DRAG_MULT;
 

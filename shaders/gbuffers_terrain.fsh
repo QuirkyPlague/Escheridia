@@ -33,7 +33,8 @@ void main() {
   normalMaps.xy /= 254.0 / 255.0;
   normalMaps.z = sqrt(1.0 - dot(normalMaps.xy, normalMaps.xy));
   vec3 mappedNormal = tbnMatrix * normalMaps;
-
+  ao = texture(gtexture, texcoord) * glcolor;
+  ao = pow(ao, vec4(2.2));
   lightmap = vec4(lmcoord, 0.0, 1.0);
   encodedNormal = vec4(mappedNormal * 0.5 + 0.5, 1.0);
   specData = texture(specular, texcoord);

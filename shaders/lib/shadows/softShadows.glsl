@@ -24,11 +24,12 @@ vec3 getSoftShadow(vec4 shadowClipPos, vec3 normal, float SSS) {
 
   float faceNdl = dot(normal, worldLightVector);
   if (faceNdl <= 1e-6 && SSS > 64.0 / 255.0) {
-    sampleRadius *= 1.0 + 8.0 * SSS;
+    sampleRadius *= exp((0.3 + 2.0) * SSS);
   }
 
   vec3 shadowAccum = vec3(0.0); // sum of all shadow samples
-  for (int i = 0; i < SHADOW_SAMPLES; i++) {
+ 
+     for (int i = 0; i < SHADOW_SAMPLES; i++) {
     vec3 noise = blue_noise(floor(gl_FragCoord.xy), frameCounter, int(i));
     vec2 offset = vogelDisc(i, SHADOW_SAMPLES, noise.x) * sampleRadius;
     vec4 offsetShadowClipPos = shadowClipPos + vec4(offset, 0.0, 0.0); // add offset
@@ -38,6 +39,8 @@ vec3 getSoftShadow(vec4 shadowClipPos, vec3 normal, float SSS) {
     shadowScreenPos += shadowNormal * biasAdjustFactor;
     shadowAccum += getShadow(shadowScreenPos); // take shadow sample
   }
+  
+ 
 
   return shadowAccum / float(SHADOW_SAMPLES); // divide sum by count, getting average shadow
 }

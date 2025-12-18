@@ -55,7 +55,7 @@ vec3 volumetricRaymarch(
     0.84
 
   );
-  const float ambientI[keys] = float[keys](0.5, 1.0, 1.0, 0.5, 0.15, 0.15, 0.5);
+  const float ambientI[keys] = float[keys](1.4, 1.2, 1.0, 1.0, 2.27, 2.27, 1.4);
   int i = 0;
   //assings the keyframes
   for (int k = 0; k < keys - 1; ++k) {
@@ -75,11 +75,11 @@ vec3 volumetricRaymarch(
   vec4 stepSize = rayPos * (1.0 / stepCount);
   vec3 eyePlayerPos = feetPlayerPos - gbufferModelViewInverse[3].xyz;
   vec3 worldPos = feetPlayerPos + cameraPosition;
-  float rayLength = clamp(length(eyePlayerPos) + 1, 0, far / 2);
+  float rayLength = clamp(length(eyePlayerPos) + 1, 0, far);
   vec4 stepLength = startPos + (jitter + 0.5) * stepSize;
  const float falloffScale = 0.001 / log(2.0);
-  float fogMaxHeight = smoothstep(-32, 64, worldPos.y);
-
+  float fogMaxHeight = smoothstep(127, 28, worldPos.y);
+ 
   vec3 absCoeff = vec3(0.5255, 0.5255, 0.5255);
   vec3 scatterCoeff = vec3(0.00335, 0.00291, 0.00271);
 
@@ -89,8 +89,8 @@ vec3 volumetricRaymarch(
   scatterCoeff = mix(scatterCoeff, vec3(0.0040, 0.0043, 0.00519), wetness);
 
   if (inWater) {
-    absCoeff = WATER_ABOSRBTION * 1.15;
-    scatterCoeff = WATER_SCATTERING * 0.35;
+    absCoeff = WATER_ABOSRBTION * 3.15;
+    scatterCoeff = WATER_SCATTERING * 0.085;
   }
 
   vec3 scatter = vec3(0.0);
@@ -106,10 +106,10 @@ vec3 volumetricRaymarch(
   float ambientMult = mix(1.0, 0.0, phaseIncFactor);
   float phase =
     henyeyGreensteinPhase(VdotL, phaseVal) * FORWARD_PHASE_INTENSITY +
-    henyeyGreensteinPhase(VdotL, -0.15) * BACKWARD_PHASE_INTENSITY * 0.55;
+    henyeyGreensteinPhase(VdotL, -0.25) * BACKWARD_PHASE_INTENSITY;
 
   phase = mix(phase,henyeyGreensteinPhase(VdotL, 0.65) * rain +
-    henyeyGreensteinPhase(VdotL, -0.15) * rain, wetness);
+    henyeyGreensteinPhase(VdotL, -0.25) * rain, wetness);
   phase *= phaseMult;
 
  
@@ -124,20 +124,20 @@ vec3 volumetricRaymarch(
     shadowMapPixelSize * 1.0,
     -0.0003803515625
   );
-  float sampleRadius = SHADOW_SOFTNESS * shadowMapPixelSize * 0.54;
+  float sampleRadius = SHADOW_SOFTNESS * shadowMapPixelSize * 1.54;
   vec3 shadowNormal = mat3(shadowModelView) * normal;
 
   vec3 shadow;
   for (int i = 0; i < stepCount; i++) {
     stepLength += stepSize;
     
-    for (int s = 0; s < 5; s++) {
-      vec2 offset = vogelDisc(s, 5, jitter) * sampleRadius;
+    for (int s = 0; s < 3; s++) {
+      vec2 offset = vogelDisc(s, 3, jitter) * sampleRadius;
       vec4 offsetShadowClipPos = stepLength + vec4(offset, 0.0, 0.0);
       offsetShadowClipPos.xyz = distortShadowClipPos(offsetShadowClipPos.xyz);
+      
       vec3 shadowNDCPos = offsetShadowClipPos.xyz;
       vec3 shadowScreenPos = shadowNDCPos * 0.5 + 0.5;
-      shadowScreenPos += shadowNormal * biasAdjustFactor;
       shadow += getShadow(shadowScreenPos);
     }
     shadow /= float(5);
@@ -157,31 +157,31 @@ vec3 volumetricRaymarch(
     {
       ambient = ambientFogColor * 0.25 * ambientMult * ambientIntensity * (rain * 0.65);
     }
-    // --- Direct inscattering ---
-    vec3 singleScatter = scatterCoeff * phase * rayLength * sunColor * shadow;
+  
+    vec3 directLight = sunColor * shadow;              
 
-    vec3 multipleScatter =
-      singleScatter * 1.0 * MULTI_SCATTER_INTENSITY * (1.0 - transmission) ;
 
- 
+  vec3 singleScatter = scatterCoeff * phase * rayLength * directLight * fogMaxHeight * ambientIntensity;
+    
+    vec3 msLight = sunColor * (0.35 + 0.63 * shadow);
+    vec3 multiScatter = scatterCoeff * msLight * 8.0 * ambientMult; 
+    multiScatter *= exp(-absCoeff * (float(i) / length(stepLength))); 
 
-    vec3 sampleExtinction = (absCoeff + multipleScatter) * VL_EXT;
+    vec3 sampleExtinction = (absCoeff + multiScatter) * VL_EXT;
     float sampleTransmittance = exp(-length(stepLength) * 1.0);
 
     // combine single + multiple scattering
-    vec3 totalInscatter = singleScatter + multipleScatter;
+    vec3 totalInscatter = singleScatter + multiScatter;
 
     scatter +=
       (totalInscatter - totalInscatter * sampleTransmittance) /
       sampleExtinction;
     transmission *= sampleTransmittance;
   }
-
-  scatter *= 0.065;
+  scatter *= 0.095;
   vec3 totalScatter = scatter + transmission ;
-    float skyLuminance = dot(totalScatter, vec3(1.0));
-	totalScatter = pow(totalScatter, vec3(1.5));
-	totalScatter *= skyLuminance / dot(totalScatter, vec3(1.0));
+
   return totalScatter;
+
 }
 #endif //VOLUMETRICS_GLSL

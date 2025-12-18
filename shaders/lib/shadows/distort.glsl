@@ -11,7 +11,7 @@ const int shadowMapResolution = SHADOW_RESOLUTION;
 
 vec3 distortShadowClipPos(vec3 shadowClipPos) {
   float distortionFactor = length(shadowClipPos.xy); // distance from the player in shadow clip space
-  distortionFactor += 0.3; // very small distances can cause issues so we add this to slightly reduce the distortion
+  distortionFactor += 0.1; // very small distances can cause issues so we add this to slightly reduce the distortion
 
   shadowClipPos.xy /= distortionFactor;
   shadowClipPos.z *= 0.65; // increases shadow distance on the Z axis, which helps when the sun is very low in the sky
@@ -35,8 +35,11 @@ vec3 getDistortedPos(vec3 pos) {
     vec2 distortionCenter = vec2(0.0); // Any arbitrary point in NDC space
     vec2 offset = pos.xy - distortionCenter;
     vec2 delta  = sign(offset) - distortionCenter;
-    float distortionAmount = 0.93;
+    float distortionAmount = 0.85;
     float factor = mix(1.0, length(offset / delta), distortionAmount); 
     return vec3(distortionCenter + offset / factor, pos.z * 0.2);
 }
+
+
+
 #endif //DISTORT_GLSL

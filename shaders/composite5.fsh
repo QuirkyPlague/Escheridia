@@ -77,7 +77,7 @@ vec3 skyFallbackBlend(
   vec3 sky = sunCol + skyCol;
   #endif
 
-  sky = pow(sky, vec3(2.2));
+  
   return sky;
 }
 
@@ -108,8 +108,12 @@ void main() {
   vec3 viewPos = projectAndDivide(gbufferProjectionInverse, NDCPos);
   vec3 viewDir = normalize(viewPos);
   vec3 feetPlayerPos = (gbufferModelViewInverse * vec4(viewPos, 1.0)).xyz;
-
-
+  vec3 previousView = (gbufferPreviousModelView * vec4(feetPlayerPos, 1.0)).xyz;
+  vec4 previousClip = gbufferPreviousProjection * vec4(previousView, 1.0);
+  vec3 previousScreen = (previousClip.xyz / previousClip.w) * 0.5 + 0.5;
+  vec2 prevCoord = previousScreen.xy;
+  vec3 prevCol = texture(colortex9, prevCoord).rgb;
+  vec3 prevViewDir = normalize(previousView);
 
   float farPlane = far / 0.75;
  
@@ -185,8 +189,8 @@ void main() {
     float waveIntensityRolloff = exp(
       12.0 * WAVE_INTENSITY * (0.05 - waveFalloff)
     );
-    float waveIntensity = 0.085 * WAVE_INTENSITY  * rainFactor;
-    float waveSoftness = 0.68 * WAVE_SOFTNESS;
+    float waveIntensity = 0.045 * WAVE_INTENSITY  * rainFactor;
+    float waveSoftness = 0.48 * WAVE_SOFTNESS;
 
     vec3 rainNormal = rainNormals(
       feetPlayerPos.xz + cameraPosition.xz,
@@ -281,10 +285,14 @@ void main() {
   vec3 reflectedViewPos = screenSpaceToViewSpace(reflectedPos);
   vec3 reflectedFeetPlayer = (gbufferModelViewInverse *
     vec4(reflectedViewPos, 1.0)).xyz;
-  reflectedFeetPlayer += cameraPosition;
-  float reflectedDist = distance(cameraPosition, reflectedFeetPlayer);
+  vec3 reflectedEyePlayer = reflectedFeetPlayer - gbufferModelViewInverse[3].xyz;
+  vec3 prevReflView = (gbufferPreviousModelView * vec4(reflectedFeetPlayer, 1.0)).xyz;
+  vec4 prevReflClip = gbufferPreviousProjection * vec4(prevReflView, 1.0);
+  vec3 previousReflPos = (prevReflClip.xyz / prevReflClip.w) * 0.5 + 0.5;
 
-  float lod = 0.55 * (7.0 - pow(roughness, 0.8));
+  float reflectedDist = distance(reflectedViewPos,viewPos);
+
+  float lod =   clamp(exp(0.35 * (5.0 - pow(roughness, 0.8))) * reflectedDist * 4, 0,4);
   if (roughness <= 0.0 || isWater) lod = 0.0;
 
 
@@ -299,9 +307,10 @@ void main() {
       roughness,
       isWater
     );
-
+  vec3 prevReflCol = vec3(0.0);
     if (reflectionHit) {
     if (canReflect || isMetal || isWater) {
+      
       reflectedColor = texture2DLod(colortex0, reflectedPos.xy, lod).rgb;
     }
   }
@@ -309,14 +318,18 @@ void main() {
   if (!reflectionHit && canReflect && !inWater) {
     
     reflectedColor = sky;
-
+    prevReflCol = sky;
     float smoothLightmap = smoothstep(0.882, 1.0, lightmap.g);
     reflectedColor = mix(color.rgb, reflectedColor, smoothLightmap);
-  
+
   }
   reflectedColor *= F;
+  prevReflCol *= F;
   vec3 wetReflectedColor = mix(color.rgb, reflectedColor  , rainFactor);
   reflectedColor = mix(reflectedColor, wetReflectedColor, rainFactor);
+ 
+
+  
   color.rgb += reflectedColor;
 
   #else

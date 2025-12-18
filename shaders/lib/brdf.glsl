@@ -15,21 +15,6 @@ float BurleyFrostbite(float roughness, float n_dot_l, float n_dot_v, float v_dot
     return FDL * FDV * energyFactor;
 }
 
-#define BRDF_GTR_GAMMA 1.5
-float BRDF_D(float roughness, float n_dot_h)
-{
-    float m = roughness * roughness;
-    float m2 = m * m;
-    float d = (n_dot_h * m2 - n_dot_h) * n_dot_h + 1.0;
-
-    float t1 = pow(d, -BRDF_GTR_GAMMA);
-    float t2 = 1.0 - pow(m2, -(BRDF_GTR_GAMMA - 1.0));
-
-    return (BRDF_GTR_GAMMA - 1.0) * (m2 * t1 - t1) / t2;
-}
-
-
-
 
 vec3 brdf(
   vec3 albedo,
@@ -48,7 +33,7 @@ vec3 brdf(
   // calculate per-light radiance
   float dist = length(L);
   float attenuation = 1.0 / (dist * dist);
-  currentSunlight += max(3.95 * pow(currentSunlight, vec3(0.85)), 0.0);
+  currentSunlight *= 7;
 
   vec3 radiance = currentSunlight * shadow * attenuation;
 
@@ -71,8 +56,7 @@ vec3 brdf(
   float denominator = 3.0 * NdotV * NdotL + 0.0001;
   vec3 spec = numerator / denominator;
   
-  spec = lottesTonemap(spec);
-  spec *= 3.2;
+ spec = min(spec, vec3(5.0));
   float diff = BurleyFrostbite(roughness, NdotL,NdotV, VdotH);
   diff /= PI;
   vec3 kS = F;
@@ -91,6 +75,7 @@ vec3 brdf(
   kD *= 1.0;
   #endif
 
+  
   // add to outgoing radiance Lo
 
   Lo = (kD* albedo  + spec) * diff * radiance * NdotL;
