@@ -228,7 +228,7 @@ void main() {
 
   roughness = mix(roughness,wetRoughness, wetness);
   
-  bool canReflect = roughness < 0.3;
+  bool canReflect = roughness < 0.35;
   vec3 noiseB = blue_noise(floor(gl_FragCoord.xy), frameCounter, SSR_STEPS);
   float jitter = IGN(gl_FragCoord.xy, frameCounter);
   vec2 offset = vec2(0.0, 0.0);
@@ -311,7 +311,7 @@ void main() {
     if (reflectionHit) {
     if (canReflect || isMetal || isWater) {
       
-      reflectedColor = texture2DLod(colortex0, reflectedPos.xy, lod).rgb;
+      reflectedColor = texture2DLod(colortex0, reflectedPos.xy, 0).rgb;
     }
   }
 

@@ -131,3 +131,9 @@ option.GROUND_BLEND = Ground Blend Point
 
 option.HC_SSS = Integrated Subsurface Scattering
 option.HC_EMISSION = Integrated Emission
+
+option.TEMPORAL_REPROJECTION = Temporal Reprojection
+option.TEMPORAL_REPROJECTION.comment = Enable blending of previous frames to reduce visual noise
+
+option.TA_FACTOR = Temporal Acumulation Factor
+option.TA_FACTOR.comment = How strong the reprojection will be

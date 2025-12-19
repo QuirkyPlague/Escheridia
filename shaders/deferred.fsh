@@ -18,6 +18,7 @@ void main() {
   //assign colortex buffers
   color = textureLod(colortex0, texcoord, 0);
   vec3 albedo = color.rgb;
+  albedo = pow(albedo, vec3(2.2));
   vec2 lightmap = texture(colortex1, texcoord).rg;
   vec4 SpecMap = texture(colortex3, texcoord);
   vec3 encodedNormal = texture(colortex2, texcoord).rgb;
@@ -47,11 +48,6 @@ void main() {
   vec3 H = normalize(V + L);
   float VdotL = dot(normalize(feetPlayerPos), worldLightVector);
 
-  vec3 previousView = (gbufferPreviousModelView * vec4(feetPlayerPos, 1.0)).xyz;
-  vec4 previousClip = gbufferPreviousProjection * vec4(previousView, 1.0);
-  vec3 previousScreen = (previousClip.xyz / previousClip.w) * 0.5 + 0.5;
-  vec2 prevCoord = previousScreen.xy;
-  prevBuffer = texture(colortex9, prevCoord);
   
   bool isMetal = SpecMap.g >= 230.0 / 255.0;
   bool canScatter = blockID == SSS_ID;

@@ -124,7 +124,7 @@ vec3 volumetricRaymarch(
     shadowMapPixelSize * 1.0,
     -0.0003803515625
   );
-  float sampleRadius = SHADOW_SOFTNESS * shadowMapPixelSize * 1.54;
+  float sampleRadius = SHADOW_SOFTNESS * shadowMapPixelSize * 0.84;
   vec3 shadowNormal = mat3(shadowModelView) * normal;
 
   vec3 shadow;
@@ -161,7 +161,7 @@ vec3 volumetricRaymarch(
     vec3 directLight = sunColor * shadow;              
 
 
-  vec3 singleScatter = scatterCoeff * phase * rayLength * directLight * fogMaxHeight * ambientIntensity;
+  vec3 singleScatter = scatterCoeff * phase * rayLength * directLight * (fogMaxHeight * 0.4) * ambientIntensity;
     
     vec3 msLight = sunColor * (0.35 + 0.63 * shadow);
     vec3 multiScatter = scatterCoeff * msLight * 8.0 * ambientMult; 
@@ -178,7 +178,7 @@ vec3 volumetricRaymarch(
       sampleExtinction;
     transmission *= sampleTransmittance;
   }
-  scatter *= 0.095;
+  scatter *= 0.065;
   vec3 totalScatter = scatter + transmission ;
 
   return totalScatter;

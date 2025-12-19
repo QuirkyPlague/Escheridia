@@ -56,7 +56,7 @@ vec3 brdf(
   float denominator = 3.0 * NdotV * NdotL + 0.0001;
   vec3 spec = numerator / denominator;
   
- spec = min(spec, vec3(5.0));
+ spec = min(spec, vec3(15.0));
   float diff = BurleyFrostbite(roughness, NdotL,NdotV, VdotH);
   diff /= PI;
   vec3 kS = F;

@@ -20,9 +20,10 @@ const vec3 dayHorCol = vec3(0.6157, 0.7059, 0.7882);
 const vec3 dayGrndCol = vec3(0.2549, 0.4118, 0.6706);
 
 //Dawn
-const vec3 dawnZenCol = vec3(0.4392, 0.6353, 1.0);
-const vec3 dawnHorCol = vec3(0.8627, 0.6902, 0.4941);
+const vec3 dawnZenCol = vec3(0.6745, 0.8549, 1.0);
+const vec3 dawnHorCol = vec3(0.8706, 0.6275, 0.3843);
 const vec3 dawnGrndCol = vec3(0.2549, 0.3922, 0.6118);
+
 
 //Dusk
 const vec3 duskZenCol = vec3(0.3922, 0.5529, 0.7765);
