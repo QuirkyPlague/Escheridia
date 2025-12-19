@@ -151,7 +151,7 @@ vec3 skyScattering(vec3 pos) {
   groundCol = mix(groundCol, rainGrndCol * weatherStrength, wetness * hotBiomeSmooth);
 
   float zenithBlend = clamp(pow(upPos, 0.45), 0, 1);
-  float horizonBlend = clamp(pow(negatedMidPos, 7.5), 0, 1);
+  float horizonBlend = clamp(pow(negatedMidPos, 5.5), 0, 1);
   float groundBlend = clamp(pow(negatedDownPos, 0.45), 0, 1);
 
   zenithCol *= rayleigh * zenithBlend;

@@ -56,7 +56,8 @@ vec3 brdf(
   float denominator = 3.0 * NdotV * NdotL + 0.0001;
   vec3 spec = numerator / denominator;
   
- spec = min(spec, vec3(15.0));
+ spec = min(spec, vec3(150.0));
+ if(isMetal) spec = min(spec, vec3(0.6));
   float diff = BurleyFrostbite(roughness, NdotL,NdotV, VdotH);
   diff /= PI;
   vec3 kS = F;
@@ -69,7 +70,7 @@ vec3 brdf(
   #ifdef DO_SSR
   if (isMetal) {
     kD *= 0.0;
-    albedo *= 3;
+    
 
   }
   #else

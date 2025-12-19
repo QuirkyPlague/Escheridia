@@ -48,7 +48,7 @@ vec3 volumetricRaymarch(
 
    const float rainFog[keys] = float[keys](
     1.55,
-    0.75,
+    0.95,
     0.85,
     0.75,
     1.15,
@@ -81,8 +81,8 @@ vec3 volumetricRaymarch(
  const float falloffScale = 0.001 / log(2.0);
   float fogMaxHeight = smoothstep(157, 8, worldPos.y);
  
-  vec3 absCoeff = vec3(0.5255, 0.5255, 0.5255);
-  vec3 scatterCoeff = vec3(0.00335, 0.00291, 0.00271);
+  vec3 absCoeff = vec3(0.4706, 0.5333, 0.6353);
+  vec3 scatterCoeff = vec3(0.00335, 0.00291, 0.00231);
 
   //absCoeff = mix(absCoeff, vec3(1.0), PaleGardenSmooth);
   scatterCoeff = mix(scatterCoeff, vec3(0.00715), PaleGardenSmooth);
@@ -99,7 +99,7 @@ vec3 volumetricRaymarch(
 
   float VdotL = dot(normalize(feetPlayerPos), worldLightVector);
   float phaseIncFactor = smoothstep(225, 0, eyeBrightnessSmooth.y);
-  float phaseMult = mix(1.0, 8.0, phaseIncFactor);
+  float phaseMult = mix(1.0, 4.0, phaseIncFactor);
   if(inWater)
   {
     phaseMult = 1.0;
@@ -165,14 +165,14 @@ vec3 volumetricRaymarch(
   vec3 singleScatter = scatterCoeff * phase * rayLength * directLight * ambientIntensity;
     
     vec3 msLight = sunColor * (0.35 + 0.63 * shadow);
-    vec3 multiScatter = scatterCoeff * msLight * 0.0 * ambientMult; 
+    vec3 multiScatter = scatterCoeff * msLight * 5.0 * ambientMult; 
     multiScatter *= exp(-absCoeff * (float(i) / length(stepLength))); 
 
-    vec3 sampleExtinction = (absCoeff + singleScatter) * VL_EXT;
+    vec3 sampleExtinction = (absCoeff + multiScatter) * VL_EXT;
     float sampleTransmittance = exp(-length(stepLength) * 1.0);
 
     // combine single + multiple scattering
-    vec3 totalInscatter = singleScatter ;
+    vec3 totalInscatter = singleScatter + multiScatter ;
 
     scatter +=
       (totalInscatter - totalInscatter * sampleTransmittance) /
@@ -180,9 +180,9 @@ vec3 volumetricRaymarch(
     transmission *= sampleTransmittance;
   }
   float fogDistFalloff = length(feetPlayerPos) / far;
-  float fogReduction = exp( 0.51 * (0.3 - fogDistFalloff));
-  scatter *= 0.065;
-  
+  float fogReduction = exp( 0.331 * (0.23 - fogDistFalloff));
+  scatter *= 0.055 * fogReduction ;
+  transmission *= fogReduction;
   vec3 totalScatter = scatter + transmission ;
 
   return totalScatter;

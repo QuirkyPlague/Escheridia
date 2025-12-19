@@ -15,13 +15,13 @@ const vec3 rainHorCol = vec3(0.7059, 0.7569, 0.7961);
 const vec3 rainGrndCol = vec3(0.1569, 0.1922, 0.2314);
 
 //Day
-const vec3 dayZenCol = vec3(0.4196, 0.6039, 1.0);
-const vec3 dayHorCol = vec3(0.6157, 0.7059, 0.7882);
-const vec3 dayGrndCol = vec3(0.2549, 0.4118, 0.6706);
+const vec3 dayZenCol = vec3(0.5176, 0.6706, 1.0);
+const vec3 dayHorCol = vec3(0.8078, 0.8706, 0.9333);
+const vec3 dayGrndCol = vec3(0.4039, 0.5176, 0.702);
 
 //Dawn
 const vec3 dawnZenCol = vec3(0.6745, 0.8549, 1.0);
-const vec3 dawnHorCol = vec3(0.8706, 0.6275, 0.3843);
+const vec3 dawnHorCol = vec3(0.9294, 0.6235, 0.3216);
 const vec3 dawnGrndCol = vec3(0.2549, 0.3922, 0.6118);
 
 
@@ -182,7 +182,7 @@ vec3 skyScattering(vec3 pos) {
   groundCol = mix(groundCol, rainGrndCol * weatherStrength, wetness * hotBiomeSmooth);
 
   float zenithBlend = clamp(pow(upPos, 0.45), 0, 1);
-  float horizonBlend = clamp(pow(negatedMidPos, 7.5), 0, 1);
+  float horizonBlend = clamp(pow(negatedMidPos, 5.5), 0, 1);
   float groundBlend = clamp(pow(negatedDownPos, 0.45), 0, 1);
 
   zenithCol *= rayleigh * zenithBlend;
@@ -204,7 +204,7 @@ vec3 skyScattering(vec3 pos) {
   float mVoL = dot(dir, worldMoonDir);
 
   float miePhase = CS(mieScale, sVoL);
-  vec3 mieColors = mieScat * miePhase * 0.5;
+  vec3 mieColors = mieScat * miePhase * 0.15;
 
   float moonPhase = CS(0.915, mVoL);
   vec3 mieNight = moonMieScatterColor * moonPhase * 0.17;

@@ -58,16 +58,16 @@ void main() {
   float depthConfidence = clamp(1.0 - depthDelta / depthThreshold, 0, 1);
 
   vec2 texelSize = 1.0 / vec2(textureSize(colortex0, 0));
-  float roughWeight = clamp((3.45 * (0.7 - pow(roughness, 7.8))),0,1);
+
   vec3 neighborhoodMin = vec3(1e20);
   vec3 neighborhoodMax = vec3(0.0);
 
   for (int i = 0; i < 9; i++) {
-    vec2 uv = texcoord + vec2(offsets[i]) * texelSize;
-    vec3 c = texture(colortex0, uv).rgb;
+    vec2 sampleUV = texcoord + vec2(offsets[i]) * texelSize;
+    vec3 sampleCol = texture(colortex0, sampleUV).rgb;
 
-    neighborhoodMin = min(neighborhoodMin, c);
-    neighborhoodMax = max(neighborhoodMax, c);
+    neighborhoodMin = min(neighborhoodMin, sampleCol);
+    neighborhoodMax = max(neighborhoodMax, sampleCol);
   }
   
   vec4 historyColor = texture(colortex10, prevCoord);
