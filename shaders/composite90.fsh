@@ -60,7 +60,7 @@ void main() {
   vec2 texelSize = 1.0 / vec2(textureSize(colortex0, 0));
   float roughWeight = clamp((3.45 * (0.7 - pow(roughness, 7.8))),0,1);
   vec3 neighborhoodMin = vec3(1e20);
-  vec3 neighborhoodMax = vec3(-1e20);
+  vec3 neighborhoodMax = vec3(0.0);
 
   for (int i = 0; i < 9; i++) {
     vec2 uv = texcoord + vec2(offsets[i]) * texelSize;

@@ -292,7 +292,7 @@ void main() {
 
   float reflDist = distance(reflectedViewPos,viewPos);
 
-  float lod =  4.2 *(1.0 - exp(-9.0 - sqrt(roughness))) ;
+  float lod =  clamp(3.72 * (1.0 - exp(-9.0 - sqrt(roughness))), 0.0, 5.0);
   if (roughness <= 0.0 || isWater) lod = 0.0;
 
     vec3 sky = skyFallbackBlend(
@@ -307,7 +307,7 @@ void main() {
     
    if(roughness > 0)
    {
-    sky *= exp(5.12 * (0.11 - roughness));
+    sky *= max(exp(5.12 * (0.11 - roughness)), 0.0);
    }
    
   vec3 prevReflCol = vec3(0.0);
@@ -315,7 +315,8 @@ void main() {
     if (canReflect || isMetal || isWater) {
       
       reflectedColor = texture2DLod(colortex0, reflectedPos.xy, lod).rgb;
-      reflectedColor *= exp(4.02 * (0.11 - roughness));
+      if (any(isnan(reflectedColor))) reflectedColor = vec3(0.0);
+      reflectedColor *= max(exp(4.02 * (0.11 - roughness)), 0.0);
     }
   }
 
