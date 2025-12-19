@@ -178,7 +178,7 @@ vec3 volumetricRaymarch(
       sampleExtinction;
     transmission *= sampleTransmittance;
   }
-  scatter *= 0.065;
+  scatter *= 0.075;
   vec3 totalScatter = scatter + transmission ;
 
   return totalScatter;
