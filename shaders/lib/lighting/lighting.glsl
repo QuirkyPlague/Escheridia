@@ -14,10 +14,10 @@ const vec4 morningSunlightColor = vec4(0.7569, 0.4745, 0.2333, 1.9);
 const vec4 eveningSunlightColor = vec4(0.7725, 0.2863, 0.0824, 1.0);
 const vec4 moonlightColor = vec4(0.0549, 0.098, 0.2353, 0.4);
 
-const vec4 skylightColor = vec4(0.749, 0.8235, 1.0, 0.818);
+const vec4 skylightColor = vec4(0.8314, 0.8824, 1.0, 0.748);
 const vec4 morningSkylightColor = vec4(0.6353, 0.7333, 0.851, 0.761);
 const vec4 eveningSkylightColor = vec4(0.3294, 0.4549, 0.8235, 0.721);
-const vec4 nightSkylightColor = vec4(0.2078, 0.302, 0.5412, 0.351);
+const vec4 nightSkylightColor = vec4(0.3137, 0.3725, 0.5255, 0.924);
 
 const vec4 blocklightColor = vec4(1.0, 0.8627, 0.7176, 1.0);
 const vec4 ambientColor = vec4(0.0, 0.0, 0.0, 1.0);
@@ -154,7 +154,7 @@ vec3 scatter = vec3(0.0);
   
   vec3 indirect = (skylight + blocklight) * ao;
   float metalMask = isMetal ? 1.0 : 0.0;
-  indirect = mix(indirect, indirect * 0.15, metalMask);
+  indirect = mix(indirect, indirect * 0.3, metalMask);
   vec3 specular = brdf(
     color,
     F0,

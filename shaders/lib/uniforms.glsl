@@ -71,6 +71,7 @@ uniform float snowBiomeSmooth;
 uniform float hotBiomeSmooth;
 uniform float eyeAltitude;
 uniform vec3 previousCameraPosition;
+uniform bool hideGUI;
 //constants
 
 const float PI = float(3.14159);

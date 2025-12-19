@@ -157,7 +157,7 @@ void main() {
     float waveIntensityRolloff = exp(
       3.0 * WAVE_INTENSITY * (0.05 - waveFalloff)
     );
-    float waveIntensity = 0.097 * WAVE_INTENSITY * waveIntensityRolloff;
+    float waveIntensity = 0.177 * WAVE_INTENSITY * waveIntensityRolloff;
     float waveSoftness = 0.018 * WAVE_SOFTNESS;
 
     normal = waveNormal(
@@ -228,7 +228,7 @@ void main() {
 
   roughness = mix(roughness,wetRoughness, wetness);
   
-  bool canReflect = roughness < 0.35;
+  bool canReflect = roughness < 1.0;
   vec3 noiseB = blue_noise(floor(gl_FragCoord.xy), frameCounter, SSR_STEPS);
   float jitter = IGN(gl_FragCoord.xy, frameCounter);
   vec2 offset = vec2(0.0, 0.0);
@@ -290,14 +290,11 @@ void main() {
   vec4 prevReflClip = gbufferPreviousProjection * vec4(prevReflView, 1.0);
   vec3 previousReflPos = (prevReflClip.xyz / prevReflClip.w) * 0.5 + 0.5;
 
-  float reflectedDist = distance(reflectedViewPos,viewPos);
+  float reflDist = distance(reflectedViewPos,viewPos);
 
-  float lod =   clamp(exp(0.35 * (5.0 - pow(roughness, 0.8))) * reflectedDist * 4, 0,4);
+  float lod =  4.2 *(1.0 - exp(-9.0 - sqrt(roughness))) ;
   if (roughness <= 0.0 || isWater) lod = 0.0;
 
-
-
-    
     vec3 sky = skyFallbackBlend(
       reflectedDir,
       vec3(1.0, 0.898, 0.698),
@@ -307,11 +304,18 @@ void main() {
       roughness,
       isWater
     );
+    
+   if(roughness > 0)
+   {
+    sky *= exp(5.12 * (0.11 - roughness));
+   }
+   
   vec3 prevReflCol = vec3(0.0);
     if (reflectionHit) {
     if (canReflect || isMetal || isWater) {
       
-      reflectedColor = texture2DLod(colortex0, reflectedPos.xy, 0).rgb;
+      reflectedColor = texture2DLod(colortex0, reflectedPos.xy, lod).rgb;
+      reflectedColor *= exp(4.02 * (0.11 - roughness));
     }
   }
 
@@ -327,17 +331,20 @@ void main() {
   prevReflCol *= F;
   vec3 wetReflectedColor = mix(color.rgb, reflectedColor  , rainFactor);
   reflectedColor = mix(reflectedColor, wetReflectedColor, rainFactor);
- 
 
-  
+
+  if(isMetal)
+  {
+    color.rgb = reflectedColor;
+  }
   color.rgb += reflectedColor;
 
   #else
 
   if ((canReflect || isMetal || isWater) && !inWater) {
     vec3 reflDir = reflect(normalize(viewPos), normal);
-    vec3 fb = skyFallbackBlend(reflDir, sunColor, viewPos, texcoord, normal);
-
+    vec3 fb = skyFallbackBlend(reflDir,  vec3(1.0, 0.898, 0.698), viewPos, texcoord, normal, roughness, isWater);
+    fb *= exp(8.02 * (0.13 - roughness));
     reflectedColor = fb;
     reflectedColor *= smoothstep(0.815, 1.0, lightmap.g);
     reflectedColor *= F;

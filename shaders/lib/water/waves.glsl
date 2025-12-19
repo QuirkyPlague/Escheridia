@@ -24,6 +24,13 @@ float getwaves(vec2 position, int iterations) {
   float iter = 30.0; // this will help generating well distributed wave directions
   float frequency = 1.85; // frequency of the wave, this will change every iteration
   float timeMultiplier = 3.0 ; // time multiplier for the wave, this will change every iteration
+  #if SCREENSHOT_MODE == 1
+  if(hideGUI == true)
+  {
+    timeMultiplier = 0.0;
+  }
+  
+  #endif
   float weight = 0.15; // weight in final sum for the wave, this will change every iteration
   float sumOfValues = 0.0; // will store final sum of values
   float sumOfWeights = 0.0; // will store final sum of weights

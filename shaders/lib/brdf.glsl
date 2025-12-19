@@ -68,7 +68,8 @@ vec3 brdf(
 
   #ifdef DO_SSR
   if (isMetal) {
-    kD *= 0.25;
+    kD *= 0.0;
+    albedo *= 5;
 
   }
   #else

@@ -50,4 +50,7 @@ void main() {
 
   
    ao.a = texture(normals,texcoord).z * 0.5 + 0.5;
+   #if SCREENSHOT_MODE ==1
+    if(hideGUI) color = vec4(0.0);
+   #endif
 }

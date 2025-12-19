@@ -134,6 +134,14 @@ option.HC_EMISSION = Integrated Emission
 
 option.TEMPORAL_REPROJECTION = Temporal Reprojection
 option.TEMPORAL_REPROJECTION.comment = Enable blending of previous frames to reduce visual noise
+    value.TEMPORAL_REPROJECTION.0 = Off
+    value.TEMPORAL_REPROJECTION.1 = On
 
 option.TA_FACTOR = Temporal Acumulation Factor
 option.TA_FACTOR.comment = How strong the reprojection will be
+
+option.SCREENSHOT_MODE = Screenshot mode
+option.SCREENSHOT_MODE.comment = Enable strong accumulation for maximum denoising for screenshots while the hud is disabled (F1) 
+    value.SCREENSHOT_MODE.0 = Off
+    value.SCREENSHOT_MODE.1 = On
+    value.SCREENSHOT_MODE.2 = Hell

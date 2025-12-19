@@ -121,7 +121,7 @@ void main() {
   #ifndef HC_EMISSION
   if (emission < 255.0 / 255.0) {
     emissive += color.rgb * emission;
-    emissive += max(3.25 * pow(emissive, vec3(0.58)), 0.0);
+    emissive += max(8.25 * pow(emissive, vec3(1.38)), 0.0);
 
     emissive = CSB(emissive, 1.0, 0.75, 1.0);
     emissive = pow(emissive, vec3(2.2));

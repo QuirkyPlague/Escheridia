@@ -84,6 +84,9 @@ void main() {
 
   if (blockID == WATER_ID) {
     mask = vec4(1.0, 1.0, 1.0, 1.0);
+    #ifdef WAVES
+    encodedNormal = geoNormal;
+    #endif
     color.a *= 0.0;
 
   } else {
