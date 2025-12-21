@@ -15,15 +15,14 @@ const vec3 rainHorCol = vec3(0.7059, 0.7569, 0.7961);
 const vec3 rainGrndCol = vec3(0.1569, 0.1922, 0.2314);
 
 //Day
-const vec3 dayZenCol = vec3(0.5176, 0.6706, 1.0);
-const vec3 dayHorCol = vec3(0.8078, 0.8706, 0.9333);
-const vec3 dayGrndCol = vec3(0.4039, 0.5176, 0.702);
+const vec3 dayZenCol = vec3(0.4196, 0.6039, 1.0);
+const vec3 dayHorCol = vec3(0.6157, 0.7059, 0.7882);
+const vec3 dayGrndCol = vec3(0.2549, 0.4118, 0.6706);
 
 //Dawn
 const vec3 dawnZenCol = vec3(0.6745, 0.8549, 1.0);
-const vec3 dawnHorCol = vec3(0.9294, 0.6235, 0.3216);
+const vec3 dawnHorCol = vec3(0.8706, 0.6275, 0.3843);
 const vec3 dawnGrndCol = vec3(0.2549, 0.3922, 0.6118);
-
 
 //Dusk
 const vec3 duskZenCol = vec3(0.3922, 0.5529, 0.7765);
@@ -72,7 +71,7 @@ vec3 getSun(vec3 dir) {
   vec3 sunColor;
   sunColor = currentSunColor(sunColor);
 
-  vec3 fullSun = sun * sunColor * 30.0 * sunHeightFactor;
+  vec3 fullSun = sun * sunColor * 640.0 * sunHeightFactor;
 
   vec3 moonColor = vec3(0.098, 0.1294, 0.1843);
   vec3 fullmoon = moon * moonColor * 35.3 * sunHeightFactor;

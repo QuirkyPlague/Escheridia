@@ -142,7 +142,7 @@ vec3 volumetricRaymarch(
       shadow += getShadow(shadowScreenPos);
     }
     shadow /= float(5);
-
+    
     transmission *= exp(-absCoeff * length(stepLength) * 0.3);
 
     // --- Ambient lighting ---
@@ -181,7 +181,7 @@ vec3 volumetricRaymarch(
   }
   float fogDistFalloff = length(feetPlayerPos) / far;
   float fogReduction = exp( 0.331 * (0.23 - fogDistFalloff));
-  scatter *= 0.055 * fogReduction ;
+  scatter *= 0.165  ;
   transmission *= fogReduction;
   vec3 totalScatter = scatter + transmission ;
 

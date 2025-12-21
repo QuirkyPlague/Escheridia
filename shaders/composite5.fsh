@@ -149,7 +149,7 @@ void main() {
     }
 
   
- 
+ float waveNoise =  texture(waterTex,mod((feetPlayerPos.xz + cameraPosition.xz), 512.0) / 512.0).r;
   #ifdef WAVES
   if (isWater) {
     if(flatness >= 1e-6)
@@ -164,7 +164,7 @@ void main() {
     normal = waveNormal(
       feetPlayerPos.xz + cameraPosition.xz,
       waveSoftness,
-      waveIntensity
+      waveIntensity, waveNoise
     );
     normal = mat3(gbufferModelView) * normal;
     }
@@ -181,7 +181,7 @@ void main() {
     normal = waveNormal(
       feetPlayerPos.xz + cameraPosition.xz,
       waveSoftness,
-      waveIntensity
+      waveIntensity, waveNoise
     );
     normal = mat3(gbufferModelView) * normal;
   }
@@ -306,15 +306,15 @@ void main() {
       normal,
       roughness,
       isWater
-    ) * F;
+    );
     
    if(roughness > 0)
    {
-    sky *= max(exp(3.32 * (0.076 - roughness)), 0.0);
+    sky *= max(exp(7.32 * (0.076 - roughness)), 0.0);
    }
    
    
-  vec3 prevReflCol = vec3(0.0);
+ 
     if (reflectionHit) {
     if (canReflect || isMetal || isWater) {
 
@@ -325,7 +325,7 @@ void main() {
       #endif
 
       if (any(isnan(reflectedColor))) reflectedColor = vec3(0.0);
-      if(roughness > 0)  reflectedColor *= max(exp(8.02 * (0.11 - roughness)), 0.0);
+      if(roughness > 0)  reflectedColor *= max(exp(5.02 * (0.031 - roughness)), 0.0);
     
     }
   }
@@ -333,16 +333,15 @@ void main() {
   if (!reflectionHit && canReflect && !inWater) {
     
     reflectedColor = sky;
-    prevReflCol = sky;
+    
     float smoothLightmap = smoothstep(0.882, 1.0, lightmap.g);
     reflectedColor = mix(color.rgb, reflectedColor, smoothLightmap);
 
   }
   reflectedColor *= F;
-  prevReflCol *= F;
   vec3 wetReflectedColor = mix(color.rgb, reflectedColor  , rainFactor);
   reflectedColor = mix(reflectedColor, wetReflectedColor, rainFactor);
-  reflectedColor = min(reflectedColor, vec3(2.4));
+  //reflectedColor = min(reflectedColor, vec3(6.4));
 
   if(isMetal)
   {
@@ -353,22 +352,19 @@ void main() {
 
   #else
 
-  if ((canReflect || isMetal || isWater) && !inWater) {
-    vec3 reflDir = reflect(normalize(viewPos), normal);
-    vec3 fb = skyFallbackBlend(reflDir,  vec3(1.0, 0.898, 0.698), viewPos, texcoord, normal, roughness, isWater) ;
-    fb *= max(exp(5.12 * (0.11 - roughness)), 0.0);
+ 
+  vec3 fb = skyFallbackBlend(reflectedDir,  vec3(1.0, 0.898, 0.698), viewPos, texcoord, normal, roughness, isWater);
+   
+  if (isWater && !inWater) {
     reflectedColor = fb;
-    reflectedColor *= F;
-     reflectedColor= mix(color.rgb, reflectedColor, smoothLightmap);
+     float smoothLightmap = smoothstep(0.882, 1.0, lightmap.g);
+    reflectedColor = mix(color.rgb, reflectedColor, smoothLightmap);
+    if(roughness > 0)  reflectedColor *= max(exp(5.02 * (0.031 - roughness)), 0.0);
+  }
+    
+  reflectedColor *= F;
   
-      if(isMetal)
-  {
-    color.rgb = reflectedColor;
-  }
     color.rgb += reflectedColor;
-
-  }
-
   #endif // DO_SSR
 
 }

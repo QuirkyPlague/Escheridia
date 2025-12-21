@@ -7,20 +7,17 @@
 
 // Calculates wave value and its derivative,
 // for the wave direction, position in space, wave frequency and time
-vec2 wavedx(vec2 position, vec2 direction, float frequency, float timeshift) {
-  float noise = texture(waterTex,mod((position) / 2.0, 64.0) / 64.0).r;
+vec2 wavedx(vec2 position, vec2 direction, float frequency, float timeshift, float noise) {
   float x = dot(direction, position) * frequency + timeshift;
-  float y = dot(direction, (position + (noise * 3.1))) * frequency + timeshift;
-  float wave = exp(sin(x) - 1.0) + exp(cos(y) - 0.46);
+  float y = dot(direction, (position)) * frequency + timeshift;
+  float wave = exp(sin(x) - 1.0) + exp(cos(y) - 0.915);
   float dx = wave  * cos(x) * cos(y);
   return vec2(wave, -dx);
 }
 
 // Calculates waves by summing octaves of various waves with various parameters
-float getwaves(vec2 position, int iterations) {
-  float noise = texture(waterTex,mod((position) / 2.0, 256.0) / 256.0).r;
+float getwaves(vec2 position, int iterations, float noise) {
   float wavePhaseShift = length(position) * 0.314 * WAVE_RANDOMNESS; // this is to avoid every octave having exactly the same phase everywhere
-  wavePhaseShift = mix(wavePhaseShift, wavePhaseShift * 1.012, noise);
   float iter = 30.0; // this will help generating well distributed wave directions
   float frequency = 1.85; // frequency of the wave, this will change every iteration
   float timeMultiplier = 3.0 ; // time multiplier for the wave, this will change every iteration
@@ -43,7 +40,7 @@ float getwaves(vec2 position, int iterations) {
       position,
       p,
       frequency,
-      frameTimeCounter * timeMultiplier + wavePhaseShift
+      frameTimeCounter * timeMultiplier + wavePhaseShift, noise
     );
 
   res = mix(res, res * 0.317, noise *2.3);
@@ -67,15 +64,15 @@ float getwaves(vec2 position, int iterations) {
 }
 
 // Calculate normal at point by calculating the height at the pos and 2 additional points very close to pos
-vec3 waveNormal(vec2 pos, float e, float depth) {
+vec3 waveNormal(vec2 pos, float e, float depth, float noise) {
   vec2 ex = vec2(e, 0);
-  float H = getwaves(pos.xy, WAVE_OCTAVES) * depth;
+  float H = getwaves(pos.xy, WAVE_OCTAVES, noise) * depth;
   vec3 a = vec3(pos.x, H, pos.y);
   return normalize(
     cross(
       a -
-        vec3(pos.x - e, getwaves(pos.xy - ex.xy, WAVE_OCTAVES) * depth, pos.y),
-      a - vec3(pos.x, getwaves(pos.xy + ex.yx, WAVE_OCTAVES) * depth, pos.y + e)
+        vec3(pos.x - e, getwaves(pos.xy - ex.xy, WAVE_OCTAVES, noise) * depth, pos.y),
+      a - vec3(pos.x, getwaves(pos.xy + ex.yx, WAVE_OCTAVES, noise) * depth, pos.y + e)
     )
   );
 }

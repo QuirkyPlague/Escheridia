@@ -138,7 +138,7 @@ vec3 skylightSSS = vec3(0.0);
 vec3 scatter = vec3(0.0);
  scatter = sunlight * phase * shadow;
   vec3 baseScatter = sunlight * shadow;
-  scatter += baseScatter * 2 ;
+  scatter += baseScatter * 2.15 ;
   scatter *= hasSSS;
   scatter *= sss;
   if (faceNdl >= 1e-6) {
@@ -154,7 +154,9 @@ vec3 scatter = vec3(0.0);
   
   vec3 indirect = (skylight + blocklight) * ao;
   float metalMask = isMetal ? 1.0 : 0.0;
+  #ifdef DO_SSR
   indirect = mix(indirect, indirect * 0.01, metalMask);
+  #endif
   vec3 specular = brdf(
     color,
     F0,
