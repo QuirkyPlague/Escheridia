@@ -45,7 +45,7 @@ const vec3 nightZenCol = vec3(0.0392, 0.0745, 0.2824);
 const vec3 nightHorCol = vec3(0.1059, 0.1569, 0.2314);
 const vec3 nightGrndCol = vec3(0.0196, 0.0275, 0.1294);
 
-const vec4 sunriseScatter = vec4(1.0, 0.6706, 0.5333, 0.83);
+const vec4 sunriseScatter = vec4(0.5725, 0.3804, 0.298, 0.83);
 const vec4 eveningScatter = vec4(1.0, 0.1922, 0.1922, 0.73);
 const vec4 dayScatter = vec4(0.7059, 0.5451, 0.3608, 0.715);
 const vec4 noonScatter = vec4(0.7569, 0.6588, 0.5255, 0.845);

@@ -56,7 +56,7 @@ vec3 volumetricRaymarch(
     0.84
 
   );
-  const float ambientI[keys] = float[keys](1.4, 1.2, 1.0, 1.0, 2.27, 2.27, 1.4);
+  const float ambientI[keys] = float[keys](1.4, 2.4, 2.4, 1.0, 2.27, 2.27, 1.4);
   int i = 0;
   //assings the keyframes
   for (int k = 0; k < keys - 1; ++k) {
@@ -165,7 +165,7 @@ vec3 volumetricRaymarch(
   vec3 singleScatter = scatterCoeff * phase * rayLength * directLight * ambientIntensity;
     
     vec3 msLight = sunColor * (0.35 + 0.63 * shadow);
-    vec3 multiScatter = scatterCoeff * msLight * 5.0 * ambientMult; 
+    vec3 multiScatter = scatterCoeff * msLight * 10.0 * ambientMult; 
     multiScatter *= exp(-absCoeff * (float(i) / length(stepLength))); 
 
     vec3 sampleExtinction = (absCoeff + multiScatter) * VL_EXT;
@@ -180,11 +180,11 @@ vec3 volumetricRaymarch(
     transmission *= sampleTransmittance;
   }
   float fogDistFalloff = length(feetPlayerPos) / far;
-  float fogReduction = exp( 0.131 * (0.23 - fogDistFalloff));
-  #if MC_VERSION >= 12111
+  float fogReduction = exp( 0.245 * (0.23 - fogDistFalloff));
+  #if MC_VERSION >= 12108
  scatter *= 0.185 * fogReduction;
   #else
-   scatter *= 0.065 * fogReduction;
+   scatter *= 0.035 * fogReduction;
    #endif
 
   vec3 totalScatter = scatter + transmission ;
