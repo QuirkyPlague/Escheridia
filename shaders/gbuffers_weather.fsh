@@ -26,7 +26,7 @@ void main() {
   color = texture(gtexture, texcoord) * glcolor;
 
 
-  color.rgb = pow(color.rgb, vec3(2.2));
+  
   lightmap = vec4(lmcoord, 0.0, 1.0);
   encodedNormal = vec4(normal * 0.5 + 0.5, 1.0);
 
@@ -39,7 +39,7 @@ void main() {
     rainMask = vec4(0.0);
     return;
   } else {
-    color = vec4(0.0);
+    color = vec4(0.0, 0.0, 0.0, 0.0);
     rainMask = vec4(1.0, 1.0, 1.0, 1.0);
   }
 

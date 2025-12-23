@@ -123,7 +123,7 @@ void main() {
   vec3 normal = normalize((encodedNormal - 0.5) * 2.0);
   normal = mat3(gbufferModelView) * normal;
 
-  vec2 noisePos = fract(worldPos.xz /128.0);
+  vec2 noisePos = fract(worldPos.xz /64.0);
  
 
   const float handDepth = MC_HAND_DEPTH * 0.5 + 0.5;
@@ -140,15 +140,14 @@ void main() {
          rainFactor =
     clamp(smoothstep(13.5 / 15.0, 14.5 / 15.0, lightmap.y),0,1) * wetness;
       rainFactor *= smoothstep(
-    -0.15,
-    0.45,
+    -0.45,
+    0.65,
     texture(
       puddleTex,
       noisePos
     ).r
   ) * flatness * snowBiomeSmooth * hotBiomeSmooth;
       }
-     
     }
 
   
@@ -161,13 +160,13 @@ void main() {
     float waveIntensityRolloff = exp(
       3.0 * WAVE_INTENSITY * (0.05 - waveFalloff)
     );
-    float waveIntensity = 0.377 * WAVE_INTENSITY * waveIntensityRolloff;
+    float waveIntensity = 0.177 * WAVE_INTENSITY * waveIntensityRolloff;
     float waveSoftness = 0.04 * WAVE_SOFTNESS;
 
     normal = waveNormal(
       feetPlayerPos.xz + cameraPosition.xz,
       waveSoftness,
-      waveIntensity, waveNoise
+      waveIntensity
     );
     normal = mat3(gbufferModelView) * normal;
     }
@@ -184,7 +183,7 @@ void main() {
     normal = waveNormal(
       feetPlayerPos.xz + cameraPosition.xz,
       waveSoftness,
-      waveIntensity, waveNoise
+      waveIntensity
     );
     normal = mat3(gbufferModelView) * normal;
   }
@@ -214,7 +213,7 @@ void main() {
   // --- F0 and roughness
   vec3 f0;
   if (isMetal) {
-    f0 = albedo * 34;
+    f0 = albedo *16;
   } else if (isWater) {
     f0 = vec3(0.02);
   } else {
@@ -313,7 +312,7 @@ void main() {
     
    if(roughness > 0)
    {
-    sky *= max(exp(7.32 * (0.076 - roughness)), 0.0);
+    sky *= max(exp(4.32 * (0.096 - roughness)), 0.0);
    }
    
    
@@ -328,7 +327,7 @@ void main() {
       #endif
 
       if (any(isnan(reflectedColor))) reflectedColor = vec3(0.0);
-      if(roughness > 0)  reflectedColor *= max(exp(5.02 * (0.031 - roughness)), 0.0);
+      if(roughness > 0)  reflectedColor *= max(exp(7.02 * (0.061 - roughness)), 0.0);
     
     }
   }
@@ -344,7 +343,7 @@ void main() {
   reflectedColor *= F;
   vec3 wetReflectedColor = mix(color.rgb, reflectedColor  , rainFactor);
   reflectedColor = mix(reflectedColor, wetReflectedColor, rainFactor);
-  //reflectedColor = min(reflectedColor, vec3(6.4));
+  
 
   if(isMetal)
   {

@@ -12,7 +12,8 @@ void main() {
   color = textureLod(colortex0, texcoord, 0);
 
   vec4 waterMask = texture(colortex5, texcoord);
-
+float rain = texture(colortex8, texcoord).r;
+  if(rain == 1.0) return;
   float depth = texture(depthtex0, texcoord).r;
   float depth1 = texture(depthtex1, texcoord).r;
 

@@ -132,7 +132,7 @@ vec3 getLighting(
  
   float hasSSS = step(64.0 / 255.0, sss);
   float phase =
-    henyeyGreensteinPhase(VdotL, 0.72) * 10;
+    henyeyGreensteinPhase(VdotL, 0.72) *6;
 
 vec3 skylightSSS = vec3(0.0);
 vec3 scatter = vec3(0.0);

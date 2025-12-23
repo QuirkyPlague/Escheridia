@@ -26,7 +26,7 @@ layout(location = 6) out vec4 mask;
 layout(location = 7) out vec4 ao;
 
 void main() {
-  color = texture(gtexture, texcoord) * glcolor;
+  color = texture(colortex0, texcoord) * glcolor;
 
   vec3 normalMaps = texture(normals, texcoord).rgb;
   normalMaps = normalMaps * 2.0 - 1.0;
@@ -51,17 +51,20 @@ void main() {
   }
  vec3 emissive = vec3(0.0);
   #ifdef HC_EMISSION
-  vec3 greyAlbedo = CSB(color.rgb,1.0, 0.0,1.515);
-  
+  vec3 greyAlbedo = CSB(color.rgb,1.0, 0.0,2.915);
+
   if (emission > 0) {
+    
     emissive = color.rgb * emission ;
     emissive += max(luminance(greyAlbedo ), float(greyAlbedo));
-    emissive *= max(0.65 * pow(emissive, vec3(1.3528)), 0.0);
+    emissive *= max(0.85 * pow(emissive, vec3(1.3528)), 0.0);
 
-    emissive = CSB(emissive, 1.0, 0.75, 1.0);
+    emissive = CSB(emissive, 1.0, 0.95, 1.0);
+    
   }
   #endif
   color.rgb += emissive;
+  
   ao.a = texture(normals,texcoord).z * 0.5 + 0.5;
   
 }

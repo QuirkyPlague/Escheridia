@@ -16,7 +16,7 @@ layout(location = 0) out vec4 color;
 layout(location = 1) out vec4 prevBuffer;
 void main() {
   //assign colortex buffers
-  color = textureLod(colortex0, texcoord, 0);
+  color = texture(colortex0, texcoord);
   vec3 albedo = color.rgb;
   albedo = pow(albedo, vec3(2.2));
   vec2 lightmap = texture(colortex1, texcoord).rg;
@@ -55,6 +55,21 @@ void main() {
   float flatness = max(dot(normalize(geoNormal), vec3(0.0, 1.0, 0.0)), 0.0);
 
 
+  float rainFactor = 0.0;
+    if(depth > handDepth )
+    {
+      
+         rainFactor =
+    clamp(smoothstep(13.5 / 15.0, 14.5 / 15.0, lightmap.y),0,1) * wetness;
+      rainFactor *= smoothstep(
+    -0.55,
+    0.65,
+    texture(
+      puddleTex,
+      noisePos
+    ).r
+  ) * flatness * snowBiomeSmooth * hotBiomeSmooth;
+    }
   
   //PBR
   float roughness = pow(1.0 - SpecMap.r, 2.0);
@@ -90,12 +105,14 @@ void main() {
   float emission = SpecMap.a;
   vec3 emissive = vec3(0.0);
   #ifndef HC_EMISSION
-  if (emission < 255.0 / 255.0) {
+  if (emission < 1.0) {
+    emission = min(emission, 0.5);
     emissive += color.rgb * emission;
-    emissive += max(6.25 * pow(emissive, vec3(1.38)), 0.0);
-
-    emissive = CSB(emissive, 1.0, 0.75, 1.0);
+    emissive += max(15.25 * pow(emissive, vec3(2.18)), 0.0);
+      
+    emissive = CSB(emissive, 1.0, 0.85, 1.0);
     emissive = pow(emissive, vec3(2.2));
+
   }
 #endif //HC_EMISSION
 

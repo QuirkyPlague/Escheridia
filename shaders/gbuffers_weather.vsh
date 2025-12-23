@@ -17,11 +17,11 @@ void main() {
   gl_Position = ftransform();
   texcoord = (gl_TextureMatrix[0] * gl_MultiTexCoord0).xy;
   lmcoord = (gl_TextureMatrix[1] * gl_MultiTexCoord1).xy;
-  lmcoord = (lmcoord - 1.0 / 32.0) * 32.0 / 30.0;
+  lmcoord = lmcoord * 33.05 / 32.0 - 1.05 / 32.0;
   glcolor = gl_Color;
 
   normal = gl_NormalMatrix * gl_Normal; // this gives us the normal in view space
-  normal = mat3(gbufferModelViewInverse) * normal; // this converts the normal to world/player space
+
 
   const float inf = uintBitsToFloat(0x7f800000u);
   float handedness = clamp(at_tangent.w * inf, -1.0, 1.0); // -1.0 when at_tangent.w is negative, and 1.0 when it's positive
@@ -34,7 +34,7 @@ void main() {
   blockID = int(mc_Entity.x + 0.5);
   viewPos = (gl_ModelViewMatrix * gl_Vertex).xyz;
   vec3 feetPlayerPos = (gbufferModelViewInverse * vec4(viewPos, 1.0)).xyz;
-  feetPlayerPos.xz += feetPlayerPos.y * -0.05;
+  feetPlayerPos.xz += feetPlayerPos.y * -0.15;
   viewPos = (gbufferModelView * vec4(feetPlayerPos, 1.0)).xyz;
 
   gl_Position = gbufferProjection * vec4(viewPos, 1.0);

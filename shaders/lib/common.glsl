@@ -6,6 +6,7 @@
     const bool colortex0MipmapEnabled = true;
     const int colortex6Format = RGB16F;
     const int colortex10Format = RGB16F;
+    const int colortex11Format = RGB16F;
 */
 
 const bool colortex10Clear = false;

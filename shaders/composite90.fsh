@@ -84,8 +84,7 @@ void main() {
   neighborhoodMin = vec3(0.0);
   neighborhoodMax = vec3(99999999999999.0);
   historyColor.rgb = clamp(historyColor.rgb, neighborhoodMin, neighborhoodMax);
-  float historyWeight =0.995 * float(!historyRejection);
-  historyWeight *= depthConfidence;
+  float historyWeight =0.985 * float(!historyRejection);
   color = mix(color, historyColor, historyWeight);
   }
   else

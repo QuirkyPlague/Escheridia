@@ -149,7 +149,7 @@ vec3 agx(vec3 color) {
 }
 
 vec3 TonemapGeneric(vec3 rgb) {
-  rgb *= 2.0;
+  
   vec4 GenericTonemapperContrastAndScaleAndOffsetAndCrosstalk = vec4(
     1.0,
     0.997265,

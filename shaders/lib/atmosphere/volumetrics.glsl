@@ -56,7 +56,7 @@ vec3 volumetricRaymarch(
     0.84
 
   );
-  const float ambientI[keys] = float[keys](1.4, 2.4, 2.4, 1.0, 2.27, 2.27, 1.4);
+  const float ambientI[keys] = float[keys](1.4, 2.14, 2.14, 2.4, 9.27, 9.27, 1.4);
   int i = 0;
   //assings the keyframes
   for (int k = 0; k < keys - 1; ++k) {
@@ -107,7 +107,7 @@ vec3 volumetricRaymarch(
   float ambientMult = mix(1.0, 0.0, phaseIncFactor);
   float phase =
     henyeyGreensteinPhase(VdotL, phaseVal) * FORWARD_PHASE_INTENSITY +
-    henyeyGreensteinPhase(VdotL, -0.25) * BACKWARD_PHASE_INTENSITY;
+    henyeyGreensteinPhase(VdotL, -0.25) * BACKWARD_PHASE_INTENSITY * 0.65;
 
   phase = mix(phase,henyeyGreensteinPhase(VdotL, 0.65) * rain +
     henyeyGreensteinPhase(VdotL, -0.25) * rain, wetness);
@@ -180,11 +180,11 @@ vec3 volumetricRaymarch(
     transmission *= sampleTransmittance;
   }
   float fogDistFalloff = length(feetPlayerPos) / far;
-  float fogReduction = exp( 0.245 * (0.23 - fogDistFalloff));
+  float fogReduction = exp( 0.245 * (1.0 - fogDistFalloff));
   #if MC_VERSION >= 12108
- scatter *= 0.185 * fogReduction;
+ scatter *=  0.065 * fogReduction;
   #else
-   scatter *= 0.035 * fogReduction;
+   scatter *= 0.065 * fogReduction;
    #endif
 
   vec3 totalScatter = scatter + transmission ;
