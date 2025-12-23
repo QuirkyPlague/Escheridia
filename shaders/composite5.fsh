@@ -119,10 +119,13 @@ void main() {
   float farPlane = far / 0.75;
  
   
-    
+  vec3 worldPos = feetPlayerPos + cameraPosition;
   vec3 normal = normalize((encodedNormal - 0.5) * 2.0);
   normal = mat3(gbufferModelView) * normal;
-  
+
+  vec2 noisePos = fract(worldPos.xz /128.0);
+ 
+
   const float handDepth = MC_HAND_DEPTH * 0.5 + 0.5;
   float flatness = max(dot(normalize(geoNormal), vec3(0.0, 1.0, 0.0)), 0.0);
   float baseRoughness = pow(1.0 - SpecMap.r, 2.0);
@@ -138,10 +141,10 @@ void main() {
     clamp(smoothstep(13.5 / 15.0, 14.5 / 15.0, lightmap.y),0,1) * wetness;
       rainFactor *= smoothstep(
     -0.15,
-    0.8,
+    0.45,
     texture(
       puddleTex,
-      mod((feetPlayerPos.xz + cameraPosition.xz) / 2.0, 64.0) / 64.0
+      noisePos
     ).r
   ) * flatness * snowBiomeSmooth * hotBiomeSmooth;
       }
@@ -149,7 +152,7 @@ void main() {
     }
 
   
- float waveNoise =  texture(waterTex,mod((feetPlayerPos.xz + cameraPosition.xz), 512.0) / 512.0).r;
+ float waveNoise =  texture(waterTex,mod((feetPlayerPos.xz + cameraPosition.xz) / 2.0, 128.0) / 128.0).r;
   #ifdef WAVES
   if (isWater) {
     if(flatness >= 1e-6)
@@ -158,8 +161,8 @@ void main() {
     float waveIntensityRolloff = exp(
       3.0 * WAVE_INTENSITY * (0.05 - waveFalloff)
     );
-    float waveIntensity = 0.177 * WAVE_INTENSITY * waveIntensityRolloff;
-    float waveSoftness = 0.018 * WAVE_SOFTNESS;
+    float waveIntensity = 0.377 * WAVE_INTENSITY * waveIntensityRolloff;
+    float waveSoftness = 0.04 * WAVE_SOFTNESS;
 
     normal = waveNormal(
       feetPlayerPos.xz + cameraPosition.xz,
@@ -211,7 +214,7 @@ void main() {
   // --- F0 and roughness
   vec3 f0;
   if (isMetal) {
-    f0 = albedo * 24;
+    f0 = albedo * 34;
   } else if (isWater) {
     f0 = vec3(0.02);
   } else {
@@ -355,15 +358,18 @@ void main() {
  
   vec3 fb = skyFallbackBlend(reflectedDir,  vec3(1.0, 0.898, 0.698), viewPos, texcoord, normal, roughness, isWater);
    
-  if (isWater && !inWater) {
+  if (canReflect && !inWater) {
     reflectedColor = fb;
      float smoothLightmap = smoothstep(0.882, 1.0, lightmap.g);
     reflectedColor = mix(color.rgb, reflectedColor, smoothLightmap);
     if(roughness > 0)  reflectedColor *= max(exp(5.02 * (0.031 - roughness)), 0.0);
   }
-    
+   
   reflectedColor *= F;
-  
+   if(isMetal)
+    {
+      color.rgb += reflectedColor;
+    }
     color.rgb += reflectedColor;
   #endif // DO_SSR
 

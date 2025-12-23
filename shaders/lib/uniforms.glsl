@@ -50,6 +50,7 @@ uniform sampler3D blueNoiseTex;
 uniform sampler2D puddleTex;
 uniform sampler2D waterTex;
 
+
 //additional uniforms
 uniform vec3 cameraPosition;
 uniform int frameCounter;

@@ -10,8 +10,8 @@ const vec3 paleHorCol = vec3(0.7137, 0.7137, 0.7137);
 const vec3 paleGrndCol = vec3(0.4314, 0.4314, 0.4314);
 
 //rain
-const vec3 rainZenCol = vec3(0.2902, 0.3608, 0.4784);
-const vec3 rainHorCol = vec3(0.7059, 0.7569, 0.7961);
+const vec3 rainZenCol = vec3(0.3843, 0.4196, 0.4824);
+const vec3 rainHorCol = vec3(0.6353, 0.6549, 0.6706);
 const vec3 rainGrndCol = vec3(0.1569, 0.1922, 0.2314);
 
 //Day
@@ -25,8 +25,8 @@ const vec3 dawnHorCol = vec3(0.8706, 0.6275, 0.3843);
 const vec3 dawnGrndCol = vec3(0.2549, 0.3922, 0.6118);
 
 //Dusk
-const vec3 duskZenCol = vec3(0.3922, 0.5529, 0.7765);
-const vec3 duskHorCol = vec3(0.8784, 0.5451, 0.3059);
+const vec3 duskZenCol = vec3(0.4157, 0.6196, 0.749);
+const vec3 duskHorCol = vec3(0.8824, 0.6157, 0.4235);
 const vec3 duskGrndCol = vec3(0.2118, 0.2706, 0.6118);
 
 //Night
@@ -34,7 +34,8 @@ const vec3 nightZenCol = vec3(0.0392, 0.0745, 0.2824);
 const vec3 nightHorCol = vec3(0.1059, 0.1569, 0.2314);
 const vec3 nightGrndCol = vec3(0.0196, 0.0275, 0.1294);
 
-const vec4 sunriseScatter = vec4(1.0, 0.7137, 0.4275, 0.73);
+const vec4 sunriseScatter = vec4(1.0, 0.6706, 0.5333, 0.83);
+const vec4 eveningScatter = vec4(1.0, 0.1922, 0.1922, 0.73);
 const vec4 dayScatter = vec4(0.7059, 0.5451, 0.3608, 0.715);
 const vec4 noonScatter = vec4(0.7569, 0.6588, 0.5255, 0.845);
 const vec4 nightScatter = vec4(0.8824, 0.6196, 0.2745, 0.65);

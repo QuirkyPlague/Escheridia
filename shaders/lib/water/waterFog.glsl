@@ -61,6 +61,7 @@ vec3 waterExtinction(
   if (inWater) {
     dist = dist0;
   }
+  
   vec3 absorptionColor = vec3(0.0);
   vec3 absorption = WATER_ABOSRBTION;
   vec3 inscatteringAmount = vec3(0.0);
@@ -73,7 +74,7 @@ vec3 waterExtinction(
   vec3 absorptionFactor = exp(
     -absorption * WATER_FOG_DENSITY * (dist * ABSORPTION_COEFF)
   );
-
+  
   color *= absorptionFactor;
   color +=
     sunColor *

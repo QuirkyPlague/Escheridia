@@ -29,9 +29,6 @@ void main() {
   vec4 mask = texture(colortex7, texcoord);
   vec4 ao = texture(colortex9, texcoord);
 
-
-  
-  
   int blockID = int(mask) + 103;
   if (depth == 1) return; //return out of function to prevent lighting interating with sky
 
@@ -48,43 +45,17 @@ void main() {
   vec3 H = normalize(V + L);
   float VdotL = dot(normalize(feetPlayerPos), worldLightVector);
 
-  
+  vec2 noisePos = fract(worldPos.xz /128.0);
+  float noise = texture(puddleTex, noisePos).r;
+  noise *= wetness;
+  noise *= clamp(dot(geoNormal, gbufferModelView[1].xyz),0,1);
   bool isMetal = SpecMap.g >= 230.0 / 255.0;
   bool canScatter = blockID == SSS_ID;
   const float handDepth = MC_HAND_DEPTH * 0.5 + 0.5;
   float flatness = max(dot(normalize(geoNormal), vec3(0.0, 1.0, 0.0)), 0.0);
-  float rainFactor =
-    clamp(smoothstep(13.5 / 15.0, 14.5 / 15.0, lightmap.y),0,1) * wetness;
-      rainFactor *= smoothstep(
-    -0.3,
-    0.8,
-    texture(
-      puddleTex,
-      mod((feetPlayerPos.xz + cameraPosition.xz) / 2.0, 64.0) / 64.0
-    ).r
-  ) * snowBiomeSmooth * hotBiomeSmooth;
+
 
   
-  #ifdef WAVES
-  if (flatness >= 1e-6 ) {
- float farPlane = far / 0.75;
-   float waveFalloff = length(feetPlayerPos) / farPlane;
-    float waveIntensityRolloff = exp(
-      12.0 * WAVE_INTENSITY * (0.05 - waveFalloff)
-    );
-    float waveIntensity = 0.035 * WAVE_INTENSITY * waveIntensityRolloff * rainFactor;
-    float waveSoftness = 0.68 * WAVE_SOFTNESS;
-
-    vec3 rainNormal = rainNormals(
-      feetPlayerPos.xz + cameraPosition.xz,
-      waveSoftness,
-      waveIntensity, rainFactor
-    );
-   
-    
-      normal = mix(normal, rainNormal, rainFactor);
-  }
-      #endif
   //PBR
   float roughness = pow(1.0 - SpecMap.r, 2.0);
   float sss = 0.0;
@@ -137,8 +108,8 @@ void main() {
   }
 
   float ambientOcclusion = ssao(viewPos, normal);
-  roughness = mix(roughness,roughness *0.013, rainFactor * (1.0 - porosity) * 0.8);
-  color.rgb *= 1.0 - 0.5 * rainFactor * porosity;
+  roughness = mix(roughness,roughness *0.013, noise * (1.0 - porosity) * 0.8);
+  color.rgb *= 1.0 - 0.5 * noise * porosity;
 
   color.rgb =
     getLighting(

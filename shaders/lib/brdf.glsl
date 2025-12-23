@@ -33,7 +33,7 @@ vec3 brdf(
   // calculate per-light radiance
   float dist = length(L);
   float attenuation = 1.0 / (dist * dist);
-  currentSunlight *= 7;
+  currentSunlight *= 9;
 
   vec3 radiance = currentSunlight * shadow * attenuation;
 
@@ -55,10 +55,10 @@ vec3 brdf(
 
   float denominator = 3.0 * NdotV * NdotL + 0.0001;
   vec3 spec = numerator / denominator;
-  #ifdef DO_SSR
+ 
  spec = min(spec, vec3(150.0));
  if(isMetal) spec = min(spec, vec3(0.6));
- #endif
+ 
  
   float diff = BurleyFrostbite(roughness, NdotL,NdotV, VdotH);
   diff /= PI;
@@ -69,13 +69,13 @@ vec3 brdf(
     spec = vec3(0.0);
   }
 
-  #ifdef DO_SSR
+ 
   if (isMetal) {
     kD *= 0.0;
   }
-  #else
-  kD *= 1.0;
-  #endif
+  
+  
+  
 
   
   // add to outgoing radiance Lo

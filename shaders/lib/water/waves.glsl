@@ -9,8 +9,8 @@
 // for the wave direction, position in space, wave frequency and time
 vec2 wavedx(vec2 position, vec2 direction, float frequency, float timeshift, float noise) {
   float x = dot(direction, position) * frequency + timeshift;
-  float y = dot(direction, (position)) * frequency + timeshift;
-  float wave = exp(sin(x) - 1.0) + exp(cos(y) - 0.915);
+  float y = dot(direction, (position) / 5.0) * frequency + timeshift;
+  float wave = exp(sin(x) - 1.0) + exp(cos(y) - 1.0);
   float dx = wave  * cos(x) * cos(y);
   return vec2(wave, -dx);
 }
@@ -19,7 +19,7 @@ vec2 wavedx(vec2 position, vec2 direction, float frequency, float timeshift, flo
 float getwaves(vec2 position, int iterations, float noise) {
   float wavePhaseShift = length(position) * 0.314 * WAVE_RANDOMNESS; // this is to avoid every octave having exactly the same phase everywhere
   float iter = 30.0; // this will help generating well distributed wave directions
-  float frequency = 1.85; // frequency of the wave, this will change every iteration
+  float frequency = 1.65; // frequency of the wave, this will change every iteration
   float timeMultiplier = 3.0 ; // time multiplier for the wave, this will change every iteration
   #if SCREENSHOT_MODE == 1
   if(hideGUI == true)
@@ -28,7 +28,7 @@ float getwaves(vec2 position, int iterations, float noise) {
   }
   
   #endif
-  float weight = 0.15; // weight in final sum for the wave, this will change every iteration
+  float weight = 0.45; // weight in final sum for the wave, this will change every iteration
   float sumOfValues = 0.0; // will store final sum of values
   float sumOfWeights = 0.0; // will store final sum of weights
   for (int i = 0; i < iterations; i++) {
@@ -43,7 +43,7 @@ float getwaves(vec2 position, int iterations, float noise) {
       frameTimeCounter * timeMultiplier + wavePhaseShift, noise
     );
 
-  res = mix(res, res * 0.317, noise *2.3);
+  res = mix(res, res * 0.35, noise *2.8);
     // shift position around according to wave drag and derivative of the wave
     position += p * res.y * weight * DRAG_MULT;
 

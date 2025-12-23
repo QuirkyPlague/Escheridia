@@ -30,6 +30,7 @@ void main() {
   #if TEMPORAL_REPROJECTION ==1
   float depth = texture(depthtex0, texcoord).r;
   const float handDepth = MC_HAND_DEPTH * 0.5 + 0.5;
+  if(depth <= handDepth) return;
   //main coords
   vec3 screenPos = vec3(texcoord.xy, depth);
   vec3 NDCPos = vec3(texcoord, depth) * 2.0 - 1.0;
