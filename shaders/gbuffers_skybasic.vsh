@@ -8,6 +8,7 @@ out vec3 modelPos;
 out vec3 viewPos;
 out vec3 normal;
 out vec3 feetPlayerPos;
+out vec3 eyePlayerPos;
 void main() {
   gl_Position = ftransform();
   glcolor = gl_Color;
@@ -15,7 +16,7 @@ void main() {
   modelPos = gl_Vertex.xyz;
   viewPos = (gl_ModelViewMatrix * gl_Vertex).xyz;
   feetPlayerPos = (gbufferModelViewInverse * vec4(viewPos, 1.0)).xyz;
-
+  eyePlayerPos = feetPlayerPos - gbufferModelViewInverse[3].xyz;
   normal = gl_NormalMatrix * gl_Normal; // this gives us the normal in view space
   normal = mat3(gbufferModelViewInverse) * normal; // this converts the normal to world/player space
 

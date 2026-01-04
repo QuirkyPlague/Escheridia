@@ -2,7 +2,6 @@
 #define BLOOM_GLSL 1 //[0 1]
 
 #include "/lib/util.glsl"
-#include "/lib/water/waterFog.glsl"
 #include "/lib/common.glsl"
 //Adapted from https://learnopengl.com/Guest-Articles/2022/Phys.-Based-Bloom and Glimmer Shaders https://github.com/jbritain/glimmer-shaders
 vec3 powVec3(vec3 v, float p) {
@@ -137,23 +136,17 @@ vec3 upSample(sampler2D srcTexture, vec2 texCoord) {
 }
 
 vec3 computeBloomMix(vec2 texcoord, float depth, bool isMetal) {
-  const float handDepth = MC_HAND_DEPTH * 0.5 + 0.5;
+  
   vec3 hdr = texture(colortex0, texcoord).rgb;
-  vec3 blm = texture(colortex12, texcoord).rgb;
-  float rain = texture(colortex9, texcoord).r;
-
+  vec3 blm = texture(colortex6, texcoord).rgb;
+  float rain = texture(colortex8, texcoord).r;
   float bloomStrength = BLOOM_STRENGTH;
-  if (inWater) {
-    bloomStrength = 4.0 * BLOOM_STRENGTH;
-  }
 
   hdr = mix(
     hdr,
     blm,
     clamp(
-      0.015 * bloomStrength +
-        rain * 0.01 +
-        wetness * 0.01 * eyeBrightnessSmooth.y * 0.05,
+      0.02 * bloomStrength + rain * 0.12 + wetness * 0.025 * eyeBrightnessSmooth.y * 0.015 * hotBiomeSmooth,
       0,
       1
     )

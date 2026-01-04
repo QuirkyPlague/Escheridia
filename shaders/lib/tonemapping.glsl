@@ -1,14 +1,15 @@
-#ifndef TONEMAPPING_GLSL
-#define TONEMAPPING_GLSL
+#ifndef TONEMAP
+#define TONEMAP
 
+#include "/lib/util.glsl"
 
 vec3 uncharted2Tonemap(vec3 x) {
-    float A = 0.25;
-    float B = 0.10;
-    float C = 0.06;
-    float D = 0.20;
-    float E = 0.02;
-    float F = 1.60;
+  float A = 0.25;
+  float B = 0.1;
+  float C = 0.06;
+  float D = 0.2;
+  float E = 0.02;
+  float F = 1.6;
   return (x * (A * x + C * B) + D * E) / (x * (A * x + B) + D * F) - E / F;
 }
 
@@ -20,7 +21,6 @@ vec3 uncharted2(vec3 v) {
   vec3 white_scale = vec3(1.0f) / uncharted2Tonemap(W);
   return pow(curr * white_scale, vec3(1.0 / 2.2));
 }
-
 
 vec3 aces_tonemap(vec3 color) {
   mat3 m1 = mat3(
@@ -39,13 +39,11 @@ vec3 aces_tonemap(vec3 color) {
   return pow(clamp(m2 * (a / b), 0.0, 1.0), vec3(1.0 / 2.2));
 }
 
-
 vec3 reinhard_jodie(vec3 v) {
   float l = luminance(v);
   vec3 tv = v / (1.0f + v);
   return pow(mix(v / (1.0f + l), tv, tv), vec3(1.0 / 2.2));
 }
-
 
 //adapted from https://github.com/dmnsgn/glsl-tone-map/blob/main/agx.glsl
 const mat3 LINEAR_REC2020_TO_LINEAR_SRGB = mat3(
@@ -151,23 +149,32 @@ vec3 agx(vec3 color) {
 }
 
 vec3 TonemapGeneric(vec3 rgb) {
-   rgb *= 2.0;
-    vec4 GenericTonemapperContrastAndScaleAndOffsetAndCrosstalk = vec4(1.0, 0.997265, 1.1152, 25);
-    vec4 GenericTonemapperCrosstalkParams = vec4(1, 0, 0, 0);
+  
+  vec4 GenericTonemapperContrastAndScaleAndOffsetAndCrosstalk = vec4(
+    1.0,
+    0.997265,
+    1.1152,
+    25
+  );
+  vec4 GenericTonemapperCrosstalkParams = vec4(1, 0, 0, 0);
 
-    float peak = max(rgb.r, max(rgb.g, rgb.b));
-    vec3 ratio = rgb / peak;
-    peak = pow(peak, GenericTonemapperContrastAndScaleAndOffsetAndCrosstalk.x);
-    peak = peak / (GenericTonemapperContrastAndScaleAndOffsetAndCrosstalk.y * peak + GenericTonemapperContrastAndScaleAndOffsetAndCrosstalk.z);
+  float peak = max(rgb.r, max(rgb.g, rgb.b));
+  vec3 ratio = rgb / peak;
+  peak = pow(peak, GenericTonemapperContrastAndScaleAndOffsetAndCrosstalk.x);
+  peak =
+    peak /
+    (GenericTonemapperContrastAndScaleAndOffsetAndCrosstalk.y * peak +
+      GenericTonemapperContrastAndScaleAndOffsetAndCrosstalk.z);
 
-    return pow(
-        mix(
-            pow(ratio, vec3(1.0 / GenericTonemapperCrosstalkParams.x)), 
-            vec3(1.0), 
-            vec3(pow(peak, GenericTonemapperContrastAndScaleAndOffsetAndCrosstalk.w))
-        ), 
-        vec3(GenericTonemapperCrosstalkParams.x)
-    ) * peak;
+  return pow(
+    mix(
+      pow(ratio, vec3(1.0 / GenericTonemapperCrosstalkParams.x)),
+      vec3(1.0),
+      vec3(pow(peak, GenericTonemapperContrastAndScaleAndOffsetAndCrosstalk.w))
+    ),
+    vec3(GenericTonemapperCrosstalkParams.x)
+  ) *
+  peak;
 }
 
 vec3 hejlBurgessTonemap(vec3 v) {
@@ -194,6 +201,7 @@ vec3 lottesTonemap(vec3 x) {
       pow(hdrMax, a) * pow(midIn, a * d) * midOut) /
     ((pow(hdrMax, a * d) - pow(midIn, a * d)) * midOut);
 
-  return pow(pow(x, a) / (pow(x, a * d) * b + c), vec3(1.0/(2.2)));
+  return pow(pow(x, a) / (pow(x, a * d) * b + c), vec3(1.0 / 2.2));
 }
+
 #endif //TONEMAPPING_GLSL

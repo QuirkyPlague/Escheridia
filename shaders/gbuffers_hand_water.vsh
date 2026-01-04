@@ -1,18 +1,17 @@
 #version 400 compatibility
 
 #include "/lib/uniforms.glsl"
+#include "/lib/blockID.glsl"
 
 in vec4 at_tangent;
 out vec2 lmcoord;
 out vec2 texcoord;
 out vec4 glcolor;
 out vec3 normal;
-out vec3 modelPos;
-out vec3 viewPos;
-out vec3 feetPlayerPos;
+out mat3 tbnMatrix;
 flat out int blockID;
 in vec2 mc_Entity;
-out mat3 tbnMatrix;
+
 void main() {
   gl_Position = ftransform();
   texcoord = (gl_TextureMatrix[0] * gl_MultiTexCoord0).xy;
@@ -23,14 +22,14 @@ void main() {
   normal = gl_NormalMatrix * gl_Normal; // this gives us the normal in view space
   normal = mat3(gbufferModelViewInverse) * normal; // this converts the normal to world/player space
 
-  modelPos = gl_Vertex.xyz;
-  viewPos = (gl_ModelViewMatrix * gl_Vertex).xyz;
-  feetPlayerPos = (gbufferModelViewInverse * vec4(viewPos, 1.0)).xyz;
+  const float inf = uintBitsToFloat(0x7f800000u);
+  float handedness = clamp(at_tangent.w * inf, -1.0, 1.0); // -1.0 when at_tangent.w is negative, and 1.0 when it's positive
 
   vec3 tangent =
     mat3(gbufferModelViewInverse) * normalize(gl_NormalMatrix * at_tangent.xyz);
-  vec3 binormal = normalize(cross(tangent, normal) * at_tangent.w);
+  vec3 binormal = normalize(cross(tangent, normal) * handedness);
   tbnMatrix = mat3(tangent, binormal, normal);
 
   blockID = int(mc_Entity.x + 0.5);
+
 }

@@ -5,7 +5,7 @@
 
 in vec2 texcoord;
 
-/* RENDERTARGETS: 12 */
+/* RENDERTARGETS: 6 */
 layout(location = 0) out vec4 bloomColor;
 
 void main() {
@@ -16,11 +16,11 @@ void main() {
   float coordScalar = 0.25;
   float prevScale = 0.5;
   vec2 screenCoord = (texcoord - prevCoord) / prevScale;
-  bloomColor = texture(colortex12, texcoord);
+  bloomColor = texture(colortex6, texcoord);
   if (clamp(screenCoord, 0, 1) != screenCoord) {
     return;
   }
   screenCoord = screenCoord * coordScalar + OriginCoord;
-  bloomColor.rgb += upSample(colortex12, screenCoord);
+  bloomColor.rgb += upSample(colortex6, screenCoord);
   #endif
 }

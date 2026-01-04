@@ -1,141 +1,117 @@
 #version 400 compatibility
 
-#include "/lib/uniforms.glsl"
 #include "/lib/lighting/lighting.glsl"
-#include "/lib/shadows/distort.glsl"
-#include "/lib/shadows/drawShadows.glsl"
+#include "/lib/uniforms.glsl"
 #include "/lib/shadows/softShadows.glsl"
-#include "/lib/brdf.glsl"
+#include "/lib/postProcessing.glsl"
 #include "/lib/blockID.glsl"
-
+#include "/lib/atmosphere/distanceFog.glsl"
 uniform sampler2D gtexture;
-uniform sampler2D waterNormal;
+
+uniform float alphaTestRef = 0.1;
+
 in vec2 lmcoord;
 in vec2 texcoord;
 in vec4 glcolor;
 in vec3 normal;
+in mat3 tbnMatrix;
 in vec3 modelPos;
 in vec3 viewPos;
 in vec3 feetPlayerPos;
+in vec3 worldPos;
 flat in int blockID;
-in mat3 tbnMatrix;
+in float emission;
 
-/* RENDERTARGETS: 0,1,2,5,6,11,12,4 */
+/* RENDERTARGETS: 0,1,2,3,4,5 */
 layout(location = 0) out vec4 color;
-layout(location = 1) out vec4 lightmapData;
+layout(location = 1) out vec4 lightmap;
 layout(location = 2) out vec4 encodedNormal;
-layout(location = 3) out vec4 specMap;
+layout(location = 3) out vec4 specData;
 layout(location = 4) out vec4 geoNormal;
-layout(location = 5) out vec4 sssMask;
-layout(location = 6) out vec4 bloom;
-layout(location = 7) out vec4 waterMask;
+layout(location = 5) out vec4 mask;
 
 void main() {
   color = texture(gtexture, texcoord) * glcolor;
-  if (color.a < 0.1) {
-    discard;
-  }
+
   vec3 normalMaps = texture(normals, texcoord, 0).rgb;
   normalMaps = normalMaps * 2.0 - 1.0;
   normalMaps.xy /= 254.0 / 255.0;
   normalMaps.z = sqrt(1.0 - dot(normalMaps.xy, normalMaps.xy));
   vec3 mappedNormal = tbnMatrix * normalMaps;
 
-  geoNormal = vec4(normal * 0.5 + 0.5, 1.0);
-
-  lightmapData = vec4(lmcoord, 0.0, 1.0);
+  lightmap = vec4(lmcoord, 0.0, 1.0);
   encodedNormal = vec4(mappedNormal * 0.5 + 0.5, 1.0);
+  specData = texture(specular, texcoord);
 
-  specMap = texture(specular, texcoord);
-
+  geoNormal = vec4(normal * 0.5 + 0.5, 1.0);
+  if (color.a < 0.1) {
+    discard;
+  }
   vec3 shadowViewPos = (shadowModelView * vec4(feetPlayerPos, 1.0)).xyz;
   vec4 shadowClipPos = shadowProjection * vec4(shadowViewPos, 1.0);
-  vec3 shadowNDCPos = shadowClipPos.xyz / shadowClipPos.w;
-  vec3 shadowScreenPos = shadowNDCPos * 0.5 + 0.5;
-
-  float roughness;
-  roughness = pow(1.0 - specMap.r, 2.0);
-
-  vec3 worldPos = cameraPosition + feetPlayerPos;
+  vec3 viewDir = normalize(viewPos);
   vec3 V = normalize(cameraPosition - worldPos);
   vec3 L = normalize(worldLightVector);
   vec3 H = normalize(V + L);
+  float VdotL = dot(normalize(feetPlayerPos), worldLightVector);
 
-  vec3 F0;
-  if (specMap.g <= 229.0 / 255.0) {
-    F0 = vec3(specMap.g);
+  bool isMetal = specData.g >= 230.0 / 255.0;
+
+  //PBR
+  float roughness = pow(1.0 - specData.r, 2.0);
+  float sss = specData.b;
+  float emission = specData.a;
+  vec3 emissive = vec3(0.0);
+  if (emission < 1.0) {
+    emission = min(emission, 0.7);
+    emissive += color.rgb * emission;
+    emissive += max(21.25 * pow(emissive, vec3(2.68)), 0.0);
+      
+    emissive = CSB(emissive, 1.0, 0.85, 1.0);
+    emissive = pow(emissive, vec3(2.2));
+  }
+
+  vec3 shadow = getSoftShadow(shadowClipPos, geoNormal.rgb, sss);
+  vec3 f0 = vec3(0.0);
+  if (isMetal) {
+    f0 = color.rgb;
   } else {
-    F0 = color.rgb;
+    f0 = vec3(specData.g);
   }
-  float emission = specMap.a;
-  vec3 emissive;
-  vec3 albedo = texture(colortex0, texcoord).rgb;
-  #if RESOURCE_PACK_SUPPORT == 0
-  if (emission >= 0.0 / 255.0 && emission < 255.0 / 255.0) {
-    emissive += albedo * 6.0 * EMISSIVE_MULTIPLIER;
-
-  }
-  #else
-  emissive += albedo * 6.0 * EMISSIVE_MULTIPLIER;
-  #endif
-
-  float sss = specMap.b;
-  vec3 F = fresnelSchlick(max(dot(encodedNormal.rgb, V), 0.0), F0);
-  vec3 noise =  blue_noise(texcoord,  frameCounter);
-  vec3 shadow = getSoftShadow(feetPlayerPos, geoNormal.rgb, sss, noise.x);
-  bool isMetal = specMap.g >= 230.0 / 255.0;
   float ao = texture(normals, texcoord).z;
-  vec3 diffuse = doDiffuse(
-    texcoord,
-    lightmapData.rg,
-    normal,
-    worldLightVector,
-    shadow,
-    viewPos,
-    sss,
-    feetPlayerPos,
-    isMetal,
-    shadowScreenPos,
-    albedo,
-    ao
-  );
-  vec3 sunlight;
 
-  bool isWater;
-
-  vec3 currentSunlight = currentSunColor(sunlight);
-  vec3 specular = brdf(
-    albedo,
-    F0,
-    L,
-    currentSunlight,
-    normal,
-    H,
-    V,
-    roughness,
-    specMap,
-    diffuse,
-    shadow
-  );
-  vec3 lighting = specular;
   if (blockID == WATER_ID) {
-    waterMask = vec4(1.0, 1.0, 1.0, 1.0);
-    color.a *= 0.25;
+    mask = vec4(1.0, 1.0, 1.0, 1.0);
+    #ifdef WAVES
+    encodedNormal = geoNormal;
+    #endif
+    color.a *= 0.0;
 
-  } else if (blockID == TRANSLUCENT_ID) {
-
-    lighting = emissive;
   } else {
-    waterMask = vec4(0.0, 0.0, 0.0, 1.0);
+    mask = vec4(0.0, 0.0, 0.0, 1.0);
 
   }
 
-  if (blockID == SSS_ID) {
-    sssMask = vec4(1.0, 1.0, 1.0, 1.0);
-  } else {
-    sssMask = vec4(0.0, 0.0, 0.0, 1.0);
-  }
+  vec3 lighting = getLighting(
+    color.rgb,
+    lightmap.rg,
+    mappedNormal.rgb,
+    shadow,
+    H,
+    f0,
+    roughness,
+    V,
+    ao,
+    sss,
+    VdotL,
+    isMetal,
+    normal
+  ) + emissive;
+  
+
 
   color = vec4(lighting, color.a);
-
+  float depth = texture(depthtex0, texcoord).r;
+  vec3 eyePlayerPos = feetPlayerPos - gbufferModelViewInverse[3].xyz;
+  color = vec4(borderFog(color.rgb, eyePlayerPos, depth), color.a);
 }

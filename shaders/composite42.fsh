@@ -5,7 +5,7 @@
 
 in vec2 texcoord;
 
-/* RENDERTARGETS: 12 */
+/* RENDERTARGETS: 6 */
 layout(location = 0) out vec4 bloomColor;
 
 void main() {

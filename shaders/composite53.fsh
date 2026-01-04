@@ -1,7 +1,6 @@
 #version 400 compatibility
 
 #include "/lib/uniforms.glsl"
-#include "/lib/FXAA.glsl"
 #include "/lib/bloom.glsl"
 
 in vec2 texcoord;

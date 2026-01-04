@@ -5,26 +5,53 @@
 
 uniform sampler2D gtexture;
 
+uniform float alphaTestRef = 0.1;
+
 in vec2 lmcoord;
 in vec2 texcoord;
 in vec4 glcolor;
 in vec3 normal;
 in mat3 tbnMatrix;
-in vec3 viewPos;
 flat in int blockID;
-in float emission;
 
-/* RENDERTARGETS: 0,1,2 */
+/* RENDERTARGETS: 0,1,2,3,4,6,7,5 */
 layout(location = 0) out vec4 color;
-layout(location = 1) out vec4 lightmapData;
+layout(location = 1) out vec4 lightmap;
 layout(location = 2) out vec4 encodedNormal;
+layout(location = 3) out vec4 specData;
+layout(location = 4) out vec4 geoNormal;
+layout(location = 5) out vec4 bloom;
+layout(location = 6) out vec4 mask;
+layout(location = 7) out vec4 wMask;
 
 void main() {
   color = texture(gtexture, texcoord) * glcolor;
+ 
+  vec3 normalMaps = texture(normals, texcoord).rgb;
+  normalMaps = normalMaps * 2.0 - 1.0;
+  normalMaps.xy /= 254.0 / 255.0;
+  normalMaps.z = sqrt(1.0 - dot(normalMaps.xy, normalMaps.xy));
+  vec3 mappedNormal = tbnMatrix * normalMaps;
 
-  if (color.a < 0.1) discard;
+  lightmap = vec4(lmcoord, 0.0, 1.0);
+  encodedNormal = vec4(mappedNormal * 0.5 + 0.5, 1.0);
+  specData = texture(specular, texcoord);
 
-  lightmapData = vec4(lmcoord, 0.0, 1.0);
-  encodedNormal = vec4(normal * 0.5 + 0.5, 1.0);
+  geoNormal = vec4(normal * 0.5 + 0.5, 1.0);
+  if (color.a < alphaTestRef) {
+    discard;
+  }
 
+  if (blockID == SSS_ID) {
+    mask = vec4(1.0, 1.0, 1.0, 1.0);
+  } else {
+    mask = vec4(0.0, 0.0, 0.0, 1.0);
+  }
+
+    if (blockID == WATER_ID) {
+    wMask = vec4(1.0, 1.0, 1.0, 1.0);
+    color.a *= 0.0;
+  } else {
+    wMask  = vec4(0.0, 0.0, 0.0, 1.0);
+  }
 }

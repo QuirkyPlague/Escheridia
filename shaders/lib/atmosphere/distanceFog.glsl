@@ -1,86 +1,51 @@
-#ifndef DISTANCE_FOG_GLSL
-#define DISTANCE_FOG_GLSL 1 //[0 1]
+#ifndef FOG
+#define FOG
+#include "/lib/atmosphere/sky.glsl"
 
-#include "/lib/uniforms.glsl"
-#include "/lib/atmosphere/skyColor.glsl"
-#include "/lib/lighting/lighting.glsl"
-#include "/lib/phaseFunctions.glsl"
-
-vec3 distanceFog(vec3 color, vec3 eyePos, vec2 texcoord, float depth) {
-  vec3 sunColor = vec3(0.0);
-  sunColor = currentSunColor(sunColor);
-  vec3 distFog = vec3(0.0);
-
-  distFog = newSky(eyePos) + wetness;
-  float dist = length(eyePos) / far ;
-  float fogFactor = exp(-9.0 * (1.0 - dist));
-  float rainFogFactor = exp(-15.5 * (1.0 - dist));
-  bool isRaining = rainStrength <= 1.0 && rainStrength > 0.0;
-  if (isRaining) {
-    float dryToWet = smoothstep(0.0, 1.0, float(rainStrength));
-    fogFactor = mix(fogFactor, rainFogFactor, dryToWet);
-
-    distFog = mix(distFog, distFog, dryToWet) * 0.23;
-  }
-  if (isRaining && isNight) {
-    float dryToWet = smoothstep(0.0, 1.0, float(rainStrength));
-    fogFactor = mix(fogFactor, rainFogFactor, dryToWet);
-
-    distFog = mix(distFog, distFog, dryToWet) * 0.15;
-  }
-
-  color = mix(color, distFog, clamp(fogFactor, 0, 1));
-
-  return color;
+vec3 borderFog(vec3 color, vec3 dir, float depth) {
+  vec3 fogColor = skyScattering(normalize(dir));
+  float dist = length(dir) / far;
+  float fogFactor = exp(-24.0 * (1.0 - dist));
+  float rainFogFactor = exp(-7.37 * (1.0 - dist));
+  fogFactor = mix(fogFactor, rainFogFactor, wetness);
+  return mix(color, fogColor, clamp(fogFactor, 0.0, 1.0));
 }
 
-
-vec3 atmosphericFog(
-  vec3 color,
-  vec3 viewPos,
-  vec2 texcoord,
-  float depth,
-  vec2 lightmap
-) {
+vec3 atmosphericFog(vec3 color, vec3 viewPos, float depth, vec2 lightmap) {
   vec3 sunColor = vec3(0.0);
   sunColor = currentSunColor(sunColor);
-  float dist0 = length(viewPos) / 6;
+  float farPlane = far * 1.3;
+  float dist0 = length(viewPos) / far;
 
-  float farPlane = far / 4;
-  float dist1 = length(viewPos) / farPlane;
+  vec3 absorption = vec3(0.1176, 0.1176, 0.1176);
 
-  vec3 absorption = vec3(0.302, 0.302, 0.302);
-
-  vec3 inscatteringAmount = vec3(0.2118, 0.3412, 0.9216);
-  inscatteringAmount = mix(inscatteringAmount, vec3(0.8784, 0.8784, 0.8784), PaleGardenSmooth);
+  vec3 inscatteringAmount = skyScattering(normalize(viewPos));
+  inscatteringAmount = pow(inscatteringAmount, vec3(2.2));
+  inscatteringAmount = mix(
+    inscatteringAmount,
+    vec3(0.8784, 0.8784, 0.8784),
+    PaleGardenSmooth
+  );
   inscatteringAmount *= eyeBrightnessSmooth.y;
-  inscatteringAmount *= 0.002;
-  vec3 caveInscatter = vec3(0.0627, 0.0745, 0.1451);
-  inscatteringAmount = mix(inscatteringAmount, caveInscatter * 4, moodSmooth);
+  inscatteringAmount *= 0.0015;
 
   float dist = dist0;
-  vec3 absorptionFactor = exp(-absorption * 1.0 * (dist * AIR_FOG_DENSITY));
+  vec3 absorptionFactor = exp(-absorption * 1.0 * (dist * 1.0));
 
-  if (!isNight) {
-    inscatteringAmount += wetness * 0.14;
-  } else {
-    inscatteringAmount += wetness * 0.06;
-  }
+  float time = float(worldTime);
   float VdotL = dot(normalize(viewPos), worldLightVector);
-  float smoothDepth = smoothstep(0.9991,1.0 , depth);
-  float phase = CS(0.65, VdotL);
-  float backPhase = CS(-0.15, VdotL);
-  
-  vec3 phaseLighting = sunColor * 3 * phase * smoothDepth * eyeBrightnessSmooth.y;
-  phaseLighting *= 0.0015;
-    if (isNight) {
-    phaseLighting *= 0.5;
-    inscatteringAmount *= 0.01;
-   
-    }
- float rayleigh = Rayleigh(VdotL) * RAYLEIGH_COEFF;
-  color *= absorptionFactor;
-  return color += ((inscatteringAmount + phaseLighting)) / absorption * (1.0 - absorptionFactor);
-}
 
-#endif //DISTANCE_FOG_GLSL
+  float smoothDepth = smoothstep(0.99899, 1.0, depth);
+
+  float phase = CS(0.65, VdotL);
+
+  vec3 phaseLighting = sunColor * 3 * phase * eyeBrightnessSmooth.y;
+  phaseLighting *= 0.0025;
+
+  color *= absorptionFactor;
+  return color +=
+    (inscatteringAmount + phaseLighting) /
+    absorption *
+    (1.0 - absorptionFactor);
+}
+#endif //FOG

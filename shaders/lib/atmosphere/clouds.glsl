@@ -10,17 +10,17 @@
 float getCloudDensity(vec3 rayPos)
 {
     vec2 position = rayPos.xy * CLOUD_SCALE * 0.001 + CLOUD_OFFSET * 0.001;
-    vec3 cloudShape = texture(cloudTex, position).rgb;
+    vec3 cloudShape = texture(puddleTex, position).rgb;
     float density = max(0, cloudShape.r - 0.3) * 1.0;
     return density;
 }
 
-vec3 cloudRaymarch(vec3 startPoint, vec3 endPoint, int stepCount, float jitter, vec3 feetPlayerPos)
+vec3 cloudRaymarch(vec3 startPoint, vec3 endPoint, int stepCount, vec3 noise, vec3 feetPlayerPos, float distToTerrain)
 {
     vec3 rayPos = (endPoint + startPoint) - endPoint;
     vec3 stepSize = rayPos * (1.0 / stepCount);
     float rayLength = length(rayPos);
-    vec3 stepLength = rayLength + jitter * stepSize;
+    vec3 stepLength = rayLength + noise * stepSize;
 
     vec3 transmittance = vec3(1.0);
     vec3 scatter = vec3(0.0);
@@ -33,7 +33,7 @@ vec3 cloudRaymarch(vec3 startPoint, vec3 endPoint, int stepCount, float jitter, 
     {
         rayPos += stepLength;
         density = getCloudDensity(rayPos); //not implemented
-        if(density > 0.0)
+        if(density > 0.0 && distToTerrain > 1.0)
         {
             transmittance += (-rayLength * absCoeff);
             scatter += scatterCoeff * phase * transmittance;

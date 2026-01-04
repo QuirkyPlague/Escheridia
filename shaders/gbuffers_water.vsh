@@ -11,7 +11,9 @@ out vec3 normal;
 out mat3 tbnMatrix;
 out vec3 modelPos;
 out vec3 viewPos;
+out vec3 worldPos;
 out vec3 feetPlayerPos;
+out vec3 eyePlayerPos;
 flat out int blockID;
 in vec4 at_midBlock;
 out float emission;
@@ -21,7 +23,7 @@ void main() {
   gl_Position = ftransform();
   texcoord = (gl_TextureMatrix[0] * gl_MultiTexCoord0).xy;
   lmcoord = (gl_TextureMatrix[1] * gl_MultiTexCoord1).xy;
-  lmcoord = (lmcoord - 1.0 / 32.0) * 32.0 / 30.0;
+  lmcoord = lmcoord * 33.05 / 32.0 - 1.05 / 32.0;
   glcolor = gl_Color;
 
   normal = gl_NormalMatrix * gl_Normal; // this gives us the normal in view space
@@ -38,9 +40,8 @@ void main() {
   modelPos = gl_Vertex.xyz;
   viewPos = (gl_ModelViewMatrix * gl_Vertex).xyz;
   feetPlayerPos = (gbufferModelViewInverse * vec4(viewPos, 1.0)).xyz;
-
+  eyePlayerPos = 
+  worldPos = cameraPosition + feetPlayerPos;
   blockID = int(mc_Entity.x + 0.5);
   emission = at_midBlock.w / 15.0;
-
 }
-

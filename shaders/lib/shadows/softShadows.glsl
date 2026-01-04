@@ -12,35 +12,26 @@ vec4 getShadowClipPos(vec3 feetPlayerPos) {
   return shadowClipPos;
 }
 
-vec3 getSoftShadow(vec3 feetPlayerPos, vec3 normal, float SSS, float noise) {
-  vec3 shadowNormal = mat3(shadowModelView) * normal;
+vec3 getSoftShadow(vec4 shadowClipPos, vec3 normal, float SSS) {
+  vec3 shadowNormal = mat3(shadowModelView) * normal ;
   const float shadowMapPixelSize = 1.0 / float(SHADOW_RESOLUTION);
-  float sampleRadius = SHADOW_SOFTNESS * shadowMapPixelSize * 0.54;
+  float sampleRadius = SHADOW_SOFTNESS * shadowMapPixelSize *0.65;
   vec3 biasAdjustFactor = vec3(
-    shadowMapPixelSize * 2.45,
-    shadowMapPixelSize * 2.45,
-    -0.00003803515625
+    shadowMapPixelSize * 1.75,
+    shadowMapPixelSize * 1.75,
+    -0.00007803515625
   );
-  #if PIXELATED_LIGHTING == 1
-  sampleRadius = SHADOW_SOFTNESS * shadowMapPixelSize * 0.45;
-
-  feetPlayerPos = feetPlayerPos + cameraPosition;
-  feetPlayerPos = floor(feetPlayerPos * 16 + 0.01) / 16;
-  feetPlayerPos -= cameraPosition;
-  vec4 shadowClipPos = getShadowClipPos(feetPlayerPos);
-
-  #else
-  vec4 shadowClipPos = getShadowClipPos(feetPlayerPos);
-  #endif
 
   float faceNdl = dot(normal, worldLightVector);
   if (faceNdl <= 1e-6 && SSS > 64.0 / 255.0) {
-    sampleRadius *= 1.0 + 7.0 * SSS;
+    sampleRadius *= exp((1.57 + SSS) );
   }
 
   vec3 shadowAccum = vec3(0.0); // sum of all shadow samples
-  for (int i = 0; i < SHADOW_SAMPLES; i++) {
-    vec2 offset = vogelDisc(i, SHADOW_SAMPLES, noise) * sampleRadius;
+ 
+     for (int i = 0; i < SHADOW_SAMPLES; i++) {
+    vec3 noise = blue_noise(floor(gl_FragCoord.xy), frameCounter, int(i));
+    vec2 offset = vogelDisc(i, SHADOW_SAMPLES, noise.x) * sampleRadius;
     vec4 offsetShadowClipPos = shadowClipPos + vec4(offset, 0.0, 0.0); // add offset
     offsetShadowClipPos.xyz = distortShadowClipPos(offsetShadowClipPos.xyz); // apply distortion
     vec3 shadowNDCPos = offsetShadowClipPos.xyz / offsetShadowClipPos.w; // convert to NDC space
@@ -48,6 +39,8 @@ vec3 getSoftShadow(vec3 feetPlayerPos, vec3 normal, float SSS, float noise) {
     shadowScreenPos += shadowNormal * biasAdjustFactor;
     shadowAccum += getShadow(shadowScreenPos); // take shadow sample
   }
+  
+ 
 
   return shadowAccum / float(SHADOW_SAMPLES); // divide sum by count, getting average shadow
 }
