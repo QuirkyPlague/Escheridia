@@ -96,7 +96,7 @@ void main() {
    }
    else
    {
-    sss = SpecMap.b;
+    sss = (SpecMap.b - 0.25) * 4.0 / 3.0;
     porosity = 0.0;
    }
 #endif
@@ -106,17 +106,17 @@ void main() {
   vec3 emissive = vec3(0.0);
   #ifndef HC_EMISSION
   if (emission < 1.0) {
-    emission = min(emission, 0.5);
+    emission = min(emission, 0.7);
     emissive += color.rgb * emission;
-    emissive += max(15.25 * pow(emissive, vec3(2.18)), 0.0);
+    emissive += max(21.25 * pow(emissive, vec3(2.08)), 0.0);
       
     emissive = CSB(emissive, 1.0, 0.85, 1.0);
     emissive = pow(emissive, vec3(2.2));
-
   }
 #endif //HC_EMISSION
 
   vec3 shadow = getSoftShadow(shadowClipPos, geoNormal, sss);
+  
   vec3 f0 = vec3(0.0);
   if (isMetal) {
     f0 = albedo;

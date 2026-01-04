@@ -294,7 +294,7 @@ void main() {
   vec3 prevReflView = (gbufferPreviousModelView * vec4(reflectedFeetPlayer, 1.0)).xyz;
   vec4 prevReflClip = gbufferPreviousProjection * vec4(prevReflView, 1.0);
   vec3 previousReflPos = (prevReflClip.xyz / prevReflClip.w) * 0.5 + 0.5;
-
+  float fadeFactor = 1.0 - smoothstep(0.9, 1.0, max(abs(reflectedPos.x - 0.5),abs(reflectedPos.y - 0.5)) * 2);
   float reflDist = distance(reflectedViewPos,viewPos);
 
   float lod =  3.12 * (1.0 - exp(-9.0 - sqrt(roughness)));
@@ -335,10 +335,11 @@ void main() {
   if (!reflectionHit && canReflect && !inWater) {
     
     reflectedColor = sky;
-    
     float smoothLightmap = smoothstep(0.882, 1.0, lightmap.g);
     reflectedColor = mix(color.rgb, reflectedColor, smoothLightmap);
 
+    
+   
   }
   reflectedColor *= F;
   vec3 wetReflectedColor = mix(color.rgb, reflectedColor  , rainFactor);

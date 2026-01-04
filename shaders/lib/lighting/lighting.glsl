@@ -14,10 +14,11 @@ const vec4 morningSunlightColor = vec4(0.9569, 0.4745, 0.2333, 1.5);
 const vec4 eveningSunlightColor = vec4(0.9569, 0.4745, 0.2333, 1.0);
 const vec4 moonlightColor = vec4(0.0106, 0.0863, 0.298, 0.4);
 
-const vec4 skylightColor = vec4(0.7804, 0.8471, 1.0, 0.828);
-const vec4 morningSkylightColor = vec4(0.6353, 0.7333, 0.851, 0.761);
-const vec4 eveningSkylightColor = vec4(0.6353, 0.7333, 0.851, 0.761);
+const vec4 skylightColor = vec4(0.7216, 0.8392, 1.0, 0.848);
+const vec4 morningSkylightColor = vec4(0.6353, 0.7333, 0.851, 0.731);
+const vec4 eveningSkylightColor = vec4(0.6353, 0.7333, 0.851, 0.731);
 const vec4 nightSkylightColor = vec4(0.2941, 0.3804, 0.6039, 0.924);
+
 
 const vec4 blocklightColor = vec4(1.0, 0.8627, 0.7176, 1.0);
 const vec4 ambientColor = vec4(0.0231, 0.0231, 0.0231, 1.0);

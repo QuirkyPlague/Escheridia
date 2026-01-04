@@ -62,15 +62,13 @@ void main() {
   float sss = specData.b;
   float emission = specData.a;
   vec3 emissive = vec3(0.0);
-  if (emission < 255.0 / 255.0) {
+  if (emission < 1.0) {
+    emission = min(emission, 0.7);
     emissive += color.rgb * emission;
-    emissive += max(0.55 * pow(emissive, vec3(0.8)), 0.0);
-
-    emissive += min(
-      luminance(emissive * 6.05) * pow(emissive, vec3(1.25)),
-      33.15
-    );
-    emissive = CSB(emissive, 1.0 * 1.0, 1.0, 1.0);
+    emissive += max(21.25 * pow(emissive, vec3(2.68)), 0.0);
+      
+    emissive = CSB(emissive, 1.0, 0.85, 1.0);
+    emissive = pow(emissive, vec3(2.2));
   }
 
   vec3 shadow = getSoftShadow(shadowClipPos, geoNormal.rgb, sss);

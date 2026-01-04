@@ -54,7 +54,7 @@ vec3 waterExtinction(
   float fog = mix(fogIntensity[i], fogIntensity[i + 1], timeInterp);
 
   float dist0 = length(screenToView(texcoord, depth));
-  float dist1 = length(screenToView(texcoord, depth1));
+  float dist1 = length(screenToView(texcoord, depth1)) * 2;
   float dist = max(0, dist1 - dist0);
   vec3 sunColor = vec3(0.0);
   sunColor = vec3(1.0, 0.898, 0.698);

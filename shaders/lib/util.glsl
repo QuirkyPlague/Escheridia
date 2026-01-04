@@ -168,6 +168,9 @@ vec3 blue_noise(vec2 coord, int frame, int i) {
   return blue_noise(coord + offset, frame);
 }
 
+float linearstep(float edge0, float edge1, float x) {
+    return clamp((x - edge0) / (edge1 - edge0), 0.0, 1.0);
+}
 //from Zombye
 vec3 SampleVNDFGGX(
   vec3 viewerDirection, // Direction pointing towards the viewer, oriented such that +Z corresponds to the surface normal
