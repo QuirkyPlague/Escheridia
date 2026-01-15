@@ -8,20 +8,20 @@
 #include "/lib/tonemapping.glsl"
 
 //Sun/moon
-const vec4 sunlightColor = vec4(1.0, 0.860, 0.692, 1.18);
+const vec4 sunlightColor = vec4(1.0, 0.860, 0.692, 1.38);
 const vec4 noonSunlightColor = vec4(0.6824, 0.6824, 0.6824, 1.0);
 const vec4 morningSunlightColor = vec4(0.9569, 0.4745, 0.2333, 1.5);
 const vec4 eveningSunlightColor = vec4(0.9569, 0.4745, 0.2333, 1.0);
-const vec4 moonlightColor = vec4(0.0106, 0.0863, 0.298, 0.4);
+const vec4 moonlightColor = vec4(0.0106, 0.0863, 0.298, 0.2);
 
-const vec4 skylightColor = vec4(0.7216, 0.8392, 1.0, 0.848);
+const vec4 skylightColor = vec4(0.7216, 0.8392, 1.0, 0.898);
 const vec4 morningSkylightColor = vec4(0.6353, 0.7333, 0.851, 0.731);
 const vec4 eveningSkylightColor = vec4(0.6353, 0.7333, 0.851, 0.731);
 const vec4 nightSkylightColor = vec4(0.2941, 0.3804, 0.6039, 0.924);
 
 
 const vec4 blocklightColor = vec4(1.0, 0.8627, 0.7176, 1.0);
-const vec4 ambientColor = vec4(0.0231, 0.0231, 0.0231, 1.0);
+const vec4 ambientColor = vec4(0.06);
 const vec4 caveAmbient = vec4(0.4157, 0.4157, 0.4157, 1.0);
 const vec3 rainTint = vec3(0.2235, 0.3216, 0.6549);
 
@@ -133,7 +133,7 @@ vec3 getLighting(
  
   float hasSSS = step(64.0 / 255.0, sss);
   float phase =
-    henyeyGreensteinPhase(VdotL, 0.72) *6;
+    henyeyGreensteinPhase(VdotL, 0.72) *8;
 
 vec3 skylightSSS = vec3(0.0);
 vec3 scatter = vec3(0.0);

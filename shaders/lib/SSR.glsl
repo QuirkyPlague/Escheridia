@@ -58,6 +58,7 @@ bool raytrace(
   vec3 rayDirection,
   int stepCount,
   float jitter,
+  bool noSky,
   out vec3 rayPosition
 ) {
   if (rayDirection.z > 0.0 && rayDirection.z >= -viewPosition.z) {
@@ -98,6 +99,9 @@ bool raytrace(
       0
     ).r;
 
+
+   
+
     if (
       rayPosition.z > depth &&
       abs(depthLenience - (rayPosition.z - depth)) < depthLenience &&
@@ -105,11 +109,27 @@ bool raytrace(
       depth < 1.0
     ) {
       intersect = true;
-
-    } else {
+    } 
+    else {
       intersect = false;
-
     }
+    
+      if(noSky)
+    {
+      if (
+      rayPosition.z > depth &&
+      abs(depthLenience - (rayPosition.z - depth)) < depthLenience &&
+      rayPosition.z > handDepth
+    ) {
+      intersect = true;
+    } 
+    else {
+      intersect = false;
+    }
+    
+    }
+   
+  
 
     if (intersect) {
       break;

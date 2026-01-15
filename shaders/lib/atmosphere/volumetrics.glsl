@@ -185,7 +185,7 @@ vec3 volumetricRaymarch(
   #if MC_VERSION >= 12108
     scatter *=  0.065 * fogReduction;
   #else
-    scatter *= 0.045 * fogReduction;
+    scatter *= 0.055 * fogReduction;
   #endif
 
   vec3 totalScatter = scatter + transmission ;

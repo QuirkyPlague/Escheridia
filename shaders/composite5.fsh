@@ -12,6 +12,7 @@
 #include "/lib/water/waterFog.glsl"
 #include "/lib/tonemapping.glsl"
 #include "/lib/postProcessing.glsl"
+#include "/lib/bloom.glsl"
 
 in vec2 texcoord;
 
@@ -278,12 +279,13 @@ void main() {
 
   #ifdef DO_SSR
   // SSR raytrace
-
+  bool noSky = lightmap.g < smoothstep(0.0, 0.882, lightmap.g);
  bool reflectionHit = raytrace(
     viewPos,
     reflectedDir,
     SSR_STEPS,
     noiseB.x,
+    noSky,
     reflectedPos
   );
 
@@ -312,7 +314,7 @@ void main() {
     
    if(roughness > 0)
    {
-    sky *= max(exp(4.32 * (0.096 - roughness)), 0.0);
+    sky *= max(exp(4.32 * (0.16 - roughness)), 0.0);
    }
    
    
@@ -333,24 +335,25 @@ void main() {
   }
 
   if (!reflectionHit && canReflect && !inWater) {
+  
+       reflectedColor = sky;
     
-    reflectedColor = sky;
-    float smoothLightmap = smoothstep(0.882, 1.0, lightmap.g);
-    reflectedColor = mix(color.rgb, reflectedColor, smoothLightmap);
-
-    
-   
+      float smoothLightmap = smoothstep(0.882, 1.0, lightmap.g);
+      reflectedColor = mix(color.rgb, reflectedColor, smoothLightmap);
   }
+  
+  
+
   reflectedColor *= F;
+  reflectedColor *= karisAverage(reflectedColor) ;
+  reflectedColor *= karisAverage(reflectedColor) ;
+
+
   vec3 wetReflectedColor = mix(color.rgb, reflectedColor  , rainFactor);
   reflectedColor = mix(reflectedColor, wetReflectedColor, rainFactor);
   
 
-  if(isMetal)
-  {
-    color.rgb = vec3(0.0);
-    color.rgb = reflectedColor;
-  }
+ 
   color.rgb += reflectedColor;
 
   #else
