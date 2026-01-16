@@ -58,12 +58,11 @@ bool raytrace(
   vec3 rayDirection,
   int stepCount,
   float jitter,
-  bool noSky,
+  float smoothLightmap,
   out vec3 rayPosition
 ) {
-  if (rayDirection.z > 0.0 && rayDirection.z >= -viewPosition.z) {
-    return false;
-  }
+if (rayDirection.z >= 0.0)
+  return false;
 
   rayPosition = viewToScreen(viewPosition);
 
@@ -86,6 +85,7 @@ bool raytrace(
 
   vec3 hitPosition;
   bool outOfBounds = false;
+  bool rayHit;
   for (int i = 0; i < stepCount; i++) {
     if (clamp(rayPosition, 0, 1) != rayPosition) {
       outOfBounds = true;
@@ -106,30 +106,17 @@ bool raytrace(
       rayPosition.z > depth &&
       abs(depthLenience - (rayPosition.z - depth)) < depthLenience &&
       rayPosition.z > handDepth &&
-      depth < 1.0
+      depth * smoothLightmap < 1.0 
     ) {
       intersect = true;
+      
     } 
     else {
       intersect = false;
     }
     
-      if(noSky)
-    {
-      if (
-      rayPosition.z > depth &&
-      abs(depthLenience - (rayPosition.z - depth)) < depthLenience &&
-      rayPosition.z > handDepth
-    ) {
-      intersect = true;
-    } 
-    else {
-      intersect = false;
-    }
-    
-    }
-   
-  
+      
+
 
     if (intersect) {
       break;
@@ -139,7 +126,7 @@ bool raytrace(
 
   if (outOfBounds) return false;
   #if BINARY_REFINEMENT == 1
-  binarySearch(rayPosition, rayDirection);
+  binarySearch(rayPosition, rayDirection * 0.5);
   #endif
 
   return intersect;

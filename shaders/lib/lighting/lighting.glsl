@@ -146,7 +146,7 @@ vec3 scatter = vec3(0.0);
     scatter *= 0.45;
   }
  
-  float smoothLightmap = smoothstep(0.882, 1.0, lightmap.g);
+  float smoothLightmap = clamp(smoothstep(13.5 / 15.0, 14.5 / 15.0, lightmap.y),0,1);
   float ambientFactor = smoothstep(141, 0, eyeBrightnessSmooth.y);
   
   //ao *= ao * (1.0 - float(shadow));
@@ -155,8 +155,9 @@ vec3 scatter = vec3(0.0);
   
   vec3 indirect = (skylight + blocklight) * ao;
   float metalMask = isMetal ? 1.0 : 0.0;
-  vec3 metalIndirect = vec3(0.0);
-  
+  bool noSky = lightmap.g < smoothstep(0.0, 0.682, lightmap.g);
+  vec3 metalIndirect = mix(indirect * 0.1,indirect  * 0 , smoothLightmap);
+  ;
   indirect = mix(indirect, metalIndirect, metalMask);
  
  
@@ -170,7 +171,8 @@ vec3 scatter = vec3(0.0);
     roughness,
     indirect,
     shadow,
-    isMetal
+    isMetal,
+    smoothLightmap
   );
   
   //specular = pow(specular, vec3(2.2));

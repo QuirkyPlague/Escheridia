@@ -276,16 +276,16 @@ void main() {
   // --- Fresnel
   float NdotV = max(dot(normal, -viewDir), 0.0);
   vec3 F = fresnelSchlick(NdotV, f0);
-
+ 
   #ifdef DO_SSR
   // SSR raytrace
-  bool noSky = lightmap.g < smoothstep(0.0, 0.882, lightmap.g);
+  bool noSky = lightmap.g < .955;
  bool reflectionHit = raytrace(
     viewPos,
     reflectedDir,
     SSR_STEPS,
-    noiseB.x,
-    noSky,
+    noiseB.y,
+    smoothLightmap,
     reflectedPos
   );
 
@@ -299,7 +299,7 @@ void main() {
   float fadeFactor = 1.0 - smoothstep(0.9, 1.0, max(abs(reflectedPos.x - 0.5),abs(reflectedPos.y - 0.5)) * 2);
   float reflDist = distance(reflectedViewPos,viewPos);
 
-  float lod =  3.12 * (1.0 - exp(-9.0 - sqrt(roughness)));
+  float lod =  3.42 * (1.0 - exp(-9.0 - sqrt(roughness)));
   if (roughness <= 0.0 || isWater) lod = 0.0;
 
     vec3 sky = skyFallbackBlend(
@@ -314,11 +314,9 @@ void main() {
     
    if(roughness > 0)
    {
-    sky *= max(exp(4.32 * (0.16 - roughness)), 0.0);
+    sky *= max(exp(4.32 * (0.101 - roughness)), 0.0);
    }
    
-   
- 
     if (reflectionHit) {
     if (canReflect || isMetal || isWater) {
 
@@ -338,7 +336,7 @@ void main() {
   
        reflectedColor = sky;
     
-      float smoothLightmap = smoothstep(0.882, 1.0, lightmap.g);
+      
       reflectedColor = mix(color.rgb, reflectedColor, smoothLightmap);
   }
   
@@ -347,12 +345,15 @@ void main() {
   reflectedColor *= F;
   reflectedColor *= karisAverage(reflectedColor) ;
   reflectedColor *= karisAverage(reflectedColor) ;
-
+  reflectedColor *= karisAverage(reflectedColor) ;
 
   vec3 wetReflectedColor = mix(color.rgb, reflectedColor  , rainFactor);
   reflectedColor = mix(reflectedColor, wetReflectedColor, rainFactor);
   
-
+  if(isMetal)
+  {
+    color.rgb = reflectedColor;
+  }
  
   color.rgb += reflectedColor;
 
