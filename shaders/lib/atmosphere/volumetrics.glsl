@@ -180,14 +180,10 @@ vec3 volumetricRaymarch(
     transmission *= sampleTransmittance;
   }
   float fogDistFalloff = length(feetPlayerPos) / far;
-  float fogReduction = exp( 0.325 * (1.0 - fogDistFalloff));
+  float fogReduction = exp( 0.425 * (1.0 - fogDistFalloff));
 
-  #if MC_VERSION >= 12108
-    scatter *=  0.065 * fogReduction;
-  #else
-    scatter *= 0.055 * fogReduction;
-  #endif
-
+  scatter *= 0.045 * fogReduction;
+ 
   vec3 totalScatter = scatter + transmission ;
 
   return totalScatter;

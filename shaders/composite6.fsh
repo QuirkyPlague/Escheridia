@@ -27,8 +27,8 @@ void main() {
   vec4 waterMask = texture(colortex5, texcoord);
   int blockID = int(waterMask) + 100;
   bool isWater = blockID == WATER_ID;
-
-   color.rgb = borderFog(color.rgb, eyePlayerPos, depth);
+  #ifdef ENVIORNMENT_FOG
+    color.rgb = atmosphericFog(color.rgb, viewPos, depth, texcoord);
+    #endif
     
-  
 }

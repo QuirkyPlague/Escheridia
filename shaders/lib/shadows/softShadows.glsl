@@ -24,7 +24,7 @@ vec3 getSoftShadow(vec4 shadowClipPos, vec3 normal, float SSS) {
 
   float faceNdl = dot(normal, worldLightVector);
   if (faceNdl <= 1e-6 && SSS > 64.0 / 255.0) {
-    sampleRadius *= exp((1.57 + SSS) );
+    sampleRadius *=  max(exp(1.42 * (0.231 + SSS)), 0.0) ;
   }
 
   vec3 shadowAccum = vec3(0.0); // sum of all shadow samples

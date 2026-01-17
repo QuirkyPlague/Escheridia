@@ -300,7 +300,7 @@ void main() {
   float fadeFactor = 1.0 - smoothstep(0.9, 1.0, max(abs(reflectedPos.x - 0.5),abs(reflectedPos.y - 0.5)) * 2);
   float reflDist = distance(reflectedViewPos,viewPos);
 
-  float lod =  3.12 * (1.0 - exp(-9.0 - sqrt(roughness)));
+  float lod =  3.62 * (1.0 - exp(-9.0 - sqrt(roughness)));
   if (roughness <= 0.0 || isWater) lod = 0.0;
 
     vec3 sky = skyFallbackBlend(

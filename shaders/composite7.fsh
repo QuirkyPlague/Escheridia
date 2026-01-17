@@ -2,39 +2,32 @@
 
 #include "/lib/util.glsl"
 #include "/lib/atmosphere/distanceFog.glsl"
-#include "/lib/atmosphere/volumetrics.glsl"
+#include "/lib/blockID.glsl"
+
 in vec2 texcoord;
 
 /* RENDERTARGETS: 0 */
 layout(location = 0) out vec4 color;
 
 void main() {
-  color = texture(colortex0, texcoord);
+
+   color = texture(colortex0, texcoord);
+  vec2 lightmap = texture(colortex1, texcoord).rg;
   float depth = texture(depthtex0, texcoord).r;
-  vec2 lightmap = texture(colortex1, texcoord).rg; // we only need the r and g components
-  vec3 baseNormal = texture(colortex4, texcoord).rgb;
-  vec3 normal = normalize((baseNormal - 0.5) * 2.0);
+  if (depth == 1.0) return;
+  
+  vec4 SpecMap = texture(colortex3, texcoord);
+  bool isMetal = SpecMap.g >= 230.0 / 255.0;
+  
   //space conversions
-  vec3 screenPos = vec3(texcoord.xy, depth);
   vec3 NDCPos = vec3(texcoord.xy, depth) * 2.0 - 1.0;
   vec3 viewPos = projectAndDivide(gbufferProjectionInverse, NDCPos);
   vec3 feetPlayerPos = (gbufferModelViewInverse * vec4(viewPos, 1.0)).xyz;
-  vec3 shadowViewPos_start = (shadowModelView * vec4(vec3(0.0), 1.0)).xyz;
-  vec4 shadowClipPos_start = shadowProjection * vec4(shadowViewPos_start, 1.0);
-  vec3 noise = blue_noise(floor(gl_FragCoord.xy), frameCounter, 24);
+  vec3 eyePlayerPos = feetPlayerPos - gbufferModelViewInverse[3].xyz;
 
-  vec3 shadowViewPos_end = (shadowModelView * vec4(feetPlayerPos, 1.0)).xyz;
-  vec4 shadowClipPos_end = shadowProjection * vec4(shadowViewPos_end, 1.0);
-  #ifdef VOLUMETRICS
-  color.rgb += volumetricRaymarch(
-    shadowClipPos_start,
-    shadowClipPos_end,
-    VL_SAMPLES,
-    noise.x,
-    feetPlayerPos,
-    color.rgb,
-    normal,
-    lightmap
-  );
-  #endif
+  vec4 waterMask = texture(colortex5, texcoord);
+  int blockID = int(waterMask) + 100;
+  bool isWater = blockID == WATER_ID;
+
+   color.rgb = borderFog(color.rgb, eyePlayerPos, depth);
 }

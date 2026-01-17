@@ -8,7 +8,7 @@
 #include "/lib/tonemapping.glsl"
 
 //Sun/moon
-const vec4 sunlightColor = vec4(1.0, 0.860, 0.692, 1.38);
+const vec4 sunlightColor = vec4(1.0, 0.860, 0.692, 1.18);
 const vec4 noonSunlightColor = vec4(0.6824, 0.6824, 0.6824, 1.0);
 const vec4 morningSunlightColor = vec4(0.9569, 0.4745, 0.2333, 1.5);
 const vec4 eveningSunlightColor = vec4(0.9569, 0.4745, 0.2333, 1.0);
@@ -135,13 +135,15 @@ vec3 getLighting(
   float phase =
     henyeyGreensteinPhase(VdotL, 0.72) *8;
 
-vec3 skylightSSS = vec3(0.0);
+
 vec3 scatter = vec3(0.0);
+
  scatter = sunlight * phase * shadow;
   vec3 baseScatter = sunlight * shadow;
-  scatter += baseScatter * 2.75 ;
+  scatter += baseScatter * 1.75 ;
   scatter *= hasSSS;
   scatter *= sss;
+  
   if (faceNdl >= 1e-6) {
     scatter *= 0.45;
   }

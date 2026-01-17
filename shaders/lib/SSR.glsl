@@ -107,46 +107,77 @@ if (rayDirection.z >= 0.0)
     ) *
     (1.0 / stepCount);
 
- float depthLenience = max(abs(rayDirection.z) * 2.0, 0.0005);
+ float depthLenience = max(
+    abs(rayDirection.z) * 1.0,
+    0.02 / (viewPosition.z * viewPosition.z)
+  );
+ 
   bool intersect = false;
   
   vec2 texelSize = 1.0 /resolution;
   rayPosition += rayDirection * jitter;
   
- 
+ const float THICKNESS = 0.01;
+      float viewThickness = max(THICKNESS * (1.0 + abs(rayDirection.z) * 5.0), 1e-4);
   vec3 prevRayPosition;
   
   for (int i = 0; i < stepCount; i++) {
   
     prevRayPosition = rayPosition;
     rayPosition += rayDirection;
+
       if (
       rayPosition.x < 0.0 || rayPosition.x > 1.0 ||
       rayPosition.y < 0.0 || rayPosition.y > 1.0
     ) {
       break;
     }
+       if (
+      prevRayPosition.x < 0.0 || prevRayPosition.x > 1.0 ||
+      prevRayPosition.y < 0.0 || prevRayPosition.y > 1.0
+    ) {
+      break;
+    }
+
     float depth = texelFetch(
       depthtex0,
       ivec2(rayPosition.xy * resolution),
       0
     ).r;
+
+    float initialDepth = texelFetch(
+      depthtex0,
+      ivec2(prevRayPosition.xy * resolution),
+      0
+    ).r;
     
-    if (prevRayPosition.z <= depth &&
+    //if (prevRayPosition.z > depth) return false;
+    
+    if (
       rayPosition.z > depth &&
       abs(depthLenience - (rayPosition.z - depth)) < depthLenience &&
       rayPosition.z > handDepth &&
-      depth * smoothLightmap < 1.0 
+      depth < 1.0 
     ) {
       intersect = true;
-      
     } 
     else {
       intersect = false;
     }
-    
-      
 
+    if(smoothLightmap < 0.882)
+    {
+       if (
+      rayPosition.z > depth &&
+      abs(depthLenience - (rayPosition.z - depth)) < depthLenience &&
+      rayPosition.z > handDepth  
+    ) {
+      intersect = true;
+    } 
+    else {
+      intersect = false;
+    }
+    }
 
     if (intersect) {
       break;
@@ -157,6 +188,7 @@ if (rayDirection.z >= 0.0)
   
    #if BINARY_REFINEMENT == 1
   binarySearch(rayPosition, rayPosition - prevRayPosition);
+  
   #endif
 
   return intersect;

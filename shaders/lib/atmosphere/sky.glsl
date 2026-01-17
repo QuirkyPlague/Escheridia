@@ -42,7 +42,7 @@ const vec4 sunriseScatter = vec4(0.3294, 0.2196, 0.1725, 0.753);
 const vec4 eveningScatter = vec4(0.8745, 0.3961, 0.1765, 0.83);
 const vec4 dayScatter = vec4(0.5608, 0.3529, 0.1176, 0.715);
 const vec4 noonScatter = vec4(0.7569, 0.6588, 0.5255, 0.845);
-const vec4 nightScatter = vec4(0.8824, 0.6196, 0.2745, 0.85);
+const vec4 nightScatter = vec4(0.6471, 0.4667, 0.2275, 0.65);
 
 vec3 getSun(vec3 dir) {
   float cosThetaSun = dot(dir, worldSunDir);
@@ -224,5 +224,42 @@ vec3 skyScattering(vec3 pos) {
   return color;
 }
 
+vec3 computeSkyColoring(vec3 color)
+{
+  float t = fract(worldTime / 24000.0);
+
+  const int keys = 7;
+  const float keyFrames[keys] = float[keys](
+    0.0, //sunrise
+    0.0417, //day
+    0.45, //noon
+    0.5192, //sunset
+    0.5417, //night
+    0.9527, //midnight
+    1.0 //sunrise
+  );
+
+    const vec3 zenithColors[keys] = vec3[keys](
+    dawnZenCol,
+    dayZenCol,
+    dayZenCol,
+    duskZenCol * 0.76,
+    nightZenCol * 1.15,
+    nightZenCol * 1.15,
+    dawnZenCol
+  );
+
+  int i = 0;
+  for (int k = 0; k < keys - 1; ++k) {
+    i += int(step(keyFrames[k + 1], t));
+  }
+  i = clamp(i, 0, keys - 2);
+
+  float timeInterp =
+    (t - keyFrames[i]) / max(1e-6, keyFrames[i + 1] - keyFrames[i]);
+  timeInterp = smoothstep(0.0, 1.0, timeInterp);
+
+  return color = mix(zenithColors[i], zenithColors[i + 1], timeInterp);
+}
 
 #endif

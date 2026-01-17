@@ -11,41 +11,39 @@ vec3 borderFog(vec3 color, vec3 dir, float depth) {
   return mix(color, fogColor, clamp(fogFactor, 0.0, 1.0));
 }
 
-vec3 atmosphericFog(vec3 color, vec3 viewPos, float depth, vec2 lightmap) {
+vec3 atmosphericFog(vec3 color, vec3 viewPos, float depth, vec2 uv) {
+   float dist = length(viewPos) / 103.3 ;
   vec3 sunColor = vec3(0.0);
-  sunColor = currentSunColor(sunColor);
-  float farPlane = far * 1.3;
-  float dist0 = length(viewPos) / far;
-
-  vec3 absorption = vec3(0.1176, 0.1176, 0.1176);
-
-  vec3 inscatteringAmount = skyScattering(normalize(viewPos));
+  
+  vec3 absorption = vec3(0.9373, 0.9373, 0.9373);
+  vec3 inscatteringAmount;
+  inscatteringAmount = computeSkyColoring(inscatteringAmount) * 2.85;
+  vec3 feetPlayerPos = (gbufferModelViewInverse * vec4(viewPos, 1.0)).xyz;
+  vec3 worldPos = feetPlayerPos + cameraPosition;
+  float worldHeight = smoothstep(112, 46, worldPos.y);
+  float fogSmoothReduction = (0.0,0.1,worldHeight);
+  float scatterReduce = smoothstep(0, 255, eyeBrightnessSmooth.y);
   inscatteringAmount = pow(inscatteringAmount, vec3(2.2));
-  inscatteringAmount = mix(
-    inscatteringAmount,
-    vec3(0.8784, 0.8784, 0.8784),
-    PaleGardenSmooth
+  inscatteringAmount *= scatterReduce;
+  absorption = pow(absorption, vec3(2.2));
+  vec3 noiseOffset = vec3(0.12,0.0,0.73) * frameTimeCounter * 0.03;
+  float noise = texture(waterTex,mod((worldPos.xz ) / 2 , 1024.0) / 1024.0).r;
+  vec3 viewDir = normalize(viewPos);
+  
+  float VdotL = dot(viewDir, lightVector);
+  float phase = henyeyGreensteinPhase(VdotL, 0.75);
+  float backPhase = henyeyGreensteinPhase(VdotL, -0.25);
+  sunColor = currentSunColor(sunColor) * 0.7;
+  float noiseDistributionFactor = smoothstep(1.0, 0.8, noise);
+  vec3 absorptionFactor = exp(
+    -absorption * (dist *0.33)
   );
-  inscatteringAmount *= eyeBrightnessSmooth.y;
-  inscatteringAmount *= 0.0015;
+  vec3 phaseLighting = sunColor * noiseDistributionFactor * phase * scatterReduce;
+  vec3 scattering = inscatteringAmount * noiseDistributionFactor * backPhase * fogSmoothReduction;
 
-  float dist = dist0;
-  vec3 absorptionFactor = exp(-absorption * 1.0 * (dist * 1.0));
+  color.rgb *= absorptionFactor ;
+  color.rgb += ((scattering + phaseLighting) / absorption) * (1.0 - absorptionFactor) ;
 
-  float time = float(worldTime);
-  float VdotL = dot(normalize(viewPos), worldLightVector);
-
-  float smoothDepth = smoothstep(0.99899, 1.0, depth);
-
-  float phase = CS(0.65, VdotL);
-
-  vec3 phaseLighting = sunColor * 3 * phase * eyeBrightnessSmooth.y;
-  phaseLighting *= 0.0025;
-
-  color *= absorptionFactor;
-  return color +=
-    (inscatteringAmount + phaseLighting) /
-    absorption *
-    (1.0 - absorptionFactor);
+  return color.rgb;
 }
 #endif //FOG

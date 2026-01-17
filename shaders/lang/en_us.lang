@@ -145,3 +145,5 @@ option.SCREENSHOT_MODE.comment = Enable strong accumulation for maximum denoisin
     value.SCREENSHOT_MODE.0 = Off
     value.SCREENSHOT_MODE.1 = On
     value.SCREENSHOT_MODE.2 = Hell
+
+option.ENVIORNMENT_FOG = Enviornment fog

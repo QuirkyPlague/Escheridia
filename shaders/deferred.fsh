@@ -96,7 +96,7 @@ void main() {
    }
    else
    {
-    sss = (SpecMap.b - 0.25) * 4.0 / 3.0;
+    sss = (SpecMap.b - 0.15) * 4.0 / 3.0;
     porosity = 0.0;
    }
 #endif
