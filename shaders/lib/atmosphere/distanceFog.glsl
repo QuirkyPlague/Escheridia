@@ -17,29 +17,29 @@ vec3 atmosphericFog(vec3 color, vec3 viewPos, float depth, vec2 uv) {
   
   vec3 absorption = vec3(0.9373, 0.9373, 0.9373);
   vec3 inscatteringAmount;
-  inscatteringAmount = computeSkyColoring(inscatteringAmount) * 2.85;
+  inscatteringAmount = computeSkyColoring(inscatteringAmount) * 2.05;
   vec3 feetPlayerPos = (gbufferModelViewInverse * vec4(viewPos, 1.0)).xyz;
   vec3 worldPos = feetPlayerPos + cameraPosition;
-  float worldHeight = smoothstep(112, 46, worldPos.y);
-  float fogSmoothReduction = (0.0,0.1,worldHeight);
-  float scatterReduce = smoothstep(0, 255, eyeBrightnessSmooth.y);
+  float worldHeight = smoothstep(132, 46, worldPos.y);
+  float fogSmoothReduction = smoothstep(1.0,0.38,worldHeight);
+  float scatterReduce = smoothstep(0, 185, eyeBrightnessSmooth.y);
   inscatteringAmount = pow(inscatteringAmount, vec3(2.2));
   inscatteringAmount *= scatterReduce;
   absorption = pow(absorption, vec3(2.2));
   vec3 noiseOffset = vec3(0.12,0.0,0.73) * frameTimeCounter * 0.03;
-  float noise = texture(waterTex,mod((worldPos.xz ) / 2 , 1024.0) / 1024.0).r;
+  float noise = texture(fogTex,mod((worldPos.xz ) / 2 , 512.0) / 512.0).r;
   vec3 viewDir = normalize(viewPos);
   
   float VdotL = dot(viewDir, lightVector);
   float phase = henyeyGreensteinPhase(VdotL, 0.75);
   float backPhase = henyeyGreensteinPhase(VdotL, -0.25);
-  sunColor = currentSunColor(sunColor) * 0.7;
-  float noiseDistributionFactor = smoothstep(1.0, 0.8, noise);
+  sunColor = currentSunColor(sunColor) * 0.37;
+  float noiseDistributionFactor = smoothstep(1.0, 0.95, noise);
   vec3 absorptionFactor = exp(
     -absorption * (dist *0.33)
   );
-  vec3 phaseLighting = sunColor * noiseDistributionFactor * phase * scatterReduce;
-  vec3 scattering = inscatteringAmount * noiseDistributionFactor * backPhase * fogSmoothReduction;
+  vec3 phaseLighting = sunColor  * noise * phase * scatterReduce;
+  vec3 scattering = inscatteringAmount * noise * backPhase * worldHeight;
 
   color.rgb *= absorptionFactor ;
   color.rgb += ((scattering + phaseLighting) / absorption) * (1.0 - absorptionFactor) ;

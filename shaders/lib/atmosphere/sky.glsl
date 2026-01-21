@@ -10,8 +10,8 @@ const vec3 paleHorCol = vec3(0.7137, 0.7137, 0.7137);
 const vec3 paleGrndCol = vec3(0.4314, 0.4314, 0.4314);
 
 //rain
-const vec3 rainZenCol = vec3(0.3843, 0.4196, 0.4824);
-const vec3 rainHorCol = vec3(0.6353, 0.6549, 0.6706);
+const vec3 rainZenCol = vec3(0.3412, 0.3765, 0.4314);
+const vec3 rainHorCol = vec3(0.4706, 0.4941, 0.5098);
 const vec3 rainGrndCol = vec3(0.1569, 0.1922, 0.2314);
 
 //Day
@@ -23,9 +23,9 @@ const vec3 noonHorCol = vec3(0.4471, 0.8078, 1.0);
 const vec3 noonGrndCol = vec3(0.0824, 0.2039, 0.4627);
 
 //Dawn
-const vec3 dawnZenCol = vec3(0.5216, 0.6549, 0.7647);
-const vec3 dawnHorCol = vec3(0.8667, 0.5569, 0.2824);
-const vec3 dawnGrndCol = vec3(0.2549, 0.3922, 0.6118);
+const vec3 dawnZenCol = vec3(0.4902, 0.7882, 1.0);
+const vec3 dawnHorCol = vec3(0.9765, 0.6745, 0.4118);
+const vec3 dawnGrndCol = vec3(0.2941, 0.451, 0.702);
 
 //Dusk
 const vec3 duskZenCol = vec3(0.4157, 0.6196, 0.749);
@@ -77,10 +77,10 @@ vec3 getSun(vec3 dir) {
   sunColor = currentSunColor(sunColor);
 
   vec3 fullSun = sun * sunColor * 640.0 * sunHeightFactor;
-
+  fullSun *= mix(1.0, 0.001, wetness * hotBiomeSmooth);
   vec3 moonColor = vec3(0.098, 0.1294, 0.1843);
   vec3 fullmoon = moon * moonColor * 35.3 * sunHeightFactor;
-
+  fullmoon *= mix(1.0, 0.001, wetness * hotBiomeSmooth);
   if (worldMoonDir.y < groundBlend) fullmoon *= 0.0;
   return fullSun + fullmoon;
 }
@@ -248,6 +248,15 @@ vec3 computeSkyColoring(vec3 color)
     nightZenCol * 1.15,
     dawnZenCol
   );
+  const float weatherIntensity[keys] = float[keys](
+    0.75,
+    1.0,
+    1.0,
+    0.65,
+    0.25,
+    0.25,
+    0.75
+  );
 
   int i = 0;
   for (int k = 0; k < keys - 1; ++k) {
@@ -258,8 +267,14 @@ vec3 computeSkyColoring(vec3 color)
   float timeInterp =
     (t - keyFrames[i]) / max(1e-6, keyFrames[i + 1] - keyFrames[i]);
   timeInterp = smoothstep(0.0, 1.0, timeInterp);
-
-  return color = mix(zenithColors[i], zenithColors[i + 1], timeInterp);
+   float weatherStrength = mix(
+    weatherIntensity[i],
+    weatherIntensity[i + 1],
+    timeInterp
+  );
+  vec3 zenithCol = mix(zenithColors[i], zenithColors[i + 1], timeInterp);
+  zenithCol = mix(zenithCol, rainZenCol * weatherStrength, wetness * hotBiomeSmooth);
+  return color = zenithCol;
 }
 
 #endif

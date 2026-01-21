@@ -23,7 +23,7 @@ const vec4 nightSkylightColor = vec4(0.2941, 0.3804, 0.6039, 0.924);
 const vec4 blocklightColor = vec4(1.0, 0.8627, 0.7176, 1.0);
 const vec4 ambientColor = vec4(0.06);
 const vec4 caveAmbient = vec4(0.4157, 0.4157, 0.4157, 1.0);
-const vec3 rainTint = vec3(0.2235, 0.3216, 0.6549);
+const vec3 rainTint = vec3(0.3922, 0.4549, 0.6627);
 
 vec3 getLighting(
   vec3 color,
@@ -75,13 +75,13 @@ vec3 getLighting(
   );
 
     const float rainLight[keys] = float[keys](
-    0.25,
-    0.75,
-    0.75,
-    0.25,
+    0.05,
     0.15,
     0.15,
-    0.25
+    0.075,
+    0.33,
+    0.33,
+    0.05
 
   );
 
@@ -108,7 +108,7 @@ vec3 getLighting(
   if (wetness > 0)
   {
     sunlight *= mix(sunlight, rainTint, wetness * hotBiomeSmooth);
-    sunlight *= mix(1.0, 0.36, wetness * hotBiomeSmooth);
+    sunlight *= mix(1.0, rain, wetness * hotBiomeSmooth);
   }
   
   sunlight *= sunIntensity;
@@ -116,7 +116,7 @@ vec3 getLighting(
 
   vec3 skylight =
     mix(skyCol[i].rgb, skyCol[i + 1].rgb, timeInterp) * lightmap.g;
-    skylight = mix(skylight, vec3(0.5294, 0.5804, 0.6471) * rain * lightmap.g, wetness * hotBiomeSmooth);
+    skylight = mix(skylight, vec3(0.1961, 0.2627, 0.3451) * rain * lightmap.g, wetness * hotBiomeSmooth);
   float skyIntensity = mix(skyCol[i].a, skyCol[i + 1].a, timeInterp);
   ;
   skylight *= skyIntensity;
@@ -153,7 +153,7 @@ vec3 scatter = vec3(0.0);
   
   //ao *= ao * (1.0 - float(shadow));
   vec3 ambientLight = (mix(ambientColor.rgb,caveAmbient.rgb * 0.06, ambientFactor)* ao) * color  ;
-
+  ambientLight = mix(ambientLight, ambientLight * rain, wetness * hotBiomeSmooth);
   
   vec3 indirect = (skylight + blocklight) * ao;
   float metalMask = isMetal ? 1.0 : 0.0;
@@ -230,7 +230,7 @@ vec3 currentSunColor(vec3 color) {
   if (wetness > 0)
   {
     sunlight *= mix(sunlight, rainTint, wetness * hotBiomeSmooth);
-    sunlight *= mix(1.0, 0.86, wetness * hotBiomeSmooth);
+    sunlight *= mix(1.0, 0.46, wetness * hotBiomeSmooth);
   }
   sunlight *= sunIntensity;
   sunlight *= shadowFade;
