@@ -321,12 +321,16 @@ void main() {
     if (reflectionHit) {
     if (canReflect || isMetal || isWater) {
 
+      #ifdef ROUGH_REFLECTION
       #if SSR_MIP_BLUR == 1
       reflectedColor = texture2DLod(colortex0, reflectedPos.xy, lod).rgb;
       #else
       reflectedColor = texture2DLod(colortex0, reflectedPos.xy, 0).rgb;
-      #endif
-
+      #endif //MIP_BLUR
+      #else
+      reflectedColor = texture2DLod(colortex0, reflectedPos.xy, 0).rgb;
+      #endif //ROUGH_REFLECTION
+      
       if (any(isnan(reflectedColor))) reflectedColor = vec3(0.0);
       if(roughness > 0)  reflectedColor *= max(exp(7.02 * (0.061 - roughness)), 0.0);
     

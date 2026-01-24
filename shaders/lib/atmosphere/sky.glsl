@@ -86,7 +86,7 @@ vec3 getSun(vec3 dir) {
 }
 
 vec3 skyScattering(vec3 pos) {
-   vec3 dir = normalize(pos);
+  vec3 dir = normalize(pos);
  float VoL = dot(dir, worldSunDir);
   float rayleigh =
     Rayleigh(VoL) * 15.1;
@@ -224,8 +224,12 @@ vec3 skyScattering(vec3 pos) {
   return color;
 }
 
-vec3 computeSkyColoring(vec3 color)
+vec3 computeSkyColoring(vec3 pos)
 {
+  vec3 dir = normalize(pos);
+  float VoL = dot(dir, sunDir);
+  float rayleigh =
+    Rayleigh(VoL) * 13.1;
   float t = fract(worldTime / 24000.0);
 
   const int keys = 7;
@@ -240,7 +244,7 @@ vec3 computeSkyColoring(vec3 color)
   );
 
     const vec3 zenithColors[keys] = vec3[keys](
-    dawnZenCol,
+    dawnZenCol ,
     dayZenCol,
     dayZenCol,
     duskZenCol * 0.76,
@@ -274,7 +278,9 @@ vec3 computeSkyColoring(vec3 color)
   );
   vec3 zenithCol = mix(zenithColors[i], zenithColors[i + 1], timeInterp);
   zenithCol = mix(zenithCol, rainZenCol * weatherStrength, wetness * hotBiomeSmooth);
-  return color = zenithCol;
+  zenithCol = mix(zenithCol, paleZenCol, PaleGardenSmooth);
+  zenithCol *= rayleigh;
+  return zenithCol;
 }
 
 #endif

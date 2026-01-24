@@ -25,6 +25,9 @@ const vec4 ambientColor = vec4(0.06);
 const vec4 caveAmbient = vec4(0.4157, 0.4157, 0.4157, 1.0);
 const vec3 rainTint = vec3(0.3922, 0.4549, 0.6627);
 
+
+
+
 vec3 getLighting(
   vec3 color,
   vec2 lightmap,
@@ -102,9 +105,10 @@ vec3 getLighting(
   float rain = mix(rainLight[i], rainLight[i + 1], timeInterp);
   float sunHeight = dot(worldLightVector, vec3(0.0, 1.0, 0.0));
   float shadowFade = smoothstep(0.005, 0.1, worldLightVector.y);
-  float shadowSmooth = exp(-1.0 * SHADOW_DISTANCE);
-  float shadowSmoothFade = smoothstep(1.0, 0.0, shadowSmooth);
-  shadow *= shadowSmoothFade;
+  float shadowSmooth = exp(-5.0 * SHADOW_DISTANCE);
+  float shadowSmoothFade = smoothstep(0.0, 1.0, shadowSmooth);
+
+
   if (wetness > 0)
   {
     sunlight *= mix(sunlight, rainTint, wetness * hotBiomeSmooth);

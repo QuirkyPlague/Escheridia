@@ -28,7 +28,11 @@ void main() {
   int blockID = int(waterMask) + 100;
   bool isWater = blockID == WATER_ID;
   #ifdef ENVIORNMENT_FOG
-    color.rgb = atmosphericFog(color.rgb, viewPos, depth, texcoord);
+  if(!inWater)
+  {
+    color.rgb = atmosphericFog(color.rgb, viewPos, depth, texcoord, isWater);
+  }
+    
     #endif
     
 }

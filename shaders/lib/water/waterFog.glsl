@@ -5,6 +5,7 @@
 #include "/lib/uniforms.glsl"
 #include "/lib/common.glsl"
 #include "/lib/phaseFunctions.glsl"
+#include "/lib/lighting/lighting.glsl"
 
 const vec3 WATER_ABOSRBTION = vec3(ABSORPTION_R, ABSORPTION_G, ABSORPTION_B);
 const vec3 WATER_SCATTERING = vec3(SCATTER_R, SCATTER_G, SCATTER_B);
@@ -54,10 +55,10 @@ vec3 waterExtinction(
   float fog = mix(fogIntensity[i], fogIntensity[i + 1], timeInterp);
 
   float dist0 = length(screenToView(texcoord, depth));
-  float dist1 = length(screenToView(texcoord, depth1)) * 2;
+  float dist1 = length(screenToView(texcoord, depth1));
   float dist = max(0, dist1 - dist0);
   vec3 sunColor = vec3(0.0);
-  sunColor = vec3(1.0, 0.898, 0.698);
+  sunColor = currentSunColor(sunColor) * 0.4;
   if (inWater) {
     dist = dist0;
   }
@@ -65,20 +66,32 @@ vec3 waterExtinction(
   vec3 absorptionColor = vec3(0.0);
   vec3 absorption = WATER_ABOSRBTION;
   vec3 inscatteringAmount = vec3(0.0);
-  inscatteringAmount = WATER_SCATTERING;
+  inscatteringAmount = WATER_SCATTERING ;
   inscatteringAmount *= SCATTER_COEFF;
   inscatteringAmount *= fog;
 
   inscatteringAmount = pow(inscatteringAmount, vec3(2.2));
   absorption = pow(absorption, vec3(2.2));
+   vec3 screenPos = vec3(texcoord.xy, depth);
+  vec3 NDCPos = vec3(texcoord, depth) * 2.0 - 1.0;
+  vec3 viewPos = projectAndDivide(gbufferProjectionInverse, NDCPos);
+  vec3 viewDir = normalize(viewPos);
+  float VdotL = dot(viewDir, lightVector);
+   float phase = henyeyGreensteinPhase(VdotL, 0.885);
+  float backPhase = henyeyGreensteinPhase(VdotL, -0.0);
+float smoothDepth = smoothstep(0.998, 1.0, depth);
+  float scatterReduce = smoothstep(0, 185, eyeBrightnessSmooth.y);
+
+  vec3 phaseLighting = sunColor * phase * scatterReduce;
+  vec3 scattering = inscatteringAmount  * backPhase ;
+  vec3 totalScattering = (phaseLighting + scattering) * SCATTER_COEFF;
   vec3 absorptionFactor = exp(
-    -absorption * WATER_FOG_DENSITY * (dist * ABSORPTION_COEFF)
+    -absorption * WATER_FOG_DENSITY * (dist * ABSORPTION_COEFF * 3)
   );
   
   color *= absorptionFactor;
   color +=
-    sunColor *
-    inscatteringAmount /
+    totalScattering /
     absorption *
     (1.0 - clamp(absorptionFactor, 0, 1));
 
@@ -90,11 +103,11 @@ vec3 waterFog(vec3 color, vec2 texcoord, vec2 lightmap, float depth) {
 
   float dist = dist0;
   vec3 sunColor = vec3(0.0);
-  sunColor = vec3(0.7765, 0.7255, 0.6392);
+  sunColor = currentSunColor(sunColor) * 0.1;
   vec3 absorptionColor = vec3(0.0);
   vec3 absorption = WATER_ABOSRBTION;
   vec3 inscatteringAmount = vec3(0.0);
-  inscatteringAmount = WATER_SCATTERING;
+  inscatteringAmount = WATER_SCATTERING * 3;
   inscatteringAmount *= SCATTER_COEFF;
   inscatteringAmount = pow(inscatteringAmount, vec3(2.2));
   absorption = pow(absorption, vec3(2.2));
@@ -103,13 +116,18 @@ vec3 waterFog(vec3 color, vec2 texcoord, vec2 lightmap, float depth) {
   vec3 viewPos = projectAndDivide(gbufferProjectionInverse, NDCPos);
   vec3 viewDir = normalize(viewPos);
   float VdotL = dot(viewDir, lightVector);
-  float waterPhase = henyeyGreensteinPhase(VdotL, 0.75);
-  
+  float phase = henyeyGreensteinPhase(VdotL, 0.785);
+  float backPhase = henyeyGreensteinPhase(VdotL, -0.1);
+  float smoothDepth = smoothstep(0.998, 1.0, depth);
+   float scatterReduce = smoothstep(0, 185, eyeBrightnessSmooth.y);
+  vec3 phaseLighting = sunColor * phase * scatterReduce;
+  vec3 scattering = inscatteringAmount  * backPhase ;
+  vec3 totalScattering = (phaseLighting + scattering) * SCATTER_COEFF;
   vec3 absorptionFactor = exp(
-    -absorption * UNDERWATER_FOG_DENSITY * (dist * ABSORPTION_COEFF)
+    -absorption * UNDERWATER_FOG_DENSITY * (dist * ABSORPTION_COEFF * 3)
   );
   color.rgb *= absorptionFactor;
-  color.rgb += (inscatteringAmount / absorption * waterPhase) * (1.0 - absorptionFactor);
+   color.rgb += (totalScattering / absorption) * (1.0 - absorptionFactor) ;
 
   return color.rgb;
 }
