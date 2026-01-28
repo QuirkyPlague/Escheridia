@@ -58,7 +58,7 @@ vec3 waterExtinction(
   float dist1 = length(screenToView(texcoord, depth1));
   float dist = max(0, dist1 - dist0);
   vec3 sunColor = vec3(0.0);
-  sunColor = currentSunColor(sunColor) * 0.4;
+  sunColor = currentSunColor(sunColor) * 5;
   if (inWater) {
     dist = dist0;
   }
@@ -77,12 +77,13 @@ vec3 waterExtinction(
   vec3 viewPos = projectAndDivide(gbufferProjectionInverse, NDCPos);
   vec3 viewDir = normalize(viewPos);
   float VdotL = dot(viewDir, lightVector);
-   float phase = henyeyGreensteinPhase(VdotL, 0.885);
+   float phase = waterPhase(VdotL);
   float backPhase = henyeyGreensteinPhase(VdotL, -0.0);
 float smoothDepth = smoothstep(0.998, 1.0, depth);
   float scatterReduce = smoothstep(0, 185, eyeBrightnessSmooth.y);
-
-  vec3 phaseLighting = sunColor * phase * scatterReduce;
+  float fogDistFalloff = length(viewPos) / far;
+  float fogReduction = exp( 0.75 * (-2.5 - fogDistFalloff));
+  vec3 phaseLighting = sunColor * phase * scatterReduce * fogReduction;
   vec3 scattering = inscatteringAmount  * backPhase ;
   vec3 totalScattering = (phaseLighting + scattering) * SCATTER_COEFF;
   vec3 absorptionFactor = exp(
@@ -103,7 +104,7 @@ vec3 waterFog(vec3 color, vec2 texcoord, vec2 lightmap, float depth) {
 
   float dist = dist0;
   vec3 sunColor = vec3(0.0);
-  sunColor = currentSunColor(sunColor) * 0.1;
+  sunColor = currentSunColor(sunColor) * 0.7;
   vec3 absorptionColor = vec3(0.0);
   vec3 absorption = WATER_ABOSRBTION;
   vec3 inscatteringAmount = vec3(0.0);
@@ -116,10 +117,11 @@ vec3 waterFog(vec3 color, vec2 texcoord, vec2 lightmap, float depth) {
   vec3 viewPos = projectAndDivide(gbufferProjectionInverse, NDCPos);
   vec3 viewDir = normalize(viewPos);
   float VdotL = dot(viewDir, lightVector);
-  float phase = henyeyGreensteinPhase(VdotL, 0.785);
+  float phase = waterPhase(VdotL);
   float backPhase = henyeyGreensteinPhase(VdotL, -0.1);
   float smoothDepth = smoothstep(0.998, 1.0, depth);
    float scatterReduce = smoothstep(0, 185, eyeBrightnessSmooth.y);
+    
   vec3 phaseLighting = sunColor * phase * scatterReduce;
   vec3 scattering = inscatteringAmount  * backPhase ;
   vec3 totalScattering = (phaseLighting + scattering) * SCATTER_COEFF;

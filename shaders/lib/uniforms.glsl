@@ -47,6 +47,7 @@ uniform sampler2D specular;
 
 //noises
 uniform sampler3D blueNoiseTex;
+uniform sampler3D cloudTex;
 uniform sampler2D puddleTex;
 uniform sampler2D waterTex;
 uniform sampler2D starMap;

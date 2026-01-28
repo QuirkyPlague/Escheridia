@@ -244,13 +244,13 @@ vec3 computeSkyColoring(vec3 pos)
   );
 
     const vec3 zenithColors[keys] = vec3[keys](
-    dawnZenCol ,
+    dawnZenCol * 0.76 ,
     dayZenCol,
     dayZenCol,
     duskZenCol * 0.76,
-    nightZenCol * 1.15,
-    nightZenCol * 1.15,
-    dawnZenCol
+    nightZenCol * 1.85,
+    nightZenCol * 1.85,
+    dawnZenCol * 0.76
   );
   const float weatherIntensity[keys] = float[keys](
     0.75,
@@ -279,7 +279,7 @@ vec3 computeSkyColoring(vec3 pos)
   vec3 zenithCol = mix(zenithColors[i], zenithColors[i + 1], timeInterp);
   zenithCol = mix(zenithCol, rainZenCol * weatherStrength, wetness * hotBiomeSmooth);
   zenithCol = mix(zenithCol, paleZenCol, PaleGardenSmooth);
-  zenithCol *= rayleigh;
+  
   return zenithCol;
 }
 

@@ -8,6 +8,9 @@
 #include "/lib/tonemapping.glsl"
 #include "/lib/atmosphere/distanceFog.glsl"
 
+
+
+
 vec3 volumetricRaymarch(
   vec4 startPos,
   vec4 endPos,
@@ -76,6 +79,7 @@ vec3 volumetricRaymarch(
   vec4 stepSize = rayPos * (1.0 / stepCount);
   vec3 eyePlayerPos = feetPlayerPos - gbufferModelViewInverse[3].xyz;
   vec3 worldPos = feetPlayerPos + cameraPosition;
+  
   float rayLength = clamp(length(eyePlayerPos) + 1, 0, far);
   vec4 stepLength = startPos + (jitter + 0.5) * stepSize;
  const float falloffScale = 0.001 / log(2.0);
@@ -111,23 +115,18 @@ vec3 volumetricRaymarch(
     phaseMult = 1.0;
     ambientMult = 0.0;
   } 
-  if(feetPlayerPos.y < 45 && eyeBrightnessSmooth.g < 0.3)
-  {
-    scatterCoeff *= scatterReduce;
-  }
+  
   float phase =
-    henyeyGreensteinPhase(VdotL, phaseVal) * FORWARD_PHASE_INTENSITY +
-    henyeyGreensteinPhase(VdotL, -0.25) * BACKWARD_PHASE_INTENSITY * 0.65;
+    CS(phaseVal,VdotL) * FORWARD_PHASE_INTENSITY +
+    CS(-0.25, VdotL) * BACKWARD_PHASE_INTENSITY * 0.85;
 
-  phase = mix(phase,henyeyGreensteinPhase(VdotL, 0.65) * rain +
-    henyeyGreensteinPhase(VdotL, -0.25) * rain, wetness);
+  phase = mix(phase,CS(0.65, VdotL) * rain +
+    CS(-0.25, VdotL) * rain, wetness);
   phase *= phaseMult;
 
  if(inWater)
  {
-    phase =
-    henyeyGreensteinPhase(VdotL, 0.885) * FORWARD_PHASE_INTENSITY +
-    henyeyGreensteinPhase(VdotL, -0.15) * BACKWARD_PHASE_INTENSITY * 0.65;
+    phase = CS(0.885, VdotL);
  }
 
   vec3 sunColor;
@@ -145,26 +144,27 @@ vec3 volumetricRaymarch(
 
   vec3 shadow;
   for (int i = 0; i < stepCount; i++) {
+      vec4 prevStep = stepLength;
     stepLength += stepSize;
     
     for (int s = 0; s < 3; s++) {
       vec2 offset = vogelDisc(s, 3, jitter) * sampleRadius;
-      vec4 offsetShadowClipPos = stepLength + vec4(offset, 0.0, 0.0);
-      offsetShadowClipPos.xyz = distortShadowClipPos(offsetShadowClipPos.xyz);
-      
-      vec3 shadowNDCPos = offsetShadowClipPos.xyz;
-      vec3 shadowScreenPos = shadowNDCPos * 0.5 + 0.5;
-      shadow += getShadow(shadowScreenPos);
+      vec4 offsetShadowClipPos = prevStep + vec4(offset, 0.0, 0.0);
+      offsetShadowClipPos.xyz = distortShadowClipPos(offsetShadowClipPos.xyz); // apply distortion
+    vec3 shadowNDCPos = offsetShadowClipPos.xyz / offsetShadowClipPos.w; // convert to NDC space
+    vec3 shadowScreenPos = shadowNDCPos * 0.5 + 0.5; // convert to screen space
+    shadowScreenPos += shadowNormal * biasAdjustFactor;
+    shadow += getShadow(shadowScreenPos); // take shadow sample
     }
-    shadow /= float(5);
+    shadow /= float(3);
     
-    transmission *= exp(-absCoeff * length(stepLength) * 0.3);
+    transmission *= exp(-absCoeff * length(stepLength));
 
    
     vec3 directLight = sunColor * shadow;              
 
 
-  vec3 singleScatter = scatterCoeff * phase * rayLength * directLight * ambientIntensity;
+  vec3 singleScatter = scatterCoeff * phase * rayLength * directLight * ambientIntensity ;
     
     vec3 msLight = sunColor * (0.35 + 0.63 * shadow);
     vec3 multiScatter = scatterCoeff * msLight * 45.0 * ambientMult; 
@@ -180,13 +180,14 @@ vec3 volumetricRaymarch(
       (totalInscatter - totalInscatter * sampleTransmittance) /
       sampleExtinction;
     transmission *= sampleTransmittance;
+    
   }
   float fogDistFalloff = length(feetPlayerPos) / far;
-  float fogReduction = exp( 0.225 * (1.0 - fogDistFalloff));
+  float fogReduction = exp( 0.525 * (1.0 - fogDistFalloff));
 
-  scatter *= 0.035 * fogReduction;
- 
-  vec3 totalScatter = scatter + transmission ;
+  
+ scatter *= 0.045 * fogReduction;
+  vec3 totalScatter = scatter  ;
 
   return totalScatter;
 
