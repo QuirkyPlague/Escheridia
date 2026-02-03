@@ -15,13 +15,13 @@ vec3 borderFog(vec3 color, vec3 dir, float depth) {
 
 
 float getFogDensity(vec3 pos) {
-    const float TOTAL_DENSITY = 0.44;
+    const float TOTAL_DENSITY = 0.58;
     const float _DensityThreshold = DENSITY_THRESHOLD;
     float density = 0.00;
     float weight = 0.0;
 
     
-    float height = smoothstep(165,91, pos.y);
+    float height = smoothstep(115,81, pos.y);
 
     pos = pos / 10000 * NOISE_SCALE;
 
@@ -29,7 +29,7 @@ float getFogDensity(vec3 pos) {
     #if NOISE_SAMPLING == 1
     for (int i = 0; i < VL_ATMOSPHERIC_STEPS; i++) {
         float sampleWeight = exp2(-float(i));
-        pos.xz += frameTimeCounter * 0.00035 * WIND_SPEED * sqrt(i + 1);
+        pos.xz += frameTimeCounter * 0.00015 * WIND_SPEED * sqrt(i + 1);
         vec2 samplePos = (pos.zx * exp2(float(i)));
 
         float noise = texture(fogTex, fract(samplePos)).r * sampleWeight;
@@ -66,7 +66,7 @@ float getCloudDensity(vec3 pos) {
 
     for (int i = 0; i < 6; i++) {
         float sampleWeight = exp2(-float(i));
-        cloudPos.xz += frameTimeCounter * 0.0001 * sqrt(i + 1);
+        cloudPos.xz += frameTimeCounter * 0.00004 * sqrt(i + 1);
         vec2 cloudSamplePos = (cloudPos.zx * exp2(float(i)));
         float cloudNoise = texture(clouds, fract(cloudSamplePos)).r * sampleWeight;
 

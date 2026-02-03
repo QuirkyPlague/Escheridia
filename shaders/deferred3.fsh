@@ -51,7 +51,7 @@ void main() {
     
     float phaseIncFactor=smoothstep(225,0,eyeBrightnessSmooth.y);
     float scatterReduce=smoothstep(0,185,eyeBrightnessSmooth.y);
-    vec3 lightScattering=vec3(6.) * PHASE_MULTIPLIER;
+    vec3 lightScattering=vec3(2.) * PHASE_MULTIPLIER;
     
   
     vec3 entryPoint=cameraPosition;
