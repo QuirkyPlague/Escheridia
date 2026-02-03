@@ -191,8 +191,8 @@ vec3 getLighting(
                 sunlightColor,
                 sunlightColor,
                 eveningSunlightColor,
-                moonlightColor,
-                moonlightColor,
+                moonlightColor  * 2.5,
+                moonlightColor * 2.5,
                 morningSunlightColor);
 
             int i = 0;

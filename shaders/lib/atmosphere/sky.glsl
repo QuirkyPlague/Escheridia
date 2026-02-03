@@ -185,7 +185,7 @@ vec3 skyScattering(vec3 pos) {
   horizonCol = mix(horizonCol, rainHorCol * weatherStrength, wetness * hotBiomeSmooth);
   groundCol = mix(groundCol, rainGrndCol * weatherStrength, wetness * hotBiomeSmooth);
 
- float zenithBlend = clamp(pow(upPos, 0.45), 0, 1);
+  float zenithBlend = clamp(pow(upPos, 0.45), 0, 1);
   float horizonBlend = clamp(pow(negatedMidPos, 4.5), 0, 1);
   float groundBlend = clamp(pow(negatedDownPos, 0.55), 0, 1);
 
@@ -214,10 +214,8 @@ vec3 skyScattering(vec3 pos) {
   vec3 mieNight = moonMieScatterColor * moonPhase * 0.17;
 
   vec3 finalMie = mieColors + mieNight ;
-
-  float dawnDuskMieFactor = smoothstep(-0.035, 0.035, dir.y);
-  float dawnDuskTimeFactor = smoothstep(0.0, 0.1, t) * smoothstep(0.4, 0.6, t);
-  finalMie *= mix(1.0, dawnDuskMieFactor, dawnDuskTimeFactor);
+  float sunHeightFactor = smoothstep(groundBlend, groundBlend + 0.041, dir.y);
+  finalMie *=sunHeightFactor;
 
     vec3 color = sky + finalMie;
    color = pow(color, vec3(2.2));
@@ -244,13 +242,13 @@ vec3 computeSkyColoring(vec3 pos)
   );
 
     const vec3 zenithColors[keys] = vec3[keys](
-    dawnZenCol * 0.76 ,
+    dawnZenCol * 0.81 ,
     dayZenCol,
     dayZenCol,
-    duskZenCol * 0.76,
-    nightZenCol * 1.85,
-    nightZenCol * 1.85,
-    dawnZenCol * 0.76
+    duskZenCol ,
+    nightZenCol * 2.25,
+    nightZenCol * 2.25,
+    dawnZenCol * 0.81
   );
   const float weatherIntensity[keys] = float[keys](
     0.75,

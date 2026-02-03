@@ -50,6 +50,7 @@ uniform sampler3D blueNoiseTex;
 uniform sampler2D puddleTex;
 uniform sampler2D waterTex;
 uniform sampler2D fogTex;
+uniform sampler2D clouds;
 
 //additional uniforms
 uniform vec3 cameraPosition;

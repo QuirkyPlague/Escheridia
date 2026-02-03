@@ -10,7 +10,6 @@
 
 
 
-
 vec3 volumetricRaymarch(
   vec4 startPos,
   vec4 endPos,

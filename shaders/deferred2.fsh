@@ -3,15 +3,15 @@
 #include "/lib/util.glsl"
 #include "/lib/atmosphere/distanceFog.glsl"
 #include "/lib/blockID.glsl"
-
+#include "/lib/atmosphere/volumetrics.glsl"
 in vec2 texcoord;
 
 /* RENDERTARGETS: 0 */
-layout(location = 0) out vec4 color;
+layout(location=0)out vec4 color;
 
-void main() {
-  color = texture(colortex0, texcoord);
-  vec2 lightmap = texture(colortex1, texcoord).rg;
+void main(){
+    color=texture(colortex0,texcoord);
+     vec2 lightmap = texture(colortex1, texcoord).rg;
   float depth = texture(depthtex0, texcoord).r;
   if (depth == 1.0) return;
   
@@ -30,5 +30,5 @@ void main() {
 
   color.rgb = borderFog(color.rgb, eyePlayerPos, depth);
     
-  
+    
 }

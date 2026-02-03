@@ -7,77 +7,85 @@
 vec3 borderFog(vec3 color, vec3 dir, float depth) {
     vec3 fogColor = skyScattering(normalize(dir));
     float dist = length(dir) / far;
-    float fogFactor = exp(-8.0 * (1.0 - dist));
+    float fogFactor = exp(-18.0 * (1.0 - dist));
     float rainFogFactor = exp(-7.37 * (1.0 - dist));
     fogFactor = mix(fogFactor, rainFogFactor, wetness);
     return mix(color, fogColor, clamp(fogFactor, 0.0, 1.0));
 }
 
-vec3 atmosphericFog(vec3 color, vec3 viewPos, float depth, vec2 uv, bool isWater) {
-    vec3 sunColor = vec3(0.0);
 
-    vec3 absorption = vec3(0.9373, 0.9373, 0.9373);
-    vec3 inscatteringAmount = computeSkyColoring(viewPos) * 3.43;
-    vec3 feetPlayerPos = (gbufferModelViewInverse * vec4(viewPos, 1.0)).xyz;
-    vec3 worldPos = feetPlayerPos + cameraPosition;
-    float worldHeight = smoothstep(214, 0, worldPos.y);
-    float fogSmoothReduction = smoothstep(1.0,0.38,worldHeight);
-    float scatterReduce = smoothstep(0, 185, eyeBrightnessSmooth.y);
-    inscatteringAmount = pow(inscatteringAmount, vec3(2.2));
-    inscatteringAmount *= scatterReduce;
-    absorption = pow(absorption, vec3(2.2));
-    vec3 noiseOffset = vec3(0.12,0.0,0.73) * frameTimeCounter * 0.003;
-    float noise = texture(fogTex,mod((worldPos.xz) * noiseOffset.x , 1024.0) / 1024.0).r;
-
-    float dist = length(viewPos) / far * (noise * 3);
-    vec3 viewDir = normalize(viewPos);
-    float smoothDepth = smoothstep(0.998, 1.0, depth);
-    float VdotL = dot(viewDir, lightVector);
-    float phase = CS(0.65, VdotL);
-    float backPhase = CS(-0.15, VdotL);
-    sunColor = currentSunColor(sunColor) * 12;
-    float noiseDistributionFactor = smoothstep(1.0, 0.95, noise);
-    vec3 absorptionFactor = exp(
-        -absorption * (dist *0.313));
-
-    float fogDistFalloff = length(feetPlayerPos) / far;
-    float fogReduction = exp(0.5 * (-2.0 - fogDistFalloff));
-
-    vec3 phaseLighting = sunColor  * phase  * scatterReduce * smoothDepth;
-    phaseLighting *= fogReduction;
-    vec3 scattering = inscatteringAmount * backPhase * worldHeight;
-    vec3 totalScattering = (scattering + phaseLighting) * ENVIORNMENT_FOG_DENSITY;
-    color.rgb *= absorptionFactor ;
-    color.rgb += (totalScattering / absorption) * (1.0 - absorptionFactor) ;
-
-    return color.rgb;
-}
-
-
-float getCloudDensity(vec3 pos) {
-    const float TOTAL_DENSITY = 0.14;
+float getFogDensity(vec3 pos) {
+    const float TOTAL_DENSITY = 0.44;
+    const float _DensityThreshold = DENSITY_THRESHOLD;
     float density = 0.00;
     float weight = 0.0;
 
-    pos = pos / 100000;
+    
+    float height = smoothstep(165,91, pos.y);
 
+    pos = pos / 10000 * NOISE_SCALE;
+
+
+    #if NOISE_SAMPLING == 1
     for (int i = 0; i < VL_ATMOSPHERIC_STEPS; i++) {
         float sampleWeight = exp2(-float(i));
-        pos.xz += frameTimeCounter * 0.000045 * sqrt(i + 1);
-        vec2 samplePos = sin(pos.zx * exp2(float(i)));
+        pos.xz += frameTimeCounter * 0.00035 * WIND_SPEED * sqrt(i + 1);
+        vec2 samplePos = (pos.zx * exp2(float(i)));
 
         float noise = texture(fogTex, fract(samplePos)).r * sampleWeight;
-        float noiseDot = dot(noise, noise) ;
-        density =  max(0, noise - 0.04) * 1.0;
+        density += dot(noise, noise);
+       
+        density = clamp(density - _DensityThreshold,0,1) * TOTAL_DENSITY;
 
         weight += sampleWeight ;
     }
     density /= weight;
-
+    #else
+    density = 0.0055 * FOG_DENSITY;
+    #endif
+    float shadowFade = smoothstep(0.23, 0.1, worldLightVector.y);
+    density = mix(density, density * 6, wetness);
     density *= TOTAL_DENSITY;
-    density = mix(density, density * 4, wetness);
-
+    density = mix(density ,density * 3, shadowFade);
+    density *= height;
+    
+   
     return density;
+}
+
+float getCloudDensity(vec3 pos) {
+    const float TOTAL_DENSITY = 2.44;
+    const float _DensityThreshold2 = CLOUD_DENSITY_THRESHOLD;
+    float cloudDensity = 0.0;
+    float weight = 0.0;
+
+    vec3 cloudPos = pos;
+    float height = smoothstep(281, 290, cloudPos.y);
+    if(cloudPos.y > 300) return 0.0;
+    cloudPos = cloudPos / 10000 * CLOUD_NOISE_SCALE;
+
+    for (int i = 0; i < 6; i++) {
+        float sampleWeight = exp2(-float(i));
+        cloudPos.xz += frameTimeCounter * 0.0001 * sqrt(i + 1);
+        vec2 cloudSamplePos = (cloudPos.zx * exp2(float(i)));
+        float cloudNoise = texture(clouds, fract(cloudSamplePos)).r * sampleWeight;
+
+        cloudDensity += dot(cloudNoise,cloudNoise);
+        cloudDensity = clamp(cloudDensity - _DensityThreshold2,0,1) * TOTAL_DENSITY;
+
+        weight += sampleWeight ;
+    }
+
+    cloudDensity /= weight;
+    
+
+    cloudDensity *= 1.0;
+    cloudDensity *= height;
+
+    
+
+   
+    return  cloudDensity;
 }
 
 

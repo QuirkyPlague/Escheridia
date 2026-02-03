@@ -234,7 +234,11 @@ void main() {
   roughness = mix(roughness,wetRoughness, wetness);
   
   bool canReflect = roughness < 1.0;
-  vec3 noiseB = blue_noise(floor(gl_FragCoord.xy), frameCounter, SSR_STEPS);
+   vec3 noiseB = vec3(0.0);
+   for(int i = 0; i < 5; i++) {
+        noiseB += blue_noise(floor(gl_FragCoord.xy), frameCounter, i);
+    }
+  
   float jitter = IGN(gl_FragCoord.xy, frameCounter);
   vec2 offset = vec2(0.0, 0.0);
   // --- Reflection vectors
