@@ -54,17 +54,17 @@ float getFogDensity(vec3 pos) {
 }
 
 float getCloudDensity(vec3 pos) {
-    const float TOTAL_DENSITY = 2.14;
+    const float TOTAL_DENSITY = 0.84;
     const float _DensityThreshold2 = CLOUD_DENSITY_THRESHOLD;
     float cloudDensity = 0.0;
     float weight = 0.0;
 
     vec3 cloudPos = pos;
-    float height = smoothstep(281, 290, cloudPos.y);
-    if(cloudPos.y > 300) return 0.0;
+    float height = smoothstep(164, 182, cloudPos.y);
+    if(cloudPos.y > 190) return 0.0;
     cloudPos = cloudPos / 10000 * CLOUD_NOISE_SCALE;
 
-    for (int i = 0; i < 6; i++) {
+    for (int i = 0; i < 4; i++) {
         float sampleWeight = exp2(-float(i));
         cloudPos.xz += frameTimeCounter * 0.00004 * sqrt(i + 1);
         vec2 cloudSamplePos = (cloudPos.zx * exp2(float(i)));

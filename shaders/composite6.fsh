@@ -30,5 +30,4 @@ void main() {
     int blockID = int(waterMask) + 100;
     bool isWater = blockID == WATER_ID;
 
-    color.rgb = borderFog(color.rgb, eyePlayerPos, depth);
 }

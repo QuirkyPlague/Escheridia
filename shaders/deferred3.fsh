@@ -44,14 +44,14 @@ void main() {
     #ifdef CLOUDS
 
     const float UNIFORM_PHASE=1./(4.*PI);
-    const float _StepSize= 3.0;
-    const float _NoiseOffset=2.65;
-    const float MULTI_SCATTER_GAIN= 1.8;// how much single scatter feeds MS
+    const float _StepSize= 6.0;
+    const float _NoiseOffset=3.65;
+    const float MULTI_SCATTER_GAIN= 0.9;// how much single scatter feeds MS
     const float MULTI_SCATTER_DECAY= 0.93;// energy loss per step
     
     float phaseIncFactor=smoothstep(225,0,eyeBrightnessSmooth.y);
     float scatterReduce=smoothstep(0,185,eyeBrightnessSmooth.y);
-    vec3 lightScattering=vec3(2.) * PHASE_MULTIPLIER;
+    vec3 lightScattering=vec3(1.14) * PHASE_MULTIPLIER;
     
   
     vec3 entryPoint=cameraPosition;
@@ -59,7 +59,7 @@ void main() {
     float viewLength=length(viewDir);
     vec3 rayDir=normalize(viewDir);
     
-    float distLimit=min(viewLength,4000);
+    float distLimit=min(viewLength,1500);
     float distTravelled=noise.x*_NoiseOffset;
     
     float transmittance=1;
@@ -80,15 +80,15 @@ void main() {
     vec3 multiScatterEnergy=vec3(0.);
     while(distTravelled<distLimit){
         vec3 rayPos=entryPoint+rayDir*distTravelled;
-        float height=smoothstep(143,64,rayPos.y);
+       
         
         float density=getCloudDensity(rayPos);
         
   
-            float fogHeight=smoothstep(155,0,rayPos.y);
+        
             
             vec3 lightDir=worldLightVector;
-            float phase=CS(.65,dot(rayDir,lightDir)) + CS(-.1,dot(rayDir,lightDir)) ;
+            float phase= 9.25 * CS(.65,dot(rayDir,lightDir)) +  3.7 * CS(-.1,dot(rayDir,lightDir)) ;
             float scatter=density*_StepSize*transmittance;
             
             float msFactor=clamp(1.-transmittance,0.,1.);
