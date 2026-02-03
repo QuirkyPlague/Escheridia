@@ -35,7 +35,7 @@ float getFogDensity(vec3 pos) {
         float noise = texture(fogTex, fract(samplePos)).r * sampleWeight;
         density += dot(noise, noise);
        
-        density = clamp(density - _DensityThreshold,0,1) * TOTAL_DENSITY;
+        density = clamp(density - _DensityThreshold,0,1) * TOTAL_DENSITY * 1.1;
 
         weight += sampleWeight ;
     }
@@ -54,7 +54,7 @@ float getFogDensity(vec3 pos) {
 }
 
 float getCloudDensity(vec3 pos) {
-    const float TOTAL_DENSITY = 2.44;
+    const float TOTAL_DENSITY = 2.14;
     const float _DensityThreshold2 = CLOUD_DENSITY_THRESHOLD;
     float cloudDensity = 0.0;
     float weight = 0.0;

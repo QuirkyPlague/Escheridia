@@ -46,25 +46,24 @@ void main() {
     const float UNIFORM_PHASE=1./(4.*PI);
     const float _StepSize= 3.0;
     const float _NoiseOffset=2.65;
-    const float MULTI_SCATTER_GAIN= 3.8;// how much single scatter feeds MS
+    const float MULTI_SCATTER_GAIN= 1.8;// how much single scatter feeds MS
     const float MULTI_SCATTER_DECAY= 0.93;// energy loss per step
     
     float phaseIncFactor=smoothstep(225,0,eyeBrightnessSmooth.y);
     float scatterReduce=smoothstep(0,185,eyeBrightnessSmooth.y);
-    vec3 lightScattering=vec3(3.) * PHASE_MULTIPLIER;
+    vec3 lightScattering=vec3(6.) * PHASE_MULTIPLIER;
     
-    lightScattering=mix(lightScattering,lightScattering*4,phaseIncFactor);
-    lightScattering=mix(lightScattering,lightScattering*2,wetness);
+  
     vec3 entryPoint=cameraPosition;
     vec3 viewDir=worldPos-cameraPosition;
     float viewLength=length(viewDir);
     vec3 rayDir=normalize(viewDir);
     
-    float distLimit=min(viewLength,1000);
+    float distLimit=min(viewLength,4000);
     float distTravelled=noise.x*_NoiseOffset;
     
     float transmittance=1;
-    vec3 fogCol=computeSkyColoring(vec3(0.)) * 0.4;
+    vec3 fogCol=computeSkyColoring(vec3(0.));
     vec3 sunCol=currentSunColor(vec3(0.));
     sunCol=pow(sunCol,vec3(2.2));
     fogCol=pow(fogCol,vec3(2.2));
@@ -89,7 +88,7 @@ void main() {
             float fogHeight=smoothstep(155,0,rayPos.y);
             
             vec3 lightDir=worldLightVector;
-            float phase=CS(.45,dot(rayDir,lightDir));
+            float phase=CS(.65,dot(rayDir,lightDir)) + CS(-.1,dot(rayDir,lightDir)) ;
             float scatter=density*_StepSize*transmittance;
             
             float msFactor=clamp(1.-transmittance,0.,1.);
@@ -113,8 +112,7 @@ void main() {
             scatter;
             
             // accumulate fog
-            
-            fogCol=mix(color.rgb,fogCol,scatterReduce);
+          
             fogCol+=singleScatter+multiScatter;
             
             transmittance*=exp(-density*_StepSize);
