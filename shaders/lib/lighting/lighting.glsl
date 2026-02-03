@@ -19,223 +19,208 @@ const vec4 morningSkylightColor = vec4(0.6353, 0.7333, 0.851, 0.831);
 const vec4 eveningSkylightColor = vec4(0.6353, 0.7333, 0.851, 0.731);
 const vec4 nightSkylightColor = vec4(0.2941, 0.3804, 0.6039, 0.424);
 
-
 const vec4 blocklightColor = vec4(1.0, 0.8627, 0.7176, 1.0);
 const vec4 ambientColor = vec4(0.045);
 const vec4 caveAmbient = vec4(0.4157, 0.4157, 0.4157, 1.0);
-const vec3 rainTint = vec3(0.3922, 0.4549, 0.6627);
+const vec3 rainTint = vec3(0.6122, 0.5549, 0.4627);
 
 vec3 getLighting(
-  vec3 color,
-  vec2 lightmap,
-  vec3 normal,
-  vec3 shadow,
-  vec3 H,
-  vec3 F0,
-  float roughness,
-  vec3 V,
-  float ao,
-  float sss,
-  float VdotL,
-  bool isMetal,
-  vec3 faceNormal
-) {
-  color = pow(color, vec3(2.2));
-  float t = fract(worldTime / 24000.0);
-  const int keys = 7;
-  const float keyFrames[keys] = float[keys](
-    0.0, //sunrise
-    0.0417, //day
-    0.415, //noon
-    0.5122, //sunset
-    0.5417, //night
-    0.9527, //midnight
-    1.0 //sunrise
-  );
+    vec3 color,
+    vec2 lightmap,
+    vec3 normal,
+    vec3 shadow,
+    vec3 H,
+    vec3 F0,
+    float roughness,
+    vec3 V,
+    float ao,
+    float sss,
+    float VdotL,
+    bool isMetal,
+    vec3 faceNormal) {
+    color = pow(color, vec3(2.2));
+    float t = fract(worldTime / 24000.0);
+    const int keys = 7;
+    const float keyFrames[keys] = float[keys](
+        0.0, //sunrise
+        0.0417, //day
+        0.415, //noon
+        0.5122, //sunset
+        0.5417, //night
+        0.9527, //midnight
+        1.0 //sunrise
+    );
+        //sunlight Keyframes
+        const vec4 sunCol[keys] = vec4[keys](
+            morningSunlightColor,
+            sunlightColor,
+            noonSunlightColor,
+            eveningSunlightColor,
+            moonlightColor * 1.5,
+            moonlightColor  * 1.5,
+            morningSunlightColor);
 
-  //sunlight Keyframes
-  const vec4 sunCol[keys] = vec4[keys](
-    morningSunlightColor,
-    sunlightColor,
-    noonSunlightColor,
-    eveningSunlightColor,
-    moonlightColor * 1.5,
-    moonlightColor  * 1.5,
-    morningSunlightColor
-  );
+        const vec4 skyCol[keys] = vec4[keys](
+            morningSkylightColor,
+            skylightColor,
+            skylightColor,
+            eveningSkylightColor,
+            nightSkylightColor,
+            nightSkylightColor,
+            morningSkylightColor);
 
-  const vec4 skyCol[keys] = vec4[keys](
-    morningSkylightColor,
-    skylightColor,
-    skylightColor,
-    eveningSkylightColor,
-    nightSkylightColor,
-    nightSkylightColor,
-    morningSkylightColor
-  );
+        const float rainLight[keys] = float[keys](
+            0.15,
+            0.25,
+            0.25,
+            0.075,
+            0.33,
+            0.33,
+            0.15);
 
-    const float rainLight[keys] = float[keys](
-    0.05,
-    0.15,
-    0.15,
-    0.075,
-    0.33,
-    0.33,
-    0.05
+        int i = 0;
+        //assings the keyframes
+        for (int k = 0; k < keys - 1; ++k) {
+            i += int(step(keyFrames[k + 1], t));
+        }
+        i = clamp(i, 0, keys - 2);
 
-  );
+        //Interpolation factor based on the time
+        float timeInterp =
+        (t - keyFrames[i]) / max(1e-6, keyFrames[i + 1] - keyFrames[i]);
+        timeInterp = smoothstep(0.0, 1.0, timeInterp);
 
-  int i = 0;
-  //assings the keyframes
-  for (int k = 0; k < keys - 1; ++k) {
-    i += int(step(keyFrames[k + 1], t));
-  }
-  i = clamp(i, 0, keys - 2);
+        vec3 sunlight = mix(sunCol[i].rgb, sunCol[i + 1].rgb, timeInterp);
+        float sunIntensity = mix(sunCol[i].a, sunCol[i + 1].a, timeInterp);
+        float rain = mix(rainLight[i], rainLight[i + 1], timeInterp);
+        float sunHeight = dot(worldLightVector, vec3(0.0, 1.0, 0.0));
+        float shadowFade = smoothstep(0.005, 0.1, worldLightVector.y);
+        float shadowSmooth = exp(-5.0 * SHADOW_DISTANCE);
+        float shadowSmoothFade = smoothstep(0.0, 1.0, shadowSmooth);
 
-  //Interpolation factor based on the time
-  float timeInterp =
-    (t - keyFrames[i]) / max(1e-6, keyFrames[i + 1] - keyFrames[i]);
-  timeInterp = smoothstep(0.0, 1.0, timeInterp);
-  
-  vec3 sunlight = mix(sunCol[i].rgb, sunCol[i + 1].rgb, timeInterp);
-  float sunIntensity = mix(sunCol[i].a, sunCol[i + 1].a, timeInterp);
-  float rain = mix(rainLight[i], rainLight[i + 1], timeInterp);
-  float sunHeight = dot(worldLightVector, vec3(0.0, 1.0, 0.0));
-  float shadowFade = smoothstep(0.005, 0.1, worldLightVector.y);
-  float shadowSmooth = exp(-5.0 * SHADOW_DISTANCE);
-  float shadowSmoothFade = smoothstep(0.0, 1.0, shadowSmooth);
+        if (wetness > 0) {
+            sunlight *= mix(sunlight, rainTint, wetness * hotBiomeSmooth);
+            sunlight *= mix(1.0, rain, wetness * hotBiomeSmooth);
+        }
 
+        sunlight *= sunIntensity;
+        sunlight *= shadowFade;
 
-  if (wetness > 0)
-  {
-    sunlight *= mix(sunlight, rainTint, wetness * hotBiomeSmooth);
-    sunlight *= mix(1.0, rain, wetness * hotBiomeSmooth);
-  }
-  
-  sunlight *= sunIntensity;
-  sunlight *= shadowFade;
+        vec3 skylight =
+        mix(skyCol[i].rgb, skyCol[i + 1].rgb, timeInterp) * lightmap.g;
+        skylight = mix(skylight, vec3(0.3961, 0.4627, 0.5451) * rain * lightmap.g * 2.7, wetness * hotBiomeSmooth);
+        float skyIntensity = mix(skyCol[i].a, skyCol[i + 1].a, timeInterp);
+        ;
+        skylight *= skyIntensity;
+        skylight *= max(1.95 * pow(skylight, vec3(2.55)), 0.0);
+        skylight += min(1.7 * pow(skylight, vec3(1.25)), 1.9);
 
-  vec3 skylight =
-    mix(skyCol[i].rgb, skyCol[i + 1].rgb, timeInterp) * lightmap.g;
-    skylight = mix(skylight, vec3(0.1961, 0.2627, 0.3451) * rain * lightmap.g, wetness * hotBiomeSmooth);
-  float skyIntensity = mix(skyCol[i].a, skyCol[i + 1].a, timeInterp);
-  ;
-  skylight *= skyIntensity;
-  skylight *= max(1.95 * pow(skylight, vec3(2.55)), 0.0);
-  skylight += min(1.7 * pow(skylight, vec3(1.25)), 1.9);
+        vec3 blocklight = blocklightColor.rgb * lightmap.r;
 
-  vec3 blocklight = blocklightColor.rgb * lightmap.r;
-  
-  blocklight *= max(3.59 * pow(blocklight, vec3(1.75)), 0.0);
-  blocklight += min(1.7 * pow(blocklight, vec3(1.25)), 3.9);
-  blocklight  *= smoothstep(0.0, 0.125, blocklight); 
+        blocklight *= max(3.59 * pow(blocklight, vec3(1.75)), 0.0);
+        blocklight += min(1.7 * pow(blocklight, vec3(1.25)), 3.9);
+        blocklight  *= smoothstep(0.0, 0.125, blocklight); 
 
-  float faceNdl = dot(faceNormal, worldLightVector);
- 
-  float hasSSS = step(64.0 / 255.0, sss);
-  float phase =
-    henyeyGreensteinPhase(VdotL, 0.72) *8;
+        float faceNdl = dot(faceNormal, worldLightVector);
 
+        float hasSSS = step(64.0 / 255.0, sss);
+        float phase =
+        henyeyGreensteinPhase(VdotL, 0.72) *8;
 
-vec3 scatter = vec3(0.0);
+        vec3 scatter = vec3(0.0);
 
- scatter = sunlight * phase * shadow;
-  vec3 baseScatter = sunlight * shadow;
-  scatter += baseScatter * 1.75 ;
-  scatter *= hasSSS;
-  scatter *= sss;
-  
-  if (faceNdl >= 1e-6) {
-    scatter *= 0.45;
-  }
- 
-  float smoothLightmap = clamp(smoothstep(13.5 / 15.0, 14.5 / 15.0, lightmap.y),0,1);
-  float ambientFactor = smoothstep(141, 0, eyeBrightnessSmooth.y);
-  
-  //ao *= ao * (1.0 - float(shadow));
-  vec3 ambientLight = (mix(ambientColor.rgb,caveAmbient.rgb * 0.06, ambientFactor)* ao) * color  ;
-  ambientLight = mix(ambientLight, ambientLight * rain, wetness * hotBiomeSmooth);
-  
-  vec3 indirect = (skylight + blocklight) * ao;
-  float metalMask = isMetal ? 1.0 : 0.0;
-  bool noSky = lightmap.g < smoothstep(0.0, 0.682, lightmap.g);
-  vec3 metalIndirect = mix(indirect * 0.1,indirect  * 0 , smoothLightmap);
-  ;
-  indirect = mix(indirect, metalIndirect, metalMask);
- 
- 
-  vec3 specular = brdf(
-    color,
-    F0,
-    sunlight,
-    normal,
-    H,
-    V,
-    roughness,
-    indirect,
-    shadow,
-    isMetal,
-    smoothLightmap
-  );
-  
-  //specular = pow(specular, vec3(2.2));
-  
-  scatter *= color;
- 
-  return specular + scatter + ambientLight ;
+        scatter = sunlight * phase * shadow;
+        vec3 baseScatter = sunlight * shadow;
+        scatter += baseScatter * 1.75 ;
+        scatter *= hasSSS;
+        scatter *= sss;
 
-}
+        if (faceNdl >= 1e-6) {
+            scatter *= 0.45;
+        }
 
-vec3 currentSunColor(vec3 color) {
-  float t = fract(worldTime / 24000.0);
-  const int keys = 7;
-  const float keyFrames[keys] = float[keys](
-   0.0, //sunrise
-    0.0417, //day
-    0.415, //noon
-    0.5122, //sunset
-    0.5417, //night
-    0.9527, //midnight
-    1.0 //sunrise
-  );
+        float smoothLightmap = clamp(smoothstep(13.5 / 15.0, 14.5 / 15.0, lightmap.y),0,1);
+        float ambientFactor = smoothstep(141, 0, eyeBrightnessSmooth.y);
 
-  //sunlight Keyframes
-  const vec4 sunCol[keys] = vec4[keys](
-    morningSunlightColor,
-    sunlightColor,
-    sunlightColor,
-    eveningSunlightColor,
-    moonlightColor,
-    moonlightColor,
-    morningSunlightColor
-  );
+        //ao *= ao * (1.0 - float(shadow));
+        vec3 ambientLight = (mix(ambientColor.rgb,caveAmbient.rgb * 0.06, ambientFactor)* ao) * color  ;
+        ambientLight = mix(ambientLight, ambientLight * rain, wetness * hotBiomeSmooth);
 
-  int i = 0;
-  //assings the keyframes
-  for (int k = 0; k < keys - 1; ++k) {
-    i += int(step(keyFrames[k + 1], t));
-  }
-  i = clamp(i, 0, keys - 2);
+        vec3 indirect = (skylight + blocklight) * ao;
+        float metalMask = isMetal ? 1.0 : 0.0;
+        bool noSky = lightmap.g < smoothstep(0.0, 0.682, lightmap.g);
+        vec3 metalIndirect = mix(indirect * 0.1,indirect  * 0 , smoothLightmap);
+        ;
+        indirect = mix(indirect, metalIndirect, metalMask);
 
-  //Interpolation factor based on the time
-  float timeInterp =
-    (t - keyFrames[i]) / max(1e-6, keyFrames[i + 1] - keyFrames[i]);
-  timeInterp = smoothstep(0.0, 1.0, timeInterp);
-  float phaseIncFactor = smoothstep(225, 0, eyeBrightnessSmooth.y);
-  float ambientMult = mix(1.0, 0.0, phaseIncFactor);
-  vec3 sunlight = mix(sunCol[i].rgb, sunCol[i + 1].rgb, timeInterp);
-  float sunIntensity = mix(sunCol[i].a, sunCol[i + 1].a, timeInterp);
-  float sunHeight = dot(worldLightVector, vec3(0.0, 1.0, 0.0));
-  float shadowFade = smoothstep(0.05, 0.1, worldLightVector.y);
+        vec3 specular = brdf(
+            color,
+            F0,
+            sunlight,
+            normal,
+            H,
+            V,
+            roughness,
+            indirect,
+            shadow,
+            isMetal,
+            smoothLightmap);
 
-  if (wetness > 0)
-  {
-    sunlight *= mix(sunlight, rainTint, wetness * hotBiomeSmooth);
-    sunlight *= mix(1.0, 0.46, wetness * hotBiomeSmooth);
-  }
-  sunlight *= sunIntensity;
-  sunlight *= shadowFade;
-  return sunlight;
-}
+        //specular = pow(specular, vec3(2.2));
+
+        scatter *= color;
+
+        return specular + scatter + ambientLight ;
+    }
+
+    vec3 currentSunColor(vec3 color) {
+        float t = fract(worldTime / 24000.0);
+        const int keys = 7;
+        const float keyFrames[keys] = float[keys](
+            0.0, //sunrise
+            0.0417, //day
+            0.415, //noon
+            0.5122, //sunset
+            0.5417, //night
+            0.9527, //midnight
+            1.0); //sunrise;
+
+            //sunlight Keyframes
+            const vec4 sunCol[keys] = vec4[keys](
+                morningSunlightColor,
+                sunlightColor,
+                sunlightColor,
+                eveningSunlightColor,
+                moonlightColor,
+                moonlightColor,
+                morningSunlightColor);
+
+            int i = 0;
+            //assings the keyframes
+            for (int k = 0; k < keys - 1; ++k) {
+                i += int(step(keyFrames[k + 1], t));
+            }
+            i = clamp(i, 0, keys - 2);
+
+            //Interpolation factor based on the time
+            float timeInterp =
+            (t - keyFrames[i]) / max(1e-6, keyFrames[i + 1] - keyFrames[i]);
+            timeInterp = smoothstep(0.0, 1.0, timeInterp);
+            float phaseIncFactor = smoothstep(225, 0, eyeBrightnessSmooth.y);
+            float ambientMult = mix(1.0, 0.0, phaseIncFactor);
+            vec3 sunlight = mix(sunCol[i].rgb, sunCol[i + 1].rgb, timeInterp);
+            float sunIntensity = mix(sunCol[i].a, sunCol[i + 1].a, timeInterp);
+            float sunHeight = dot(worldLightVector, vec3(0.0, 1.0, 0.0));
+            float shadowFade = smoothstep(0.05, 0.1, worldLightVector.y);
+
+            if (wetness > 0) {
+                sunlight *= mix(sunlight, rainTint, wetness * hotBiomeSmooth);
+                sunlight *= mix(1.0, 0.46, wetness * hotBiomeSmooth);
+            }
+            sunlight *= sunIntensity;
+            sunlight *= shadowFade;
+            return sunlight;
+        }
 
 #endif //LIGHTING_GLSL
+        

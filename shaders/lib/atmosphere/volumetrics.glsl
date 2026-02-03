@@ -189,7 +189,7 @@ vec3 volumetricRaymarch(
  scatter *= 0.045 * fogReduction;
   vec3 totalScatter = scatter  ;
 
-  return totalScatter;
+  return  mix(sceneColor, scatter, 1.0 - clamp(transmission,0,1));
 
 }
 #endif //VOLUMETRICS_GLSL
