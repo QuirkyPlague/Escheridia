@@ -53,7 +53,7 @@ const bool colortex10Clear = false;
 #define DO_SSR
 #define SSR_STEPS 8 //[2 4 6 8 10 12 14 16 18 20 22 24 28 32 36 40 707]
 #define ROUGH_REFLECTION
-#define ROUGH_SAMPLES 4 //[2 4 6 8 10 12 14 16 18 20 22 24 28 32 36 40]
+#define ROUGH_SAMPLES 4 //[2 4 6 8 10 12 14 16 18 20 22 24 28 32 36 40 707]
 #define SSR_MIP_BLUR 1 //[0 1]
 
 #define ENVIORNMENT_FOG

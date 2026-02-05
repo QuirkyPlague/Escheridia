@@ -236,8 +236,8 @@ void main() {
   
   bool canReflect = roughness < 1.0;
    vec3 noiseB = vec3(0.0);
-   for(int i = 0; i < 5; i++) {
-        noiseB += blue_noise(floor(gl_FragCoord.xy), frameCounter, i);
+   for(int i = 0; i < 3; i++) {
+        noiseB += blue_noise(floor(gl_FragCoord.xy), frameCounter, i) ;
     }
   
   float jitter = IGN(gl_FragCoord.xy, frameCounter);
@@ -254,8 +254,9 @@ void main() {
   float NdoV = max(dot(normal, -tangentView), 0.0);
   vec3 accumulated = vec3(0.0);
   float ndotL = dot(normal, lightVector);
+  vec3 noise = vec3(0.0);
   for (uint i = 0u; i < uint(ROUGH_SAMPLES); i++) {
-    vec3 noise = blue_noise(floor(gl_FragCoord.xy), frameCounter, int(i));
+    noise  = blue_noise(floor(gl_FragCoord.xy), frameCounter, int(i));
     vec3 microFacit = clamp(
       SampleVNDFGGX(tangentView, vec2(roughness), noise.xy),
       0,
@@ -290,7 +291,7 @@ void main() {
     viewPos,
     reflectedDir,
     SSR_STEPS,
-    noiseB.y,
+    noiseB.x,
     smoothLightmap,
     reflectedPos
   );

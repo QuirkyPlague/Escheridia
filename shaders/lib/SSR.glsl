@@ -34,6 +34,8 @@ float minOf(vec2 x) {
   return min(x.x, x.y);
 }
 
+
+
 void binarySearch(inout vec3 rayPosition, vec3 rayDirection) {
   for (int i = 0; i < BINARY_COUNT; i++) {
     rayPosition +=
@@ -52,7 +54,6 @@ void binarySearch(inout vec3 rayPosition, vec3 rayDirection) {
   }
 }
 
-
 // The favorite raytracer of your favorite raytracer
 bool raytrace(
   vec3 viewPosition,
@@ -62,8 +63,9 @@ bool raytrace(
   float smoothLightmap,
   out vec3 rayPosition
 ) {
-if (rayDirection.z >= 0.0)
-  return false;
+if (rayDirection.z > 0.0 && rayDirection.z >= -viewPosition.z) {
+    return false;
+  }
 
   rayPosition = viewToScreen(viewPosition);
 
@@ -96,25 +98,15 @@ if (rayDirection.z >= 0.0)
     prevRayPosition = rayPosition;
     rayPosition += rayDirection;
     
-      if (
-      rayPosition.x < 0.0 || rayPosition.x > 1.0 ||
-      rayPosition.y < 0.0 || rayPosition.y > 1.0
-    ) {
-      break;
-    }
-       if (
-      prevRayPosition.x < 0.0 || prevRayPosition.x > 1.0 ||
-      prevRayPosition.y < 0.0 || prevRayPosition.y > 1.0
-    ) {
-      break;
-    }
+    if (clamp(rayPosition, 0, 1) != rayPosition) return false;
+    if (clamp(prevRayPosition, 0, 1) != prevRayPosition) return false;
 
     float depth = texelFetch(
       depthtex0,
       ivec2(rayPosition.xy * resolution),
       0
     ).r;
-
+  
     float initialDepth = texelFetch(
       depthtex0,
       ivec2(prevRayPosition.xy * resolution),
@@ -157,8 +149,8 @@ if (rayDirection.z >= 0.0)
   
    #if BINARY_REFINEMENT == 1
   binarySearch(rayPosition, rayDirection);
-  
   #endif
+
 
   return intersect;
 
