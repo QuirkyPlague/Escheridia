@@ -60,8 +60,8 @@ vec3 cloudRaymarch(vec3 worldPos,vec3 noise, vec3 color)
     const float UNIFORM_PHASE=1./(4.*PI);
     const float _StepSize=4.4;
     const float _NoiseOffset=5.65;
-    const float MULTI_SCATTER_GAIN=355.29;// how much single scatter feeds MS
-    const float MULTI_SCATTER_DECAY=.73;// energy loss per step
+    const float MULTI_SCATTER_GAIN=161.29;// how much single scatter feeds MS
+    const float MULTI_SCATTER_DECAY=.93;// energy loss per step
     
   
     vec3 lightScattering=vec3(4.34)*PHASE_MULTIPLIER;
@@ -90,7 +90,7 @@ vec3 cloudRaymarch(vec3 worldPos,vec3 noise, vec3 color)
     vec3 sunCol=currentSunColor(vec3(0.));
     sunCol=pow(sunCol,vec3(2.2));
     fogCol=pow(fogCol,vec3(2.2));
-     fogCol *= 115.5;
+     fogCol *= 175.5;
     vec3 multiScatterEnergy=vec3(0.);
     vec3 clouds=vec3(0.0);
     while(distTravelled<distLimit){
@@ -125,7 +125,7 @@ vec3 cloudRaymarch(vec3 worldPos,vec3 noise, vec3 color)
         msPhase*
         scatter *  mix(2.0 * powder, vec3(1.0), dot(rayDir, lightDir) * 0.5 + 0.5);
 
-         vec3 sampleExtinction = ( multiScatter + absCoeff);
+         vec3 sampleExtinction = ( fogCol + absCoeff);
         float sampleTransmittance = exp(-viewLength * 1.0);
         // accumulate fog
          
