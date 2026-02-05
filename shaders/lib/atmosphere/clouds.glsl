@@ -44,11 +44,6 @@ float getCloudDensity(vec3 pos){
         cloudDensity=cloudNoise;
         cloudDensity=clamp(cloudDensity-_DensityThreshold2,0,1)*TOTAL_DENSITY;
         #endif
-
-
-        
-        
-         
         weight+=sampleWeight;
     }
     
@@ -65,11 +60,11 @@ vec3 cloudRaymarch(vec3 worldPos,vec3 noise, vec3 color)
     const float UNIFORM_PHASE=1./(4.*PI);
     const float _StepSize=4.4;
     const float _NoiseOffset=5.65;
-    const float MULTI_SCATTER_GAIN=15.29;// how much single scatter feeds MS
-    const float MULTI_SCATTER_DECAY=.93;// energy loss per step
+    const float MULTI_SCATTER_GAIN=355.29;// how much single scatter feeds MS
+    const float MULTI_SCATTER_DECAY=.73;// energy loss per step
     
   
-    vec3 lightScattering=vec3(7.34)*PHASE_MULTIPLIER;
+    vec3 lightScattering=vec3(4.34)*PHASE_MULTIPLIER;
     vec3 entryPoint=cameraPosition;
     vec3 viewDir=worldPos-cameraPosition;
     float viewLength=length(viewDir);
@@ -87,20 +82,22 @@ vec3 cloudRaymarch(vec3 worldPos,vec3 noise, vec3 color)
     float distTravelled=noise.x*_NoiseOffset;
     
     float transmittance=1;
+    vec3 transmission = vec3(1.0);
     vec3 fogCol=computeSkyColoring(vec3(0.)) / (4 * PI);
-    fogCol *= 10;
+    vec3 absCoeff = vec3(1.0, 1.0, 1.0);
+   
     vec3 skyCol=computeSkyColoring(vec3(0.));
     vec3 sunCol=currentSunColor(vec3(0.));
     sunCol=pow(sunCol,vec3(2.2));
     fogCol=pow(fogCol,vec3(2.2));
-    
+     fogCol *= 115.5;
     vec3 multiScatterEnergy=vec3(0.);
     vec3 clouds=vec3(0.0);
     while(distTravelled<distLimit){
         vec3 rayPos=entryPoint+rayDir*distTravelled;
         
         float density=getCloudDensity(rayPos);
-        
+        transmission *= exp(-absCoeff * viewLength);
        
         vec3 lightDir=worldLightVector;
         float phase=  CS(.9,dot(rayDir,lightDir)) + CS(-.45,dot(rayDir,lightDir));
@@ -127,19 +124,26 @@ vec3 cloudRaymarch(vec3 worldPos,vec3 noise, vec3 color)
         multiScatterEnergy*
         msPhase*
         scatter *  mix(2.0 * powder, vec3(1.0), dot(rayDir, lightDir) * 0.5 + 0.5);
-        
+
+         vec3 sampleExtinction = ( multiScatter + absCoeff);
+        float sampleTransmittance = exp(-viewLength * 1.0);
         // accumulate fog
          
            
         
-        fogCol+=singleScatter+multiScatter;
-        vec3 basePos=rayDir*distTravelled;
+        vec3 totalInscatter=singleScatter+multiScatter;
+        fogCol +=
+      (totalInscatter - totalInscatter * sampleTransmittance) /
+      sampleExtinction;
+        transmission *= sampleTransmittance;
+            
+            
         
         transmittance*=exp(-density*_StepSize);
         
         distTravelled+=_StepSize;
     }
-    color=mix(color,fogCol,1.-clamp(transmittance,0,1));
+    color=mix(color,fogCol + transmission,1.-clamp(transmittance,0,1));
     return color;
 }
 

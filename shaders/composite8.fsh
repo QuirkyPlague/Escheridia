@@ -132,10 +132,14 @@ void main(){
     
     float distLimit=min(viewLength,TRACING_DISTANCE);
     float distTravelled=noise.x*_NoiseOffset;
-    
-    float transmittance=1;
+     vec3 absCoeff = vec3(0.5686, 0.5686, 0.5686);
+
+    float transmittance= 1.0;
+    vec3 transmission = vec3(1.0);
     vec3 jungleCol = vec3(0.5373, 0.8196, 0.7451) / (4 * PI);
     jungleCol *= 9;
+ 
+    
     vec3 jungleTint = vec3(0.7412, 0.9333, 0.702);
     vec3 fogCol=computeSkyColoring(vec3(0.)) / (4 * PI);
     fogCol *= 9;
@@ -146,7 +150,7 @@ void main(){
     sunCol=pow(sunCol,vec3(2.2));
     fogCol=pow(fogCol,vec3(2.2));
     fogCol=mix(fogCol,fogCol*.8,wetness);
- 
+    
     
     vec3 shadowNormal=mat3(shadowModelView)*normal;
     const float shadowMapPixelSize=1./float(SHADOW_RESOLUTION);
@@ -176,13 +180,13 @@ void main(){
                 shadow+=getShadow(shadowScreenPos);// take shadow sample
             }
             shadow/=float(3);
-            float fogHeight=smoothstep(155,0,rayPos.y);
             
+            transmission *= exp(-absCoeff * viewLength);
             vec3 lightDir=worldLightVector;
             float phase=CS(phaseVal,dot(rayDir,lightDir)) + 0.13 * CS(-0.1,dot(rayDir,lightDir));
-            float scatter=density*_StepSize*transmittance;
+            float scatter=density*_StepSize* float(transmittance);
             
-            float msFactor=clamp(1.-transmittance,0.,1.);
+            float msFactor=clamp(1.-float(transmittance),0.,1.);
             float msPhase=mix(phase,UNIFORM_PHASE,msFactor);
             vec3 singleScatter=
             sunCol*
@@ -202,18 +206,24 @@ void main(){
             multiScatterEnergy*
             msPhase*
             scatter;
-            
+            vec3 sampleExtinction = ( multiScatter + absCoeff);
+            float sampleTransmittance = exp(-viewLength * 1.0);
             // accumulate fog
             
             fogCol=mix(color.rgb,fogCol,scatterReduce);
-            fogCol+=singleScatter+multiScatter;
+            vec3 totalInscatter = singleScatter + multiScatter ;
+
+    fogCol +=
+      (totalInscatter - totalInscatter * sampleTransmittance) /
+      sampleExtinction;
+        transmission *= sampleTransmittance;
             
             transmittance*=exp(-density*_StepSize);
         }
         
         distTravelled+=_StepSize;
     }
-    color.rgb=mix(color.rgb,fogCol,1.-clamp(transmittance,0,1));
+    color.rgb=mix(color.rgb,fogCol + transmission,1.-clamp(transmittance,0,1));
     #endif
     #endif
     
