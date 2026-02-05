@@ -159,4 +159,12 @@ option.STEP_SIZE.comment = Determines the overall quality of the fog (lower size
 option.NOISE_SAMPLING = Non-Uniform Fog
 option.NOISE_SAMPLING.common = Enables a 2D noise map for varying density (very buggy)
 
+option.CLOUD_DISTANCE_TYPE = Cloud Render Distance Method
+    value.CLOUD_DISTANCE_TYPE.0 = Manual
+    value.CLOUD_DISTANCE_TYPE.1 = Auto
+
+option.CLOUD_STYLE = Cloud Style
+    value.CLOUD_STYLE.0 = Boxy
+    value.CLOUD_STYLE.1 = Fantasy
+
 

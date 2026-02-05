@@ -8,7 +8,7 @@
 #include "/lib/uniforms.glsl"
 #include "/lib/water/waves.glsl"
 #include "/lib/atmosphere/sky.glsl"
-#include "/lib/atmosphere/distanceFog.glsl"
+#include "/lib/atmosphere/clouds.glsl"
 #include "/lib/water/waterFog.glsl"
 #include "/lib/tonemapping.glsl"
 #include "/lib/postProcessing.glsl"
@@ -111,6 +111,7 @@ void main() {
   vec3 viewPos = projectAndDivide(gbufferProjectionInverse, NDCPos);
   vec3 viewDir = normalize(viewPos);
   vec3 feetPlayerPos = (gbufferModelViewInverse * vec4(viewPos, 1.0)).xyz;
+ 
   vec3 previousView = (gbufferPreviousModelView * vec4(feetPlayerPos, 1.0)).xyz;
   vec4 previousClip = gbufferPreviousProjection * vec4(previousView, 1.0);
   vec3 previousScreen = (previousClip.xyz / previousClip.w) * 0.5 + 0.5;
@@ -293,7 +294,7 @@ void main() {
     smoothLightmap,
     reflectedPos
   );
-
+  
   vec3 reflectedViewPos = screenSpaceToViewSpace(reflectedPos);
   vec3 reflectedFeetPlayer = (gbufferModelViewInverse *
     vec4(reflectedViewPos, 1.0)).xyz;
@@ -315,7 +316,7 @@ void main() {
       normal,
       roughness,
       isWater
-    );
+    ) ;
     
    if(roughness > 0)
    {
@@ -343,7 +344,7 @@ void main() {
 
   if (!reflectionHit && canReflect && !inWater) {
   
-       reflectedColor = sky;
+       reflectedColor =sky;
     
       
       reflectedColor = mix(color.rgb, reflectedColor, smoothLightmap);

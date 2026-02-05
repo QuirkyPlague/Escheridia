@@ -68,6 +68,10 @@ float phasefunc_KleinNishinaE(float cosTheta, float e) {
     return e / (2.0 * PI * (e * (1.0 - cosTheta) + 1.0) * log(2.0 * e + 1.0));
 }
 
+float dualHenyeyGreenstein(float g1, float g2, float costh, float weight) {
+  return mix(henyeyGreensteinPhase(costh,g1), henyeyGreensteinPhase(costh, g2), weight);
+}
+
 float waterPhase(float cosTheta) {
     const float wKn = 0.99;
     const float gE = 20000.0;

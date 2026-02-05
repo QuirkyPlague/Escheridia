@@ -71,6 +71,8 @@ uniform int biome_category;
 uniform bool isColdBiome;
 uniform float snowBiomeSmooth;
 uniform float hotBiomeSmooth;
+uniform bool isJungle;
+uniform float jungleSmooth;
 uniform float eyeAltitude;
 uniform vec3 previousCameraPosition;
 uniform bool hideGUI;

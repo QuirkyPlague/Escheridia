@@ -10,12 +10,12 @@ const vec3 paleHorCol = vec3(0.7137, 0.7137, 0.7137);
 const vec3 paleGrndCol = vec3(0.4314, 0.4314, 0.4314);
 
 //rain
-const vec3 rainZenCol = vec3(0.3412, 0.3765, 0.4314);
-const vec3 rainHorCol = vec3(0.4706, 0.4941, 0.5098);
-const vec3 rainGrndCol = vec3(0.1569, 0.1922, 0.2314);
+const vec3 rainZenCol = vec3(0.3804, 0.3922, 0.4078);
+const vec3 rainHorCol = vec3(0.3843, 0.3843, 0.3843);
+const vec3 rainGrndCol = vec3(0.1176, 0.1333, 0.149);
 
 //Day
-const vec3 dayZenCol = vec3(0.3765, 0.6471, 1.0);
+const vec3 dayZenCol = vec3(0.3216, 0.6157, 1.0);
 const vec3 dayHorCol = vec3(0.7137, 0.8745, 0.9294);
 const vec3 dayGrndCol = vec3(0.549, 0.7686, 0.9647);
 
@@ -245,9 +245,9 @@ vec3 computeSkyColoring(vec3 pos)
     dawnZenCol * 0.81 ,
     dayZenCol,
     dayZenCol,
-    duskZenCol ,
-    nightZenCol * 2.25,
-    nightZenCol * 2.25,
+    duskZenCol * 0.81 ,
+    nightZenCol * 0.4,
+    nightZenCol * 0.4,
     dawnZenCol * 0.81
   );
   const float weatherIntensity[keys] = float[keys](
