@@ -5,8 +5,18 @@
 #include "/lib/atmosphere/distanceFog.glsl"
 #include "/lib/blockID.glsl"
 
+float remap(float value, float originalMin, float originalMax, float newMin, float newMax)
+{
+    return newMin + (((value - originalMin) / (originalMax - originalMin) * (newMax - newMin)));
+}
+
+float cloudPhase(float cosTheta, float eccentricity)
+{
+    return ((1.0 - eccentricity * eccentricity)/ pow((1.0 + eccentricity * eccentricity - 2.0 * cosTheta),3.0 /2.0)) / 4 * PI;
+}
+
 float getCloudDensity(vec3 pos){
-    float TOTAL_DENSITY = 94.84;
+    float TOTAL_DENSITY = 65.84;
 
    
     const float _DensityThreshold2=CLOUD_DENSITY_THRESHOLD;
@@ -32,22 +42,27 @@ float getCloudDensity(vec3 pos){
     
     for(int i=0;i<4;i++){
         float sampleWeight=exp2(-float(i));
-        cloudPos.xz+=frameTimeCounter*.000004*sqrt(i+1);
-        vec2 cloudSamplePos=(cloudPos.zx*exp2(float(i)));
+        cloudPos.xyz+=frameTimeCounter*.000014*sqrt(i+1);
+        vec2 cloudSamplePos=(cloudPos.xz*exp2(float(i)));
         float cloudNoise = 0.0;
         #if CLOUD_STYLE == 0
          cloudNoise = texture(clouds,fract(cloudSamplePos)).r*sampleWeight;
          cloudDensity=dot(cloudNoise,cloudNoise);
          cloudDensity*=TOTAL_DENSITY;
         #else   
-        cloudNoise = texture(fogTex,fract(cloudSamplePos)).r*sampleWeight;
+        cloudNoise = texture(cloudBase,fract(cloudSamplePos)).r*sampleWeight;
+        float detailNoise = texture(detail,fract(cloudSamplePos)).r*sampleWeight;
+        float detailNoise2 = texture(fogTex,fract(cloudSamplePos)).r*sampleWeight;
+        cloudNoise = remap(detailNoise2, 1.0 - cloudNoise, 0.1, 0.0, 0.7);
         cloudDensity=cloudNoise;
+        
         cloudDensity=clamp(cloudDensity-_DensityThreshold2,0,1)*TOTAL_DENSITY;
         #endif
         weight+=sampleWeight;
     }
     
     cloudDensity/=weight;
+    
     cloudDensity*=1.*CLOUD_DENSITY;
  
     cloudDensity*=height;
@@ -64,7 +79,7 @@ vec3 cloudRaymarch(vec3 worldPos,vec3 noise, vec3 color)
     const float MULTI_SCATTER_DECAY=.93;// energy loss per step
     
   
-    vec3 lightScattering=vec3(4.34)*PHASE_MULTIPLIER;
+    vec3 lightScattering=vec3(7.34)*PHASE_MULTIPLIER;
     vec3 entryPoint=cameraPosition;
     vec3 viewDir=worldPos-cameraPosition;
     float viewLength=length(viewDir);
@@ -90,7 +105,7 @@ vec3 cloudRaymarch(vec3 worldPos,vec3 noise, vec3 color)
     vec3 sunCol=currentSunColor(vec3(0.));
     sunCol=pow(sunCol,vec3(2.2));
     fogCol=pow(fogCol,vec3(2.2));
-     fogCol *= 175.5;
+     fogCol *= 165.5;
     vec3 multiScatterEnergy=vec3(0.);
     vec3 clouds=vec3(0.0);
     while(distTravelled<distLimit){
@@ -100,17 +115,17 @@ vec3 cloudRaymarch(vec3 worldPos,vec3 noise, vec3 color)
         transmission *= exp(-absCoeff * viewLength);
        
         vec3 lightDir=worldLightVector;
-        float phase=  CS(.9,dot(rayDir,lightDir)) + CS(-.45,dot(rayDir,lightDir));
+        float phase=  henyeyGreensteinPhase(dot(rayDir,lightDir), .9) + henyeyGreensteinPhase(dot(rayDir,lightDir), -.45);
         float scatter=density*_StepSize*transmittance;
-        
+        float energy = exp(-density) * phase;
         float msFactor=clamp(1.-transmittance,0.,1.);
-        float msPhase=mix(phase,UNIFORM_PHASE,msFactor);
+        float msPhase=mix(energy,UNIFORM_PHASE,msFactor);
         vec3 powder =
       clamp(1.0 - exp(-density * 2 * vec3(1.0)),0,1);
         vec3 singleScatter=
         sunCol*
         lightScattering*
-        phase*
+        energy*
         scatter ;
     
         multiScatterEnergy+=

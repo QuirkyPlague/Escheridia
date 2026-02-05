@@ -51,6 +51,8 @@ uniform sampler2D puddleTex;
 uniform sampler2D waterTex;
 uniform sampler2D fogTex;
 uniform sampler2D clouds;
+uniform sampler2D cloudBase;
+uniform sampler2D detail;
 
 //additional uniforms
 uniform vec3 cameraPosition;
