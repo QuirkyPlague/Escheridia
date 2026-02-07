@@ -246,8 +246,8 @@ vec3 computeSkyColoring(vec3 pos)
     dayZenCol,
     dayZenCol,
     duskZenCol * 0.81 ,
-    nightZenCol * 0.4,
-    nightZenCol * 0.4,
+    nightZenCol * 1.19,
+    nightZenCol * 1.19,
     dawnZenCol * 0.81
   );
   const float weatherIntensity[keys] = float[keys](

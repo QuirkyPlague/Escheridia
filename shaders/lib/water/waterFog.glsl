@@ -58,7 +58,7 @@ vec3 waterExtinction(
   float dist1 = length(screenToView(texcoord, depth1));
   float dist = max(0, dist1 - dist0);
   vec3 sunColor = vec3(0.0);
-  sunColor = currentSunColor(sunColor) * 5;
+  sunColor = currentSunColor(sunColor) * 0.12;
   if (inWater) {
     dist = dist0;
   }
@@ -83,8 +83,8 @@ float smoothDepth = smoothstep(0.998, 1.0, depth);
   float scatterReduce = smoothstep(0, 185, eyeBrightnessSmooth.y);
   float fogDistFalloff = length(viewPos) / far;
   float fogReduction = exp( 0.75 * (-2.5 - fogDistFalloff));
-  vec3 phaseLighting = sunColor * phase * scatterReduce * fogReduction;
-  vec3 scattering = inscatteringAmount  * backPhase ;
+  vec3 phaseLighting = sunColor * scatterReduce * fogReduction;
+  vec3 scattering = inscatteringAmount   ;
   vec3 totalScattering = (phaseLighting + scattering) * SCATTER_COEFF;
   vec3 absorptionFactor = exp(
     -absorption * WATER_FOG_DENSITY * (dist * ABSORPTION_COEFF * 3)

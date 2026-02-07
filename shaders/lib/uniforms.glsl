@@ -98,6 +98,8 @@ vec3 lightVector = normalize(shadowLightPosition);
 vec3 worldLightVector = mat3(gbufferModelViewInverse) * lightVector;
 vec3 sunDir = normalize(sunPosition);
 vec3 worldSunDir = mat3(gbufferModelViewInverse) * sunDir;
+
+
 vec3 moonDir = normalize(moonPosition);
 vec3 worldMoonDir = mat3(gbufferModelViewInverse) * moonDir;
 

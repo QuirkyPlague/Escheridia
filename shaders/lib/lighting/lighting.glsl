@@ -56,8 +56,8 @@ vec3 getLighting(
             sunlightColor,
             noonSunlightColor,
             eveningSunlightColor,
-            moonlightColor * 1.5,
-            moonlightColor  * 1.5,
+            moonlightColor,
+            moonlightColor,
             morningSunlightColor);
 
         const vec4 skyCol[keys] = vec4[keys](
@@ -124,6 +124,9 @@ vec3 getLighting(
         float faceNdl = dot(faceNormal, worldLightVector);
 
         float hasSSS = step(64.0 / 255.0, sss);
+        float LdotH = dot(worldLightVector, H);
+        float VdotH = dot(V, H);
+        vec3 sssFresnel = fresnelSchlick(max(abs(LdotH), 0.0001), vec3(0.04));
         float phase =
         henyeyGreensteinPhase(VdotL, 0.72) *8;
 
@@ -131,13 +134,14 @@ vec3 getLighting(
 
         scatter = sunlight * phase * shadow;
         vec3 baseScatter = sunlight * shadow;
-        scatter += baseScatter * 1.75 ;
+        scatter += baseScatter * 2.75 * (1.0 - sssFresnel)  ;
         scatter *= hasSSS;
         scatter *= sss;
-
-        if (faceNdl >= 1e-6) {
-            scatter *= 0.45;
-        }
+      
+       
+          if (faceNdl >= 1e-6) {
+    scatter *= 0.45;
+  }
 
         float smoothLightmap = clamp(smoothstep(13.5 / 15.0, 14.5 / 15.0, lightmap.y),0,1);
         float ambientFactor = smoothstep(141, 0, eyeBrightnessSmooth.y);
@@ -191,9 +195,9 @@ vec3 getLighting(
                 sunlightColor,
                 sunlightColor,
                 eveningSunlightColor,
-                moonlightColor  * 2.5,
-                moonlightColor * 2.5,
-                morningSunlightColor);
+                moonlightColor * 1.85,
+                moonlightColor * 1.85,
+                morningSunlightColor );
 
             int i = 0;
             //assings the keyframes

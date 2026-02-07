@@ -77,6 +77,7 @@ vec3 skyFallbackBlend(
   vec3 skyCol = skyScattering(dir2);
   vec3 sunCol = getSun(dir2);
   vec3 sky = sunCol + skyCol;
+
   #endif
 
   
@@ -237,7 +238,7 @@ void main() {
   bool canReflect = roughness < 1.0;
    vec3 noiseB = vec3(0.0);
    for(int i = 0; i < 3; i++) {
-        noiseB = blue_noise(floor(gl_FragCoord.xy), frameCounter, i) ;
+        noiseB += blue_noise(floor(gl_FragCoord.xy), frameCounter, i) ;
     }
   
   float jitter = IGN(gl_FragCoord.xy, frameCounter);
@@ -389,4 +390,3 @@ void main() {
   #endif // DO_SSR
 
 }
-

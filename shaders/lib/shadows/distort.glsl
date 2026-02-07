@@ -3,9 +3,7 @@
 
 #include "/lib/common.glsl"
 #include "/lib/uniforms.glsl"
-const bool shadowtex0Nearest = true;
-const bool shadowtex1Nearest = true;
-const bool shadowcolor0Nearest = true;
+
 
 const int shadowMapResolution = SHADOW_RESOLUTION;
 
@@ -29,6 +27,19 @@ vec3 distort(vec3 pos) {
   pos.xy /= factor;
   pos.z /= 2.0;
   return pos;
+}
+
+vec3 getShadowBias(vec3 pos, vec3 worldNormal, float faceNoL) {
+  float biasAdjust =
+    log2(max(4.0, shadowDistance - shadowMapResolution * 0.125)) * 0.5;
+
+  float factor =
+    cubeLength(pos.xy) * 0.85 + (1.0 - 0.85);
+
+  return mat3(shadowProjection) *
+  (mat3(shadowModelView) * worldNormal) *
+  factor *
+  biasAdjust;
 }
 
 vec3 getDistortedPos(vec3 pos) {

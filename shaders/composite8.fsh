@@ -129,7 +129,7 @@ void main(){
     vec3 viewDir=worldPos-cameraPosition;
     float viewLength=length(viewDir);
     vec3 rayDir=normalize(viewDir);
-    
+    float farPlane=far*4.;
     float distLimit=min(viewLength,TRACING_DISTANCE);
     float distTravelled=noise.x*_NoiseOffset;
      vec3 absCoeff = vec3(0.5686, 0.5686, 0.5686);
@@ -137,12 +137,12 @@ void main(){
     float transmittance= 1.0;
     vec3 transmission = vec3(1.0);
     vec3 jungleCol = vec3(0.5373, 0.8196, 0.7451) / (4 * PI);
-    jungleCol *= 9;
+    
  
     
     vec3 jungleTint = vec3(0.7412, 0.9333, 0.702);
     vec3 fogCol=computeSkyColoring(vec3(0.)) / (4 * PI);
-    fogCol *= 9;
+    
     vec3 sunCol=currentSunColor(vec3(0.));
     sunCol = mix(sunCol, sunCol * jungleTint, jungleSmooth);
     
@@ -150,7 +150,8 @@ void main(){
     sunCol=pow(sunCol,vec3(2.2));
     fogCol=pow(fogCol,vec3(2.2));
     fogCol=mix(fogCol,fogCol*.8,wetness);
-    
+    jungleCol *= 195;
+    fogCol *= 195;
     
     vec3 shadowNormal=mat3(shadowModelView)*normal;
     const float shadowMapPixelSize=1./float(SHADOW_RESOLUTION);
@@ -181,7 +182,7 @@ void main(){
             }
             shadow/=float(3);
             
-            transmission *= exp(-absCoeff * viewLength);
+            transmission *= exp(-absCoeff * _StepSize);
             vec3 lightDir=worldLightVector;
             float phase=CS(phaseVal,dot(rayDir,lightDir)) + 0.13 * CS(-0.1,dot(rayDir,lightDir));
             float scatter=density*_StepSize* float(transmittance);
@@ -207,7 +208,7 @@ void main(){
             msPhase*
             scatter;
             vec3 sampleExtinction = ( multiScatter + absCoeff);
-            float sampleTransmittance = exp(-viewLength * 1.0);
+            float sampleTransmittance = exp(-_StepSize * 1.0);
             // accumulate fog
             
             fogCol=mix(color.rgb,fogCol,scatterReduce);
