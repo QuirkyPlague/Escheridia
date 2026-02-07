@@ -8,10 +8,11 @@
 #include "/lib/uniforms.glsl"
 #include "/lib/water/waves.glsl"
 #include "/lib/atmosphere/sky.glsl"
-#include "/lib/atmosphere/distanceFog.glsl"
+#include "/lib/atmosphere/clouds.glsl"
 #include "/lib/water/waterFog.glsl"
 #include "/lib/tonemapping.glsl"
 #include "/lib/postProcessing.glsl"
+#include "/lib/bloom.glsl"
 
 in vec2 texcoord;
 
@@ -76,11 +77,13 @@ vec3 skyFallbackBlend(
   vec3 skyCol = skyScattering(dir2);
   vec3 sunCol = getSun(dir2);
   vec3 sky = sunCol + skyCol;
+
   #endif
 
   
   return sky;
 }
+
 
 void main() {
   color = texture(colortex0, texcoord);
@@ -109,6 +112,7 @@ void main() {
   vec3 viewPos = projectAndDivide(gbufferProjectionInverse, NDCPos);
   vec3 viewDir = normalize(viewPos);
   vec3 feetPlayerPos = (gbufferModelViewInverse * vec4(viewPos, 1.0)).xyz;
+ 
   vec3 previousView = (gbufferPreviousModelView * vec4(feetPlayerPos, 1.0)).xyz;
   vec4 previousClip = gbufferPreviousProjection * vec4(previousView, 1.0);
   vec3 previousScreen = (previousClip.xyz / previousClip.w) * 0.5 + 0.5;
@@ -232,7 +236,11 @@ void main() {
   roughness = mix(roughness,wetRoughness, wetness);
   
   bool canReflect = roughness < 1.0;
-  vec3 noiseB = blue_noise(floor(gl_FragCoord.xy), frameCounter, SSR_STEPS);
+   vec3 noiseB = vec3(0.0);
+   for(int i = 0; i < 3; i++) {
+        noiseB += blue_noise(floor(gl_FragCoord.xy), frameCounter, i) ;
+    }
+  
   float jitter = IGN(gl_FragCoord.xy, frameCounter);
   vec2 offset = vec2(0.0, 0.0);
   // --- Reflection vectors
@@ -247,8 +255,9 @@ void main() {
   float NdoV = max(dot(normal, -tangentView), 0.0);
   vec3 accumulated = vec3(0.0);
   float ndotL = dot(normal, lightVector);
+  vec3 noise = vec3(0.0);
   for (uint i = 0u; i < uint(ROUGH_SAMPLES); i++) {
-    vec3 noise = blue_noise(floor(gl_FragCoord.xy), frameCounter, int(i));
+    noise  = blue_noise(floor(gl_FragCoord.xy), frameCounter, int(i));
     vec3 microFacit = clamp(
       SampleVNDFGGX(tangentView, vec2(roughness), noise.xy),
       0,
@@ -275,18 +284,19 @@ void main() {
   // --- Fresnel
   float NdotV = max(dot(normal, -viewDir), 0.0);
   vec3 F = fresnelSchlick(NdotV, f0);
-
+ 
   #ifdef DO_SSR
   // SSR raytrace
-
+  bool noSky = lightmap.g < .955;
  bool reflectionHit = raytrace(
     viewPos,
     reflectedDir,
     SSR_STEPS,
     noiseB.x,
+    smoothLightmap,
     reflectedPos
   );
-
+  
   vec3 reflectedViewPos = screenSpaceToViewSpace(reflectedPos);
   vec3 reflectedFeetPlayer = (gbufferModelViewInverse *
     vec4(reflectedViewPos, 1.0)).xyz;
@@ -297,7 +307,7 @@ void main() {
   float fadeFactor = 1.0 - smoothstep(0.9, 1.0, max(abs(reflectedPos.x - 0.5),abs(reflectedPos.y - 0.5)) * 2);
   float reflDist = distance(reflectedViewPos,viewPos);
 
-  float lod =  3.12 * (1.0 - exp(-9.0 - sqrt(roughness)));
+  float lod =  3.62 * (1.0 - exp(-9.0 - sqrt(roughness)));
   if (roughness <= 0.0 || isWater) lod = 0.0;
 
     vec3 sky = skyFallbackBlend(
@@ -308,24 +318,26 @@ void main() {
       normal,
       roughness,
       isWater
-    );
+    ) ;
     
    if(roughness > 0)
    {
-    sky *= max(exp(4.32 * (0.096 - roughness)), 0.0);
+    sky *= max(exp(4.32 * (0.101 - roughness)), 0.0);
    }
    
-   
- 
     if (reflectionHit) {
     if (canReflect || isMetal || isWater) {
 
+      #ifdef ROUGH_REFLECTION
       #if SSR_MIP_BLUR == 1
       reflectedColor = texture2DLod(colortex0, reflectedPos.xy, lod).rgb;
       #else
       reflectedColor = texture2DLod(colortex0, reflectedPos.xy, 0).rgb;
-      #endif
-
+      #endif //MIP_BLUR
+      #else
+      reflectedColor = texture2DLod(colortex0, reflectedPos.xy, 0).rgb;
+      #endif //ROUGH_REFLECTION
+      
       if (any(isnan(reflectedColor))) reflectedColor = vec3(0.0);
       if(roughness > 0)  reflectedColor *= max(exp(7.02 * (0.061 - roughness)), 0.0);
     
@@ -333,24 +345,28 @@ void main() {
   }
 
   if (!reflectionHit && canReflect && !inWater) {
+  
+       reflectedColor =sky;
     
-    reflectedColor = sky;
-    float smoothLightmap = smoothstep(0.882, 1.0, lightmap.g);
-    reflectedColor = mix(color.rgb, reflectedColor, smoothLightmap);
-
-    
-   
+      
+      reflectedColor = mix(color.rgb, reflectedColor, smoothLightmap);
   }
+  
+  
+
   reflectedColor *= F;
+  reflectedColor *= karisAverage(reflectedColor) ;
+  reflectedColor *= karisAverage(reflectedColor) ;
+  reflectedColor *= karisAverage(reflectedColor) ;
+
   vec3 wetReflectedColor = mix(color.rgb, reflectedColor  , rainFactor);
   reflectedColor = mix(reflectedColor, wetReflectedColor, rainFactor);
   
-
   if(isMetal)
   {
-    color.rgb = vec3(0.0);
     color.rgb = reflectedColor;
   }
+ 
   color.rgb += reflectedColor;
 
   #else
@@ -374,4 +390,3 @@ void main() {
   #endif // DO_SSR
 
 }
-

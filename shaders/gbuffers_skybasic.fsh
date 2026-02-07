@@ -73,5 +73,13 @@ void main() {
       starBrightnessShift * posShift;
     stars += float(starTwinkle);
     stars *= starI;
+    vec3 dir=normalize(eyePlayerPos);
+    float upPos = clamp(dir.y, 0, 1);
+  float downPos = clamp(dir.y, -1, 0);
+  float negatedDownPos = -1.0 * downPos;
+  float groundBlend = clamp(pow(negatedDownPos, 0.55), 0, 1);
+
+    float sunHeightFactor = smoothstep(groundBlend, groundBlend + 0.071, dir.y);
+    stars *= sunHeightFactor;
   }
 }

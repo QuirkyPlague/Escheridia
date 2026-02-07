@@ -27,6 +27,7 @@ void main() {
   color = texture(colortex0, texcoord);
   vec4 SpecMap = texture(colortex3, texcoord);
   float roughness = pow(1.0 - SpecMap.r, 2.0);
+  
   #if TEMPORAL_REPROJECTION ==1
   float depth = texture(depthtex0, texcoord).r;
   const float handDepth = MC_HAND_DEPTH * 0.5 + 0.5;

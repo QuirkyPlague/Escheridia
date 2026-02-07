@@ -9,9 +9,8 @@ in vec2 texcoord;
 layout(location = 0) out vec4 color;
 
 void main() {
-  color = texture(colortex0, texcoord);
-  
-
+  color = texture(colortex0, texcoord) ;
+ 
   color.rgb = lottesTonemap(color.rgb);
   color.rgb = CSB(color.rgb, BRIGHTNESS, SATURATION, CONTRAST);
 

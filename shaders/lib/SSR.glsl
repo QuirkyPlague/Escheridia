@@ -34,6 +34,8 @@ float minOf(vec2 x) {
   return min(x.x, x.y);
 }
 
+
+
 void binarySearch(inout vec3 rayPosition, vec3 rayDirection) {
   for (int i = 0; i < BINARY_COUNT; i++) {
     rayPosition +=
@@ -58,9 +60,10 @@ bool raytrace(
   vec3 rayDirection,
   int stepCount,
   float jitter,
+  float smoothLightmap,
   out vec3 rayPosition
 ) {
-  if (rayDirection.z > 0.0 && rayDirection.z >= -viewPosition.z) {
+if (rayDirection.z > 0.0 && rayDirection.z >= -viewPosition.z) {
     return false;
   }
 
@@ -69,58 +72,85 @@ bool raytrace(
   rayDirection = viewToScreen(viewPosition + rayDirection) - rayPosition;
 
   rayDirection = normalize(rayDirection);
+  
   rayDirection *=
     minOf(
       abs(sign(rayDirection) - rayPosition) / max(abs(rayDirection), 0.00001)
     ) *
     (1.0 / stepCount);
 
-  float depthLenience = max(
+ float depthLenience = max(
     abs(rayDirection.z) * 1.0,
     0.02 / (viewPosition.z * viewPosition.z)
-  ); // From Dr Desten
+  );
+ 
   bool intersect = false;
-
+  
+  vec2 texelSize = 1.0 /resolution;
   rayPosition += rayDirection * jitter;
-
-  vec3 hitPosition;
-  bool outOfBounds = false;
+  
+ const float THICKNESS = 0.01;
+      float viewThickness = max(THICKNESS * (1.0 + abs(rayDirection.z) * 5.0), 1e-4);
+  vec3 prevRayPosition;
+  
   for (int i = 0; i < stepCount; i++) {
-    if (clamp(rayPosition, 0, 1) != rayPosition) {
-      outOfBounds = true;
-      break;
-    }
+  
+    prevRayPosition = rayPosition;
     rayPosition += rayDirection;
+    
+    if (clamp(rayPosition, 0, 1) != rayPosition) return false;
+    if (clamp(prevRayPosition, 0, 1) != prevRayPosition) return false;
 
     float depth = texelFetch(
       depthtex0,
-      ivec2(rayPosition.xy * vec2(viewWidth, viewHeight)),
+      ivec2(rayPosition.xy * resolution),
       0
     ).r;
+  
+    float initialDepth = texelFetch(
+      depthtex0,
+      ivec2(prevRayPosition.xy * resolution),
+      0
+    ).r;
+    
 
     if (
       rayPosition.z > depth &&
       abs(depthLenience - (rayPosition.z - depth)) < depthLenience &&
       rayPosition.z > handDepth &&
-      depth < 1.0
+      depth < 1.0 
     ) {
       intersect = true;
-
-    } else {
+    } 
+    else {
       intersect = false;
+    }
 
+    if(smoothLightmap < 0.882)
+    {
+       if (
+      rayPosition.z > depth &&
+      abs(depthLenience - (rayPosition.z - depth)) < depthLenience &&
+      rayPosition.z > handDepth  
+    ) {
+      intersect = true;
+    } 
+    else {
+      intersect = false;
+    }
     }
 
     if (intersect) {
       break;
     }
-
+    
   }
 
-  if (outOfBounds) return false;
-  #if BINARY_REFINEMENT == 1
+  
+   #if BINARY_REFINEMENT == 1
   binarySearch(rayPosition, rayDirection);
   #endif
+
 
   return intersect;
 

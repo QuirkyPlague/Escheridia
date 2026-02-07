@@ -1,6 +1,8 @@
 #ifndef PHASE_FUNCTIONS_GLSL
 #define PHASE_FUNCTIONS_GLSL
 
+#include "/lib/math.glsl"
+
 float evalDraine(float u, float g, float a) {
   return (1 - g * g) *
   (1 + a * u * u) /
@@ -57,4 +59,27 @@ float miePhase(float cosTheta, float g) {
   return (1.0 - g2) / (4.0 * 3.14159265 * denom);
 }
 
+float phasefunc_CornetteShanks(float cosTheta, float g) {
+    float k = 3.0 / (8.0 * PI) * (1.0 - g * g) / (2.0 + g * g);
+    return k * (1.0 + pow2(cosTheta)) / pow(1.0 + g * g - 2.0 * g * cosTheta, 1.5);
+}
+
+float phasefunc_KleinNishinaE(float cosTheta, float e) {
+    return e / (2.0 * PI * (e * (1.0 - cosTheta) + 1.0) * log(2.0 * e + 1.0));
+}
+
+float dualHenyeyGreenstein(float g1, float g2, float costh, float weight) {
+  return mix(henyeyGreensteinPhase(costh,g1), henyeyGreensteinPhase(costh, g2), weight);
+}
+
+float waterPhase(float cosTheta) {
+    const float wKn = 0.99;
+    const float gE = 20000.0;
+    const float gCS = -0.6;
+    return mix(
+        phasefunc_CornetteShanks(cosTheta, gCS),
+        phasefunc_KleinNishinaE(cosTheta, gE),
+        wKn
+    );
+}
 #endif //PHASE_FUNCTIONS_GLSL

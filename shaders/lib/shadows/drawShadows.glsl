@@ -26,4 +26,6 @@ vec3 getShadow(vec3 shadowScreenPos) {
   return shadowColor.rgb * (1.0 - shadowColor.a);
 }
 
+
+
 #endif //DRAWSHADOWS_GLSL

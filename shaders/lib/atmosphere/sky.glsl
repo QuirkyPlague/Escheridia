@@ -10,12 +10,12 @@ const vec3 paleHorCol = vec3(0.7137, 0.7137, 0.7137);
 const vec3 paleGrndCol = vec3(0.4314, 0.4314, 0.4314);
 
 //rain
-const vec3 rainZenCol = vec3(0.3843, 0.4196, 0.4824);
-const vec3 rainHorCol = vec3(0.6353, 0.6549, 0.6706);
-const vec3 rainGrndCol = vec3(0.1569, 0.1922, 0.2314);
+const vec3 rainZenCol = vec3(0.3804, 0.3922, 0.4078);
+const vec3 rainHorCol = vec3(0.3843, 0.3843, 0.3843);
+const vec3 rainGrndCol = vec3(0.1176, 0.1333, 0.149);
 
 //Day
-const vec3 dayZenCol = vec3(0.3765, 0.6471, 1.0);
+const vec3 dayZenCol = vec3(0.3216, 0.6157, 1.0);
 const vec3 dayHorCol = vec3(0.7137, 0.8745, 0.9294);
 const vec3 dayGrndCol = vec3(0.549, 0.7686, 0.9647);
 
@@ -23,9 +23,9 @@ const vec3 noonHorCol = vec3(0.4471, 0.8078, 1.0);
 const vec3 noonGrndCol = vec3(0.0824, 0.2039, 0.4627);
 
 //Dawn
-const vec3 dawnZenCol = vec3(0.5216, 0.6549, 0.7647);
-const vec3 dawnHorCol = vec3(0.8667, 0.5569, 0.2824);
-const vec3 dawnGrndCol = vec3(0.2549, 0.3922, 0.6118);
+const vec3 dawnZenCol = vec3(0.4902, 0.7882, 1.0);
+const vec3 dawnHorCol = vec3(0.9765, 0.6745, 0.4118);
+const vec3 dawnGrndCol = vec3(0.2941, 0.451, 0.702);
 
 //Dusk
 const vec3 duskZenCol = vec3(0.4157, 0.6196, 0.749);
@@ -42,7 +42,7 @@ const vec4 sunriseScatter = vec4(0.3294, 0.2196, 0.1725, 0.753);
 const vec4 eveningScatter = vec4(0.8745, 0.3961, 0.1765, 0.83);
 const vec4 dayScatter = vec4(0.5608, 0.3529, 0.1176, 0.715);
 const vec4 noonScatter = vec4(0.7569, 0.6588, 0.5255, 0.845);
-const vec4 nightScatter = vec4(0.8824, 0.6196, 0.2745, 0.85);
+const vec4 nightScatter = vec4(0.6471, 0.4667, 0.2275, 0.65);
 
 vec3 getSun(vec3 dir) {
   float cosThetaSun = dot(dir, worldSunDir);
@@ -77,16 +77,16 @@ vec3 getSun(vec3 dir) {
   sunColor = currentSunColor(sunColor);
 
   vec3 fullSun = sun * sunColor * 640.0 * sunHeightFactor;
-
+  fullSun *= mix(1.0, 0.001, wetness * hotBiomeSmooth);
   vec3 moonColor = vec3(0.098, 0.1294, 0.1843);
   vec3 fullmoon = moon * moonColor * 35.3 * sunHeightFactor;
-
+  fullmoon *= mix(1.0, 0.001, wetness * hotBiomeSmooth);
   if (worldMoonDir.y < groundBlend) fullmoon *= 0.0;
   return fullSun + fullmoon;
 }
 
 vec3 skyScattering(vec3 pos) {
-   vec3 dir = normalize(pos);
+  vec3 dir = normalize(pos);
  float VoL = dot(dir, worldSunDir);
   float rayleigh =
     Rayleigh(VoL) * 15.1;
@@ -185,7 +185,7 @@ vec3 skyScattering(vec3 pos) {
   horizonCol = mix(horizonCol, rainHorCol * weatherStrength, wetness * hotBiomeSmooth);
   groundCol = mix(groundCol, rainGrndCol * weatherStrength, wetness * hotBiomeSmooth);
 
- float zenithBlend = clamp(pow(upPos, 0.45), 0, 1);
+  float zenithBlend = clamp(pow(upPos, 0.45), 0, 1);
   float horizonBlend = clamp(pow(negatedMidPos, 4.5), 0, 1);
   float groundBlend = clamp(pow(negatedDownPos, 0.55), 0, 1);
 
@@ -214,15 +214,71 @@ vec3 skyScattering(vec3 pos) {
   vec3 mieNight = moonMieScatterColor * moonPhase * 0.17;
 
   vec3 finalMie = mieColors + mieNight ;
-
-  float dawnDuskMieFactor = smoothstep(-0.035, 0.035, dir.y);
-  float dawnDuskTimeFactor = smoothstep(0.0, 0.1, t) * smoothstep(0.4, 0.6, t);
-  finalMie *= mix(1.0, dawnDuskMieFactor, dawnDuskTimeFactor);
+  float sunHeightFactor = smoothstep(groundBlend, groundBlend + 0.041, dir.y);
+  finalMie *=sunHeightFactor;
 
     vec3 color = sky + finalMie;
    color = pow(color, vec3(2.2));
   return color;
 }
 
+vec3 computeSkyColoring(vec3 pos)
+{
+  vec3 dir = normalize(pos);
+  float VoL = dot(dir, sunDir);
+  float rayleigh =
+    Rayleigh(VoL) * 13.1;
+  float t = fract(worldTime / 24000.0);
+
+  const int keys = 7;
+  const float keyFrames[keys] = float[keys](
+    0.0, //sunrise
+    0.0417, //day
+    0.45, //noon
+    0.5192, //sunset
+    0.5417, //night
+    0.9527, //midnight
+    1.0 //sunrise
+  );
+
+    const vec3 zenithColors[keys] = vec3[keys](
+    dawnZenCol * 0.81 ,
+    dayZenCol,
+    dayZenCol,
+    duskZenCol * 0.81 ,
+    nightZenCol * 1.19,
+    nightZenCol * 1.19,
+    dawnZenCol * 0.81
+  );
+  const float weatherIntensity[keys] = float[keys](
+    0.75,
+    1.0,
+    1.0,
+    0.65,
+    0.25,
+    0.25,
+    0.75
+  );
+
+  int i = 0;
+  for (int k = 0; k < keys - 1; ++k) {
+    i += int(step(keyFrames[k + 1], t));
+  }
+  i = clamp(i, 0, keys - 2);
+
+  float timeInterp =
+    (t - keyFrames[i]) / max(1e-6, keyFrames[i + 1] - keyFrames[i]);
+  timeInterp = smoothstep(0.0, 1.0, timeInterp);
+   float weatherStrength = mix(
+    weatherIntensity[i],
+    weatherIntensity[i + 1],
+    timeInterp
+  );
+  vec3 zenithCol = mix(zenithColors[i], zenithColors[i + 1], timeInterp);
+  zenithCol = mix(zenithCol, rainZenCol * weatherStrength, wetness * hotBiomeSmooth);
+  zenithCol = mix(zenithCol, paleZenCol, PaleGardenSmooth);
+  
+  return zenithCol;
+}
 
 #endif

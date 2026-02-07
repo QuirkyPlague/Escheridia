@@ -145,3 +145,26 @@ option.SCREENSHOT_MODE.comment = Enable strong accumulation for maximum denoisin
     value.SCREENSHOT_MODE.0 = Off
     value.SCREENSHOT_MODE.1 = On
     value.SCREENSHOT_MODE.2 = Hell
+
+option.ADVANCED_FOG_TRACING = High Quality Volumetric Fog
+    
+option.FOG_DENSITY = Fog Density
+option.WEATHER_DENSITY = Weather Fog Density
+option.TRACING_DISTANCE = Max Fog Distance
+option.MS_FALLOFF = Multiple Scattering Decay
+option.MS_POWER = Multiple Scattering Power
+option.STBN_SAMPLES = Blue Noise Samples
+option.STEP_SIZE = Fog Step Size
+option.STEP_SIZE.comment = Determines the overall quality of the fog (lower size = higher quality but worse performance)
+option.NOISE_SAMPLING = Non-Uniform Fog
+option.NOISE_SAMPLING.common = Enables a 2D noise map for varying density (very buggy)
+
+option.CLOUD_DISTANCE_TYPE = Cloud Render Distance Method
+    value.CLOUD_DISTANCE_TYPE.0 = Manual
+    value.CLOUD_DISTANCE_TYPE.1 = Auto
+
+option.CLOUD_STYLE = Cloud Style
+    value.CLOUD_STYLE.0 = Boxy
+    value.CLOUD_STYLE.1 = Fantasy
+
+

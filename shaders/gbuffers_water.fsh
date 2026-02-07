@@ -113,5 +113,7 @@ void main() {
   color = vec4(lighting, color.a);
   float depth = texture(depthtex0, texcoord).r;
   vec3 eyePlayerPos = feetPlayerPos - gbufferModelViewInverse[3].xyz;
+  //color = vec4(atmosphericFog(color.rgb, viewPos, depth, texcoord),color.a);
   color = vec4(borderFog(color.rgb, eyePlayerPos, depth), color.a);
+  
 }

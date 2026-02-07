@@ -72,7 +72,8 @@ vec3 brdf(
   float roughness,
   vec3 indirect,
   vec3 shadow,
-  bool isMetal
+  bool isMetal,
+  float smoothLightmap
 ) {
   vec3 Lo = vec3(0.0);
   vec3 L = worldLightVector;
@@ -114,7 +115,7 @@ vec3 brdf(
   if (NdotL < 1e-6) {
     spec = vec3(0.0);
   }
-
+ 
   if (isMetal) {
     kD *= 0.0;
   }

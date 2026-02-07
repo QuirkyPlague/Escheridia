@@ -49,7 +49,10 @@ uniform sampler2D specular;
 uniform sampler3D blueNoiseTex;
 uniform sampler2D puddleTex;
 uniform sampler2D waterTex;
-uniform sampler2D starMap;
+uniform sampler2D fogTex;
+uniform sampler2D clouds;
+uniform sampler2D cloudBase;
+uniform sampler2D detail;
 
 //additional uniforms
 uniform vec3 cameraPosition;
@@ -70,6 +73,8 @@ uniform int biome_category;
 uniform bool isColdBiome;
 uniform float snowBiomeSmooth;
 uniform float hotBiomeSmooth;
+uniform bool isJungle;
+uniform float jungleSmooth;
 uniform float eyeAltitude;
 uniform vec3 previousCameraPosition;
 uniform bool hideGUI;
@@ -93,6 +98,8 @@ vec3 lightVector = normalize(shadowLightPosition);
 vec3 worldLightVector = mat3(gbufferModelViewInverse) * lightVector;
 vec3 sunDir = normalize(sunPosition);
 vec3 worldSunDir = mat3(gbufferModelViewInverse) * sunDir;
+
+
 vec3 moonDir = normalize(moonPosition);
 vec3 worldMoonDir = mat3(gbufferModelViewInverse) * moonDir;
 
