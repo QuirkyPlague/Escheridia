@@ -30,12 +30,10 @@ void main() {
     vec4 waterMask=texture(colortex5,texcoord);
     int blockID=int(waterMask)+100;
     bool isWater=blockID==WATER_ID;
-    vec3 noise;
-    for(int i=0;i<STBN_SAMPLES;i++){
-        noise+=blue_noise(floor(gl_FragCoord.xy),frameCounter,i);
-    }
-
     
+    
+
+    vec3 noise  = blue_noise(floor(gl_FragCoord.xy), frameCounter, STBN_SAMPLES);
     vec3 startPos=vec3(0.,0.,0.);
     vec3 endPos=worldPos;
     vec3 fog=color.rgb;

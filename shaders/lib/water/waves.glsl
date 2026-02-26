@@ -7,22 +7,49 @@
 
 // Calculates wave value and its derivative,
 // for the wave direction, position in space, wave frequency and time
+
+float remap2(float value, float originalMin, float originalMax, float newMin, float newMax)
+{
+    return newMin + (((value - originalMin) / (originalMax - originalMin) * (newMax - newMin)));
+
+}
+float calcWaveDensity(vec2 pos)
+{
+    float density = 0.0;
+    vec4 shape = vec4(0.0);
+    vec4 detail1 = vec4(0.0);
+    vec4 detail2 = vec4(0.0);
+    vec2 uv = pos * 1.45 * 0.0001 + 3.0 * 0.1;
+    shape = texture(cloudBase, uv);
+    detail1 = texture(detail, uv);
+
+    shape.r = remap2(shape.r, 1.0 - detail1.r, 1.0, 0.0, 1.0);
+    density += max(0.043, shape.r - 0.345) ;
+    
+    density *= 2.1;
+    return density;
+}
+
 vec2 wavedx(vec2 position, vec2 direction, float frequency, float timeshift) {
   float noise = texture(waterTex,mod((position) / 2.0, 64.0) / 64.0).r;
-  float x = dot(direction, position) * frequency + timeshift;
-  float y = dot(direction, (position + (noise * 3.1))) * frequency + timeshift;
+  float waveDensity = calcWaveDensity(position);
+  float x = dot(direction,(position + (noise * -waveDensity  ))) * frequency + timeshift;
+  float y = dot(direction, (position + (noise * 4 ))) * frequency + timeshift;
   float wave = exp(sin(x) - 1.0) + exp(cos(y) - 0.46);
   float dx = wave  * cos(x) * cos(y);
   return vec2(wave, -dx);
 }
 
+
+
+
 // Calculates waves by summing octaves of various waves with various parameters
 float getwaves(vec2 position, int iterations) {
-  float noise = texture(waterTex,mod((position) / 2.0, 256.0) / 256.0).r;
-  float wavePhaseShift = length(position) * 0.314 * WAVE_RANDOMNESS; // this is to avoid every octave having exactly the same phase everywhere
+  float noise = calcWaveDensity(position);
+  float wavePhaseShift = length(position) * 0.414 * WAVE_RANDOMNESS; // this is to avoid every octave having exactly the same phase everywhere
   
-  float iter = 30.0; // this will help generating well distributed wave directions
-  float frequency = 1.85; // frequency of the wave, this will change every iteration
+  float iter = 65.0; // this will help generating well distributed wave directions
+  float frequency = 1.25; // frequency of the wave, this will change every iteration
   float timeMultiplier = 3.0 ; // time multiplier for the wave, this will change every iteration
   #if SCREENSHOT_MODE == 1
   if(hideGUI == true)
@@ -31,7 +58,7 @@ float getwaves(vec2 position, int iterations) {
   }
   
   #endif
-  float weight = 0.15; // weight in final sum for the wave, this will change every iteration
+  float weight = 1.0; // weight in final sum for the wave, this will change every iteration
   float sumOfValues = 0.0; // will store final sum of values
   float sumOfWeights = 0.0; // will store final sum of weights
   for (int i = 0; i < iterations; i++) {
@@ -44,9 +71,11 @@ float getwaves(vec2 position, int iterations) {
       p,
       frequency,
       frameTimeCounter * timeMultiplier + wavePhaseShift
-    );
+    )  ;
+    vec2 noiseRes = res * noise;
 
-  res = mix(res, res * 0.317, noise *2.3);
+    res = min(res - noiseRes, 5) * (noise);
+  
     // shift position around according to wave drag and derivative of the wave
     position += p * res.y * weight * DRAG_MULT;
 
@@ -55,9 +84,9 @@ float getwaves(vec2 position, int iterations) {
     sumOfWeights += weight;
 
     // modify next octave ;
-    weight = mix(weight, 0.0, 0.312);
-    frequency *= 1.21 * WAVE_FREQUENCY;
-    timeMultiplier *= 1.1 * WAVE_SPEED;
+    weight = mix(weight, 0.0, 0.352);
+    frequency *= 1.34 * WAVE_FREQUENCY;
+    timeMultiplier *= 1.17 * WAVE_SPEED;
 
     // add some kind of random value to make next wave look random too
     iter += 1232.399963;

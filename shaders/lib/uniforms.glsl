@@ -57,6 +57,7 @@ uniform sampler2D detail;
 //additional uniforms
 uniform vec3 cameraPosition;
 uniform int frameCounter;
+uniform float frameTime;
 uniform float far;
 uniform float near;
 uniform float PaleGardenSmooth;

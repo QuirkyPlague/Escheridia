@@ -197,4 +197,9 @@ vec3 SampleVNDFGGX(
   return normalize(vec3(alpha * halfway.xy, halfway.z));
 }
 
+float getWorldDirectionToSun(vec3 direction)
+{
+  //expects direction to be in player/world space
+  return dot(direction, worldLightVector);
+}
 #endif //UTIL_GLSL

@@ -225,9 +225,9 @@ vec3 skyScattering(vec3 pos) {
 vec3 computeSkyColoring(vec3 pos)
 {
   vec3 dir = normalize(pos);
-  float VoL = dot(dir, sunDir);
+  float VoL = dot(dir, worldLightVector);
   float rayleigh =
-    Rayleigh(VoL) * 13.1;
+    Rayleigh(VoL) * 53.1;
   float t = fract(worldTime / 24000.0);
 
   const int keys = 7;
@@ -274,10 +274,10 @@ vec3 computeSkyColoring(vec3 pos)
     weatherIntensity[i + 1],
     timeInterp
   );
-  vec3 zenithCol = mix(zenithColors[i], zenithColors[i + 1], timeInterp);
+  vec3 zenithCol = mix(zenithColors[i], zenithColors[i + 1], timeInterp) ;
   zenithCol = mix(zenithCol, rainZenCol * weatherStrength, wetness * hotBiomeSmooth);
   zenithCol = mix(zenithCol, paleZenCol, PaleGardenSmooth);
-  
+
   return zenithCol;
 }
 

@@ -33,10 +33,9 @@ void main(){
     vec4 waterMask=texture(colortex5,texcoord);
     int blockID=int(waterMask)+100;
     bool isWater=blockID==WATER_ID;
-    vec3 noise;
-    for(int i=0;i<STBN_SAMPLES;i++){
-        noise+=blue_noise(floor(gl_FragCoord.xy),frameCounter,i);
-    }
+
+    vec3 noise= blue_noise(floor(gl_FragCoord.xy),frameCounter,STBN_SAMPLES);
+    
     vec3 shadowViewPos_start=(shadowModelView*vec4(vec3(0.),1.)).xyz;
     vec4 shadowClipPos_start=shadowProjection*vec4(shadowViewPos_start,1.);
     
@@ -115,16 +114,16 @@ void main(){
      float skyIntensity=mix(intensity[i],intensity[i+1],timeInterp);
     const float UNIFORM_PHASE=1./(4.*PI);
     const float _StepSize= STEP_SIZE;
-    const float _NoiseOffset=2.05;
+    const float _NoiseOffset=5.05;
     const float MULTI_SCATTER_GAIN= MS_POWER;// how much single scatter feeds MS
     const float MULTI_SCATTER_DECAY= MS_FALLOFF;// energy loss per step
     
     float phaseIncFactor=smoothstep(225,0,eyeBrightnessSmooth.y);
     float scatterReduce=smoothstep(0,185,eyeBrightnessSmooth.y);
-    vec3 lightScattering=vec3(8.) * PHASE_MULTIPLIER;
+    vec3 lightScattering=vec3(4.) * PHASE_MULTIPLIER;
     
     lightScattering=mix(lightScattering,lightScattering*4,phaseIncFactor);
- 
+    
     vec3 entryPoint=cameraPosition;
     vec3 viewDir=worldPos-cameraPosition;
     float viewLength=length(viewDir);
@@ -136,12 +135,13 @@ void main(){
 
     float transmittance= 1.0;
     vec3 transmission = vec3(1.0);
-    vec3 jungleCol = vec3(0.5373, 0.8196, 0.7451) / (4 * PI);
+     float rayleigh = Rayleigh(dot(rayDir, worldLightVector));
+    vec3 jungleCol = vec3(0.5373, 0.8196, 0.7451)  / (4 * PI);
     
  
     
-    vec3 jungleTint = vec3(0.7412, 0.9333, 0.702);
-    vec3 fogCol=computeSkyColoring(vec3(0.)) / (4 * PI);
+    vec3 jungleTint = vec3(0.7412, 0.9333, 0.702) ;
+    vec3 fogCol=computeSkyColoring(vec3(0.))  / (4 * PI);
     
     vec3 sunCol=currentSunColor(vec3(0.));
     sunCol = mix(sunCol, sunCol * jungleTint, jungleSmooth);
@@ -224,7 +224,9 @@ void main(){
         
         distTravelled+=_StepSize;
     }
-    color.rgb=mix(color.rgb,fogCol + transmission,1.-clamp(transmittance,0,1));
+    
+     color.rgb=mix(color.rgb,fogCol,1.-clamp(transmittance,0,1));
+    //color += traceFog(worldPos, color.rgb);
     #endif
     #endif
     

@@ -64,7 +64,7 @@ vec3 waterExtinction(
   }
   
   vec3 absorptionColor = vec3(0.0);
-  vec3 absorption = WATER_ABOSRBTION;
+  vec3 absorption = WATER_ABOSRBTION * 2;
   vec3 inscatteringAmount = vec3(0.0);
   inscatteringAmount = WATER_SCATTERING ;
   inscatteringAmount *= SCATTER_COEFF;
@@ -106,9 +106,9 @@ vec3 waterFog(vec3 color, vec2 texcoord, vec2 lightmap, float depth) {
   vec3 sunColor = vec3(0.0);
   sunColor = currentSunColor(sunColor) * 0.7;
   vec3 absorptionColor = vec3(0.0);
-  vec3 absorption = WATER_ABOSRBTION;
+  vec3 absorption = WATER_ABOSRBTION * 2;
   vec3 inscatteringAmount = vec3(0.0);
-  inscatteringAmount = WATER_SCATTERING * 3;
+  inscatteringAmount = WATER_SCATTERING * 7;
   inscatteringAmount *= SCATTER_COEFF;
   inscatteringAmount = pow(inscatteringAmount, vec3(2.2));
   absorption = pow(absorption, vec3(2.2));
@@ -126,7 +126,7 @@ vec3 waterFog(vec3 color, vec2 texcoord, vec2 lightmap, float depth) {
   vec3 scattering = inscatteringAmount  * backPhase ;
   vec3 totalScattering = (phaseLighting + scattering) * SCATTER_COEFF;
   vec3 absorptionFactor = exp(
-    -absorption * UNDERWATER_FOG_DENSITY * (dist * ABSORPTION_COEFF * 3)
+    -absorption * UNDERWATER_FOG_DENSITY * (dist * ABSORPTION_COEFF)
   );
   color.rgb *= absorptionFactor;
    color.rgb += (totalScattering / absorption) * (1.0 - absorptionFactor) ;

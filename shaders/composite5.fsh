@@ -162,10 +162,10 @@ void main() {
     {
       float waveFalloff = length(feetPlayerPos) / farPlane;
     float waveIntensityRolloff = exp(
-      3.0 * WAVE_INTENSITY * (0.05 - waveFalloff)
+      12.0 * WAVE_INTENSITY * (0.05 - waveFalloff)
     );
-    float waveIntensity = 0.177 * WAVE_INTENSITY * waveIntensityRolloff;
-    float waveSoftness = 0.04 * WAVE_SOFTNESS;
+    float waveIntensity = 0.67 * WAVE_INTENSITY * waveIntensityRolloff;
+    float waveSoftness = 0.13 * WAVE_SOFTNESS;
 
     normal = waveNormal(
       feetPlayerPos.xz + cameraPosition.xz,
@@ -181,8 +181,8 @@ void main() {
     float waveIntensityRolloff = exp(
       12.0 * WAVE_INTENSITY * (0.05 - waveFalloff)
     );
-    float waveIntensity = 0.137 * WAVE_INTENSITY * waveIntensityRolloff;
-    float waveSoftness = 0.018 * WAVE_SOFTNESS;
+  float waveIntensity = 0.67 * WAVE_INTENSITY * waveIntensityRolloff;
+    float waveSoftness = 0.2 * WAVE_SOFTNESS;
 
     normal = waveNormal(
       feetPlayerPos.xz + cameraPosition.xz,
@@ -196,8 +196,8 @@ void main() {
     float waveIntensityRolloff = exp(
       12.0 * WAVE_INTENSITY * (0.05 - waveFalloff)
     );
-    float waveIntensity = 0.045 * WAVE_INTENSITY  * rainFactor;
-    float waveSoftness = 0.48 * WAVE_SOFTNESS;
+   float waveIntensity = 0.137 * WAVE_INTENSITY * waveIntensityRolloff;
+    float waveSoftness = 0.018 * WAVE_SOFTNESS;
 
     vec3 rainNormal = rainNormals(
       feetPlayerPos.xz + cameraPosition.xz,
@@ -236,10 +236,10 @@ void main() {
   roughness = mix(roughness,wetRoughness, wetness);
   
   bool canReflect = roughness < 1.0;
-   vec3 noiseB = vec3(0.0);
-   for(int i = 0; i < 3; i++) {
-        noiseB += blue_noise(floor(gl_FragCoord.xy), frameCounter, i) ;
-    }
+   
+
+        
+    
   
   float jitter = IGN(gl_FragCoord.xy, frameCounter);
   vec2 offset = vec2(0.0, 0.0);
@@ -292,7 +292,6 @@ void main() {
     viewPos,
     reflectedDir,
     SSR_STEPS,
-    noiseB.x,
     smoothLightmap,
     reflectedPos
   );
@@ -344,7 +343,7 @@ void main() {
     }
   }
 
-  if (!reflectionHit && canReflect && !inWater) {
+  if (!reflectionHit && canReflect) {
   
        reflectedColor =sky;
     

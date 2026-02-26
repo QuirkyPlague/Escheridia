@@ -32,21 +32,23 @@ float lightmarch(vec3 origin, vec3 startPos, vec3 endPos)
 }
 */
 
-bool boxIntersection(in vec3 origin, in vec3 direction, out vec3 startPos, out vec3 endPos)
+vec3 intersectRayPlane(vec3 ray, vec3 plane) {
+    return ray / dot(ray, plane) * dot(plane, plane);
+}
+
+vec2 boxIntersection(vec3 boundsMin, vec3 boundsMax, vec3 origin, vec3 direction)
 {   
-    float upperCloudLayer = 1200 + 50;
-    float lowerCloudLayer = 1200;
+    vec3 t0 = (boundsMin - origin.y) / direction.y;
+    vec3 t1 = (boundsMax - origin.y) / direction.y;
+    vec3 tMin = min(t0, t1);
+    vec3 tMax = max(t0, t1);
 
-     float t1 = max((upperCloudLayer - origin.y) / direction.y, 0.0);
-    float t2 = max((lowerCloudLayer - origin.y) / direction.y, 0.0);
-  
-    
-    if (abs(t1) == - abs(t2)) return false;
+    float distA = max(max(tMin.x, tMin.y), tMin.z);
+    float distB = min(tMax.x, min(tMax.y, tMax.z));
 
-    startPos = origin + min(t1, t2) * direction;
-    endPos = origin + max(t1, t2) * direction;
-
-    return true;
+    float distToBox = max(0,distA);
+    float distInsideBox = max(0, distB - distToBox);
+    return vec2(distToBox,distInsideBox);
      
 }
 
@@ -62,25 +64,30 @@ float sampleDensity(vec3 pos)
     if(pos.y>180+ CLOUD_THICKNESS)return 0.;
      if(pos.y<171)return 0.;
     #endif
-
+    float density = 0.0;
     vec4 shape = vec4(0.0);
     vec4 detail1 = vec4(0.0);
     vec4 detail2 = vec4(0.0);
-    vec3 uvw = pos * CLOUD_NOISE_SCALE * 0.0001 + 1.0 * 0.1 * (frameTimeCounter * 0.003);
-    #if CLOUD_STYLE == 0
-    shape = texture(clouds, uvw.xz);
-    #else
-    shape = texture(cloudBase, uvw.xz);
+    vec3 uvw = pos * CLOUD_NOISE_SCALE * 0.0001 + 1.0 * 0.1;
     detail1 = texture(fogTex, uvw.xz);
     detail2 = texture(detail, uvw.xz);
-    shape.r = remap(detail1.r, 1.0 - shape.r, 1.0, 0.0, 1.0) + remap(shape.r, 1.0 - detail2.r, 1.0, 0.0, 1.0);
+    
+    #if CLOUD_STYLE == 0
+    shape = texture(clouds, uvw.xz);
+   
+    #else
+    shape = texture(cloudBase, uvw.xz);
+    shape.r = remap(shape.r, 1.0 - detail1.r, 1.0, 0.0, 1.0) + remap(shape.r, 1.0 - detail2.r, 1.0, 0.0, 3.0);
     #endif
 
-    float density = max(0, shape.r - CLOUD_DENSITY_THRESHOLD) * CLOUD_DENSITY;
-    density *= height;
-    #if CLOUD_STYLE ==1
-    density *=7;
+    density += max(0, shape.r - CLOUD_DENSITY_THRESHOLD) * CLOUD_DENSITY;
+    #if CLOUD_STYLE == 0
+    density *= 0.7;
+    #else
+    density *= 7;
     #endif
+    density *= height;
+  
     return density;
 }
 
@@ -91,13 +98,13 @@ vec3 cloudRaymarch(vec3 worldPos,vec3 noise, vec3 color)
 {
     const float uniformPhase= 1./(4.*PI);
     const float _StepSize=6.4;
-    const float _NoiseOffset=5.65;
-    const float MULTI_SCATTER_GAIN=53.79;
+    const float _NoiseOffset=12.65;
+    const float MULTI_SCATTER_GAIN=15.09;
     const float MULTI_SCATTER_DECAY=.93;
-    const float liningIntensity = 15.0;
-    const float liningSpread = 1.1;
+    const float liningIntensity = 1.0;
+    const float liningSpread = 0.426;
   
-    vec3 lightScattering=vec3(2.34)*PHASE_MULTIPLIER;
+    vec3 lightScattering=vec3(1.34)*PHASE_MULTIPLIER;
     vec3 entryPoint=cameraPosition;
     vec3 viewDir=worldPos-cameraPosition;
     vec3 eyePos = viewDir - gbufferModelViewInverse[3].xyz;
@@ -115,17 +122,17 @@ vec3 cloudRaymarch(vec3 worldPos,vec3 noise, vec3 color)
     
     float distTravelled=noise.x*_NoiseOffset;
 
-    
+    float rayleigh = Rayleigh(dot(rayDir, worldLightVector));
     float transmittance=1;
     vec3 transmission = vec3(1.0);
-    vec3 fogCol=computeSkyColoring(vec3(0.)) * uniformPhase;
-    vec3 absCoeff = vec3(1.0, 1.0, 1.0);
+    vec3 fogCol=computeSkyColoring(vec3(0.)) * rayleigh *8 * uniformPhase;
+    vec3 absCoeff = vec3(1.0);
    //fog col is ambient sky color *NEEDS RENAMING*
     vec3 skyCol=computeSkyColoring(vec3(0.));
     vec3 sunCol=currentSunColor(vec3(0.));
     sunCol=pow(sunCol,vec3(2.2));
     fogCol=pow(fogCol,vec3(2.2));
-     fogCol *= 155.5;
+     fogCol *= 435.5;
     vec3 multiScatterEnergy=vec3(0.);
     vec3 clouds=vec3(0.0);
     while(distTravelled<distLimit)
@@ -138,24 +145,25 @@ vec3 cloudRaymarch(vec3 worldPos,vec3 noise, vec3 color)
             transmission *= exp(-absCoeff * density * _StepSize);
        //calculate phase
         vec3 lightDir=worldLightVector;
-        float phase=  henyeyGreensteinPhase(dot(rayDir,lightDir), .9) + henyeyGreensteinPhase(dot(rayDir,lightDir), -.45);
+        float phase=  henyeyGreensteinPhase(dot(rayDir,lightDir), .75) +  henyeyGreensteinPhase(dot(rayDir,lightDir), -.45);
        //currently unused
-float silverLining = max(henyeyGreensteinPhase(dot(rayDir,lightDir), .65), liningIntensity * henyeyGreensteinPhase(dot(rayDir,lightDir), 0.99 - liningSpread));
-       
+        float silverLining = max(henyeyGreensteinPhase(dot(rayDir,lightDir), .65), liningIntensity * henyeyGreensteinPhase(dot(rayDir,lightDir), 0.99 - liningSpread));
+       phase += silverLining;
         float scatter=density*_StepSize*transmittance;
         float energy = exp(-density) * phase;
         float msFactor=clamp(1.-transmittance,0.,1.);
         float msPhase=mix(energy,uniformPhase,msFactor);
         vec3 powder =
       clamp(1.0 - exp(-density * 2 * vec3(1.0)),0,1);
+      float scattering = 1.0 * density;
         vec3 singleScatter=
-        sunCol*
-        lightScattering*
+          
         energy*
-        scatter ;
+        scatter * (sunCol*
+        lightScattering);
     
         multiScatterEnergy+=
-        singleScatter*
+        singleScatter *
         MULTI_SCATTER_GAIN*
         density;
         
@@ -166,12 +174,13 @@ float silverLining = max(henyeyGreensteinPhase(dot(rayDir,lightDir), .65), linin
         msPhase*
         scatter *  mix(2.0 * powder, vec3(1.0), dot(rayDir, lightDir) * 0.5 + 0.5);
 
-         vec3 sampleExtinction = ( fogCol + absCoeff);
+        float extinctionCoeff = 3.3 * density;
+         vec3 sampleExtinction = ( fogCol + absCoeff ) * extinctionCoeff;
         float sampleTransmittance = exp(-_StepSize * 1.0);
     
-        vec3 totalInscatter=singleScatter+multiScatter;
+        vec3 totalInscatter=(singleScatter+multiScatter) * scattering;
         fogCol +=
-      (totalInscatter - totalInscatter * sampleTransmittance) /
+      (totalInscatter - totalInscatter * sampleTransmittance)  /
       sampleExtinction;
         transmission *= sampleTransmittance;
 
@@ -185,11 +194,11 @@ float silverLining = max(henyeyGreensteinPhase(dot(rayDir,lightDir), .65), linin
     return color;
 }
 
-vec4 cloudMarching(vec3 position, float jitter)
+vec4 cloudMarching(vec3 position)
 {   
     //position is worldPos or calculated as feetPlayerPos + cameraPosition;
 
-    const float CLOUD_STEPS = 12;
+    const float CLOUD_STEPS =64;
     vec3 entryPoint=cameraPosition;
     
     //technically feetPlayerPos
@@ -200,10 +209,11 @@ vec4 cloudMarching(vec3 position, float jitter)
     vec3 scattering = vec3(0.0);
     vec3 stepSize = (position - entryPoint )  * (1.0 / CLOUD_STEPS);
     float rayLength = length(stepSize);
-    vec3 stepLength =  (jitter) * stepSize;
+    vec3 stepLength =   stepSize;
     for(int i = 0; i < CLOUD_STEPS; i++)
     {   
-        vec3 rayPos=entryPoint+direction + stepLength ;
+         vec3 noise=blue_noise(floor(gl_FragCoord.xy),frameCounter,i);
+        vec3 rayPos=entryPoint+direction + (stepLength * noise.x) * float(i);
         float density = sampleDensity(rayPos);
         if(density > 0)
         {
@@ -211,17 +221,15 @@ vec4 cloudMarching(vec3 position, float jitter)
         float extinctionCoeff = 1.0 * density;
         extinction *= (-extinctionCoeff * rayLength);
         vec3 sunColor = currentSunColor(vec3(0.0));
-        vec3 ambientColor = computeSkyColoring(vec3(0.0));
+        vec3 ambientColor = computeSkyColoring(vec3(0.0)) * 0.4;
         float ambientPhase = 1.0 / (4 * PI);
         float VdotL = dot(direction, worldLightVector);
-        float phase = henyeyGreensteinPhase(VdotL, .65) ;
+        float phase = henyeyGreensteinPhase(VdotL, .9) + henyeyGreensteinPhase(VdotL, -.45);
         vec3 stepScattering = scatterCoeff * rayLength * (phase * sunColor + ambientPhase * ambientColor);
         scattering += stepScattering;
 
         }
-        
-        
-        
+   
     }   
     return vec4(scattering, extinction);
 }

@@ -59,7 +59,6 @@ bool raytrace(
   vec3 viewPosition,
   vec3 rayDirection,
   int stepCount,
-  float jitter,
   float smoothLightmap,
   out vec3 rayPosition
 ) {
@@ -85,9 +84,9 @@ if (rayDirection.z > 0.0 && rayDirection.z >= -viewPosition.z) {
   );
  
   bool intersect = false;
-  
+  vec3 noise = blue_noise(floor(gl_FragCoord.xy), frameCounter, stepCount) ;
   vec2 texelSize = 1.0 /resolution;
-  rayPosition += rayDirection * jitter;
+  rayPosition += rayDirection * noise.x;
   
  const float THICKNESS = 0.01;
       float viewThickness = max(THICKNESS * (1.0 + abs(rayDirection.z) * 5.0), 1e-4);
@@ -98,7 +97,12 @@ if (rayDirection.z > 0.0 && rayDirection.z >= -viewPosition.z) {
     prevRayPosition = rayPosition;
     rayPosition += rayDirection;
     
-    if (clamp(rayPosition, 0, 1) != rayPosition) return false;
+    if (
+      rayPosition.x < 0.0 || rayPosition.x > 1.0 ||
+      rayPosition.y < 0.0 || rayPosition.y > 1.0
+    ) {
+      break;
+    }
     if (clamp(prevRayPosition, 0, 1) != prevRayPosition) return false;
 
     float depth = texelFetch(
@@ -126,7 +130,7 @@ if (rayDirection.z > 0.0 && rayDirection.z >= -viewPosition.z) {
       intersect = false;
     }
 
-    if(smoothLightmap < 0.882)
+    if(smoothLightmap < 13.5 / 15.0)
     {
        if (
       rayPosition.z > depth &&
