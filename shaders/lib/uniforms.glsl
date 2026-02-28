@@ -28,6 +28,9 @@ uniform sampler2D colortex8;
 uniform sampler2D colortex9;
 uniform sampler2D colortex10;
 uniform sampler2D colortex11;
+uniform sampler2D colortex12;
+uniform sampler2D colortex13;
+uniform sampler2D colortex14;
 
 //depth buffer
 uniform sampler2D depthtex0;
@@ -90,7 +93,13 @@ const float shadowDistance = SHADOW_DISTANCE;
 const float shadowFarPlane = 512.0;
 
 const float shadowDistanceRenderMul = 1.0;
-const float ambientOcclusionLevel = 1.0;
+
+#if AO_METHOD == 1
+const float ambientOcclusionLevel = 0.0;
+#else
+const float ambientOcclusionLevel = VANILLA_AO_LEVEL;
+#endif
+
 //lights
 uniform vec3 sunPosition;
 uniform vec3 moonPosition;

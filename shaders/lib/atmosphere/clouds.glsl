@@ -194,6 +194,7 @@ vec3 cloudRaymarch(vec3 worldPos,vec3 noise, vec3 color)
     return color;
 }
 
+/*
 vec4 cloudMarching(vec3 position)
 {   
     //position is worldPos or calculated as feetPlayerPos + cameraPosition;
@@ -233,4 +234,5 @@ vec4 cloudMarching(vec3 position)
     }   
     return vec4(scattering, extinction);
 }
+*/
 #endif//CLOUDS_GLSL

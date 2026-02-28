@@ -64,14 +64,14 @@ vec3 waterExtinction(
   }
   
   vec3 absorptionColor = vec3(0.0);
-  vec3 absorption = WATER_ABOSRBTION * 2;
+  vec3 absorption = WATER_ABOSRBTION;
   vec3 inscatteringAmount = vec3(0.0);
   inscatteringAmount = WATER_SCATTERING ;
   inscatteringAmount *= SCATTER_COEFF;
   inscatteringAmount *= fog;
 
   inscatteringAmount = pow(inscatteringAmount, vec3(2.2));
-  absorption = pow(absorption, vec3(2.2));
+  
    vec3 screenPos = vec3(texcoord.xy, depth);
   vec3 NDCPos = vec3(texcoord, depth) * 2.0 - 1.0;
   vec3 viewPos = projectAndDivide(gbufferProjectionInverse, NDCPos);
@@ -87,7 +87,7 @@ float smoothDepth = smoothstep(0.998, 1.0, depth);
   vec3 scattering = inscatteringAmount   ;
   vec3 totalScattering = (phaseLighting + scattering) * SCATTER_COEFF;
   vec3 absorptionFactor = exp(
-    -absorption * WATER_FOG_DENSITY * (dist * ABSORPTION_COEFF * 3)
+    -absorption * WATER_FOG_DENSITY * (dist * ABSORPTION_COEFF * 6)
   );
   
   color *= absorptionFactor;

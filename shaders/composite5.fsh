@@ -16,8 +16,9 @@
 
 in vec2 texcoord;
 
-/* RENDERTARGETS: 0 */
+/* RENDERTARGETS: 0,14 */
 layout(location = 0) out vec4 color;
+layout(location = 1) out vec4 history;
 
 mat3 tbnMatrix(vec3 N) {
   vec3 up = abs(N.z) < 0.999 ? vec3(0.0, 0.0, 1.0) : vec3(1.0, 0.0, 0.0);
@@ -337,9 +338,12 @@ void main() {
       reflectedColor = texture2DLod(colortex0, reflectedPos.xy, 0).rgb;
       #endif //ROUGH_REFLECTION
       
+      // bilateral filter for denoising
+    
+         
       if (any(isnan(reflectedColor))) reflectedColor = vec3(0.0);
       if(roughness > 0)  reflectedColor *= max(exp(7.02 * (0.061 - roughness)), 0.0);
-    
+      
     }
   }
 
@@ -352,15 +356,52 @@ void main() {
   }
   
   
-
+ 
   reflectedColor *= F;
-  reflectedColor *= karisAverage(reflectedColor) ;
-  reflectedColor *= karisAverage(reflectedColor) ;
-  reflectedColor *= karisAverage(reflectedColor) ;
+
+
 
   vec3 wetReflectedColor = mix(color.rgb, reflectedColor  , rainFactor);
   reflectedColor = mix(reflectedColor, wetReflectedColor, rainFactor);
+
   
+  #if TEMPORAL_REPROJECTION == 1
+  {
+    float depthCheck = texture(depthtex0, texcoord).r;
+    const float handDepth = MC_HAND_DEPTH * 0.5 + 0.5;
+    if (depthCheck > handDepth) {
+      // reproject current pixel
+      vec3 screenPos = vec3(texcoord.xy, depthCheck);
+      vec3 NDCPos = screenPos * 2.0 - 1.0;
+      vec3 viewPos = projectAndDivide(gbufferProjectionInverse, NDCPos);
+      vec3 feetPlayerPos = (gbufferModelViewInverse * vec4(viewPos, 1.0)).xyz;
+      feetPlayerPos += cameraPosition;
+      feetPlayerPos -= previousCameraPosition;
+      vec3 previousView = (gbufferPreviousModelView * vec4(feetPlayerPos, 1.0)).xyz;
+      vec4 previousClip = gbufferPreviousProjection * vec4(previousView, 1.0);
+      vec3 previousScreen = (previousClip.xyz / previousClip.w) * 0.5 + 0.5;
+      vec2 prevCoord = previousScreen.xy;
+
+      // rejection checks
+      bool historyRejection = clamp(prevCoord, 0, 1) != prevCoord;
+      float previousDepth = texture(depthtex0, prevCoord).r;
+      float currentViewDepth = viewPos.z;
+      float prevViewZ = projectAndDivide(gbufferProjectionInverse, vec3(prevCoord, previousDepth) * 2.0 - 1.0).z;
+      float depthDelta = abs(currentViewDepth - prevViewZ);
+      float depthThreshold = max(0.01, abs(currentViewDepth) * 0.01);
+      float depthConfidence = pow(clamp(1.0 - depthDelta / depthThreshold, 0, 1), 7.5);
+
+      
+      vec4 historyColor = texture(colortex14, prevCoord);
+      float historyWeight = 0.85 * float(!historyRejection) * depthConfidence;
+      
+      reflectedColor = mix(reflectedColor, historyColor.rgb, historyWeight);
+      if (any(isnan(reflectedColor))) reflectedColor = vec3(0.0);
+    }
+  }
+  #endif
+  
+
   if(isMetal)
   {
     color.rgb = reflectedColor;
@@ -381,11 +422,17 @@ void main() {
   }
    
   reflectedColor *= F;
+
    if(isMetal)
     {
       color.rgb += reflectedColor;
     }
     color.rgb += reflectedColor;
   #endif // DO_SSR
+
+ 
+
+  // write reflection history buffer (colortex14) for next frame
+  history = vec4(reflectedColor, 1.0);
 
 }

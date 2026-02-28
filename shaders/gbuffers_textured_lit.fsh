@@ -6,6 +6,7 @@
 #include "/lib/postProcessing.glsl"
 #include "/lib/blockID.glsl"
 #include "/lib/atmosphere/distanceFog.glsl"
+#include "/lib/shadows/SSAO.glsl"
 uniform sampler2D gtexture;
 
 uniform float alphaTestRef = 0.1;
@@ -80,7 +81,7 @@ void main() {
   } else {
     f0 = vec3(specData.g);
   }
-  float ao = texture(normals, texcoord).z;
+  
 
   if (blockID == WATER_ID) {
     mask = vec4(1.0, 1.0, 1.0, 1.0);
@@ -90,7 +91,8 @@ void main() {
     mask = vec4(0.0, 0.0, 0.0, 1.0);
 
   }
-
+  float ao = texture(normals,texcoord).z * 0.5 + 0.5;
+   float ambientOcclusion = SSAO(viewPos, normal);
   vec3 lighting = getLighting(
     color.rgb,
     lightmap.rg,
@@ -100,10 +102,11 @@ void main() {
     f0,
     roughness,
     V,
-    ao,
+    ambientOcclusion,
     sss,
     VdotL,
     isMetal,
+    ao,
     normal
   ) + emissive;
   

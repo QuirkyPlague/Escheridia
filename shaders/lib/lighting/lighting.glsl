@@ -37,6 +37,7 @@ vec3 getLighting(
     float sss,
     float VdotL,
     bool isMetal,
+    float materialAo,
     vec3 faceNormal) {
     color = pow(color, vec3(2.2));
     float t = fract(worldTime / 24000.0);
@@ -136,9 +137,9 @@ vec3 getLighting(
         vec3 baseScatter = sunlight * shadow;
         scatter += baseScatter * 2.75 * (1.0 - sssFresnel)  ;
         scatter *= hasSSS;
-        scatter *= sss;
-      
-       
+        scatter *= sss ;
+        vec3 ambientSSS = skylight * sss * 0.35 * ao;
+        scatter += ambientSSS;
           if (faceNdl >= 1e-6) {
     scatter *= 0.45;
   }
@@ -147,14 +148,13 @@ vec3 getLighting(
         float ambientFactor = smoothstep(141, 0, eyeBrightnessSmooth.y);
 
         //ao *= ao * (1.0 - float(shadow));
-        vec3 ambientLight = (mix(ambientColor.rgb,caveAmbient.rgb * 0.06, ambientFactor)* ao) * color  ;
+        vec3 ambientLight = (mix(ambientColor.rgb,caveAmbient.rgb * 0.06, ambientFactor)* ao * materialAo) * color  ;
         ambientLight = mix(ambientLight, ambientLight * rain, wetness * hotBiomeSmooth);
-
-        vec3 indirect = (skylight + blocklight) * ao;
+        
+        vec3 indirect = (skylight + blocklight) * ao * materialAo;
         float metalMask = isMetal ? 1.0 : 0.0;
         bool noSky = lightmap.g < smoothstep(0.0, 0.682, lightmap.g);
         vec3 metalIndirect = mix(indirect * 0.1,indirect  * 0 , smoothLightmap);
-        ;
         indirect = mix(indirect, metalIndirect, metalMask);
 
         vec3 specular = brdf(

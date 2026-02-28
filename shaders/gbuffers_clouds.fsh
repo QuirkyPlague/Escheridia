@@ -95,22 +95,5 @@ void main() {
      sMask = vec4(1.0, 1.0, 1.0, 1.0);
   }
 
-  vec3 lighting = getLighting(
-    color.rgb,
-    lightmap.rg,
-    mappedNormal.rgb,
-    shadow,
-    H,
-    f0,
-    roughness,
-    V,
-    ao,
-    sss,
-    VdotL,
-    isMetal,
-    normal
-  ) * 0.4;
- 
-  color = vec4(lighting, color.a);
 }
 

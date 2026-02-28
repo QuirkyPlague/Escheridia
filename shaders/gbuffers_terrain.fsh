@@ -3,6 +3,8 @@
 #include "/lib/util.glsl"
 #include "/lib/blockID.glsl"
 #include "/lib/postProcessing.glsl"
+#include "/lib/shadows/SSAO.glsl"
+
 uniform sampler2D gtexture;
 
 uniform float alphaTestRef = 0.1;
@@ -12,6 +14,7 @@ in vec2 texcoord;
 in vec4 glcolor;
 in vec3 normal;
 in mat3 tbnMatrix;
+in vec3 viewPos;
 flat in int blockID;
 in float emission;
 

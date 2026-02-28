@@ -6,22 +6,16 @@
 #include "/lib/atmosphere/volumetrics.glsl"
 in vec2 texcoord;
 
-/* RENDERTARGETS: 0 */
+/* RENDERTARGETS: 0,13 */
 layout(location=0)out vec4 color;
-
+layout(location = 1) out vec4 history;
 void main(){
     color=texture(colortex0,texcoord);
     vec2 lightmap=texture(colortex1,texcoord).rg;
     float depth=texture(depthtex0,texcoord).r;
     
-    vec3 blocklight=blocklightColor.rgb*lightmap.r*.45;
     
-    blocklight*=max(3.59*pow(blocklight,vec3(1.75)),0.);
-    blocklight+=min(1.7*pow(blocklight,vec3(1.25)),3.9);
-    blocklight*=smoothstep(0.,.125,blocklight);
-    
-    vec4 SpecMap=texture(colortex3,texcoord);
-    bool isMetal=SpecMap.g>=230./255.;
+   
     vec3 surfNorm=texture(colortex4,texcoord).rgb;
     vec3 normal=normalize((surfNorm-.5)*2.);
     //space conversions
@@ -41,11 +35,7 @@ void main(){
     
     vec3 shadowViewPos_end=(shadowModelView*vec4(feetPlayerPos,1.)).xyz;
     vec4 shadowClipPos_end=shadowProjection*vec4(shadowViewPos_end,1.);
-    
-    vec3 startPos=vec3(0.,0.,0.);
-    vec3 endPos=worldPos;
-    vec3 fog=color.rgb;
-    
+  
     #ifdef VOLUMETRICS
     #ifndef ADVANCED_FOG_TRACING
     color.rgb+=volumetricRaymarch(
@@ -114,7 +104,7 @@ void main(){
      float skyIntensity=mix(intensity[i],intensity[i+1],timeInterp);
     const float UNIFORM_PHASE=1./(4.*PI);
     const float _StepSize= STEP_SIZE;
-    const float _NoiseOffset=5.05;
+    const float _NoiseOffset=16.05;
     const float MULTI_SCATTER_GAIN= MS_POWER;// how much single scatter feeds MS
     const float MULTI_SCATTER_DECAY= MS_FALLOFF;// energy loss per step
     
@@ -224,10 +214,51 @@ void main(){
         
         distTravelled+=_StepSize;
     }
+   
+    #if TEMPORAL_REPROJECTION == 1
+    {
+        float depth = texture(depthtex0, texcoord).r;
+        // skip reprojecting sky/hand
+        const float handDepth = MC_HAND_DEPTH * 0.5 + 0.5;
+        if (depth > handDepth) {
+            //gather reprojection coords
+            vec3 screenPos = vec3(texcoord.xy, depth);
+            vec3 NDCPos = screenPos * 2.0 - 1.0;
+            vec3 viewPos = projectAndDivide(gbufferProjectionInverse, NDCPos);
+            vec3 feetPlayerPos = (gbufferModelViewInverse * vec4(viewPos, 1.0)).xyz;
+            feetPlayerPos += cameraPosition;
+            feetPlayerPos -= previousCameraPosition;
+            vec3 previousView = (gbufferPreviousModelView * vec4(feetPlayerPos, 1.0)).xyz;
+            vec4 previousClip = gbufferPreviousProjection * vec4(previousView, 1.0);
+            vec3 previousScreen = (previousClip.xyz / previousClip.w) * 0.5 + 0.5;
+            vec2 prevCoord = previousScreen.xy;
+
+            // rejection checks
+            bool historyRejection = clamp(prevCoord, 0, 1) != prevCoord;
+            float previousDepth = texture(depthtex0, prevCoord).r;
+            float currentViewDepth = viewPos.z;
+            float prevViewZ = projectAndDivide(gbufferProjectionInverse, vec3(prevCoord, previousDepth) * 2.0 - 1.0).z;
+            float depthDelta = abs(currentViewDepth - prevViewZ);
+            float depthThreshold = max(0.01, abs(currentViewDepth) * 0.01);
+            float depthConfidence = clamp(1.0 - depthDelta / depthThreshold, 0, 1);
     
+            vec4 historyColor = texture(colortex13, prevCoord) ;
+            
+            float historyWeight = 0.85 * float(!historyRejection);
+            
+            fogCol = mix(fogCol, historyColor.rgb, historyWeight);
+            if (any(isnan(fogCol))) fogCol = vec3(0.0);
+        }
+    }
+    #endif
      color.rgb=mix(color.rgb,fogCol,1.-clamp(transmittance,0,1));
     //color += traceFog(worldPos, color.rgb);
     #endif
     #endif
+
     
+
+    // write history buffer (colortex13) for next frame
+    history = vec4(fogCol,1.0);
 }
+

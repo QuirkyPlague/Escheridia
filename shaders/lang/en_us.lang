@@ -167,4 +167,13 @@ option.CLOUD_STYLE = Cloud Style
     value.CLOUD_STYLE.0 = Boxy
     value.CLOUD_STYLE.1 = Fantasy
 
+option.AO_METHOD = Ambient Occlusion Style
+    value.AO_METHOD.0 = Vanilla AO
+    value.AO_METHOD.1 = SSAO
 
+option.SSAO_SAMPLES = SSAO Sample Count
+option.SSAO_RADIUS = SSAO Radius
+option.SSAO_INTENSITY = SSAO Intensity
+option.VANILLA_AO_LEVEL = Vanilla AO Amount
+option.SSAO_TA_FACTOR = SSAO Temporal Accumulation Factor
+option.FILTER_AO = Filter SSAO

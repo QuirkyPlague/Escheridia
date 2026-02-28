@@ -44,6 +44,12 @@ vec3 screenSpaceToViewSpace(vec3 screenPosition, mat4 projectionInverse) {
   return viewPosition;
 }
 
+float screenSpaceToViewSpace(float depth) {
+  depth = depth * 2.0 - 1.0;
+  return gbufferProjectionInverse[3].z /
+  (gbufferProjectionInverse[2].w * depth + gbufferProjectionInverse[3].w);
+}
+
 float luminance(vec3 color) {
   return dot(color, vec3(0.2126, 0.7152, 0.0722));
 }
