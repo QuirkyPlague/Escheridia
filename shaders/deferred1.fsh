@@ -21,8 +21,9 @@ layout(location = 0) out vec4 color;
 void main() {
   //assign colortex buffers
   color = texture(colortex0, texcoord);
+  color = pow(color, vec4(2.2));
   vec3 albedo = color.rgb;
-  albedo = pow(albedo, vec3(2.2));
+  
   vec2 lightmap = texture(colortex1, texcoord).rg;
   vec4 SpecMap = texture(colortex3, texcoord);
   vec3 encodedNormal = texture(colortex2, texcoord).rgb;
@@ -70,8 +71,8 @@ void main() {
          rainFactor =
     clamp(smoothstep(13.5 / 15.0, 14.5 / 15.0, lightmap.y),0,1) * wetness;
       rainFactor *= smoothstep(
-    -0.55,
-    0.65,
+    -0.45,
+    0.75,
     texture(
       puddleTex,
       noisePos
@@ -114,12 +115,12 @@ void main() {
   vec3 emissive = vec3(0.0);
   #ifndef HC_EMISSION
   if (emission < 1.0) {
-    emission = min(emission, 0.7);
+    emission = min(emission, 0.85);
     emissive += color.rgb * emission;
-    emissive += max(21.25 * pow(emissive, vec3(2.08)), 0.0);
+    emissive += max(53.25 * pow(emissive, vec3(1.08)), 0.0);
       
-    emissive = CSB(emissive, 1.0, 0.85, 1.0);
-    emissive = pow(emissive, vec3(2.2));
+    emissive = CSB(emissive, 1.0, 0.95, 1.0);
+    //emissive = pow(emissive, vec3(2.2));
   }
 #endif //HC_EMISSION
 
@@ -136,7 +137,7 @@ void main() {
   #if AO_METHOD == 1
    ambientOcclusion = texture(colortex12, texcoord).r;
   #endif
-  roughness = mix(roughness,roughness *0.013, noise * (1.0 - porosity) * 0.8);
+  roughness = mix(roughness,roughness *0.083, noise * (1.0 - porosity) * 0.8);
   color.rgb *= 1.0 - 0.5 * noise * porosity;
 
   color.rgb =

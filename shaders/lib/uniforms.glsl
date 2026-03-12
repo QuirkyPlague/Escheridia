@@ -31,6 +31,7 @@ uniform sampler2D colortex11;
 uniform sampler2D colortex12;
 uniform sampler2D colortex13;
 uniform sampler2D colortex14;
+uniform sampler2D colortex15;
 
 //depth buffer
 uniform sampler2D depthtex0;
@@ -89,6 +90,7 @@ const float wetnessHalflife = 35.3;
 const float drynessHalflife = 75.0;
 const float sunPathRotation = SUN_ROTATION;
 const float eyeBrightnessHalflife = 5.0;
+uniform ivec2 eyeBrightness;
 const float shadowDistance = SHADOW_DISTANCE;
 const float shadowFarPlane = 512.0;
 

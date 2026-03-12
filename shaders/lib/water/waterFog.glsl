@@ -121,7 +121,12 @@ vec3 waterFog(vec3 color, vec2 texcoord, vec2 lightmap, float depth) {
   float backPhase = henyeyGreensteinPhase(VdotL, -0.1);
   float smoothDepth = smoothstep(0.998, 1.0, depth);
    float scatterReduce = smoothstep(0, 185, eyeBrightnessSmooth.y);
-    
+    #ifdef VOLUMETRICS
+    phase = 1.0;
+    backPhase = 1.0;
+    inscatteringAmount *= 0.0;
+    absorption *= 0.0;
+    #endif
   vec3 phaseLighting = sunColor * phase * scatterReduce;
   vec3 scattering = inscatteringAmount  * backPhase ;
   vec3 totalScattering = (phaseLighting + scattering) * SCATTER_COEFF;

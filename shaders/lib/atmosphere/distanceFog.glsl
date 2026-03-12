@@ -23,11 +23,12 @@ float remap1(float value, float originalMin, float originalMax, float newMin, fl
 
 float getFogDensity(vec3 pos)
 {
-    const float totalDensity = 0.0055;
+    const float totalDensity = 0.0035;
     float jungleHeight = smoothstep(101, 75, pos.y);
-    float height = smoothstep(MAX_HEIGHT,MIN_HEIGHT, pos.y);
-    height = mix(height, jungleHeight, jungleSmooth);
+    float height = smoothstep(mix(MAX_HEIGHT, MAX_HEIGHT + 30, wetness), mix(MIN_HEIGHT, MIN_HEIGHT + 30, wetness), pos.y);
 
+    height = mix(height, jungleHeight, jungleSmooth);
+    
     vec4 shape = vec4(0.0);
     vec4 detail1 = vec4(0.0);
     vec4 detail2 = vec4(0.0);
@@ -43,9 +44,11 @@ float getFogDensity(vec3 pos)
     detail2 = texture(detail, uvw.xz);
     shape.r = remap1(shape.r, 1.0 - detail1.r , 1.0, 0.5, 1.5);
     shape.r = mix(shape.r, shape.r * 3.6, jungleHeight);
+    shape = mix(shape, vec4(1.0), wetness);
     float threshold = max(0, shape.r - DENSITY_THRESHOLD);
     float jungleThreshold =   max(0.3, shape.r - 0.025);
     threshold = mix(threshold, jungleThreshold, jungleSmooth);
+    
     density = threshold * FOG_DENSITY;
     #else
     density = 0.325;
@@ -53,6 +56,7 @@ float getFogDensity(vec3 pos)
     float morningFog = smoothstep(0.3, 0.1, worldLightVector.y);
     density = mix(density, density * 2.5, morningFog);
     density = mix(density, density * 2.5, jungleSmooth);
+   
     density *= totalDensity * height;
     density += baseDensity * height;
     }
@@ -60,7 +64,9 @@ float getFogDensity(vec3 pos)
     {
         density = 0.03;
     }
-    
+    if(inWater) density = 0.03;
+     if(pos.y < 55 && eyeBrightness.y < 0.2 && !inWater) density = 0;
+      density = mix(density, density * 2.5, wetness);
     return density;
 }
 

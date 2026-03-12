@@ -177,3 +177,4 @@ option.SSAO_INTENSITY = SSAO Intensity
 option.VANILLA_AO_LEVEL = Vanilla AO Amount
 option.SSAO_TA_FACTOR = SSAO Temporal Accumulation Factor
 option.FILTER_AO = Filter SSAO
+

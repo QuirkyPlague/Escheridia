@@ -14,7 +14,7 @@ in vec3 normal;
 in mat3 tbnMatrix;
 flat in int blockID;
 
-/* RENDERTARGETS: 0,1,2,3,4,6,7,9 */
+/* RENDERTARGETS: 15,1,2,3,4,6,7,9 */
 layout(location = 0) out vec4 color;
 layout(location = 1) out vec4 lightmap;
 layout(location = 2) out vec4 encodedNormal;

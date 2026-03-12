@@ -15,7 +15,7 @@ in mat3 tbnMatrix;
 flat in int blockID;
 in float emission;
 
-/* RENDERTARGETS: 0,1,2,3,4,6,7,9 */
+/* RENDERTARGETS: 15,1,2,3,4,6,7,9 */
 layout(location = 0) out vec4 color;
 layout(location = 1) out vec4 lightmap;
 layout(location = 2) out vec4 encodedNormal;
@@ -27,7 +27,7 @@ layout(location = 7) out vec4 ao;
 
 void main() {
   color = texture(gtexture, texcoord) * glcolor;
-
+   color = pow(color, vec4(2.2));
   vec3 normalMaps = texture(normals, texcoord).rgb;
   normalMaps = normalMaps * 2.0 - 1.0;
   normalMaps.xy /= 254.0 / 255.0;
@@ -61,6 +61,8 @@ void main() {
   }
   #endif
   color.rgb += emissive;
+  color.a = color.a;
+  
   ao.a = texture(normals,texcoord).z * 0.5 + 0.5;
   color.rgb = mix(color.rgb, entityColor.rgb, entityColor.a);
 }

@@ -59,16 +59,16 @@ vec3 skyFallbackBlend(
     vec3 skyDir = normalize(tbn * tangentReflDir);
 
     vec3 skyCol = skyScattering(skyDir);
-
-    accumulated += skyCol;
+   
+    accumulated += skyCol ;
 
   }
   vec3 sky = accumulated / float(ROUGH_SAMPLES);
   if (isWater || roughness <= 0) {
     dir2 = reflect(eyePlayerPos, normal);
-
     vec3 skyCol = skyScattering(normalize(dir2));
     vec3 sunCol = getSun(normalize(dir2));
+    
     sky = sunCol + skyCol;
 
   }
@@ -146,7 +146,7 @@ void main() {
     clamp(smoothstep(13.5 / 15.0, 14.5 / 15.0, lightmap.y),0,1) * wetness;
       rainFactor *= smoothstep(
     -0.45,
-    0.65,
+    0.75,
     texture(
       puddleTex,
       noisePos
@@ -231,7 +231,7 @@ void main() {
   
   f0 = mix(f0, vec3(0.02), rainFactor);
   float bRough = roughness;
-  float wetRoughness = mix(roughness* 0.7, roughness * 0.0, rainFactor);
+  float wetRoughness = mix(roughness* 0.5, roughness * 0.01, rainFactor);
   
 
   roughness = mix(roughness,wetRoughness, wetness);
@@ -342,7 +342,7 @@ void main() {
     
          
       if (any(isnan(reflectedColor))) reflectedColor = vec3(0.0);
-      if(roughness > 0)  reflectedColor *= max(exp(7.02 * (0.061 - roughness)), 0.0);
+      if(roughness > 0)  reflectedColor *= max(exp(12.02 * (0.061 - roughness)), 0.0);
       
     }
   }
@@ -359,12 +359,12 @@ void main() {
  
   reflectedColor *= F;
 
-
+  
 
   vec3 wetReflectedColor = mix(color.rgb, reflectedColor  , rainFactor);
   reflectedColor = mix(reflectedColor, wetReflectedColor, rainFactor);
 
-  
+       // --- temporal reprojection for reflections --------------------------------
   #if TEMPORAL_REPROJECTION == 1
   {
     float depthCheck = texture(depthtex0, texcoord).r;
@@ -381,26 +381,32 @@ void main() {
       vec4 previousClip = gbufferPreviousProjection * vec4(previousView, 1.0);
       vec3 previousScreen = (previousClip.xyz / previousClip.w) * 0.5 + 0.5;
       vec2 prevCoord = previousScreen.xy;
-
+      depth = linearizeDepth(depth);
       // rejection checks
       bool historyRejection = clamp(prevCoord, 0, 1) != prevCoord;
-      float previousDepth = texture(depthtex0, prevCoord).r;
-      float currentViewDepth = viewPos.z;
+      float previousDepth = linearizeDepth(texture(depthtex0, prevCoord).r);
+       float sampleNDCDepth = depth * 2.0 - 1.0;
+        float sampleViewDepth = gbufferProjectionInverse[3].z / (gbufferProjectionInverse[2].w * sampleNDCDepth + gbufferProjectionInverse[3].w);
       float prevViewZ = projectAndDivide(gbufferProjectionInverse, vec3(prevCoord, previousDepth) * 2.0 - 1.0).z;
-      float depthDelta = abs(currentViewDepth - prevViewZ);
-      float depthThreshold = max(0.01, abs(currentViewDepth) * 0.01);
-      float depthConfidence = pow(clamp(1.0 - depthDelta / depthThreshold, 0, 1), 7.5);
-
+      float depthDelta = abs(depth - previousDepth);
+      float depthThreshold = max(0.01, abs(prevViewZ) * 0.01);
+      float depthConfidence = pow(clamp(1.0 - depthDelta / depthThreshold, 0, 1), 1.0);
+      float response = pow(roughness, 2.0) * reflDist;
+      float reflLum = luminance(reflectedColor);
       
+      float factor = 0.85;
+      //factor = max(factor, clamp(reflLum, 0, 1) * factor);
+      if(roughness < 0.05) factor = 0.5;
       vec4 historyColor = texture(colortex14, prevCoord);
-      float historyWeight = 0.85 * float(!historyRejection) * depthConfidence;
+      float historyWeight = factor * float(!historyRejection) ;
       
       reflectedColor = mix(reflectedColor, historyColor.rgb, historyWeight);
       if (any(isnan(reflectedColor))) reflectedColor = vec3(0.0);
     }
   }
   #endif
-  
+  reflectedColor *= karisAverage(reflectedColor);
+
 
   if(isMetal)
   {

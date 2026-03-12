@@ -123,9 +123,9 @@ vec2 rainSinWave(vec2 position, vec2 direction, float frequency, float timeshift
 
 // Calculates waves by summing octaves of various waves with various parameters
 float getRainWaves(vec2 position, int iterations, float rainAmount) {
-  float wavePhaseShift = length(position) * 0.854; // this is to avoid every octave having exactly the same phase everywhere
+  float wavePhaseShift = length(position) * 0.354; // this is to avoid every octave having exactly the same phase everywhere
   float iter = 0.0; // this will help generating well distributed wave directions
-  float frequency = 3.85; // frequency of the wave, this will change every iteration
+  float frequency = 2.45; // frequency of the wave, this will change every iteration
   float timeMultiplier = 7.0 * rainAmount; // time multiplier for the wave, this will change every iteration
   float weight = 0.35; // weight in final sum for the wave, this will change every iteration
   float sumOfValues = 0.0; // will store final sum of values
@@ -150,9 +150,9 @@ float getRainWaves(vec2 position, int iterations, float rainAmount) {
     sumOfWeights += weight;
 
     // modify next octave ;
-    weight = mix(weight, 0.15, 0.372);
-    frequency *= 1.34;
-    timeMultiplier *= 1.17 ;
+    weight = mix(weight, 0.0, 0.212);
+    frequency *= 1.22;
+    timeMultiplier *= 1.12 ;
 
     // add some kind of random value to make next wave look random too
     iter += 1232.399963;

@@ -10,7 +10,7 @@ float SSAO(vec3 viewPos, vec3 normal)
     float viewDist = length(viewPos);
     
    
-    float bias = 0.0025;
+    float bias = 0.025;
     
     mat3 tbn;
     tbn[2] = normal;
@@ -44,12 +44,20 @@ float SSAO(vec3 viewPos, vec3 normal)
         float viewDepth   = abs(viewPos.z);
        float sampleOcclusion =
       float(sampleViewDepth >= sampleViewPos.z + bias) * smoothstep(0.0, 1.0, SSAO_RADIUS / abs(sampleViewDepth - sampleViewPos.z));
-      occlusion += 1.0 - sampleOcclusion * SSAO_INTENSITY;
-     
+      occlusion += 1.0 - sampleOcclusion;
+      
+      if (any(isnan(occlusion))) occlusion = 1.0;
     }
 
     
+    float finalOcclusion = occlusion / float(SSAO_SAMPLES);
     
-    return occlusion / float(SSAO_SAMPLES);
+    // Power curve for better shadow falloff without harsh blacks
+    finalOcclusion = pow(finalOcclusion, 1.5);
+    
+    // Apply intensity multiplier from settings
+    finalOcclusion = 1.0 - (1.0 - finalOcclusion) * SSAO_INTENSITY;
+    
+    return finalOcclusion;
 }
 #endif

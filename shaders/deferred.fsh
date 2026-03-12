@@ -35,14 +35,18 @@ const float handDepth = MC_HAND_DEPTH * 0.5 + 0.5;
 
  vec3 encodedNormal = texture(colortex2, texcoord).rgb;
   vec3 normal = normalize((encodedNormal - 0.5) * 2.0);
+    vec3 surfNorm = texture(colortex4, texcoord).rgb;
+  vec3 geoNormal = normalize((surfNorm - 0.5) * 2.0);
   bool historyRejection = clamp(prevCoord,0,1) != prevCoord;
   
-   occlusion = SSAO(viewPos, normal);
+   occlusion = SSAO(viewPos, geoNormal);
 
     #ifdef FILTER_AO
     float historyWeight = SSAO_TA_FACTOR * float(!historyRejection) ;
     float previousOcclusion = texture(colortex12, prevCoord).r;
     occlusion = mix(occlusion, previousOcclusion, historyWeight);
+   
+   
     #endif
     
 }

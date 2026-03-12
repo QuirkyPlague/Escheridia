@@ -2,9 +2,7 @@
 #define CLOUDS_GLSL
 
 #include "/lib/util.glsl"
-#include "/lib/atmosphere/distanceFog.glsl"
 #include "/lib/blockID.glsl"
-
 
 
 float remap(float value, float originalMin, float originalMax, float newMin, float newMax)
@@ -82,7 +80,7 @@ float sampleDensity(vec3 pos)
 
     density += max(0, shape.r - CLOUD_DENSITY_THRESHOLD) * CLOUD_DENSITY;
     #if CLOUD_STYLE == 0
-    density *= 0.7;
+    density *= 1.1;
     #else
     density *= 7;
     #endif

@@ -83,8 +83,8 @@ void main(){
         1.0,
         1.0,
         0.65,
-        0.35,
-        0.35,
+        0.65,
+        0.65,
         0.65
     );
     
@@ -110,9 +110,9 @@ void main(){
     
     float phaseIncFactor=smoothstep(225,0,eyeBrightnessSmooth.y);
     float scatterReduce=smoothstep(0,185,eyeBrightnessSmooth.y);
-    vec3 lightScattering=vec3(4.) * PHASE_MULTIPLIER;
+    vec3 lightScattering=vec3(16.) * PHASE_MULTIPLIER;
     
-    lightScattering=mix(lightScattering,lightScattering*4,phaseIncFactor);
+    
     
     vec3 entryPoint=cameraPosition;
     vec3 viewDir=worldPos-cameraPosition;
@@ -137,12 +137,19 @@ void main(){
     sunCol = mix(sunCol, sunCol * jungleTint, jungleSmooth);
     
     fogCol = mix(fogCol, jungleCol * skyIntensity, jungleSmooth);
+ 
     sunCol=pow(sunCol,vec3(2.2));
     fogCol=pow(fogCol,vec3(2.2));
-    fogCol=mix(fogCol,fogCol*.8,wetness);
+  
     jungleCol *= 195;
     fogCol *= 195;
-    
+       if(inWater)
+    {
+        
+        scatterReduce = 1.0;
+        fogCol = WATER_SCATTERING * 0.81;
+        absCoeff = WATER_ABOSRBTION * 4 ;
+    } 
     vec3 shadowNormal=mat3(shadowModelView)*normal;
     const float shadowMapPixelSize=1./float(SHADOW_RESOLUTION);
     
@@ -175,6 +182,7 @@ void main(){
             transmission *= exp(-absCoeff * _StepSize);
             vec3 lightDir=worldLightVector;
             float phase=CS(phaseVal,dot(rayDir,lightDir)) + 0.13 * CS(-0.1,dot(rayDir,lightDir));
+            if(inWater)  phase = waterPhase(dot(rayDir,lightDir));
             float scatter=density*_StepSize* float(transmittance);
             
             float msFactor=clamp(1.-float(transmittance),0.,1.);
@@ -211,10 +219,10 @@ void main(){
             
             transmittance*=exp(-density*_StepSize);
         }
-        
+         
         distTravelled+=_StepSize;
     }
-   
+  
     #if TEMPORAL_REPROJECTION == 1
     {
         float depth = texture(depthtex0, texcoord).r;
@@ -239,26 +247,32 @@ void main(){
             float currentViewDepth = viewPos.z;
             float prevViewZ = projectAndDivide(gbufferProjectionInverse, vec3(prevCoord, previousDepth) * 2.0 - 1.0).z;
             float depthDelta = abs(currentViewDepth - prevViewZ);
-            float depthThreshold = max(0.01, abs(currentViewDepth) * 0.01);
-            float depthConfidence = clamp(1.0 - depthDelta / depthThreshold, 0, 1);
+               float depthThreshold = max(0.01, abs(currentViewDepth) * 0.01);
+      float depthConfidence = pow(clamp(1.0 - depthDelta / depthThreshold, 0, 1), 1.5);
     
             vec4 historyColor = texture(colortex13, prevCoord) ;
             
-            float historyWeight = 0.85 * float(!historyRejection);
+            float historyWeight = 0.35 * float(!historyRejection);
             
             fogCol = mix(fogCol, historyColor.rgb, historyWeight);
             if (any(isnan(fogCol))) fogCol = vec3(0.0);
         }
     }
+        // write history buffer (colortex13) for next frame
+    history = vec4(fogCol,0.0);
     #endif
      color.rgb=mix(color.rgb,fogCol,1.-clamp(transmittance,0,1));
+     if(inWater)
+     {  
+        
+        color.rgb *= fogCol + 1.-clamp(transmittance,0,1) ;
+     } 
     //color += traceFog(worldPos, color.rgb);
     #endif
     #endif
 
     
 
-    // write history buffer (colortex13) for next frame
-    history = vec4(fogCol,1.0);
+
 }
 

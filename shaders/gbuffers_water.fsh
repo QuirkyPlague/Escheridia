@@ -33,7 +33,7 @@ layout(location = 5) out vec4 mask;
 
 void main() {
   color = texture(gtexture, texcoord) * glcolor;
-
+  color = pow(color, vec4(2.2));
   vec3 normalMaps = texture(normals, texcoord, 0).rgb;
   normalMaps = normalMaps * 2.0 - 1.0;
   normalMaps.xy /= 254.0 / 255.0;
