@@ -228,7 +228,7 @@ void main(){
         float depth = texture(depthtex0, texcoord).r;
         // skip reprojecting sky/hand
         const float handDepth = MC_HAND_DEPTH * 0.5 + 0.5;
-        if (depth > handDepth) {
+          
             //gather reprojection coords
             vec3 screenPos = vec3(texcoord.xy, depth);
             vec3 NDCPos = screenPos * 2.0 - 1.0;
@@ -251,22 +251,23 @@ void main(){
       float depthConfidence = pow(clamp(1.0 - depthDelta / depthThreshold, 0, 1), 1.5);
     
             vec4 historyColor = texture(colortex13, prevCoord) ;
-            
-            float historyWeight = 0.35 * float(!historyRejection);
+            float factor = 0.65;
+             bool rejectHistory = false;
+            if(depth <= 0.56 )rejectHistory = true; 
+         if(previousDepth <= 0.56 )rejectHistory = true;
+           
+            float historyWeight = factor * float(!historyRejection) * float(!rejectHistory);
             
             fogCol = mix(fogCol, historyColor.rgb, historyWeight);
             if (any(isnan(fogCol))) fogCol = vec3(0.0);
-        }
+        
     }
         // write history buffer (colortex13) for next frame
     history = vec4(fogCol,0.0);
     #endif
      color.rgb=mix(color.rgb,fogCol,1.-clamp(transmittance,0,1));
-     if(inWater)
-     {  
-        
-        color.rgb *= fogCol + 1.-clamp(transmittance,0,1) ;
-     } 
+     float inWaterMask = float(inWater);
+     color.rgb *= mix(vec3(1.0), fogCol + 1.0 - clamp(transmittance, 0, 1), inWaterMask);
     //color += traceFog(worldPos, color.rgb);
     #endif
     #endif

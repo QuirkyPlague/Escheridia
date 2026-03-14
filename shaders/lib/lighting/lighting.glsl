@@ -19,7 +19,7 @@ const vec4 morningSkylightColor = vec4(0.6353, 0.7333, 0.851, 0.831);
 const vec4 eveningSkylightColor = vec4(0.6353, 0.7333, 0.851, 0.731);
 const vec4 nightSkylightColor = vec4(0.2941, 0.3804, 0.5639, 0.924);
 
-const vec4 blocklightColor = vec4(1.0, 0.8, 0.5843, 1.0);
+const vec4 blocklightColor = vec4(1.0, 0.8, 0.5843, 1.00);
 const vec4 ambientColor = vec4(0.015);
 const vec4 caveAmbient = vec4(0.8353, 0.8353, 0.8353, 1.0);
 const vec3 rainTint = vec3(0.6122, 0.5549, 0.4627);
@@ -38,8 +38,11 @@ vec3 getLighting(
     float VdotL,
     bool isMetal,
     float materialAo,
-    vec3 faceNormal) {
-  
+    vec3 faceNormal,
+    vec2 uv) {
+    
+    vec3 vxBlocklight = texture(colortex9, uv).rgb;
+
     float t = fract(worldTime / 24000.0);
     const int keys = 7;
     const float keyFrames[keys] = float[keys](
@@ -99,10 +102,13 @@ vec3 getLighting(
         float shadowSmooth = exp(-5.0 * SHADOW_DISTANCE);
         float shadowSmoothFade = smoothstep(0.0, 1.0, shadowSmooth);
 
-        if (wetness > 0) {
-            sunlight *= mix(sunlight, rainTint, wetness * hotBiomeSmooth);
-            sunlight *= mix(1.0, rain, wetness * hotBiomeSmooth);
-        }
+        float wetMask = step(0.0, wetness);
+        float wetFactor = wetness * hotBiomeSmooth;
+        vec3 baseSunlight = sunlight;
+        vec3 wetSunlight = mix(baseSunlight, rainTint, wetFactor);
+        float wetMul = mix(1.0, rain, wetFactor);
+        sunlight *= mix(vec3(1.0), wetSunlight, wetMask);
+        sunlight *= mix(1.0, wetMul, wetMask);
 
         sunlight *= sunIntensity;
         sunlight *= shadowFade;
@@ -116,11 +122,12 @@ vec3 getLighting(
         skylight *= max(1.95 * pow(skylight, vec3(2.55)), 0.0);
         skylight += min(1.7 * pow(skylight, vec3(1.25)), 1.9);
 
-        vec3 blocklight = blocklightColor.rgb * lightmap.r;
-
-        blocklight *= max(3.59 * pow(blocklight, vec3(1.75)), 0.0);
-        blocklight += min(1.7 * pow(blocklight, vec3(1.25)), 3.9);
-        blocklight  *= smoothstep(0.0, 0.125, blocklight); 
+        
+        vec3 blocklight = vxBlocklight * lightmap.r;
+        float blocklightIntensity = blocklightColor.a;
+        blocklight *= max(15.59 * pow(blocklight, vec3(1.75)), 0.0);
+        blocklight += min(0.77 * pow(blocklight, vec3(0.65)), 0.9);
+        blocklight *= blocklightIntensity;
 
         float faceNdl = dot(faceNormal, worldLightVector);
 
@@ -138,13 +145,12 @@ vec3 getLighting(
         scatter += baseScatter * 2.75 * (1.0 - sssFresnel)  ;
         scatter *= hasSSS;
         scatter *= sss ;
-        vec3 ambientSSS = skylight * 0.7 * sss;
-        vec3 blockSSS = blocklight * 4  * sss;
+        vec3 ambientSSS = skylight * 1.0 * sss;
+        vec3 blockSSS = blocklight * 5  * sss;
         vec3 indirectSSS = ambientSSS + blockSSS * ao  * uniformPhase;
         scatter += indirectSSS;
-          if (faceNdl >= 1e-6) {
-    scatter *= 0.45;
-  }
+        float faceNdlMask = step(1e-6, faceNdl);
+        scatter *= mix(1.0, 0.45, faceNdlMask);
 
         float smoothLightmap = clamp(smoothstep(13.5 / 15.0, 14.5 / 15.0, lightmap.y),0,1);
         float ambientFactor = smoothstep(141, 0, eyeBrightnessSmooth.y);
@@ -219,10 +225,13 @@ vec3 getLighting(
             float sunHeight = dot(worldLightVector, vec3(0.0, 1.0, 0.0));
             float shadowFade = smoothstep(0.05, 0.1, worldLightVector.y);
 
-            if (wetness > 0) {
-                sunlight *= mix(sunlight, rainTint, wetness * hotBiomeSmooth);
-                sunlight *= mix(1.0, 0.77, wetness * hotBiomeSmooth);
-            }
+            float wetMask = step(0.0, wetness);
+            float wetFactor = wetness * hotBiomeSmooth;
+            vec3 baseSunlight = sunlight;
+            vec3 wetSunlight = mix(baseSunlight, rainTint, wetFactor);
+            float wetMul = mix(1.0, 0.77, wetFactor);
+            sunlight *= mix(vec3(1.0), wetSunlight, wetMask);
+            sunlight *= mix(1.0, wetMul, wetMask);
             sunlight *= sunIntensity;
             sunlight *= shadowFade;
             return sunlight;

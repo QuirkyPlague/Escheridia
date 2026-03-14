@@ -1,4 +1,4 @@
-#version 400 compatibility
+#version 430 compatibility
 
 #include "/lib/util.glsl"
 #include "/lib/atmosphere/distanceFog.glsl"
@@ -17,7 +17,7 @@ void main() {
     return;
   }
 const float handDepth = MC_HAND_DEPTH * 0.5 + 0.5;
-  if(depth <= handDepth) return;
+  
   vec3 screenPos = vec3(texcoord.xy, depth);
   vec3 NDCPos = vec3(texcoord, depth) * 2.0 - 1.0;
   vec3 viewPos = projectAndDivide(gbufferProjectionInverse, NDCPos);
@@ -32,7 +32,7 @@ const float handDepth = MC_HAND_DEPTH * 0.5 + 0.5;
   vec4 previousClip = gbufferPreviousProjection * vec4(previousView, 1.0);
   vec3 previousScreen = (previousClip.xyz / previousClip.w) * 0.5 + 0.5;
   vec2 prevCoord = previousScreen.xy;
-
+  float previousDepth = texture(depthtex0, prevCoord).r;
  vec3 encodedNormal = texture(colortex2, texcoord).rgb;
   vec3 normal = normalize((encodedNormal - 0.5) * 2.0);
     vec3 surfNorm = texture(colortex4, texcoord).rgb;
@@ -42,7 +42,13 @@ const float handDepth = MC_HAND_DEPTH * 0.5 + 0.5;
    occlusion = SSAO(viewPos, geoNormal);
 
     #ifdef FILTER_AO
-    float historyWeight = SSAO_TA_FACTOR * float(!historyRejection) ;
+    float factor = SSAO_TA_FACTOR;
+    bool rejectHistory = false;
+    if(depth <= 0.56 )rejectHistory = true; 
+         if(previousDepth <= 0.56 )rejectHistory = true;
+           
+            float historyWeight = factor * float(!historyRejection) * float(!rejectHistory);
+   
     float previousOcclusion = texture(colortex12, prevCoord).r;
     occlusion = mix(occlusion, previousOcclusion, historyWeight);
    

@@ -2,14 +2,15 @@
 #define COMMON
 
 /*
-    const int colortex0Format =  RGB16F;
+    const int colortex0Format =  R11F_G11F_B10F;
     const bool colortex0MipmapEnabled = true;
-    const int colortex6Format = RGB16F;
-    const int colortex10Format = RGB16F;
-    const int colortex11Format = RGB16F;
-    const int colortex12Format = RGB16F;
-    const int colortex13Format = RGB16F;
-     const int colortex14Format = RGB16F;
+    const int colortex6Format = R11F_G11F_B10F;
+    const int colortex10Format = R11F_G11F_B10F;
+    const int colortex11Format = R11F_G11F_B10F;
+    const int colortex12Format = R11F_G11F_B10F;
+    const int colortex13Format = R11F_G11F_B10F;
+    const int colortex14Format = R11F_G11F_B10F;
+    const int colortex15Format = RGBA16F;
 */
 
 const bool colortex10Clear = false;
@@ -23,6 +24,13 @@ const bool colortex14Clear = false;
 #define TEMPORAL_REPROJECTION 1 //[0 1]
 #define TA_FACTOR 0.85 //[0.05 0.10 0.15 0.20 0.25 0.30 0.35 0.40 0.45 0.50 0.55 0.60 0.65 0.70 0.75 0.80 0.85 0.90 0.95]
 #define SCREENSHOT_MODE 0 //[0 1 2]
+#define REFLECTION_FILTER 
+//Voxels
+#define FLOODFILL 
+#define VOXEL_AREA 128 //[32 64 128] 
+#define VOXEL_RADIUS (VOXEL_AREA / 2.0)
+#define VISUALIZED_DATA 5 //[0 1 2 3 4 5]
+#define MAX_FLOODFILL_INTENSITY 1.0
 
 //shadows
 #define SHADOW_SAMPLES 8 //[4 8 12 16 20 24 28 32]

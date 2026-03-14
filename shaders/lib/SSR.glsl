@@ -160,4 +160,6 @@ if (rayDirection.z > 0.0 && rayDirection.z >= -viewPosition.z) {
 
 }
 
+
+
 #endif //SSR_GLSL

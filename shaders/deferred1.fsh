@@ -21,7 +21,7 @@ layout(location = 0) out vec4 color;
 void main() {
   //assign colortex buffers
   color = texture(colortex0, texcoord);
-  color = pow(color, vec4(2.2));
+    color = pow(color, vec4(2.2));
   vec3 albedo = color.rgb;
   
   vec2 lightmap = texture(colortex1, texcoord).rg;
@@ -33,7 +33,7 @@ void main() {
  
   float depth = texture(depthtex1, texcoord).r;
   vec4 mask = texture(colortex7, texcoord);
-  vec4 ao = texture(colortex9, texcoord);
+  float ao = texture(colortex2, texcoord).a;
 
   int blockID = int(mask) + 103;
   if (depth == 1) return; //return out of function to prevent lighting interating with sky
@@ -115,9 +115,9 @@ void main() {
   vec3 emissive = vec3(0.0);
   #ifndef HC_EMISSION
   if (emission < 1.0) {
-    emission = min(emission, 0.85);
+    emission = min(emission, 1.0);
     emissive += color.rgb * emission;
-    emissive += max(53.25 * pow(emissive, vec3(1.08)), 0.0);
+    emissive += max(105.25 * pow(emissive, vec3(2.58)), 0.0);
       
     emissive = CSB(emissive, 1.0, 0.95, 1.0);
     //emissive = pow(emissive, vec3(2.2));
@@ -140,6 +140,7 @@ void main() {
   roughness = mix(roughness,roughness *0.083, noise * (1.0 - porosity) * 0.8);
   color.rgb *= 1.0 - 0.5 * noise * porosity;
 
+
   color.rgb =
     getLighting(
       color.rgb,
@@ -154,8 +155,9 @@ void main() {
       sss,
       VdotL,
       isMetal,
-       ao.a,
-      geoNormal
+       ao,
+      geoNormal,
+      texcoord
     ) +
     emissive;
 

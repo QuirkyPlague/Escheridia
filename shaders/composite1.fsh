@@ -1,4 +1,4 @@
-#version 400 compatibility
+#version 430 compatibility
 
 #include "/lib/lighting/lighting.glsl"
 #include "/lib/uniforms.glsl"
@@ -15,27 +15,29 @@ in vec2 texcoord;
 
 
 
-/* RENDERTARGETS: 0,15 */
-layout(location = 0) out vec4 baseColor;
-layout(location = 1) out vec4 color;
+/* RENDERTARGETS: 15 */
+
+layout(location = 0) out vec4 color;
+
 void main() {
   //assign colortex buffers
   color = texture(colortex15, texcoord);
-   baseColor = texture(colortex0, texcoord);
-  if(color.a < 0.1) return;
+ color = pow(color, vec4(2.2));
   
+  if(color.a < 0.1) return;
   vec3 albedo = color.rgb;
 
   vec2 lightmap = texture(colortex1, texcoord).rg;
   vec4 SpecMap = texture(colortex3, texcoord);
   vec3 encodedNormal = texture(colortex2, texcoord).rgb;
+  float ao = texture(colortex2, texcoord).a;
   vec3 normal = normalize((encodedNormal - 0.5) * 2.0);
   vec3 surfNorm = texture(colortex4, texcoord).rgb;
   vec3 geoNormal = normalize((surfNorm - 0.5) * 2.0);
  
   float depth = texture(depthtex0, texcoord).r;
   vec4 mask = texture(colortex7, texcoord);
-  vec4 ao = texture(colortex9, texcoord);
+ 
 
   int blockID = int(mask) + 103;
    //return out of function to prevent lighting interating with sky
@@ -114,17 +116,18 @@ void main() {
 
   
   float emission = SpecMap.a;
-  vec3 emissive = vec3(0.0);
+ vec3 emissive = vec3(0.0);
   #ifndef HC_EMISSION
   if (emission < 1.0) {
-    emission = min(emission, 0.7);
+    emission = min(emission, 1.0);
     emissive += color.rgb * emission;
-    emissive += max(21.25 * pow(emissive, vec3(2.08)), 0.0);
+    emissive += max(105.25 * pow(emissive, vec3(2.58)), 0.0);
       
-    emissive = CSB(emissive, 1.0, 0.85, 1.0);
-    emissive = pow(emissive, vec3(2.2));
+    emissive = CSB(emissive, 1.0, 0.95, 1.0);
+    //emissive = pow(emissive, vec3(2.2));
   }
 #endif //HC_EMISSION
+
 
   vec3 shadow = getSoftShadow(shadowClipPos, geoNormal, sss);
   
@@ -156,8 +159,9 @@ void main() {
       sss,
       VdotL,
       isMetal,
-       ao.a,
-      geoNormal
+       ao,
+      geoNormal,
+      texcoord
     ) +
     emissive;
  

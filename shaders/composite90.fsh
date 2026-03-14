@@ -1,4 +1,4 @@
-#version 400 compatibility
+#version 430 compatibility
 
 #include "/lib/uniforms.glsl"
 #include "/lib/util.glsl"
@@ -31,7 +31,7 @@ void main() {
   #if TEMPORAL_REPROJECTION ==1
   float depth = texture(depthtex0, texcoord).r;
   const float handDepth = MC_HAND_DEPTH * 0.5 + 0.5;
-  if(depth <= handDepth) return;
+  
   //main coords
   vec3 screenPos = vec3(texcoord.xy, depth);
   vec3 NDCPos = vec3(texcoord, depth) * 2.0 - 1.0;
@@ -76,8 +76,10 @@ void main() {
 
   #if SCREENSHOT_MODE == 0
   historyColor.rgb = clamp(historyColor.rgb, neighborhoodMin, neighborhoodMax);
-  float historyWeight = TA_FACTOR * float(!historyRejection) ;
-  historyWeight *= depthConfidence;
+  float factor = TA_FACTOR;
+  if(depth <= handDepth) factor = 0.0;
+  float historyWeight = factor * float(!historyRejection) ;
+  
   color = mix(color, historyColor, historyWeight);
   #elif SCREENSHOT_MODE == 1
   if(hideGUI == true)

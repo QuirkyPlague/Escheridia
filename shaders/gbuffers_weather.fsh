@@ -1,4 +1,4 @@
-#version 400 compatibility
+#version 430 compatibility
 
 #include "/lib/uniforms.glsl"
 #include "/lib/blockID.glsl"
@@ -44,5 +44,5 @@ void main() {
   }
 
   rainMask = vec4(1.0, 1.0, 1.0, 1.0);
-
+ 
 }

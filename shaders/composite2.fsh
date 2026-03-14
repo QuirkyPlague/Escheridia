@@ -1,4 +1,4 @@
-#version 400 compatibility
+#version 430 compatibility
 
 #include "/lib/util.glsl"
 #include "/lib/atmosphere/distanceFog.glsl"
@@ -23,7 +23,7 @@ void main() {
   vec3 viewPos = projectAndDivide(gbufferProjectionInverse, NDCPos);
   vec3 feetPlayerPos = (gbufferModelViewInverse * vec4(viewPos, 1.0)).xyz;
   vec3 eyePlayerPos = feetPlayerPos - gbufferModelViewInverse[3].xyz;
-  color.rgb  = mix(color.rgb,translucentColor , translucentAlpha);
+  color.rgb  = mix(color.rgb,translucentColor , clamp(translucentAlpha, 0,1));
 
   
 }

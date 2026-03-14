@@ -1,4 +1,4 @@
-#version 400 compatibility
+#version 430 compatibility
 
 #include "/lib/tonemapping.glsl"
 #include "/lib/uniforms.glsl"

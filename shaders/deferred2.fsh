@@ -1,4 +1,4 @@
-#version 400 compatibility
+#version 430 compatibility
 
 #include "/lib/util.glsl"
 #include "/lib/atmosphere/distanceFog.glsl"

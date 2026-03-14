@@ -58,8 +58,17 @@ uniform sampler2D clouds;
 uniform sampler2D cloudBase;
 uniform sampler2D detail;
 
+//custom images
+uniform usampler3D voxelMap;
+uniform usampler3D voxelMap2;
+uniform sampler3D voxelFloodfill;
+uniform sampler3D voxelFloodfill2;
+
 //additional uniforms
 uniform vec3 cameraPosition;
+uniform ivec3 cameraPositionInt;
+uniform vec3 cameraPositionFract;
+uniform ivec3 previousCameraPositionInt;
 uniform int frameCounter;
 uniform float frameTime;
 uniform float far;
@@ -94,7 +103,7 @@ uniform ivec2 eyeBrightness;
 const float shadowDistance = SHADOW_DISTANCE;
 const float shadowFarPlane = 512.0;
 
-const float shadowDistanceRenderMul = 1.0;
+const float shadowDistanceRenderMul = -1.0;
 
 #if AO_METHOD == 1
 const float ambientOcclusionLevel = 0.0;
