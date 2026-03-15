@@ -1,158 +1,58 @@
-#version 400 compatibility
+#version 430 compatibility
 
-#include "/lib/lighting/lighting.glsl"
-#include "/lib/uniforms.glsl"
-#include "/lib/shadows/softShadows.glsl"
-#include "/lib/postProcessing.glsl"
-#include "/lib/blockID.glsl"
-#include "/lib/tonemapping.glsl"
-#include "/lib/water/waves.glsl"
+#include "/lib/util.glsl"
+#include "/lib/atmosphere/distanceFog.glsl"
 #include "/lib/shadows/SSAO.glsl"
 
 in vec2 texcoord;
 
-
-
-
-
-/* RENDERTARGETS: 0 */
-layout(location = 0) out vec4 color;
-layout(location = 1) out vec4 prevBuffer;
+/* RENDERTARGETS: 12 */
+layout(location = 0) out float occlusion ;
 void main() {
-  //assign colortex buffers
-  color = texture(colortex0, texcoord);
-  vec3 albedo = color.rgb;
-  albedo = pow(albedo, vec3(2.2));
-  vec2 lightmap = texture(colortex1, texcoord).rg;
-  vec4 SpecMap = texture(colortex3, texcoord);
-  vec3 encodedNormal = texture(colortex2, texcoord).rgb;
-  vec3 normal = normalize((encodedNormal - 0.5) * 2.0);
-  vec3 surfNorm = texture(colortex4, texcoord).rgb;
-  vec3 geoNormal = normalize((surfNorm - 0.5) * 2.0);
- 
-  float depth = texture(depthtex1, texcoord).r;
-  vec4 mask = texture(colortex7, texcoord);
-  vec4 ao = texture(colortex9, texcoord);
+  occlusion = texture(colortex12, texcoord).r;
+  occlusion = 1.0;
+  float depth = texture(depthtex0, texcoord).r;
 
-  int blockID = int(mask) + 103;
-  if (depth == 1) return; //return out of function to prevent lighting interating with sky
-
-  //space conversions
-  vec3 NDCPos = vec3(texcoord.xy, depth) * 2.0 - 1.0;
+    if (depth == 1.0) {
+    return;
+  }
+const float handDepth = MC_HAND_DEPTH * 0.5 + 0.5;
+  
+  vec3 screenPos = vec3(texcoord.xy, depth);
+  vec3 NDCPos = vec3(texcoord, depth) * 2.0 - 1.0;
   vec3 viewPos = projectAndDivide(gbufferProjectionInverse, NDCPos);
-  vec3 feetPlayerPos = (gbufferModelViewInverse * vec4(viewPos, 1.0)).xyz;
-  vec3 worldPos = cameraPosition + feetPlayerPos;
   vec3 viewDir = normalize(viewPos);
-  vec3 shadowViewPos = (shadowModelView * vec4(feetPlayerPos, 1.0)).xyz;
-  vec4 shadowClipPos = shadowProjection * vec4(shadowViewPos, 1.0);
+  vec3 feetPlayerPos = (gbufferModelViewInverse * vec4(viewPos, 1.0)).xyz;
+  
+  feetPlayerPos += cameraPosition;
+
+  //reprojected coords
+  feetPlayerPos -= previousCameraPosition;
+  vec3 previousView = (gbufferPreviousModelView * vec4(feetPlayerPos, 1.0)).xyz;
+  vec4 previousClip = gbufferPreviousProjection * vec4(previousView, 1.0);
+  vec3 previousScreen = (previousClip.xyz / previousClip.w) * 0.5 + 0.5;
+  vec2 prevCoord = previousScreen.xy;
+  float previousDepth = texture(depthtex0, prevCoord).r;
+ vec3 encodedNormal = texture(colortex2, texcoord).rgb;
+  vec3 normal = normalize((encodedNormal - 0.5) * 2.0);
+    vec3 surfNorm = texture(colortex4, texcoord).rgb;
+  vec3 geoNormal = normalize((surfNorm - 0.5) * 2.0);
+  bool historyRejection = clamp(prevCoord,0,1) != prevCoord;
+  
+   occlusion = SSAO(viewPos, geoNormal);
+
+    #ifdef FILTER_AO
+    float factor = SSAO_TA_FACTOR;
+    bool rejectHistory = false;
+    if(depth <= 0.56 )rejectHistory = true; 
+         if(previousDepth <= 0.56 )rejectHistory = true;
+           
+            float historyWeight = factor * float(!historyRejection) * float(!rejectHistory);
    
- 
-  vec3 V = normalize(-feetPlayerPos);
-  vec3 L = worldLightVector;
-  vec3 H = normalize(V + L);
-  float VdotL = dot(normalize(feetPlayerPos), worldLightVector);
-
-  vec2 noisePos = fract(worldPos.xz /128.0);
-  float noise = texture(puddleTex, noisePos).r;
-  noise *= wetness;
-  noise *= clamp(dot(geoNormal, gbufferModelView[1].xyz),0,1);
-  bool isMetal = SpecMap.g >= 230.0 / 255.0;
-  bool canScatter = blockID == SSS_ID;
-  const float handDepth = MC_HAND_DEPTH * 0.5 + 0.5;
-  float flatness = max(dot(normalize(geoNormal), vec3(0.0, 1.0, 0.0)), 0.0);
-
-
-  float rainFactor = 0.0;
-    if(depth > handDepth )
-    {
-      
-         rainFactor =
-    clamp(smoothstep(13.5 / 15.0, 14.5 / 15.0, lightmap.y),0,1) * wetness;
-      rainFactor *= smoothstep(
-    -0.55,
-    0.65,
-    texture(
-      puddleTex,
-      noisePos
-    ).r
-  ) * flatness * snowBiomeSmooth * hotBiomeSmooth;
-    }
-  
-  //PBR
-  float roughness = pow(1.0 - SpecMap.r, 2.0);
-  float sss = 0.0;
-  vec3 greyAlbedo = clamp(CSB(albedo, 1.0, 0.0, 2.115), 0.0, 1.0);
-
-  #ifdef HC_SSS
-  if (canScatter) {
-    greyAlbedo = clamp(CSB(albedo, 1.0, 0.0, 0.4), 0.0, 1.0);
-    sss = clamp(max(luminance(greyAlbedo), float(greyAlbedo)), 0, 1);
-  } else {
-    sss = 0.0;
-  }
-  #else
-  sss = SpecMap.b;
-  #endif
-
-   float porosity = 0.0;
-   #ifndef HC_SSS
-   if (SpecMap.b <= 64.0/255.0)
-   {
-    porosity = SpecMap.b * 6.0;
-    sss = 0.0;
-   }
-   else
-   {
-    sss = (SpecMap.b - 0.15) * 4.0 / 3.0;
-    porosity = 0.0;
-   }
-#endif
-
-  
-  float emission = SpecMap.a;
-  vec3 emissive = vec3(0.0);
-  #ifndef HC_EMISSION
-  if (emission < 1.0) {
-    emission = min(emission, 0.7);
-    emissive += color.rgb * emission;
-    emissive += max(21.25 * pow(emissive, vec3(2.08)), 0.0);
-      
-    emissive = CSB(emissive, 1.0, 0.85, 1.0);
-    emissive = pow(emissive, vec3(2.2));
-  }
-#endif //HC_EMISSION
-
-  vec3 shadow = getSoftShadow(shadowClipPos, geoNormal, sss);
-  
-  vec3 f0 = vec3(0.0);
-  if (isMetal) {
-    f0 = albedo;
-  } else {
-    f0 = vec3(SpecMap.g);
-  }
-
-  float ambientOcclusion = ssao(viewPos, normal);
-  roughness = mix(roughness,roughness *0.013, noise * (1.0 - porosity) * 0.8);
-  color.rgb *= 1.0 - 0.5 * noise * porosity;
-
-  color.rgb =
-    getLighting(
-      color.rgb,
-      lightmap,
-      normal,
-      shadow,
-      H,
-      f0,
-      roughness,
-      V,
-      ao.a,
-      sss,
-      VdotL,
-      isMetal,
-      geoNormal
-    ) +
-    emissive;
-
-
+    float previousOcclusion = texture(colortex12, prevCoord).r;
+    occlusion = mix(occlusion, previousOcclusion, historyWeight);
+   
+   
+    #endif
     
 }

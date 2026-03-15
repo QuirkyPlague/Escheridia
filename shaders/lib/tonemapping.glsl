@@ -4,12 +4,12 @@
 #include "/lib/util.glsl"
 
 vec3 uncharted2Tonemap(vec3 x) {
-  float A = 0.25;
-  float B = 0.1;
-  float C = 0.06;
-  float D = 0.2;
-  float E = 0.02;
-  float F = 1.6;
+    float A = 0.15;
+    float B = 0.50;
+    float C = 0.10;
+    float D = 0.20;
+    float E = 0.02;
+    float F = 0.30;
   return (x * (A * x + C * B) + D * E) / (x * (A * x + B) + D * F) - E / F;
 }
 
@@ -17,26 +17,39 @@ vec3 uncharted2(vec3 v) {
   float exposure_bias = 1.0f;
   vec3 curr = uncharted2Tonemap(v * exposure_bias);
 
-  vec3 W = vec3(11.2f);
+  vec3 W = vec3(65.2f);
   vec3 white_scale = vec3(1.0f) / uncharted2Tonemap(W);
-  return pow(curr * white_scale, vec3(1.0 / 2.2));
+  return (curr * white_scale);
 }
 
-vec3 aces_tonemap(vec3 color) {
-  mat3 m1 = mat3(
-    0.59719, 0.076  , 0.0284 ,
-    0.35458, 0.90834, 0.13383,
-    0.04823, 0.01566, 0.83777
-  );
-  mat3 m2 = mat3(
-     1.60475, -0.10208, -0.00327,
-    -0.53108,  1.10813, -0.07276,
-    -0.07367, -0.00605,  1.07602
-  );
-  vec3 v = m1 * color;
-  vec3 a = v * (v + 0.0245786) - 0.000090537;
-  vec3 b = v * (0.983729 * v + 0.432951) + 0.238081;
-  return pow(clamp(m2 * (a / b), 0.0, 1.0), vec3(1.0 / 2.2));
+mat3 mtxFromRows(vec3 _0, vec3 _1, vec3 _2) {
+    return transpose(mat3(_0, _1, _2));
+}
+
+vec3 RRTAndODTFit(vec3 v) {
+    vec3 a = v * (v + 0.0245786) - 0.000090537;
+    vec3 b = v * (0.983729 * v + 0.4329510) + 0.238081;
+    return a / b;
+}
+vec3 ACESFitted(vec3 rgb) {
+    mat3 ACESInputMat = mtxFromRows(
+        vec3(0.59719, 0.35458, 0.04823),
+        vec3(0.07600, 0.90834, 0.01566),
+        vec3(0.02840, 0.13383, 0.83777)
+    );
+    mat3 ACESOutputMat = mtxFromRows(
+        vec3(1.60475, - 0.53108, - 0.07367),
+        vec3(-0.10208, 1.10813, - 0.00605),
+        vec3(-0.00327, - 0.07276, 1.07602)
+    );
+    rgb = ((ACESInputMat) * (rgb));
+    rgb = RRTAndODTFit(rgb);
+    rgb = ((ACESOutputMat) * (rgb));
+    rgb = clamp(rgb, 0.0, 1.0);
+    return rgb;
+}
+vec3 TonemapACES(vec3 rgb) {
+    return ACESFitted(rgb);
 }
 
 vec3 reinhard_jodie(vec3 v) {
@@ -149,7 +162,7 @@ vec3 agx(vec3 color) {
 }
 
 vec3 TonemapGeneric(vec3 rgb) {
-  
+  rgb *= 1.0; // Pre-scale to increase the effective range of the curve
   vec4 GenericTonemapperContrastAndScaleAndOffsetAndCrosstalk = vec4(
     1.0,
     0.997265,
@@ -178,7 +191,7 @@ vec3 TonemapGeneric(vec3 rgb) {
 }
 
 vec3 hejlBurgessTonemap(vec3 v) {
-  v /= 2.0;
+  v /= 3.0;
   vec3 x = max(v - 0.004, 0);
   return x * (6.2 * x + 0.5) / (x * (6.2 * x + 1.7) + 0.06);
 }
@@ -189,8 +202,8 @@ vec3 lottesTonemap(vec3 x) {
 
   const vec3 a = vec3(1.6);
   const vec3 d = vec3(0.977);
-  const vec3 hdrMax = vec3(8.0);
-  const vec3 midIn = vec3(0.18);
+  const vec3 hdrMax = vec3(17.0);
+  const vec3 midIn = vec3(0.2314);
   const vec3 midOut = vec3(0.267);
 
   const vec3 b =
@@ -201,7 +214,7 @@ vec3 lottesTonemap(vec3 x) {
       pow(hdrMax, a) * pow(midIn, a * d) * midOut) /
     ((pow(hdrMax, a * d) - pow(midIn, a * d)) * midOut);
 
-  return pow(pow(x, a) / (pow(x, a * d) * b + c), vec3(1.0 / 2.2));
+  return (pow(x, a) / (pow(x, a * d) * b + c));
 }
 
 #endif //TONEMAPPING_GLSL

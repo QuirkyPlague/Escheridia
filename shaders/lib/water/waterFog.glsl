@@ -71,7 +71,7 @@ vec3 waterExtinction(
   inscatteringAmount *= fog;
 
   inscatteringAmount = pow(inscatteringAmount, vec3(2.2));
-  absorption = pow(absorption, vec3(2.2));
+  
    vec3 screenPos = vec3(texcoord.xy, depth);
   vec3 NDCPos = vec3(texcoord, depth) * 2.0 - 1.0;
   vec3 viewPos = projectAndDivide(gbufferProjectionInverse, NDCPos);
@@ -87,7 +87,7 @@ float smoothDepth = smoothstep(0.998, 1.0, depth);
   vec3 scattering = inscatteringAmount   ;
   vec3 totalScattering = (phaseLighting + scattering) * SCATTER_COEFF;
   vec3 absorptionFactor = exp(
-    -absorption * WATER_FOG_DENSITY * (dist * ABSORPTION_COEFF * 3)
+    -absorption * WATER_FOG_DENSITY * (dist * ABSORPTION_COEFF * 6)
   );
   
   color *= absorptionFactor;
@@ -106,9 +106,9 @@ vec3 waterFog(vec3 color, vec2 texcoord, vec2 lightmap, float depth) {
   vec3 sunColor = vec3(0.0);
   sunColor = currentSunColor(sunColor) * 0.7;
   vec3 absorptionColor = vec3(0.0);
-  vec3 absorption = WATER_ABOSRBTION;
+  vec3 absorption = WATER_ABOSRBTION * 2;
   vec3 inscatteringAmount = vec3(0.0);
-  inscatteringAmount = WATER_SCATTERING * 3;
+  inscatteringAmount = WATER_SCATTERING * 7;
   inscatteringAmount *= SCATTER_COEFF;
   inscatteringAmount = pow(inscatteringAmount, vec3(2.2));
   absorption = pow(absorption, vec3(2.2));
@@ -121,12 +121,17 @@ vec3 waterFog(vec3 color, vec2 texcoord, vec2 lightmap, float depth) {
   float backPhase = henyeyGreensteinPhase(VdotL, -0.1);
   float smoothDepth = smoothstep(0.998, 1.0, depth);
    float scatterReduce = smoothstep(0, 185, eyeBrightnessSmooth.y);
-    
+    #ifdef VOLUMETRICS
+    phase = 1.0;
+    backPhase = 1.0;
+    inscatteringAmount *= 0.0;
+    absorption *= 0.0;
+    #endif
   vec3 phaseLighting = sunColor * phase * scatterReduce;
   vec3 scattering = inscatteringAmount  * backPhase ;
   vec3 totalScattering = (phaseLighting + scattering) * SCATTER_COEFF;
   vec3 absorptionFactor = exp(
-    -absorption * UNDERWATER_FOG_DENSITY * (dist * ABSORPTION_COEFF * 3)
+    -absorption * UNDERWATER_FOG_DENSITY * (dist * ABSORPTION_COEFF)
   );
   color.rgb *= absorptionFactor;
    color.rgb += (totalScattering / absorption) * (1.0 - absorptionFactor) ;

@@ -81,7 +81,7 @@ vec3 brdf(
   float dist = length(L);
   float attenuation = 1.0 / (dist * dist);
 
-  currentSunlight *= 21.0;
+  currentSunlight *= 12.0;
   vec3 radiance = currentSunlight * shadow * attenuation;
 
   

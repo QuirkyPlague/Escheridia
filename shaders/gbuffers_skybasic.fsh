@@ -1,4 +1,4 @@
-#version 400 compatibility
+#version 430 compatibility
 
 #include "/lib/util.glsl"
 #include "/lib/lighting/lighting.glsl"
@@ -59,11 +59,11 @@ void main() {
     interpFactor = smoothstep(0.0, 1.0, interpFactor);
 
     float starI = mix(starIntensity[i], starIntensity[i + 1], interpFactor);
-    float starBrightnessShift = length(feetPlayerPos) * 0.9;
+    float starBrightnessShift = length(feetPlayerPos) * 0.5;
     vec2 posShift;
     posShift = vec2(0.0, 1.0);
     float baseX =
-      dot(feetPlayerPos.xz, posShift) * 0.5 +
+      dot(feetPlayerPos.xz, posShift) +
       (frameTimeCounter * 1.39 + starBrightnessShift);
 
     float starTwinkleFactor = exp(sin(baseX - 1.6));
@@ -80,6 +80,7 @@ void main() {
   float groundBlend = clamp(pow(negatedDownPos, 0.55), 0, 1);
 
     float sunHeightFactor = smoothstep(groundBlend, groundBlend + 0.071, dir.y);
+    stars = pow(stars, vec4(2.2));
     stars *= sunHeightFactor;
   }
 }

@@ -191,4 +191,89 @@ vec3 volumetricRaymarch(
   return  mix(sceneColor, scatter, 1.0 - clamp(transmission,0,1));
 
 }
+
+/*
+vec4 traceFog(vec3 position, vec3 color)
+{
+  //constants
+  const int stepCount = 12;
+  const float ambientPhase = 1.0 / (1 * PI);
+
+  //define ray points for the march
+  vec3 startPoint = cameraPosition;
+  vec3 viewPosition = position - cameraPosition;
+  float viewLength = length(viewPosition);
+  vec3 direction = normalize(viewPosition);
+  vec3 stepSize = (position - startPoint) * (1.0 / stepCount);
+  float rayLength = length(stepSize);
+  vec3 stepLength = stepSize;
+
+  //PCF FIlter setup
+  const float shadowMapPixelSize=1./float(SHADOW_RESOLUTION);
+  float sampleRadius=1.0 * shadowMapPixelSize *.14;
+
+  //define colors
+  vec3 sunCol = currentSunColor(vec3(0.0));
+  sunCol = pow(sunCol, vec3(2.2));
+  vec3 ambientColor = computeSkyColoring(vec3(0.0)) * 0.5;
+  ambientColor = pow(ambientColor, vec3(2.2));
+  
+
+  vec3 absorptionCol= vec3(0.1529, 0.1529, 0.1529);
+  //These will be useful later
+  vec3 scattering = vec3(0.0);
+  float transmission = 1.0;
+  float fogDistFalloff = length(viewPosition) / far;
+  float fogReduction = exp( 0.525 * (1.0 - fogDistFalloff));
+  //begin raymarching
+  for(int i = 0; i < stepCount; i++)
+  { 
+    //we need to generate the ray jitter coords
+    //we do this here because of the R2 sequence 
+    //used to reduce total noice
+    //afterwards advance the ray at each step
+    vec3 noise=blue_noise(floor(gl_FragCoord.xy),frameCounter,i);
+    vec3 rayPos= startPoint + direction + ( stepLength * noise.x) * float(i);
+
+    //We need to gather to total density along the ray
+    //Then do a quick check to make sure it only accumulates if density is above 0
+    float density=getFogDensity(rayPos);
+    if(density > 0)
+    {
+      //Create a shadow ray based on the original drection and jitter it
+      vec3 shadowRayPos = viewPosition * noise.x ;
+      vec4 shadowClip = getShadowClipPos(shadowRayPos);
+      shadowClip.xyz = distortShadowClipPos(shadowClip.xyz);
+      vec3 shadowNDCPos = shadowClip.xyz/shadowClip.w;
+      vec3 shadowScreenPos = shadowNDCPos * 0.5 + 0.5;
+      vec3 shadow=getShadow(shadowScreenPos);
+
+      //We need to calculate the phase function for the fog scattering
+      //We will be using a Henyey Greenstein fucntion for now
+      //We also need the direction of the sun in relation to the view vector
+      float VdotL = dot(direction, worldLightVector);
+      float phase = henyeyGreensteinPhase(VdotL, 0.65);
+
+      //With this we need to get the total media scattering
+      //This will gather the total extinction
+      //Then compute the transmittance along the ray
+      float scatteringCoefficient = 1.0 * density;
+      vec3 directLight = sunCol * phase * shadow;
+      vec3 ambientLight = (ambientColor * ambientPhase) ;
+      vec3 primaryMediaScattering = scatteringCoefficient * rayLength * (directLight + ambientLight);
+      vec3 primaryMediaExtinction = (primaryMediaScattering + absorptionCol);
+       float extinctionCoeff = 0.3 * density;
+      float primaryMediaTransmittance = exp(-extinctionCoeff*rayLength);
+
+      //calculate the scattering integral as defined in https://media.contentapi.ea.com/content/dam/eacom/frostbite/files/s2016-pbs-frostbite-sky-clouds-new.pdf#subsection.5.6
+      vec3 scatteringIntegral = (primaryMediaScattering - primaryMediaScattering * primaryMediaTransmittance) / primaryMediaExtinction;
+    
+      //integrate the scattering and total transmittance per step
+      scattering += scatteringIntegral;
+      transmission *= primaryMediaTransmittance;
+    }
+  }
+  return vec4(scattering, transmission);
+}
+*/
 #endif //VOLUMETRICS_GLSL

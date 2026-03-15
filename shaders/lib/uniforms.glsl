@@ -28,6 +28,10 @@ uniform sampler2D colortex8;
 uniform sampler2D colortex9;
 uniform sampler2D colortex10;
 uniform sampler2D colortex11;
+uniform sampler2D colortex12;
+uniform sampler2D colortex13;
+uniform sampler2D colortex14;
+uniform sampler2D colortex15;
 
 //depth buffer
 uniform sampler2D depthtex0;
@@ -54,9 +58,19 @@ uniform sampler2D clouds;
 uniform sampler2D cloudBase;
 uniform sampler2D detail;
 
+//custom images
+uniform usampler3D voxelMap;
+uniform usampler3D voxelMap2;
+uniform sampler3D voxelFloodfill;
+uniform sampler3D voxelFloodfill2;
+
 //additional uniforms
 uniform vec3 cameraPosition;
+uniform ivec3 cameraPositionInt;
+uniform vec3 cameraPositionFract;
+uniform ivec3 previousCameraPositionInt;
 uniform int frameCounter;
+uniform float frameTime;
 uniform float far;
 uniform float near;
 uniform float PaleGardenSmooth;
@@ -85,11 +99,18 @@ const float wetnessHalflife = 35.3;
 const float drynessHalflife = 75.0;
 const float sunPathRotation = SUN_ROTATION;
 const float eyeBrightnessHalflife = 5.0;
+uniform ivec2 eyeBrightness;
 const float shadowDistance = SHADOW_DISTANCE;
 const float shadowFarPlane = 512.0;
 
-const float shadowDistanceRenderMul = 1.0;
-const float ambientOcclusionLevel = 1.0;
+const float shadowDistanceRenderMul = -1.0;
+
+#if AO_METHOD == 1
+const float ambientOcclusionLevel = 0.0;
+#else
+const float ambientOcclusionLevel = VANILLA_AO_LEVEL;
+#endif
+
 //lights
 uniform vec3 sunPosition;
 uniform vec3 moonPosition;

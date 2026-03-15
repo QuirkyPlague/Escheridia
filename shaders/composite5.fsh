@@ -1,4 +1,4 @@
-#version 400 compatibility
+#version 430 compatibility
 
 #include "/lib/uniforms.glsl"
 #include "/lib/util.glsl"
@@ -16,8 +16,9 @@
 
 in vec2 texcoord;
 
-/* RENDERTARGETS: 0 */
+/* RENDERTARGETS: 0,14 */
 layout(location = 0) out vec4 color;
+layout(location = 1) out vec4 history;
 
 mat3 tbnMatrix(vec3 N) {
   vec3 up = abs(N.z) < 0.999 ? vec3(0.0, 0.0, 1.0) : vec3(1.0, 0.0, 0.0);
@@ -58,19 +59,19 @@ vec3 skyFallbackBlend(
     vec3 skyDir = normalize(tbn * tangentReflDir);
 
     vec3 skyCol = skyScattering(skyDir);
-
-    accumulated += skyCol;
+   
+    accumulated += skyCol ;
 
   }
   vec3 sky = accumulated / float(ROUGH_SAMPLES);
-  if (isWater || roughness <= 0) {
-    dir2 = reflect(eyePlayerPos, normal);
+  float waterOrZeroMask = float(isWater || roughness <= 0);
+  vec3 altDir2 = reflect(eyePlayerPos, normal);
+  vec3 altSkyCol = skyScattering(normalize(altDir2));
+  vec3 altSunCol = getSun(normalize(altDir2));
+  vec3 altSky = altSunCol + altSkyCol;
 
-    vec3 skyCol = skyScattering(normalize(dir2));
-    vec3 sunCol = getSun(normalize(dir2));
-    sky = sunCol + skyCol;
-
-  }
+  dir2 = mix(dir2, altDir2, waterOrZeroMask);
+  sky = mix(sky, altSky, waterOrZeroMask);
   #else
   dir2 = reflect(normalize(eyePlayerPos), normal);
 
@@ -95,13 +96,13 @@ void main() {
   vec4 SpecMap = texture(colortex3, texcoord);
   vec3 encodedNormal = texture(colortex2, texcoord).rgb;
   vec2 lightmap = texture(colortex1, texcoord).rg;
-  vec4 waterMask = texture(colortex5, texcoord);
+  vec4 waterM = texture(colortex5, texcoord);
   vec3 surfNorm = texture(colortex4, texcoord).rgb;
   vec3 geoNormal = normalize((surfNorm - 0.5) * 2.0);
 
   vec3 albedo = texture(colortex0, texcoord).rgb;
   
-  int blockID = int(waterMask) + 100;
+  int blockID = int(waterM) + 100;
 
   bool isWater = blockID == WATER_ID;
   bool isMetal = SpecMap.g >= 230.0 / 255.0;
@@ -136,23 +137,18 @@ void main() {
   float roughness = isWater ? 0.0 : baseRoughness;
   float smoothLightmap = clamp(smoothstep(13.5 / 15.0, 14.5 / 15.0, lightmap.y),0,1);
 
-  float rainFactor = 0.0;
-    if(depth > handDepth )
-    {
-      if(!isWater)
-      {
-         rainFactor =
-    clamp(smoothstep(13.5 / 15.0, 14.5 / 15.0, lightmap.y),0,1) * wetness;
-      rainFactor *= smoothstep(
+  float handMask = step(handDepth, depth);
+  float waterMaskF = float(!isWater);
+  float rainFactor = clamp(smoothstep(13.5 / 15.0, 14.5 / 15.0, lightmap.y), 0, 1) * wetness;
+  rainFactor *= smoothstep(
     -0.45,
-    0.65,
+    0.75,
     texture(
       puddleTex,
       noisePos
     ).r
   ) * flatness * snowBiomeSmooth * hotBiomeSmooth;
-      }
-    }
+  rainFactor *= handMask * waterMaskF;
 
   
  float waveNoise =  texture(waterTex,mod((feetPlayerPos.xz + cameraPosition.xz) / 2.0, 128.0) / 128.0).r;
@@ -162,10 +158,10 @@ void main() {
     {
       float waveFalloff = length(feetPlayerPos) / farPlane;
     float waveIntensityRolloff = exp(
-      3.0 * WAVE_INTENSITY * (0.05 - waveFalloff)
+      12.0 * WAVE_INTENSITY * (0.05 - waveFalloff)
     );
-    float waveIntensity = 0.177 * WAVE_INTENSITY * waveIntensityRolloff;
-    float waveSoftness = 0.04 * WAVE_SOFTNESS;
+    float waveIntensity = 0.67 * WAVE_INTENSITY * waveIntensityRolloff;
+    float waveSoftness = 0.13 * WAVE_SOFTNESS;
 
     normal = waveNormal(
       feetPlayerPos.xz + cameraPosition.xz,
@@ -181,8 +177,8 @@ void main() {
     float waveIntensityRolloff = exp(
       12.0 * WAVE_INTENSITY * (0.05 - waveFalloff)
     );
-    float waveIntensity = 0.137 * WAVE_INTENSITY * waveIntensityRolloff;
-    float waveSoftness = 0.018 * WAVE_SOFTNESS;
+  float waveIntensity = 0.67 * WAVE_INTENSITY * waveIntensityRolloff;
+    float waveSoftness = 0.2 * WAVE_SOFTNESS;
 
     normal = waveNormal(
       feetPlayerPos.xz + cameraPosition.xz,
@@ -196,8 +192,8 @@ void main() {
     float waveIntensityRolloff = exp(
       12.0 * WAVE_INTENSITY * (0.05 - waveFalloff)
     );
-    float waveIntensity = 0.045 * WAVE_INTENSITY  * rainFactor;
-    float waveSoftness = 0.48 * WAVE_SOFTNESS;
+   float waveIntensity = 0.137 * WAVE_INTENSITY * waveIntensityRolloff;
+    float waveSoftness = 0.018 * WAVE_SOFTNESS;
 
     vec3 rainNormal = rainNormals(
       feetPlayerPos.xz + cameraPosition.xz,
@@ -208,38 +204,27 @@ void main() {
     
       normal = mix(normal, rainNormal, rainFactor);
   #else
-
-  if (isWater) {
-    normal = normal;
-  }
+  // no additional normal modification for non-wave mode
   #endif
 
   // --- F0 and roughness
-  vec3 f0;
-  if (isMetal) {
-    f0 = albedo *16;
-  } else if (isWater) {
-    f0 = vec3(0.02);
-  } else {
-    f0 = vec3(SpecMap.g);
-  }
-  if (inWater && isWater) {
-    f0 = vec3(1.0);
-  }
-  
+  vec3 f0 = vec3(SpecMap.g);
+  f0 = mix(f0, vec3(0.02), float(isWater));
+  f0 = mix(f0, albedo * 16.0, float(isMetal));
+  f0 = mix(f0, vec3(1.0), float(inWater && isWater));
   
   f0 = mix(f0, vec3(0.02), rainFactor);
   float bRough = roughness;
-  float wetRoughness = mix(roughness* 0.7, roughness * 0.0, rainFactor);
+  float wetRoughness = mix(roughness* 0.5, roughness * 0.01, rainFactor);
   
 
   roughness = mix(roughness,wetRoughness, wetness);
   
   bool canReflect = roughness < 1.0;
-   vec3 noiseB = vec3(0.0);
-   for(int i = 0; i < 3; i++) {
-        noiseB += blue_noise(floor(gl_FragCoord.xy), frameCounter, i) ;
-    }
+   
+
+        
+    
   
   float jitter = IGN(gl_FragCoord.xy, frameCounter);
   vec2 offset = vec2(0.0, 0.0);
@@ -273,9 +258,9 @@ void main() {
   #else
   reflectedDir = reflect(viewDir, normal);
   #endif
-  if (isWater || roughness <= 0) {
-    reflectedDir = reflect(viewDir, normal);
-  }
+  float waterOrZeroMask2 = float(isWater || roughness <= 0);
+  vec3 altReflectedDir = reflect(viewDir, normal);
+  reflectedDir = mix(reflectedDir, altReflectedDir, waterOrZeroMask2);
   vec3 reflectedPos = vec3(0.0);
   vec3 reflectedColor = vec3(0.0);
  
@@ -292,7 +277,6 @@ void main() {
     viewPos,
     reflectedDir,
     SSR_STEPS,
-    noiseB.x,
     smoothLightmap,
     reflectedPos
   );
@@ -308,7 +292,8 @@ void main() {
   float reflDist = distance(reflectedViewPos,viewPos);
 
   float lod =  3.62 * (1.0 - exp(-9.0 - sqrt(roughness)));
-  if (roughness <= 0.0 || isWater) lod = 0.0;
+  float lodOverride = float(roughness <= 0.0 || isWater);
+  lod = mix(lod, 0.0, lodOverride);
 
     vec3 sky = skyFallbackBlend(
       reflectedDir,
@@ -320,10 +305,8 @@ void main() {
       isWater
     ) ;
     
-   if(roughness > 0)
-   {
-    sky *= max(exp(4.32 * (0.101 - roughness)), 0.0);
-   }
+   float roughMask = step(0.0, roughness);
+   sky *= mix(1.0, max(exp(4.32 * (0.101 - roughness)), 0.0), roughMask);
    
     if (reflectionHit) {
     if (canReflect || isMetal || isWater) {
@@ -338,13 +321,17 @@ void main() {
       reflectedColor = texture2DLod(colortex0, reflectedPos.xy, 0).rgb;
       #endif //ROUGH_REFLECTION
       
-      if (any(isnan(reflectedColor))) reflectedColor = vec3(0.0);
-      if(roughness > 0)  reflectedColor *= max(exp(7.02 * (0.061 - roughness)), 0.0);
+      // bilateral filter for denoising
     
+         
+      if (any(isnan(reflectedColor))) reflectedColor = vec3(0.0);
+      float roughMask2 = step(0.0, roughness);
+      reflectedColor *= mix(1.0, max(exp(12.02 * (0.061 - roughness)), 0.0), roughMask2);
+      
     }
   }
 
-  if (!reflectionHit && canReflect && !inWater) {
+  if (!reflectionHit && canReflect) {
   
        reflectedColor =sky;
     
@@ -353,15 +340,62 @@ void main() {
   }
   
   
-
+ 
   reflectedColor *= F;
-  reflectedColor *= karisAverage(reflectedColor) ;
-  reflectedColor *= karisAverage(reflectedColor) ;
-  reflectedColor *= karisAverage(reflectedColor) ;
+
+  
 
   vec3 wetReflectedColor = mix(color.rgb, reflectedColor  , rainFactor);
   reflectedColor = mix(reflectedColor, wetReflectedColor, rainFactor);
   
+       // --- temporal reprojection for reflections --------------------------------
+  #ifdef REFLECTION_FILTER
+  {
+    float depthCheck = texture(depthtex0, texcoord).r;
+    const float handDepth = MC_HAND_DEPTH * 0.5 + 0.5;
+    
+      // reproject current pixel
+      vec3 screenPos = vec3(texcoord.xy, depthCheck);
+      vec3 NDCPos = screenPos * 2.0 - 1.0;
+      vec3 viewPos = projectAndDivide(gbufferProjectionInverse, NDCPos);
+      vec3 feetPlayerPos = (gbufferModelViewInverse * vec4(viewPos, 1.0)).xyz;
+      feetPlayerPos += cameraPosition;
+      feetPlayerPos -= previousCameraPosition;
+      vec3 previousView = (gbufferPreviousModelView * vec4(feetPlayerPos, 1.0)).xyz;
+      vec4 previousClip = gbufferPreviousProjection * vec4(previousView, 1.0);
+      vec3 previousScreen = (previousClip.xyz / previousClip.w) * 0.5 + 0.5;
+      vec2 prevCoord = previousScreen.xy;
+      depth = linearizeDepth(depth);
+      // rejection checks
+      bool historyRejection = clamp(prevCoord, 0, 1) != prevCoord;
+      float prevDepth = texture(depthtex0, prevCoord).r;
+      float previousDepth = linearizeDepth(texture(depthtex0, prevCoord).r);
+       float sampleNDCDepth = depth * 2.0 - 1.0;
+        float sampleViewDepth = gbufferProjectionInverse[3].z / (gbufferProjectionInverse[2].w * sampleNDCDepth + gbufferProjectionInverse[3].w);
+      float prevViewZ = projectAndDivide(gbufferProjectionInverse, vec3(prevCoord, previousDepth) * 2.0 - 1.0).z;
+      float depthDelta = abs(depth - previousDepth);
+      float depthThreshold = max(0.01, abs(prevViewZ) * 0.01);
+      float depthConfidence = pow(clamp(1.0 - depthDelta / depthThreshold, 0, 1), 1.0);
+      float response = pow(roughness, 2.0) * reflDist;
+      float reflLum = luminance(reflectedColor);
+      
+      float factor = 0.85;
+      //factor = max(factor, clamp(reflLum, 0, 1) * factor);
+      if(roughness < 0.05) factor = 0.35;
+      bool rejectHistory = false;
+        if(depthCheck <= 0.56 )rejectHistory = true; 
+         if(prevDepth <= 0.56 )rejectHistory = true;
+      vec4 historyColor = texture(colortex14, prevCoord);
+      float historyWeight = factor * float(!historyRejection) * float(!rejectHistory)  ;
+      
+      reflectedColor = mix(reflectedColor, historyColor.rgb, historyWeight);
+      if (any(isnan(reflectedColor))) reflectedColor = vec3(0.0);
+    
+  }
+  #endif
+  reflectedColor *= karisAverage(reflectedColor);
+
+
   if(isMetal)
   {
     color.rgb = reflectedColor;
@@ -378,15 +412,22 @@ void main() {
     reflectedColor = fb;
      float smoothLightmap = smoothstep(0.882, 1.0, lightmap.g);
     reflectedColor = mix(color.rgb, reflectedColor, smoothLightmap);
-    if(roughness > 0)  reflectedColor *= max(exp(5.02 * (0.031 - roughness)), 0.0);
+    float roughMask3 = step(0.0, roughness);
+    reflectedColor *= mix(1.0, max(exp(5.02 * (0.031 - roughness)), 0.0), roughMask3);
   }
    
   reflectedColor *= F;
+
    if(isMetal)
     {
       color.rgb += reflectedColor;
     }
     color.rgb += reflectedColor;
   #endif // DO_SSR
+
+ 
+
+  // write reflection history buffer (colortex14) for next frame
+  history = vec4(reflectedColor, 1.0);
 
 }

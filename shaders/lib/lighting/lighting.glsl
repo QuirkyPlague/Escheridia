@@ -12,16 +12,16 @@ const vec4 sunlightColor = vec4(1.0, 0.860, 0.692, 1.18);
 const vec4 noonSunlightColor = vec4(0.6824, 0.6824, 0.6824, 1.0);
 const vec4 morningSunlightColor = vec4(0.9569, 0.4745, 0.2333, 0.85);
 const vec4 eveningSunlightColor = vec4(0.9569, 0.4745, 0.2333, 1.0);
-const vec4 moonlightColor = vec4(0.0706, 0.0863, 0.138, 0.2);
+const vec4 moonlightColor = vec4(0.0863, 0.1059, 0.1686, 0.45);
 
-const vec4 skylightColor = vec4(0.7216, 0.8392, 1.0, 0.898);
+const vec4 skylightColor = vec4(0.6902, 0.8196, 0.9961, 0.831);
 const vec4 morningSkylightColor = vec4(0.6353, 0.7333, 0.851, 0.831);
 const vec4 eveningSkylightColor = vec4(0.6353, 0.7333, 0.851, 0.731);
-const vec4 nightSkylightColor = vec4(0.2941, 0.3804, 0.6039, 0.424);
+const vec4 nightSkylightColor = vec4(0.2941, 0.3804, 0.5639, 0.924);
 
-const vec4 blocklightColor = vec4(1.0, 0.8627, 0.7176, 1.0);
+const vec4 blocklightColor = vec4(1.0, 0.8, 0.5843, 1.0);
 const vec4 ambientColor = vec4(0.015);
-const vec4 caveAmbient = vec4(0.4157, 0.4157, 0.4157, 1.0);
+const vec4 caveAmbient = vec4(0.8353, 0.8353, 0.8353, 1.0);
 const vec3 rainTint = vec3(0.6122, 0.5549, 0.4627);
 
 vec3 getLighting(
@@ -37,8 +37,12 @@ vec3 getLighting(
     float sss,
     float VdotL,
     bool isMetal,
-    vec3 faceNormal) {
-    color = pow(color, vec3(2.2));
+    float materialAo,
+    vec3 faceNormal,
+    vec2 uv) {
+    
+    vec3 vxBlocklight = texture(colortex9, uv).rgb;
+
     float t = fract(worldTime / 24000.0);
     const int keys = 7;
     const float keyFrames[keys] = float[keys](
@@ -98,28 +102,34 @@ vec3 getLighting(
         float shadowSmooth = exp(-5.0 * SHADOW_DISTANCE);
         float shadowSmoothFade = smoothstep(0.0, 1.0, shadowSmooth);
 
-        if (wetness > 0) {
-            sunlight *= mix(sunlight, rainTint, wetness * hotBiomeSmooth);
-            sunlight *= mix(1.0, rain, wetness * hotBiomeSmooth);
-        }
+        float wetMask = step(0.0, wetness);
+        float wetFactor = wetness * hotBiomeSmooth;
+        vec3 baseSunlight = sunlight;
+        vec3 wetSunlight = mix(baseSunlight, rainTint, wetFactor);
+        float wetMul = mix(1.0, rain, wetFactor);
+        sunlight *= mix(vec3(1.0), wetSunlight, wetMask);
+        sunlight *= mix(1.0, wetMul, wetMask);
 
         sunlight *= sunIntensity;
         sunlight *= shadowFade;
-
+       
         vec3 skylight =
         mix(skyCol[i].rgb, skyCol[i + 1].rgb, timeInterp) * lightmap.g;
         skylight = mix(skylight, vec3(0.3961, 0.4627, 0.5451) * rain * lightmap.g * 2.7, wetness * hotBiomeSmooth);
         float skyIntensity = mix(skyCol[i].a, skyCol[i + 1].a, timeInterp);
-        ;
+
         skylight *= skyIntensity;
         skylight *= max(1.95 * pow(skylight, vec3(2.55)), 0.0);
         skylight += min(1.7 * pow(skylight, vec3(1.25)), 1.9);
 
-        vec3 blocklight = blocklightColor.rgb * lightmap.r;
+        
+        vec3 blocklight = vxBlocklight;
+        float blocklightIntensity = blocklightColor.a;
+        blocklight *= max(5.59 * pow(blocklight, vec3(1.15)), 0.0);
+        blocklight += min(0.77 * pow(blocklight, vec3(0.65)), 0.9);
+         blocklight  *= smoothstep(0.0, 0.121, blocklight); 
 
-        blocklight *= max(3.59 * pow(blocklight, vec3(1.75)), 0.0);
-        blocklight += min(1.7 * pow(blocklight, vec3(1.25)), 3.9);
-        blocklight  *= smoothstep(0.0, 0.125, blocklight); 
+        blocklight *= blocklightIntensity;
 
         float faceNdl = dot(faceNormal, worldLightVector);
 
@@ -129,32 +139,32 @@ vec3 getLighting(
         vec3 sssFresnel = fresnelSchlick(max(abs(LdotH), 0.0001), vec3(0.04));
         float phase =
         henyeyGreensteinPhase(VdotL, 0.72) *8;
-
+        float uniformPhase = 1.0 / (4.0 * PI);
         vec3 scatter = vec3(0.0);
-
+        
         scatter = sunlight * phase * shadow;
         vec3 baseScatter = sunlight * shadow;
         scatter += baseScatter * 2.75 * (1.0 - sssFresnel)  ;
         scatter *= hasSSS;
-        scatter *= sss;
-      
-       
-          if (faceNdl >= 1e-6) {
-    scatter *= 0.45;
-  }
+        scatter *= sss ;
+        vec3 ambientSSS = skylight * 0.75 * sss;
+        vec3 blockSSS = blocklight * 5  * sss;
+        vec3 indirectSSS = ambientSSS + blockSSS * ao  * uniformPhase;
+        scatter += indirectSSS;
+        float faceNdlMask = step(1e-6, faceNdl);
+        scatter *= mix(1.0, 0.45, faceNdlMask);
 
         float smoothLightmap = clamp(smoothstep(13.5 / 15.0, 14.5 / 15.0, lightmap.y),0,1);
         float ambientFactor = smoothstep(141, 0, eyeBrightnessSmooth.y);
 
         //ao *= ao * (1.0 - float(shadow));
-        vec3 ambientLight = (mix(ambientColor.rgb,caveAmbient.rgb * 0.06, ambientFactor)* ao) * color  ;
+        vec3 ambientLight = (mix(ambientColor.rgb,caveAmbient.rgb * 0.06, ambientFactor)* ao * materialAo) * color  ;
         ambientLight = mix(ambientLight, ambientLight * rain, wetness * hotBiomeSmooth);
-
-        vec3 indirect = (skylight + blocklight) * ao;
+        
+        vec3 indirect = (skylight + blocklight) * ao * materialAo;
         float metalMask = isMetal ? 1.0 : 0.0;
         bool noSky = lightmap.g < smoothstep(0.0, 0.682, lightmap.g);
         vec3 metalIndirect = mix(indirect * 0.1,indirect  * 0 , smoothLightmap);
-        ;
         indirect = mix(indirect, metalIndirect, metalMask);
 
         vec3 specular = brdf(
@@ -195,8 +205,8 @@ vec3 getLighting(
                 sunlightColor,
                 sunlightColor,
                 eveningSunlightColor,
-                moonlightColor * 1.85,
-                moonlightColor * 1.85,
+                moonlightColor * 2.45,
+                moonlightColor * 2.45,
                 morningSunlightColor );
 
             int i = 0;
@@ -217,10 +227,13 @@ vec3 getLighting(
             float sunHeight = dot(worldLightVector, vec3(0.0, 1.0, 0.0));
             float shadowFade = smoothstep(0.05, 0.1, worldLightVector.y);
 
-            if (wetness > 0) {
-                sunlight *= mix(sunlight, rainTint, wetness * hotBiomeSmooth);
-                sunlight *= mix(1.0, 0.46, wetness * hotBiomeSmooth);
-            }
+            float wetMask = step(0.0, wetness);
+            float wetFactor = wetness * hotBiomeSmooth;
+            vec3 baseSunlight = sunlight;
+            vec3 wetSunlight = mix(baseSunlight, rainTint, wetFactor);
+            float wetMul = mix(1.0, 0.77, wetFactor);
+            sunlight *= mix(vec3(1.0), wetSunlight, wetMask);
+            sunlight *= mix(1.0, wetMul, wetMask);
             sunlight *= sunIntensity;
             sunlight *= shadowFade;
             return sunlight;

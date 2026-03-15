@@ -3,63 +3,61 @@
 
 #include "/lib/util.glsl"
 
-float linearizeDepth(float depth)
-{
-  
-    float z = depth * 2.0 - 1.0; // Back to NDC
-    return (2.0 * near * far) / (far + near - z * (far - near));
-}
 
+float SSAO(vec3 viewPos, vec3 normal)
+{   
+    normal = mat3(gbufferModelView) * normal;
+    float viewDist = length(viewPos);
+    
+   
+    float bias = 0.025;
+    
+    mat3 tbn;
+    tbn[2] = normal;
+    tbn[0] = normal.yzx;
+    tbn[1] = cross(tbn[0], tbn[2]);  
 
-float ssao(vec3 viewPos, vec3 normal)
-{
-    vec3 viewNormal = mat3(gbufferModelView) * normal;
-    vec3 viewDir = normalize(-viewPos); // from fragment toward camera
-    vec3 bentNormal = normalize(mix(viewNormal, viewDir, 0.35)); // 0.35–0.5 works well
-    const float radius = 3.5;
-    const float bias   = 0.001;
-    float occlusion    = 0.0;
+    float occlusion = 0.0;
+   
+    
+    for(int i = 0; i < SSAO_SAMPLES; i++)
+    {   
+        vec3 noise = blue_noise(floor(gl_FragCoord.xy), frameCounter, i);
+        float cosTheta = sqrt(noise.x);
+        float sinTheta = sqrt(1.0 - noise.x);
+        float phi = 2.0 * PI * noise.y;
+        
+        vec3 generatedSample = tbn * vec3(sinTheta * cos(phi), sinTheta * sin(phi), cosTheta);
+       
+        float radius = noise.z;
+        vec3 samplePos = generatedSample * radius * SSAO_RADIUS; 
+        
+        vec3 sampleViewPos = viewPos + samplePos;
+        vec4 sampledClip = gbufferProjection * vec4(sampleViewPos, 1.0);
+        vec3 sampledNDC = sampledClip.xyz / sampledClip.w;
+        vec2 sampleScreen = sampledNDC.xy * 0.5 + 0.5;
+    
+        float sampleScreenDepth = (texture(depthtex0, sampleScreen.xy).r);
+        float sampleNDCDepth = sampleScreenDepth * 2.0 - 1.0;
+        float sampleViewDepth = gbufferProjectionInverse[3].z / (gbufferProjectionInverse[2].w * sampleNDCDepth + gbufferProjectionInverse[3].w);
 
-    // --- Blue-noise basis ---
-    vec3 noise = normalize(blue_noise(floor(gl_FragCoord.xy), frameCounter));
-    vec3 tangent   = normalize(noise - bentNormal * dot(noise, bentNormal));
-    vec3 bitangent = cross(bentNormal, tangent);
-    mat3 TBN = mat3(tangent, bitangent, bentNormal);
-
-    for (int i = 0; i < SSAO_SAMPLES; ++i)
-    {
-        vec3 sampled = normalize(blue_noise(floor(gl_FragCoord.xy), frameCounter, i));
-        sampled.z = abs(sampled.z);
-        sampled = TBN * sampled;
-
-        // denser near center
-        float scale = float(i) / float(SSAO_SAMPLES);
-        float weight = mix(0.1, 1.0, scale * scale);
-        sampled *= weight;
-
-        // adaptive reach
-        float adaptiveRadius = max(radius / abs(viewPos.z), 0.3);
-        vec3 samplePos = viewPos + sampled * adaptiveRadius;
-
-        // pseudo pixel offset (no pixelSize available)
-        // 0.001 acts like 1 pixel in normalized projection space
-        vec4 offset = gbufferProjection * vec4(samplePos, 1.0);
-        offset.xyz /= offset.w;
-        offset.xy = offset.xy * 0.5 + 0.5;
-        offset.xy += vec2(blue_noise(floor(gl_FragCoord.xy * 0.5), i).xy - 0.5) * 0.002;
-
-        float sampleDepth = linearizeDepth(texture(depthtex0, offset.xy).r);
         float viewDepth   = abs(viewPos.z);
-        float samplePosZ  = abs(samplePos.z);
-
-        // softer attenuation
-        float rangeCheck = exp(-abs(viewDepth - sampleDepth) * 25.45 / radius);
-        occlusion += (sampleDepth < samplePosZ + bias ? 1.0 : 0.0) * rangeCheck;
+       float sampleOcclusion =
+      float(sampleViewDepth >= sampleViewPos.z + bias) * smoothstep(0.0, 1.0, SSAO_RADIUS / abs(sampleViewDepth - sampleViewPos.z));
+      occlusion += 1.0 - sampleOcclusion;
+      
+      if (any(isnan(occlusion))) occlusion = 1.0;
     }
 
-    occlusion = 1.0 - (occlusion / float(SSAO_SAMPLES));
-    occlusion = mix(1.0, occlusion, 0.85); // prevents overly strong darkening
-    return occlusion;
+    
+    float finalOcclusion = occlusion / float(SSAO_SAMPLES);
+    
+    // Power curve for better shadow falloff without harsh blacks
+    finalOcclusion = pow(finalOcclusion, 1.5);
+    
+    // Apply intensity multiplier from settings
+    finalOcclusion = 1.0 - (1.0 - finalOcclusion) * SSAO_INTENSITY;
+    
+    return finalOcclusion;
 }
-
 #endif

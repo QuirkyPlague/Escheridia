@@ -1,11 +1,12 @@
-#version 400 compatibility
+#version 430 compatibility
 
 #include "/lib/lighting/lighting.glsl"
 #include "/lib/uniforms.glsl"
 #include "/lib/shadows/softShadows.glsl"
 #include "/lib/postProcessing.glsl"
 #include "/lib/blockID.glsl"
-
+#include "/lib/atmosphere/distanceFog.glsl"
+#include "/lib/shadows/SSAO.glsl"
 uniform sampler2D gtexture;
 
 uniform float alphaTestRef = 0.1;
@@ -20,14 +21,16 @@ in vec3 viewPos;
 in vec3 feetPlayerPos;
 in vec3 worldPos;
 flat in int blockID;
+in float emission;
 
-/* RENDERTARGETS: 0,1,2,3,4,5 */
+/* RENDERTARGETS: 15,1,2,3,4,5,9 */
 layout(location = 0) out vec4 color;
 layout(location = 1) out vec4 lightmap;
 layout(location = 2) out vec4 encodedNormal;
 layout(location = 3) out vec4 specData;
 layout(location = 4) out vec4 geoNormal;
 layout(location = 5) out vec4 mask;
+layout(location = 6) out vec4 blocklight;
 
 void main() {
   color = texture(gtexture, texcoord) * glcolor;
@@ -79,7 +82,7 @@ void main() {
   } else {
     f0 = vec3(specData.g);
   }
-  float ao = texture(normals, texcoord).z;
+  
 
   if (blockID == WATER_ID) {
     mask = vec4(1.0, 1.0, 1.0, 1.0);
@@ -89,22 +92,64 @@ void main() {
     mask = vec4(0.0, 0.0, 0.0, 1.0);
 
   }
+  float ao = texture(normals,texcoord).z * 0.5 + 0.5;
+   float ambientOcclusion = SSAO(viewPos, normal);
+   
 
-  vec3 lighting = getLighting(
-    color.rgb,
-    lightmap.rg,
-    mappedNormal.rgb,
-    shadow,
-    H,
-    f0,
-    roughness,
-    V,
-    ao,
-    sss,
-    VdotL,
-    isMetal,
-    normal
-  );
+  #ifdef FLOODFILL
+  ivec3 voxel_pos = ivec3(feetPlayerPos-normal*.1+fract(cameraPosition)+VOXEL_RADIUS);
+  //check if in voxel range
+	if( clamp(voxel_pos,0,VOXEL_AREA) == voxel_pos )
+	{
+    //get data, unpack, visualize
+		vec4 bytes = unpackUnorm4x8(texture(voxelMap, vec3(voxel_pos)/vec3(VOXEL_AREA)).r);
+    vec4 bytes2 = unpackUnorm4x8(texture(voxelMap2, vec3(voxel_pos)/vec3(VOXEL_AREA)).r);
+   
+
+    vec3 smoothPos = vec3(feetPlayerPos + cameraPositionFract + VOXEL_RADIUS);
+    ivec3 doubleBufferWrite = mod(frameCounter,2) == 0 ? ivec3(0,VOXEL_AREA, 0) : ivec3(0);
+    vec3 voxelColorLight = smoothPos + vec3(doubleBufferWrite);
+    bytes = texture(voxelFloodfill,vec3(voxelColorLight) / vec3(VOXEL_AREA, 2 * VOXEL_AREA, VOXEL_AREA));
+    bytes2 = texture(voxelFloodfill2,vec3(voxelColorLight) / vec3(VOXEL_AREA, 2 * VOXEL_AREA, VOXEL_AREA));
+  
+    vec3 orangeLight = bytes.r * vec3(1.0, 0.6314, 0.2157);
+    vec3 blueLight =  bytes.g * vec3(0.2157, 0.6235, 0.8784);
+    vec3 whiteLight = bytes.b * vec3(0.7412, 0.9059, 1.0);
+    vec3 redLight = bytes2.g * vec3(0.8549, 0.2706, 0.1255);
+    vec3 purpleLight = bytes2.r * vec3(0.8824, 0.0, 1.0);
+    vec3 greenLight = bytes2.b * vec3(0.0627, 0.5059, 0.1294);
+    vec3 combinedLight = (orangeLight + blueLight + whiteLight + redLight + purpleLight + greenLight) * lightmap.r;
+     
+    // Add this to clamp brightness while preserving intensity (color ratios)
+float maxBrightness = MAX_FLOODFILL_INTENSITY;  // Adjust this threshold as needed (e.g., 1.0 for full brightness cap)
+float currentBrightness = max(length(combinedLight), 1e-6);
+combinedLight *= min(1.0, maxBrightness / currentBrightness);
+  
+    
+    const vec3 defaultBlocklight = vec3(1.0, 0.8, 0.5843);
+     const float VOXEL_FADE_START = VOXEL_RADIUS / 1.15;
+    const float VOXEL_FADE_END = VOXEL_RADIUS;
+    float dist = length(viewPos);
+    float fade = smoothstep(VOXEL_FADE_START, VOXEL_FADE_END, dist);
+   blocklight.rgb = mix(combinedLight, defaultBlocklight * lightmap.r, fade);
+   
  
-  color = vec4(lighting, color.a);
+   
+    vec3 shadow = texture(shadowtex0, texcoord*100.).rgb;
+    float shadowMask = (1.0 - step(0.01, texcoord.x)) * (1.0 - step(0.01, texcoord.y));
+    color.rgb = mix(color.rgb, shadow, shadowMask);
+}
+else
+{
+  blocklight.rgb =  vec3(1.0, 0.8, 0.5843) * lightmap.r ;
+}
+#else
+blocklight.rgb =  vec3(1.0, 0.8, 0.5843) * lightmap.r ;
+#endif
+
+
+  
+  float depth = texture(depthtex0, texcoord).r;
+  vec3 eyePlayerPos = feetPlayerPos - gbufferModelViewInverse[3].xyz;
+  color = vec4(borderFog(color.rgb, eyePlayerPos, depth), color.a);
 }
