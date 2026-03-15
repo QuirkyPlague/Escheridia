@@ -67,7 +67,7 @@ option.BINARY_REFINEMENT.comment = Improves SSR accuracy with extra refinement s
     value.BINARY_REFINEMENT.0 = Off
     value.BINARY_REFINEMENT.1 = On
 
-option.NAME = Escheridia V3
+option.NAME = Escheridia V4.1
     value.NAME.0 =§cBy QuirkyPlague§r
     value.NAME.1 =§bBy QuirkyPlague§g
 

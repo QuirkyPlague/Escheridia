@@ -19,7 +19,7 @@ const vec4 morningSkylightColor = vec4(0.6353, 0.7333, 0.851, 0.831);
 const vec4 eveningSkylightColor = vec4(0.6353, 0.7333, 0.851, 0.731);
 const vec4 nightSkylightColor = vec4(0.2941, 0.3804, 0.5639, 0.924);
 
-const vec4 blocklightColor = vec4(1.0, 0.8, 0.5843, 1.00);
+const vec4 blocklightColor = vec4(1.0, 0.8, 0.5843, 1.0);
 const vec4 ambientColor = vec4(0.015);
 const vec4 caveAmbient = vec4(0.8353, 0.8353, 0.8353, 1.0);
 const vec3 rainTint = vec3(0.6122, 0.5549, 0.4627);
@@ -123,10 +123,12 @@ vec3 getLighting(
         skylight += min(1.7 * pow(skylight, vec3(1.25)), 1.9);
 
         
-        vec3 blocklight = vxBlocklight * lightmap.r;
+        vec3 blocklight = vxBlocklight;
         float blocklightIntensity = blocklightColor.a;
-        blocklight *= max(15.59 * pow(blocklight, vec3(1.75)), 0.0);
+        blocklight *= max(5.59 * pow(blocklight, vec3(1.15)), 0.0);
         blocklight += min(0.77 * pow(blocklight, vec3(0.65)), 0.9);
+         blocklight  *= smoothstep(0.0, 0.121, blocklight); 
+
         blocklight *= blocklightIntensity;
 
         float faceNdl = dot(faceNormal, worldLightVector);
@@ -145,7 +147,7 @@ vec3 getLighting(
         scatter += baseScatter * 2.75 * (1.0 - sssFresnel)  ;
         scatter *= hasSSS;
         scatter *= sss ;
-        vec3 ambientSSS = skylight * 1.0 * sss;
+        vec3 ambientSSS = skylight * 0.75 * sss;
         vec3 blockSSS = blocklight * 5  * sss;
         vec3 indirectSSS = ambientSSS + blockSSS * ao  * uniformPhase;
         scatter += indirectSSS;

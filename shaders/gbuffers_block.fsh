@@ -72,7 +72,9 @@ void main() {
  
   //get voxel map position
 
-    #ifdef FLOODFILL
+ //get voxel map position
+  bool isEmissive = emission > 0;
+  #ifdef FLOODFILL
   ivec3 voxel_pos = ivec3(feetPlayerPos-normal*.1+fract(cameraPosition)+VOXEL_RADIUS);
   //check if in voxel range
 	if( clamp(voxel_pos,0,VOXEL_AREA) == voxel_pos )
@@ -87,41 +89,40 @@ void main() {
     vec3 voxelColorLight = smoothPos + vec3(doubleBufferWrite);
     bytes = texture(voxelFloodfill,vec3(voxelColorLight) / vec3(VOXEL_AREA, 2 * VOXEL_AREA, VOXEL_AREA));
     bytes2 = texture(voxelFloodfill2,vec3(voxelColorLight) / vec3(VOXEL_AREA, 2 * VOXEL_AREA, VOXEL_AREA));
-
+  
     vec3 orangeLight = bytes.r * vec3(1.0, 0.6314, 0.2157);
-    vec3 blueLight =  bytes.g * vec3(0.2157, 0.7569, 0.8784);
-    vec3 whiteLight = bytes.b * vec3(0.7098, 0.8784, 0.9294);
+    vec3 blueLight =  bytes.g * vec3(0.2157, 0.6235, 0.8784);
+    vec3 whiteLight = bytes.b * vec3(0.7412, 0.9059, 1.0);
     vec3 redLight = bytes2.g * vec3(0.8549, 0.2706, 0.1255);
     vec3 purpleLight = bytes2.r * vec3(0.8824, 0.0, 1.0);
     vec3 greenLight = bytes2.b * vec3(0.0627, 0.5059, 0.1294);
-    vec3 combinedLight = (orangeLight + blueLight + whiteLight + redLight + purpleLight + greenLight) ;
-    
+    vec3 combinedLight = (orangeLight + blueLight + whiteLight + redLight + purpleLight + greenLight) * lightmap.r;
+     
     // Add this to clamp brightness while preserving intensity (color ratios)
 float maxBrightness = MAX_FLOODFILL_INTENSITY;  // Adjust this threshold as needed (e.g., 1.0 for full brightness cap)
-float currentBrightness = length(combinedLight);
-if (currentBrightness > maxBrightness) {
-    combinedLight *= maxBrightness / currentBrightness;
-}
+float currentBrightness = max(length(combinedLight), 1e-6);
+combinedLight *= min(1.0, maxBrightness / currentBrightness);
   
     
     const vec3 defaultBlocklight = vec3(1.0, 0.8, 0.5843);
-    const float VOXEL_FADE_START = VOXEL_RADIUS / 2;
+     const float VOXEL_FADE_START = VOXEL_RADIUS / 1.15;
     const float VOXEL_FADE_END = VOXEL_RADIUS;
     float dist = length(viewPos);
     float fade = smoothstep(VOXEL_FADE_START, VOXEL_FADE_END, dist);
-    blocklight.rgb = mix(combinedLight, defaultBlocklight, fade);
+   blocklight.rgb = mix(combinedLight, defaultBlocklight * lightmap.r, fade);
    
-    
+ 
    
     vec3 shadow = texture(shadowtex0, texcoord*100.).rgb;
-		if(texcoord.x < .01 && texcoord.y < .01) color.rgb  = shadow;
+    float shadowMask = (1.0 - step(0.01, texcoord.x)) * (1.0 - step(0.01, texcoord.y));
+    color.rgb = mix(color.rgb, shadow, shadowMask);
 }
 else
 {
-  blocklight.rgb =  vec3(1.0, 0.8, 0.5843) ;
+  blocklight.rgb =  vec3(1.0, 0.8, 0.5843) * lightmap.r ;
 }
 #else
-blocklight.rgb =  vec3(1.0, 0.8, 0.5843) ;
+blocklight.rgb =  vec3(1.0, 0.8, 0.5843) * lightmap.r ;
 #endif
     color.rgb = mix(color.rgb, entityColor.rgb, entityColor.a);
 }

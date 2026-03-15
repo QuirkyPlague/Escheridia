@@ -95,8 +95,8 @@ float sampleDensity(vec3 pos)
 vec3 cloudRaymarch(vec3 worldPos,vec3 noise, vec3 color)
 {
     const float uniformPhase= 1./(4.*PI);
-    const float _StepSize=6.4;
-    const float _NoiseOffset=12.65;
+    const float _StepSize=8.4;
+    const float _NoiseOffset=16.65;
     const float MULTI_SCATTER_GAIN=15.09;
     const float MULTI_SCATTER_DECAY=.93;
     const float liningIntensity = 1.0;
@@ -123,14 +123,14 @@ vec3 cloudRaymarch(vec3 worldPos,vec3 noise, vec3 color)
     float rayleigh = Rayleigh(dot(rayDir, worldLightVector));
     float transmittance=1;
     vec3 transmission = vec3(1.0);
-    vec3 fogCol=computeSkyColoring(vec3(0.)) * rayleigh *8 * uniformPhase;
+    vec3 fogCol=computeSkyColoring(vec3(0.))  * uniformPhase;
     vec3 absCoeff = vec3(1.0);
    //fog col is ambient sky color *NEEDS RENAMING*
     vec3 skyCol=computeSkyColoring(vec3(0.));
     vec3 sunCol=currentSunColor(vec3(0.));
-    sunCol=pow(sunCol,vec3(2.2));
+   
     fogCol=pow(fogCol,vec3(2.2));
-     fogCol *= 435.5;
+     fogCol *= 335.5;
     vec3 multiScatterEnergy=vec3(0.);
     vec3 clouds=vec3(0.0);
     while(distTravelled<distLimit)

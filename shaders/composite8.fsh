@@ -103,14 +103,14 @@ void main(){
     float phaseVal=mix(fogPhase[i],fogPhase[i+1],timeInterp);
      float skyIntensity=mix(intensity[i],intensity[i+1],timeInterp);
     const float UNIFORM_PHASE=1./(4.*PI);
-    const float _StepSize= STEP_SIZE;
+    const float _StepSize=  STEP_SIZE;
     const float _NoiseOffset=16.05;
     const float MULTI_SCATTER_GAIN= MS_POWER;// how much single scatter feeds MS
     const float MULTI_SCATTER_DECAY= MS_FALLOFF;// energy loss per step
     
     float phaseIncFactor=smoothstep(225,0,eyeBrightnessSmooth.y);
     float scatterReduce=smoothstep(0,185,eyeBrightnessSmooth.y);
-    vec3 lightScattering=vec3(16.) * PHASE_MULTIPLIER;
+    vec3 lightScattering=vec3(11.) * PHASE_MULTIPLIER;
     
     
     
@@ -138,7 +138,7 @@ void main(){
     
     fogCol = mix(fogCol, jungleCol * skyIntensity, jungleSmooth);
  
-    sunCol=pow(sunCol,vec3(2.2));
+    
     fogCol=pow(fogCol,vec3(2.2));
   
     jungleCol *= 195;

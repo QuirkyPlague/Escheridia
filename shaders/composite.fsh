@@ -17,6 +17,9 @@ in vec2 texcoord;
 #if VOXEL_AREA == 128
 	const float voxelDistance = 128.0;
 #endif
+#if VOXEL_AREA == 256
+	const float voxelDistance = 256.0;
+#endif
 
 
 /* RENDERTARGETS: 0 */

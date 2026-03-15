@@ -214,7 +214,7 @@ vec3 lottesTonemap(vec3 x) {
       pow(hdrMax, a) * pow(midIn, a * d) * midOut) /
     ((pow(hdrMax, a * d) - pow(midIn, a * d)) * midOut);
 
-  return pow(pow(x, a) / (pow(x, a * d) * b + c), vec3(1.0 / 2.2));
+  return (pow(x, a) / (pow(x, a * d) * b + c));
 }
 
 #endif //TONEMAPPING_GLSL

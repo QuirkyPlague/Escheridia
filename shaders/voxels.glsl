@@ -26,6 +26,7 @@ vec3 block_centered_relative_pos = feetPlayerPos + at_midBlock.xyz/64.0 +cameraP
        
         vec4 voxel_data = mc_Entity.x == 10004 ? vec4(0.,1.,0.,1.) : mc_Entity.x == 10003.? vec4(1.,0.,0.,1.) : mc_Entity.x == 10005.? vec4(0.,0.,1.,1.) : vec4(0.0, 0.0, 0.0, 1.0); 
         vec4 voxel_data2 = mc_Entity.x == 10006 ? vec4(0.,1.,0.,1.) : mc_Entity.x == 10007.? vec4(1.,0.,0.,1.) : mc_Entity.x == 10008.? vec4(0.,0.,1.,1.) : vec4(0.0, 0.0, 0.0, 1.0); 
+		if(at_midBlock.w > 1 && mc_Entity.x != 10004 && mc_Entity.x != 10003 && mc_Entity.x != 10005 ) voxel_data = vec4(1.0,0.0,0.0,1.0);
 
 		//pack data
 		uint integerValue = packUnorm4x8( voxel_data );

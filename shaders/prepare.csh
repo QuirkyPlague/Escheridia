@@ -15,6 +15,9 @@
 	#if VOXEL_AREA == 128
 		const ivec3 workGroups = ivec3(16, 8, 128);
 	#endif
+    #if VOXEL_AREA == 256
+		const ivec3 workGroups = ivec3(32, 16, 256);
+	#endif
 
 	layout (r32ui) uniform uimage3D voxelization;
     layout (r32ui) uniform uimage3D voxelization1;
