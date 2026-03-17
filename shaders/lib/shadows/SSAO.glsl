@@ -46,7 +46,7 @@ float SSAO(vec3 viewPos, vec3 normal)
       float(sampleViewDepth >= sampleViewPos.z + bias) * smoothstep(0.0, 1.0, SSAO_RADIUS / abs(sampleViewDepth - sampleViewPos.z));
       occlusion += 1.0 - sampleOcclusion;
       
-      if (any(isnan(occlusion))) occlusion = 1.0;
+      
     }
 
     

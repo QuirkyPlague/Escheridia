@@ -40,7 +40,7 @@ const vec3 nightGrndCol = vec3(NIGHT_GROUND_COLOR_R, NIGHT_GROUND_COLOR_G, NIGHT
 
 const vec4 sunriseScatter = vec4(0.3294, 0.2196, 0.1725, 0.753);
 const vec4 eveningScatter = vec4(0.8745, 0.3961, 0.1765, 0.83);
-const vec4 dayScatter = vec4(0.5608, 0.3529, 0.1176, 0.715);
+const vec4 dayScatter = vec4(0.6588, 0.4275, 0.1569, 0.755);
 const vec4 noonScatter = vec4(0.7569, 0.6588, 0.5255, 0.845);
 const vec4 nightScatter = vec4(0.6471, 0.4667, 0.2275, 0.65);
 
@@ -76,14 +76,14 @@ vec3 getSun(vec3 dir) {
   vec3 sunColor;
   sunColor = currentSunColor(sunColor);
 
-  vec3 fullSun = sun * sunColor * 100.0 * sunHeightFactor;
+  vec3 fullSun = sun * sunColor * 500.0 * sunHeightFactor;
   fullSun *= mix(1.0, 0.001, wetness * hotBiomeSmooth);
   vec3 moonColor =  sunColor;
   vec3 fullmoon = moon * moonColor * 16.3 * sunHeightFactor;
   fullmoon *= mix(1.0, 0.001, wetness * hotBiomeSmooth);
   if (worldMoonDir.y < groundBlend) fullmoon *= 0.0;
   vec3 celestial = fullSun + fullmoon;
-  celestial = pow(celestial, vec3(2.2));
+
   return celestial;
 }
 

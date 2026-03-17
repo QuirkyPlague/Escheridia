@@ -80,7 +80,7 @@ float sampleDensity(vec3 pos)
 
     density += max(0, shape.r - CLOUD_DENSITY_THRESHOLD) * CLOUD_DENSITY;
     #if CLOUD_STYLE == 0
-    density *= 1.1;
+    density *= 12.1;
     #else
     density *= 7;
     #endif

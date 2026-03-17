@@ -55,7 +55,7 @@ vec3 TonemapACES(vec3 rgb) {
 vec3 reinhard_jodie(vec3 v) {
   float l = luminance(v);
   vec3 tv = v / (1.0f + v);
-  return pow(mix(v / (1.0f + l), tv, tv), vec3(1.0 / 2.2));
+  return (mix(v / (1.0f + l), tv, tv));
 }
 
 //adapted from https://github.com/dmnsgn/glsl-tone-map/blob/main/agx.glsl
@@ -91,7 +91,7 @@ const float AgxMaxEv = AGX_MAX_EV;
 
 // 0: Default, 1: Golden, 2: Punchy
 #ifndef AGX_LOOK
-#define AGX_LOOK 2
+#define AGX_LOOK 0
 #endif
 
 vec3 agxAscCdl(vec3 color, vec3 slope, vec3 offset, vec3 power, float sat) {
@@ -138,7 +138,7 @@ vec3 agx(vec3 color) {
   // Punchy
   color = agxAscCdl(
     color,
-    vec3(1.0),
+    vec3(1.05),
     AGX_OFFSET_COLOR,
     AGX_POWER,
     AGX_SATURATION
@@ -191,7 +191,7 @@ vec3 TonemapGeneric(vec3 rgb) {
 }
 
 vec3 hejlBurgessTonemap(vec3 v) {
-  v /= 3.0;
+  v /= 6.0;
   vec3 x = max(v - 0.004, 0);
   return x * (6.2 * x + 0.5) / (x * (6.2 * x + 1.7) + 0.06);
 }

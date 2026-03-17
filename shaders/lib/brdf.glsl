@@ -117,7 +117,7 @@ vec3 brdf(
   }
  
   if (isMetal) {
-    kD *= 0.0;
+    kD *= 1.0;
   }
   
   // add to outgoing radiance Lo

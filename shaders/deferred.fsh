@@ -44,10 +44,16 @@ const float handDepth = MC_HAND_DEPTH * 0.5 + 0.5;
     #ifdef FILTER_AO
     float factor = SSAO_TA_FACTOR;
     bool rejectHistory = false;
-    if(depth <= 0.56 )rejectHistory = true; 
-         if(previousDepth <= 0.56 )rejectHistory = true;
-           
-            float historyWeight = factor * float(!historyRejection) * float(!rejectHistory);
+    
+    
+    float sampleNDCDepth = depth * 2.0 - 1.0;
+    float sampleViewDepth = gbufferProjectionInverse[3].z / (gbufferProjectionInverse[2].w * sampleNDCDepth + gbufferProjectionInverse[3].w);
+    float prevViewZ = projectAndDivide(gbufferProjectionInverse, vec3(prevCoord, previousDepth) * 2.0 - 1.0).z;
+    float depthDelta = abs(sampleViewDepth - prevViewZ);
+    float depthThreshold = max(0.01, abs(prevViewZ) * 0.01);
+    float depthConfidence = pow(clamp(1.0 - depthDelta / depthThreshold, 0, 1), 1.0); 
+    
+    float historyWeight = factor * float(!historyRejection)  * depthConfidence ;
    
     float previousOcclusion = texture(colortex12, prevCoord).r;
     occlusion = mix(occlusion, previousOcclusion, historyWeight);

@@ -225,38 +225,42 @@ void main(){
   
     #if TEMPORAL_REPROJECTION == 1
     {
-        float depth = texture(depthtex0, texcoord).r;
-        // skip reprojecting sky/hand
-        const float handDepth = MC_HAND_DEPTH * 0.5 + 0.5;
-          
-            //gather reprojection coords
-            vec3 screenPos = vec3(texcoord.xy, depth);
-            vec3 NDCPos = screenPos * 2.0 - 1.0;
-            vec3 viewPos = projectAndDivide(gbufferProjectionInverse, NDCPos);
-            vec3 feetPlayerPos = (gbufferModelViewInverse * vec4(viewPos, 1.0)).xyz;
-            feetPlayerPos += cameraPosition;
-            feetPlayerPos -= previousCameraPosition;
-            vec3 previousView = (gbufferPreviousModelView * vec4(feetPlayerPos, 1.0)).xyz;
-            vec4 previousClip = gbufferPreviousProjection * vec4(previousView, 1.0);
-            vec3 previousScreen = (previousClip.xyz / previousClip.w) * 0.5 + 0.5;
-            vec2 prevCoord = previousScreen.xy;
+    float depthCheck = texture(depthtex0, texcoord).r;
+    float opaqueDepth = texture(depthtex1, texcoord).r;
+    const float handDepth = MC_HAND_DEPTH * 0.5 + 0.5;
+    history.a = screenSpaceToViewSpace(opaqueDepth);
+      // reproject current pixel
+      vec3 screenPos = vec3(texcoord.xy, depthCheck);
+      vec3 NDCPos = screenPos * 2.0 - 1.0;
+      vec3 viewPos = projectAndDivide(gbufferProjectionInverse, NDCPos);
+      vec3 feetPlayerPos = (gbufferModelViewInverse * vec4(viewPos, 1.0)).xyz;
+      feetPlayerPos += cameraPosition;
+      feetPlayerPos -= previousCameraPosition;
+      vec3 previousView = (gbufferPreviousModelView * vec4(feetPlayerPos, 1.0)).xyz;
+      vec4 previousClip = gbufferPreviousProjection * vec4(previousView, 1.0);
+      vec3 previousScreen = (previousClip.xyz / previousClip.w) * 0.5 + 0.5;
+      vec2 prevCoord = previousScreen.xy;
+      vec3 currentPreviousView = previousView;
+      depth = screenSpaceToViewSpace(depth);
+      vec4 historyColor = texture(colortex13, prevCoord);
+       currentPreviousView.z = screenSpaceToViewSpace(historyColor.a);
+      // rejection checks
+      bool historyRejection = clamp(prevCoord, 0, 1) != prevCoord;
+     historyRejection || distance(previousView, currentPreviousView) > 0.1;
+      float prevDepth = texture(depthtex0, prevCoord).r;
 
-            // rejection checks
-            bool historyRejection = clamp(prevCoord, 0, 1) != prevCoord;
-            float previousDepth = texture(depthtex0, prevCoord).r;
-            float currentViewDepth = viewPos.z;
-            float prevViewZ = projectAndDivide(gbufferProjectionInverse, vec3(prevCoord, previousDepth) * 2.0 - 1.0).z;
-            float depthDelta = abs(currentViewDepth - prevViewZ);
-               float depthThreshold = max(0.01, abs(currentViewDepth) * 0.01);
-      float depthConfidence = pow(clamp(1.0 - depthDelta / depthThreshold, 0, 1), 1.5);
-    
-            vec4 historyColor = texture(colortex13, prevCoord) ;
+       float sampleNDCDepth = depth * 2.0 - 1.0;
+        float sampleViewDepth = gbufferProjectionInverse[3].z / (gbufferProjectionInverse[2].w * sampleNDCDepth + gbufferProjectionInverse[3].w);
+      float prevViewZ = projectAndDivide(gbufferProjectionInverse, vec3(prevCoord, prevDepth) * 2.0 - 1.0).z;
+      float depthDelta = abs(depth - prevViewZ);
+      float depthThreshold = max(0.01, abs(prevViewZ) * 0.01);
+      float depthConfidence = pow(clamp(1.0 - depthDelta / depthThreshold, 0, 1), 1.0);
             float factor = 0.65;
              bool rejectHistory = false;
-            if(depth <= 0.56 )rejectHistory = true; 
-         if(previousDepth <= 0.56 )rejectHistory = true;
+            if(depthCheck <= 0.56 )rejectHistory = true; 
+         if(prevDepth <= 0.56 )rejectHistory = true;
            
-            float historyWeight = factor * float(!historyRejection) * float(!rejectHistory);
+            float historyWeight = factor * float(!historyRejection) * float(!rejectHistory) * depthConfidence;
             
             fogCol = mix(fogCol, historyColor.rgb, historyWeight);
             if (any(isnan(fogCol))) fogCol = vec3(0.0);

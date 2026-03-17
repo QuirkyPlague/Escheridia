@@ -210,7 +210,7 @@ void main() {
   // --- F0 and roughness
   vec3 f0 = vec3(SpecMap.g);
   f0 = mix(f0, vec3(0.02), float(isWater));
-  f0 = mix(f0, albedo * 16.0, float(isMetal));
+  f0 = mix(f0, albedo * 7, float(isMetal));
   f0 = mix(f0, vec3(1.0), float(inWater && isWater));
   
   f0 = mix(f0, vec3(0.02), rainFactor);
@@ -304,7 +304,7 @@ void main() {
       roughness,
       isWater
     ) ;
-    
+    sky = mix(albedo,sky, smoothLightmap);
    float roughMask = step(0.0, roughness);
    sky *= mix(1.0, max(exp(4.32 * (0.101 - roughness)), 0.0), roughMask);
    
@@ -334,13 +334,9 @@ void main() {
   if (!reflectionHit && canReflect) {
   
        reflectedColor =sky;
-    
-      
-      reflectedColor = mix(color.rgb, reflectedColor, smoothLightmap);
+  
   }
-  
-  
- 
+
   reflectedColor *= F;
 
   
@@ -352,8 +348,9 @@ void main() {
   #ifdef REFLECTION_FILTER
   {
     float depthCheck = texture(depthtex0, texcoord).r;
+    float opaqueDepth = texture(depthtex1, texcoord).r;
     const float handDepth = MC_HAND_DEPTH * 0.5 + 0.5;
-    
+    history.a = screenSpaceToViewSpace(opaqueDepth);
       // reproject current pixel
       vec3 screenPos = vec3(texcoord.xy, depthCheck);
       vec3 NDCPos = screenPos * 2.0 - 1.0;
@@ -365,33 +362,39 @@ void main() {
       vec4 previousClip = gbufferPreviousProjection * vec4(previousView, 1.0);
       vec3 previousScreen = (previousClip.xyz / previousClip.w) * 0.5 + 0.5;
       vec2 prevCoord = previousScreen.xy;
-      depth = linearizeDepth(depth);
+      vec3 currentPreviousView = previousView;
+      depth = screenSpaceToViewSpace(depth);
+      vec4 historyColor = texture(colortex14, prevCoord);
+       currentPreviousView.z = screenSpaceToViewSpace(historyColor.a);
       // rejection checks
       bool historyRejection = clamp(prevCoord, 0, 1) != prevCoord;
+     historyRejection || distance(previousView, currentPreviousView) > 0.1;
       float prevDepth = texture(depthtex0, prevCoord).r;
-      float previousDepth = linearizeDepth(texture(depthtex0, prevCoord).r);
+
        float sampleNDCDepth = depth * 2.0 - 1.0;
         float sampleViewDepth = gbufferProjectionInverse[3].z / (gbufferProjectionInverse[2].w * sampleNDCDepth + gbufferProjectionInverse[3].w);
-      float prevViewZ = projectAndDivide(gbufferProjectionInverse, vec3(prevCoord, previousDepth) * 2.0 - 1.0).z;
-      float depthDelta = abs(depth - previousDepth);
+      float prevViewZ = projectAndDivide(gbufferProjectionInverse, vec3(prevCoord, prevDepth) * 2.0 - 1.0).z;
+      float depthDelta = abs(depth - prevViewZ);
       float depthThreshold = max(0.01, abs(prevViewZ) * 0.01);
       float depthConfidence = pow(clamp(1.0 - depthDelta / depthThreshold, 0, 1), 1.0);
       float response = pow(roughness, 2.0) * reflDist;
       float reflLum = luminance(reflectedColor);
       
       float factor = 0.85;
+     
       //factor = max(factor, clamp(reflLum, 0, 1) * factor);
       if(roughness < 0.05) factor = 0.35;
       bool rejectHistory = false;
         if(depthCheck <= 0.56 )rejectHistory = true; 
          if(prevDepth <= 0.56 )rejectHistory = true;
-      vec4 historyColor = texture(colortex14, prevCoord);
-      float historyWeight = factor * float(!historyRejection) * float(!rejectHistory)  ;
+      
+      float historyWeight = factor * float(!historyRejection) * float(!rejectHistory) * depthConfidence  ;
       
       reflectedColor = mix(reflectedColor, historyColor.rgb, historyWeight);
       if (any(isnan(reflectedColor))) reflectedColor = vec3(0.0);
-    
+        
   }
+  history.rgb = reflectedColor;
   #endif
   reflectedColor *= karisAverage(reflectedColor);
 
@@ -428,6 +431,6 @@ void main() {
  
 
   // write reflection history buffer (colortex14) for next frame
-  history = vec4(reflectedColor, 1.0);
+
 
 }

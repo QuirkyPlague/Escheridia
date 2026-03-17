@@ -5,6 +5,7 @@
     const int colortex0Format =  R11F_G11F_B10F;
     const bool colortex0MipmapEnabled = true;
     const int colortex6Format = R11F_G11F_B10F;
+    const int colortex9Format = R11F_G11F_B10F;
     const int colortex10Format = R11F_G11F_B10F;
     const int colortex11Format = R11F_G11F_B10F;
     const int colortex12Format = R11F_G11F_B10F;
@@ -38,7 +39,7 @@ const bool colortex14Clear = false;
 #define SHADOW_RESOLUTION 2048 //[512 1024 2048 4096 8192] //4 8 12 16 24 32
 #define SHADOW_DISTANCE 256.0 //[64.0 128.0 192.0 256.0 384.0 512.0]
 #define SSAO_SAMPLES 8 //[4 8 12 16 20 24 28 32 36 40]
-#define SSAO_RADIUS 1.5 //[0.1 0.5 1.0 2.0 3.0 4.0 5.0 6.0 7.0 8.0 9.0 10.0]
+#define SSAO_RADIUS 1.5 //[0.1 0.15 0.2 0.25 0.3 0.35 0.4 0.45 0.5 0.55 0.6 0.65 0.7 0.75 0.8 0.85 0.9 0.95 1.0 1.05 1.1 1.15 1.2 1.25 1.3 1.35 1.4 1.45 1.5 1.55 1.6 1.65 1.7 1.75 1.8 1.85 1.9 1.95 2.0 2.05 2.1 2.15 2.2 2.25 2.3 2.35 2.4 2.45 2.5 2.55 2.6 2.65 2.7 2.75 2.8 2.85 2.9 2.95 3.0 4.0 5.0 6.0]
 #define AO_METHOD 1 //[0 1]
 #define VANILLA_AO_LEVEL 1.0 //[0.0 0.1 0.2 0.3 0.4 0.5 0.6 0.7 0.8 0.9 1.0]
 #define SSAO_INTENSITY 1.0 //[0.1 0.2 0.3 0.4 0.5 0.6 0.7 0.8 0.9 1.0 1.1 1.2 1.3 1.4 1.5 1.6 1.7 1.8 1.9 2.0 2.1 2.2 2.3 2.4 2.5 2.6 2.7 2.8 2.9 3.0 ]
@@ -154,9 +155,9 @@ const bool colortex14Clear = false;
 
 //Tonemapping
 #define AGX_SATURATION 1.0
-#define AGX_MIN_EV -14.6
-#define AGX_MAX_EV 2.5
-#define AGX_POWER vec3(1.25)
+#define AGX_MIN_EV -12.6
+#define AGX_MAX_EV 4.2
+#define AGX_POWER vec3(1.3)
 #define AGX_OFFSET_COLOR vec3(0.0)
 
 //Water Fog

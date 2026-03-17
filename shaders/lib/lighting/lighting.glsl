@@ -19,7 +19,7 @@ const vec4 morningSkylightColor = vec4(0.6353, 0.7333, 0.851, 0.831);
 const vec4 eveningSkylightColor = vec4(0.6353, 0.7333, 0.851, 0.731);
 const vec4 nightSkylightColor = vec4(0.2941, 0.3804, 0.5639, 0.924);
 
-const vec4 blocklightColor = vec4(1.0, 0.8, 0.5843, 1.0);
+const vec4 blocklightColor = vec4(1.7, 0.8, 0.5843, 0.25);
 const vec4 ambientColor = vec4(0.015);
 const vec4 caveAmbient = vec4(0.8353, 0.8353, 0.8353, 1.0);
 const vec3 rainTint = vec3(0.6122, 0.5549, 0.4627);
@@ -42,7 +42,7 @@ vec3 getLighting(
     vec2 uv) {
     
     vec3 vxBlocklight = texture(colortex9, uv).rgb;
-
+    vxBlocklight = pow(vxBlocklight, vec3(2.2));
     float t = fract(worldTime / 24000.0);
     const int keys = 7;
     const float keyFrames[keys] = float[keys](
@@ -125,9 +125,9 @@ vec3 getLighting(
         
         vec3 blocklight = vxBlocklight;
         float blocklightIntensity = blocklightColor.a;
-        blocklight *= max(5.59 * pow(blocklight, vec3(1.15)), 0.0);
-        blocklight += min(0.77 * pow(blocklight, vec3(0.65)), 0.9);
-         blocklight  *= smoothstep(0.0, 0.121, blocklight); 
+        blocklight *= max(5.59 * pow(blocklight, vec3(0.135)), 0.0);
+        blocklight += min(0.17 * pow(blocklight, vec3(0.65)), 0.9);
+         blocklight  *= smoothstep(0.0, 0.321, blocklight); 
 
         blocklight *= blocklightIntensity;
 
