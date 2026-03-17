@@ -141,7 +141,7 @@ void main() {
   float waterMaskF = float(!isWater);
   float rainFactor = clamp(smoothstep(13.5 / 15.0, 14.5 / 15.0, lightmap.y), 0, 1) * wetness;
   rainFactor *= smoothstep(
-    -0.45,
+    -0.15,
     0.75,
     texture(
       puddleTex,

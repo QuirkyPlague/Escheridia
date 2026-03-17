@@ -124,7 +124,7 @@ void main() {
     // Add this to clamp brightness while preserving intensity (color ratios)
     float maxBrightness = MAX_FLOODFILL_INTENSITY;  // Adjust this threshold as needed (e.g., 1.0 for full brightness cap)
     float currentBrightness = max(length(combinedLight), 1e-6);
-    combinedLight *= min(3.5, maxBrightness / currentBrightness);
+    combinedLight *= min(maxBrightness, maxBrightness / currentBrightness);
   
     
     const vec3 defaultBlocklight = vec3(1.0, 0.8, 0.5843);

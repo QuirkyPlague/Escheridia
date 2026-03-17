@@ -115,9 +115,9 @@ void main() {
   vec3 emissive = vec3(0.0);
   #ifndef HC_EMISSION
   if (emission < 1.0) {
-    emission = min(emission, 1.0);
+    emission = min(emission, 0.85);
     emissive += color.rgb * emission;
-    emissive += max(105.25 * pow(emissive, vec3(2.58)), 0.0);
+    emissive += max(15.25 * pow(emissive, vec3(2.58)), 0.0);
       
     emissive = CSB(emissive, 1.0, 0.95, 1.0);
     //emissive = pow(emissive, vec3(2.2));

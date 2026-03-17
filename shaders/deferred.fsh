@@ -1,7 +1,6 @@
 #version 430 compatibility
 
 #include "/lib/util.glsl"
-#include "/lib/atmosphere/distanceFog.glsl"
 #include "/lib/shadows/SSAO.glsl"
 
 in vec2 texcoord;

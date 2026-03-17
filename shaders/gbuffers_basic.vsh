@@ -9,7 +9,12 @@ out vec2 texcoord;
 out vec4 glcolor;
 out vec3 normal;
 out mat3 tbnMatrix;
+out vec3 modelPos;
+out vec3 viewPos;
+out vec3 feetPlayerPos;
 flat out int blockID;
+in vec4 at_midBlock;
+out float emission;
 in vec2 mc_Entity;
 
 void main() {
@@ -30,6 +35,11 @@ void main() {
   vec3 binormal = normalize(cross(tangent, normal) * handedness);
   tbnMatrix = mat3(tangent, binormal, normal);
 
+  modelPos = gl_Vertex.xyz;
+  viewPos = (gl_ModelViewMatrix * gl_Vertex).xyz;
+  feetPlayerPos = (gbufferModelViewInverse * vec4(viewPos, 1.0)).xyz;
+
   blockID = int(mc_Entity.x + 0.5);
+  emission = at_midBlock.w / 15.0;
 
 }

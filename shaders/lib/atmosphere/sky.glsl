@@ -211,8 +211,8 @@ vec3 skyScattering(vec3 pos) {
 
   vec3 sky = zenithCol + horizonCol + groundCol;
 
-  vec3 sunColor;
-  sunColor = currentSunColor(sunColor);
+  vec3 sunColor = currentSunColor(vec3(0.0)); 
+  
 
   vec3 moonMieScatterColor = vec3(0.0941, 0.0941, 0.2196);
   vec3 mieScat = mix(mieColor[i].rgb, mieColor[i + 1].rgb, timeInterp);

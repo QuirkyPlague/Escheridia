@@ -1,12 +1,11 @@
 #version 430 compatibility
 
-#include "/lib/lighting/lighting.glsl"
+
 #include "/lib/uniforms.glsl"
-#include "/lib/shadows/softShadows.glsl"
 #include "/lib/postProcessing.glsl"
 #include "/lib/blockID.glsl"
 #include "/lib/atmosphere/distanceFog.glsl"
-#include "/lib/shadows/SSAO.glsl"
+
 uniform sampler2D gtexture;
 
 uniform float alphaTestRef = 0.1;
@@ -75,7 +74,7 @@ void main() {
     emissive = CSB(emissive, 1.0 * 1.0, 1.0, 1.0);
   }
 
-  vec3 shadow = getSoftShadow(shadowClipPos, geoNormal.rgb, sss);
+ 
   vec3 f0 = vec3(0.0);
   if (isMetal) {
     f0 = color.rgb;
@@ -93,7 +92,7 @@ void main() {
 
   }
   float ao = texture(normals,texcoord).z * 0.5 + 0.5;
-   float ambientOcclusion = SSAO(viewPos, normal);
+   
    
 
   #ifdef FLOODFILL
