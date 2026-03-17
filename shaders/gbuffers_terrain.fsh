@@ -120,7 +120,7 @@ void main() {
     vec3 purpleLight = bytes2.r * vec3(0.149, 0.0, 1.0);
     vec3 greenLight = bytes2.b * vec3(0.0627, 0.5059, 0.1294);
     vec3 combinedLight = (orangeLight + blueLight + whiteLight + redLight + purpleLight + greenLight)  ;
-     combinedLight = CSB(combinedLight, 1.0, 1.0, 1.13);
+     combinedLight = CSB(combinedLight, 1.0, 1.0, 1.0);
     // Add this to clamp brightness while preserving intensity (color ratios)
     float maxBrightness = MAX_FLOODFILL_INTENSITY;  // Adjust this threshold as needed (e.g., 1.0 for full brightness cap)
     float currentBrightness = max(length(combinedLight), 1e-6);

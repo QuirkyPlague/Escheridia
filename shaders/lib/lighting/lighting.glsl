@@ -19,7 +19,7 @@ const vec4 morningSkylightColor = vec4(0.6353, 0.7333, 0.851, 0.831);
 const vec4 eveningSkylightColor = vec4(0.6353, 0.7333, 0.851, 0.731);
 const vec4 nightSkylightColor = vec4(0.2941, 0.3804, 0.5639, 0.924);
 
-const vec4 blocklightColor = vec4(1.7, 0.8, 0.5843, 0.75);
+const vec4 blocklightColor = vec4(1.7, 0.8, 0.5843, 1.1);
 const vec4 ambientColor = vec4(0.015);
 const vec4 caveAmbient = vec4(0.8353, 0.8353, 0.8353, 1.0);
 const vec3 rainTint = vec3(0.6122, 0.5549, 0.4627);
