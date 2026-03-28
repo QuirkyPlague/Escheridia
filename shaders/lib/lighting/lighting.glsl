@@ -10,18 +10,18 @@
 //Sun/moon
 const vec4 sunlightColor = vec4(1.0, 0.860, 0.692, 1.18);
 const vec4 noonSunlightColor = vec4(0.6824, 0.6824, 0.6824, 1.0);
-const vec4 morningSunlightColor = vec4(0.9569, 0.4745, 0.2333, 0.85);
+const vec4 morningSunlightColor = vec4(1.0, 0.73, 0.4033, 2.45);
 const vec4 eveningSunlightColor = vec4(0.9569, 0.4745, 0.2333, 1.0);
-const vec4 moonlightColor = vec4(0.0863, 0.1059, 0.1686, 0.45);
+const vec4 moonlightColor = vec4(0.4039, 0.4863, 0.7608, 0.35);
 
-const vec4 skylightColor = vec4(0.6902, 0.8196, 0.9961, 0.831);
-const vec4 morningSkylightColor = vec4(0.6353, 0.7333, 0.851, 0.831);
+const vec4 skylightColor = vec4(0.6902, 0.8196, 0.9961, 1.0);
+const vec4 morningSkylightColor = vec4(0.7137, 0.8235, 0.9569, 0.831);
 const vec4 eveningSkylightColor = vec4(0.6353, 0.7333, 0.851, 0.731);
-const vec4 nightSkylightColor = vec4(0.2941, 0.3804, 0.5639, 0.924);
+const vec4 nightSkylightColor = vec4(0.4784, 0.4784, 1.0, 1.2);
 
-const vec4 blocklightColor = vec4(1.7, 0.8, 0.5843, 1.1);
-const vec4 ambientColor = vec4(0.015);
-const vec4 caveAmbient = vec4(0.8353, 0.8353, 0.8353, 1.0);
+const vec4 blocklightColor = vec4(1.7, 0.8, 0.5843, 1.4);
+const vec4 ambientColor = vec4(0.005);
+ vec4 caveAmbient = vec4(0.3255, 0.3804, 0.4314, 1.0);
 const vec3 rainTint = vec3(0.6122, 0.5549, 0.4627);
 
 vec3 getLighting(
@@ -39,10 +39,10 @@ vec3 getLighting(
     bool isMetal,
     float materialAo,
     vec3 faceNormal,
-    vec2 uv) {
+   vec3 blocklightCol) {
     
-    vec3 vxBlocklight = texture(colortex9, uv).rgb;
-    vxBlocklight = pow(vxBlocklight, vec3(2.2));
+  
+   
     float t = fract(worldTime / 24000.0);
     const int keys = 7;
     const float keyFrames[keys] = float[keys](
@@ -109,27 +109,29 @@ vec3 getLighting(
         float wetMul = mix(1.0, rain, wetFactor);
         sunlight *= mix(vec3(1.0), wetSunlight, wetMask);
         sunlight *= mix(1.0, wetMul, wetMask);
-
-        sunlight *= sunIntensity;
+        float sunLum = luminance(sunlight * sunIntensity);
+        sunlight *= sunLum;
         sunlight *= shadowFade;
        
         vec3 skylight =
         mix(skyCol[i].rgb, skyCol[i + 1].rgb, timeInterp) * lightmap.g;
         skylight = mix(skylight, vec3(0.3961, 0.4627, 0.5451) * rain * lightmap.g * 2.7, wetness * hotBiomeSmooth);
         float skyIntensity = mix(skyCol[i].a, skyCol[i + 1].a, timeInterp);
-
-        skylight *= skyIntensity;
+        float skyLum = luminance(skylight * skyIntensity);
+        skylight *= skyLum;
         skylight *= max(1.95 * pow(skylight, vec3(2.55)), 0.0);
         skylight += min(1.7 * pow(skylight, vec3(1.25)), 1.9);
 
         
-        vec3 blocklight = vxBlocklight;
+        vec3 blocklight = blocklightCol;
         float blocklightIntensity = blocklightColor.a;
-        blocklight *= max(5.59 * pow(blocklight, vec3(0.135)), 0.0);
-        blocklight += min(0.17 * pow(blocklight, vec3(0.65)), 0.9);
-         blocklight  *= smoothstep(0.0, 0.321, blocklight); 
-
+        float blocklightLum = luminance(blocklight * blocklightIntensity);
         blocklight *= blocklightIntensity;
+        blocklight *= max(9.59 * pow(blocklight, vec3(0.135)), 0.0);
+        blocklight += min(0.17 * pow(blocklight, vec3(1.95)), 6.9);
+         
+
+        
 
         float faceNdl = dot(faceNormal, worldLightVector);
 
@@ -147,8 +149,8 @@ vec3 getLighting(
         scatter += baseScatter * 2.75 * (1.0 - sssFresnel)  ;
         scatter *= hasSSS;
         scatter *= sss ;
-        vec3 ambientSSS = skylight * 0.75 * sss;
-        vec3 blockSSS = blocklight * 5  * sss;
+        vec3 ambientSSS = skylight * 0.55 * sss;
+        vec3 blockSSS = blocklight * 9  * sss;
         vec3 indirectSSS = ambientSSS + blockSSS * ao  * uniformPhase;
         scatter += indirectSSS;
         float faceNdlMask = step(1e-6, faceNdl);
@@ -158,15 +160,18 @@ vec3 getLighting(
         float ambientFactor = smoothstep(141, 0, eyeBrightnessSmooth.y);
 
         //ao *= ao * (1.0 - float(shadow));
-        vec3 ambientLight = (mix(ambientColor.rgb,caveAmbient.rgb * 0.06, ambientFactor)* ao * materialAo) * color  ;
+        float metalMask = isMetal ? 1.0 : 0.0;
+        caveAmbient = mix(caveAmbient, caveAmbient *0.25, metalMask);
+        vec3 ambientLight = (mix(ambientColor.rgb,caveAmbient.rgb * 0.095, ambientFactor)* ao * materialAo) * color  ;
         ambientLight = mix(ambientLight, ambientLight * rain, wetness * hotBiomeSmooth);
         
         vec3 indirect = (skylight + blocklight) * ao * materialAo;
-        float metalMask = isMetal ? 1.0 : 0.0;
+        
         bool noSky = lightmap.g < smoothstep(0.0, 0.682, lightmap.g);
-        vec3 metalIndirect = mix(indirect * 0.1,indirect  * 0 , smoothLightmap);
+        vec3 metalIndirect = mix(indirect * 0.0,indirect  * 0 , smoothLightmap);
         indirect = mix(indirect, metalIndirect, metalMask);
-
+        vec3 metalAmbient = mix(ambientLight* 5, ambientLight  * 3, smoothLightmap);
+        ambientLight = mix(ambientLight, metalAmbient, metalMask);
         vec3 specular = brdf(
             color,
             F0,
@@ -205,8 +210,8 @@ vec3 getLighting(
                 sunlightColor,
                 sunlightColor,
                 eveningSunlightColor,
-                moonlightColor * 2.45,
-                moonlightColor * 2.45,
+                moonlightColor * 1.3,
+                moonlightColor * 1.3,
                 morningSunlightColor );
 
             int i = 0;
@@ -234,7 +239,8 @@ vec3 getLighting(
             float wetMul = mix(1.0, 0.77, wetFactor);
             sunlight *= mix(vec3(1.0), wetSunlight, wetMask);
             sunlight *= mix(1.0, wetMul, wetMask);
-            sunlight *= sunIntensity;
+            float sunLum = luminance(sunlight * sunIntensity);
+            sunlight *= sunLum;
             sunlight *= shadowFade;
             return sunlight;
         }

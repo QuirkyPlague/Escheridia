@@ -240,9 +240,9 @@ void main() {
   float NdoV = max(dot(normal, -tangentView), 0.0);
   vec3 accumulated = vec3(0.0);
   float ndotL = dot(normal, lightVector);
-  vec3 noise = vec3(0.0);
+  
   for (uint i = 0u; i < uint(ROUGH_SAMPLES); i++) {
-    noise  = blue_noise(floor(gl_FragCoord.xy), frameCounter, int(i));
+    vec3 noise  = blue_noise(floor(gl_FragCoord.xy), frameCounter, int(i));
     vec3 microFacit = clamp(
       SampleVNDFGGX(tangentView, vec2(roughness), noise.xy),
       0,
@@ -273,11 +273,13 @@ void main() {
   #ifdef DO_SSR
   // SSR raytrace
   bool noSky = lightmap.g < .955;
+  vec3 noiseB = blue_noise(floor(gl_FragCoord.xy), frameCounter);
  bool reflectionHit = raytrace(
     viewPos,
     reflectedDir,
     SSR_STEPS,
     smoothLightmap,
+    noiseB.x,
     reflectedPos
   );
   
@@ -375,13 +377,15 @@ void main() {
         float sampleViewDepth = gbufferProjectionInverse[3].z / (gbufferProjectionInverse[2].w * sampleNDCDepth + gbufferProjectionInverse[3].w);
       float prevViewZ = projectAndDivide(gbufferProjectionInverse, vec3(prevCoord, prevDepth) * 2.0 - 1.0).z;
       float depthDelta = abs(depth - prevViewZ);
-      float depthThreshold = max(0.01, abs(prevViewZ) * 0.01);
-      float depthConfidence = pow(clamp(1.0 - depthDelta / depthThreshold, 0, 1), 1.0);
+      float depthThreshold = max(0.09, abs(prevViewZ) * 0.09);
+      float depthConfidence = pow(clamp(1.0 - depthDelta / depthThreshold, 0, 1), .0);
       float response = pow(roughness, 2.0) * reflDist;
       float reflLum = luminance(reflectedColor);
       
       float factor = 0.85;
-     
+      #ifndef ROUGH_REFLECTION
+      factor = 0.0;
+      #endif
       //factor = max(factor, clamp(reflLum, 0, 1) * factor);
       if(roughness < 0.05) factor = 0.35;
       bool rejectHistory = false;
@@ -390,11 +394,11 @@ void main() {
       
       float historyWeight = factor * float(!historyRejection) * float(!rejectHistory) * depthConfidence  ;
       
-      reflectedColor = mix(reflectedColor, historyColor.rgb, historyWeight);
+      //reflectedColor = mix(reflectedColor, historyColor.rgb, historyWeight);
       if (any(isnan(reflectedColor))) reflectedColor = vec3(0.0);
         
   }
-  history.rgb = reflectedColor;
+  //history.rgb = reflectedColor;
   #endif
   reflectedColor *= karisAverage(reflectedColor);
 

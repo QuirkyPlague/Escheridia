@@ -16,11 +16,11 @@ const ivec3 workGroups=ivec3(16,8,128);
 const ivec3 workGroups=ivec3(32,16,256);
 #endif
 
-layout(r32ui)uniform uimage3D voxelization;
+
 layout(r32ui)uniform uimage3D voxelization1;
 
-layout(rgba8)uniform image3D floodfill;
 
+layout(rgba8)uniform image3D floodfill2;
 
 uniform int frameCounter;
 uniform ivec3 cameraPositionInt;
@@ -41,13 +41,14 @@ void main()
     voxel_pos_new+=double_buffer_offset_write;
     voxel_pos_old+=double_buffer_offset_read;
     
-    uint integerValue=imageLoad(voxelization,orig_voxel_pos).r;
-    vec4 voxel_data=unpackUnorm4x8(integerValue);
+
+
     
- 
+    uint integerValue2=imageLoad(voxelization1,orig_voxel_pos).r;
+    vec4 voxel_data2=unpackUnorm4x8(integerValue2);
     
-    vec3 lightRGB = voxel_data.r*vec3(1.0, 0.8745, 0.7373) + voxel_data.g*vec3(0.4627, 0.8275, 1.0)  + voxel_data.b*vec3(0.9137, 0.9686, 1.0);
-  
+   
+    vec3 lightRGB2 = voxel_data2.g*vec3(1.0, 0.3412, 0.2392) * 2 + voxel_data2.r*vec3(0.349, 0.0, 1.0) +voxel_data2.b*vec3(0.6157, 0.8706, 0.6588);
 
     ivec3 neighbor=ivec3(1.,0.,0.);
     vec3 totalLight=vec3(0.);
@@ -61,18 +62,18 @@ void main()
     
     for(int i=0;i<6;i++)
     {
-        vec3 neighborLight=imageLoad(floodfill,voxel_pos_old+offsets[i]).rgb;
-      
+       
+        vec3 neighborLight2=imageLoad(floodfill2,voxel_pos_old+offsets[i]).rgb;
 
-        totalLight=max(totalLight,neighborLight-vec3(1./15.));
-        
+     
+        totalLight2=max(totalLight2,neighborLight2-vec3(1./15.));
     }
     
-    lightRGB=max(lightRGB,totalLight);
 
+    lightRGB2 =max(lightRGB2,totalLight2);
     
-    imageStore(floodfill,voxel_pos_new,vec4(lightRGB,1.));
     
+    imageStore(floodfill2,voxel_pos_new,vec4(lightRGB2,1.));
     
     #endif
 }

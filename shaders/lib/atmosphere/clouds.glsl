@@ -80,7 +80,7 @@ float sampleDensity(vec3 pos)
 
     density += max(0, shape.r - CLOUD_DENSITY_THRESHOLD) * CLOUD_DENSITY;
     #if CLOUD_STYLE == 0
-    density *= 12.1;
+    density *=3.1;
     #else
     density *= 7;
     #endif
@@ -97,12 +97,12 @@ vec3 cloudRaymarch(vec3 worldPos,vec3 noise, vec3 color)
     const float uniformPhase= 1./(4.*PI);
     const float _StepSize=8.4;
     const float _NoiseOffset=16.65;
-    const float MULTI_SCATTER_GAIN=15.09;
+    const float MULTI_SCATTER_GAIN=1.09;
     const float MULTI_SCATTER_DECAY=.93;
     const float liningIntensity = 1.0;
     const float liningSpread = 0.426;
   
-    vec3 lightScattering=vec3(1.34)*PHASE_MULTIPLIER;
+    vec3 lightScattering=vec3(1.0)*PHASE_MULTIPLIER;
     vec3 entryPoint=cameraPosition;
     vec3 viewDir=worldPos-cameraPosition;
     vec3 eyePos = viewDir - gbufferModelViewInverse[3].xyz;
@@ -129,8 +129,8 @@ vec3 cloudRaymarch(vec3 worldPos,vec3 noise, vec3 color)
     vec3 skyCol=computeSkyColoring(vec3(0.));
     vec3 sunCol=currentSunColor(vec3(0.));
    
-    fogCol=pow(fogCol,vec3(2.2));
-     fogCol *= 335.5;
+    
+     fogCol *= 4.5;
     vec3 multiScatterEnergy=vec3(0.);
     vec3 clouds=vec3(0.0);
     while(distTravelled<distLimit)

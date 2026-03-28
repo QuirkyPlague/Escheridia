@@ -83,8 +83,8 @@ void main(){
         1.0,
         1.0,
         0.65,
-        0.65,
-        0.65,
+        1.65,
+        1.65,
         0.65
     );
     
@@ -110,7 +110,7 @@ void main(){
     
     float phaseIncFactor=smoothstep(225,0,eyeBrightnessSmooth.y);
     float scatterReduce=smoothstep(0,185,eyeBrightnessSmooth.y);
-    vec3 lightScattering=vec3(11.) * PHASE_MULTIPLIER;
+    vec3 lightScattering=vec3(12.) * PHASE_MULTIPLIER;
     
     
     
@@ -136,14 +136,13 @@ void main(){
     vec3 sunCol=currentSunColor(vec3(0.));
     sunCol = mix(sunCol, sunCol * jungleTint, jungleSmooth);
     
-    fogCol = mix(fogCol, jungleCol * skyIntensity, jungleSmooth);
- 
-    
-    fogCol=pow(fogCol,vec3(2.2));
-  
-    jungleCol *= 195;
-    fogCol *= 195;
-       if(inWater)
+    fogCol = mix(fogCol, jungleCol, jungleSmooth);
+    fogCol = pow(fogCol, vec3(2.2));
+    fogCol *= 230;
+    float fogLum = luminance(fogCol * skyIntensity);
+   
+
+    if(inWater)
     {
         
         scatterReduce = 1.0;
@@ -204,7 +203,7 @@ void main(){
             vec3 multiScatter=
             multiScatterEnergy*
             msPhase*
-            scatter;
+            scatter * skyIntensity;
             vec3 sampleExtinction = ( multiScatter + absCoeff);
             float sampleTransmittance = exp(-_StepSize * 1.0);
             // accumulate fog

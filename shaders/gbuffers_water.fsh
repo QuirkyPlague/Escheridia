@@ -23,14 +23,14 @@ in vec3 worldPos;
 flat in int blockID;
 in float emission;
 
-/* RENDERTARGETS: 15,1,2,3,4,5,9 */
+/* RENDERTARGETS: 0,1,2,3,4,5 */
 layout(location = 0) out vec4 color;
 layout(location = 1) out vec4 lightmap;
 layout(location = 2) out vec4 encodedNormal;
 layout(location = 3) out vec4 specData;
 layout(location = 4) out vec4 geoNormal;
 layout(location = 5) out vec4 mask;
-layout(location = 6) out vec4 blocklight;
+
 
 void main() {
   color = texture(colortex0, texcoord) * glcolor;
@@ -45,6 +45,7 @@ void main() {
   encodedNormal = vec4(mappedNormal * 0.5 + 0.5, 1.0);
   specData = texture(specular, texcoord);
 
+ 
   geoNormal = vec4(normal * 0.5 + 0.5, 1.0);
   if (color.a < 0.1) {
     discard;
@@ -98,7 +99,8 @@ void main() {
  float ambientOcclusion = SSAO(viewPos, normal);
  //get voxel map position
   bool isEmissive = emission > 0;
- #ifdef FLOODFILL
+  vec3 blocklight = vec3(0.0);
+#ifdef FLOODFILL
   ivec3 voxel_pos = ivec3(feetPlayerPos-normal*.1+fract(cameraPosition)+VOXEL_RADIUS);
   //check if in voxel range
 	if( clamp(voxel_pos,0,VOXEL_AREA) == voxel_pos )
@@ -109,39 +111,46 @@ void main() {
    
 
     vec3 smoothPos = vec3(feetPlayerPos + cameraPositionFract + VOXEL_RADIUS);
-    vec3 samplePos = smoothPos - 1.0 * geoNormal.rgb + 3.0 * mappedNormal;
+    
+    
+    float faceNdl = dot(mappedNormal.rgb, normalize(smoothPos));
+
+    vec3 normalOffset = vec3(0.0);
+			if (any(greaterThan(abs(geoNormal.rgb), vec3(1.0e-6))))
+				normalOffset = 1.0 * (geoNormal.rgb);
+
+			#if FLOODFILL_NORMAL_STRENGTH > 0
+				vec3 texNormalOffset = -normalOffset + 5.0 *  mappedNormal.rgb;
+				normalOffset = mix(normalOffset, texNormalOffset, (FLOODFILL_NORMAL_STRENGTH*0.01));
+			#endif
+      
+    vec3 samplePos = smoothPos + 2.5 * mappedNormal.rgb;
     ivec3 doubleBufferWrite = mod(frameCounter,2) == 0 ? ivec3(0,VOXEL_AREA, 0) : ivec3(0);
-    vec3 voxelColorLight = samplePos + vec3(doubleBufferWrite);
+    vec3 voxelColorLight = vec3(0.0);
+    voxelColorLight = samplePos + vec3(doubleBufferWrite);
+ 
+    bytes = texture(voxelFloodfill,vec3(voxelColorLight) / vec3(VOXEL_AREA, 2 * VOXEL_AREA, VOXEL_AREA)) * lightmap.r  ;
+    bytes2 = texture(voxelFloodfill2,vec3(voxelColorLight) / vec3(VOXEL_AREA, 2 * VOXEL_AREA, VOXEL_AREA) ) * lightmap.r  ;
+ 
     
-   
-     bytes = texture(voxelFloodfill,vec3(voxelColorLight) / vec3(VOXEL_AREA, 2 * VOXEL_AREA, VOXEL_AREA))  * lightmap.r ;
-     bytes2 = texture(voxelFloodfill2,vec3(voxelColorLight) / vec3(VOXEL_AREA, 2 * VOXEL_AREA, VOXEL_AREA) )  * lightmap.r ;
-   
-   
     
+  vec3 combinedLight = bytes.rgb + bytes2.rgb ; 
+
+
+    combinedLight = CSB(combinedLight, 1.0, 1.0, 1.0);
     
-   
-    
-    vec3 orangeLight = bytes.r * vec3(1.0, 0.8039, 0.4902);
-    vec3 blueLight =  bytes.g * vec3(0.2157, 0.6235, 0.8784);
-    vec3 whiteLight = bytes.b * vec3(0.7412, 0.9059, 1.0);
-    vec3 redLight = bytes2.g * vec3(0.9216, 0.1725, 0.1725);
-    vec3 purpleLight = bytes2.r * vec3(0.349, 0.0, 1.0);
-    vec3 greenLight = bytes2.b * vec3(0.0627, 0.5059, 0.1294);
-    vec3 combinedLight = (orangeLight + blueLight + whiteLight + redLight + purpleLight + greenLight)   ;
-     combinedLight = CSB(combinedLight, 1.0, 1.0, 1.13);
-    // Add this to clamp brightness while preserving intensity (color ratios)
-    float maxBrightness = MAX_FLOODFILL_INTENSITY;  // Adjust this threshold as needed (e.g., 1.0 for full brightness cap)
-    float currentBrightness = max(length(combinedLight), 1e-6);
-    combinedLight *= min(3.5, maxBrightness / currentBrightness);
+    float maxBrightness = MAX_FLOODFILL_INTENSITY ;  
+   float currentBrightness = max(luminance(combinedLight), 1e-7);
+    float blocklightLum = luminance(combinedLight * maxBrightness);
+    combinedLight *= maxBrightness;
   
-    
+ 
     const vec3 defaultBlocklight = vec3(1.0, 0.8, 0.5843);
-    const float VOXEL_FADE_START = VOXEL_RADIUS / 1.25;
+    const float VOXEL_FADE_START = VOXEL_RADIUS / 1.45;
     const float VOXEL_FADE_END = VOXEL_RADIUS;
     float dist = length(viewPos);
     float fade = smoothstep(VOXEL_FADE_START, VOXEL_FADE_END, dist);
-    blocklight.rgb = mix(combinedLight, defaultBlocklight * lightmap.r, fade);
+    blocklight.rgb = mix(combinedLight , defaultBlocklight * lightmap.r, fade);
    
  
    
@@ -157,13 +166,32 @@ else
 blocklight.rgb =  vec3(1.0, 0.8, 0.5843) * lightmap.r ;
 #endif
  
+   vec3 lighting = getLighting(
+      color.rgb,
+      lightmap.xy,
+      mappedNormal.rgb,
+      shadow,
+      H,
+      f0,
+      roughness,
+      V,
+      ambientOcclusion,
+      sss,
+      VdotL,
+      isMetal,
+      ao,
+      geoNormal.rgb,
+      blocklight
+    ) +
+    emissive;
   
 
 
- 
+  color = vec4(lighting, color.a);
   float depth = texture(depthtex0, texcoord).r;
   vec3 eyePlayerPos = feetPlayerPos - gbufferModelViewInverse[3].xyz;
   //color = vec4(atmosphericFog(color.rgb, viewPos, depth, texcoord),color.a);
+  color = vec4(borderFog(color.rgb, eyePlayerPos, depth), color.a);
   
   
 }

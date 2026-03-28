@@ -35,7 +35,7 @@ float getFogDensity(vec3 pos)
     float density = 0.0;
     
     vec3 uvw = pos * NOISE_SCALE * 0.0001 + 1.0 * 0.1 * (frameTimeCounter * 0.003) * WIND_SPEED;
-    float baseDensity = 0.0025;
+    float baseDensity = 0.0035;
     shape = texture(fogTex, uvw.xz);
     if(!inWater)
     {
@@ -66,7 +66,7 @@ float getFogDensity(vec3 pos)
     }
     if(inWater) density = 0.04;
      if(pos.y < 55 && eyeBrightness.y < 0.2 && !inWater) density = 0;
-      density = mix(density, density * 2.5, wetness);
+      density = mix(density, density * 1.15, wetness);
     return density;
 }
 

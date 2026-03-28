@@ -128,7 +128,7 @@ void main() {
   
   vec3 f0 = vec3(0.0);
   if (isMetal) {
-    f0 = albedo;
+    f0 = albedo * 45;
   } else {
     f0 = vec3(SpecMap.g);
   }
@@ -140,6 +140,8 @@ void main() {
   roughness = mix(roughness,roughness *0.083, noise * (1.0 - porosity) * 0.8);
   color.rgb *= 1.0 - 0.5 * noise * porosity;
 
+  vec3 blocklight = texture(colortex9, texcoord).rgb;
+  blocklight = pow(blocklight, vec3(2.2));
 
   color.rgb =
     getLighting(
@@ -155,9 +157,9 @@ void main() {
       sss,
       VdotL,
       isMetal,
-       ao,
+      ao,
       geoNormal,
-      texcoord
+      blocklight
     ) +
     emissive;
 

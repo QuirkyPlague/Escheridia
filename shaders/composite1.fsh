@@ -145,25 +145,7 @@ void main() {
   roughness = mix(roughness,roughness *0.013, noise * (1.0 - porosity) * 0.8);
   color.rgb *= 1.0 - 0.5 * noise * porosity;
 
-  color.rgb =
-    getLighting(
-      color.rgb,
-      lightmap,
-      normal,
-      shadow,
-      H,
-      f0,
-      roughness,
-      V,
-      ambientOcclusion,
-      sss,
-      VdotL,
-      isMetal,
-       ao,
-      geoNormal,
-      texcoord
-    ) +
-    emissive;
+ 
  
 
     

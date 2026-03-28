@@ -100,11 +100,11 @@ vec3 brdf(
   float G = GeometrySmith(N, V, L, alpha);
 
   vec3 numerator = NDF * G * F ;
-  float denominator = 4.0 * NdotV * NdotL + 0.0001;
+  float denominator = 2.0 * NdotV * NdotL + 0.001;
   vec3 spec = numerator / denominator;
   
  spec = min(spec, vec3(25.0));
- if(isMetal) spec = min(spec, vec3(2.6));
+ if(isMetal) spec = min(spec, vec3(12.6));
  
  
   float diff = BurleyFrostbite(roughness, NdotL,NdotV, VdotH);
@@ -117,13 +117,13 @@ vec3 brdf(
   }
  
   if (isMetal) {
-    kD *= 1.0;
+    kD *= 0;
   }
   
   // add to outgoing radiance Lo
 
   Lo = (kD * albedo  + spec) * diff * radiance * NdotL;
-  indirect *= kD *albedo / PI;
+  indirect *= albedo / PI;
 
   return Lo + indirect;
 }

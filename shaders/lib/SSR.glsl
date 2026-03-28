@@ -60,6 +60,7 @@ bool raytrace(
   vec3 rayDirection,
   int stepCount,
   float smoothLightmap,
+  float dither,
   out vec3 rayPosition
 ) {
 if (rayDirection.z > 0.0 && rayDirection.z >= -viewPosition.z) {
@@ -84,9 +85,9 @@ if (rayDirection.z > 0.0 && rayDirection.z >= -viewPosition.z) {
   );
  
   bool intersect = false;
-  vec3 noise = blue_noise(floor(gl_FragCoord.xy), frameCounter, stepCount) ;
+ 
   vec2 texelSize = 1.0 /resolution;
-  rayPosition += rayDirection * noise.x;
+  rayPosition += rayDirection * dither;
   
  const float THICKNESS = 0.01;
       float viewThickness = max(THICKNESS * (1.0 + abs(rayDirection.z) * 5.0), 1e-4);
