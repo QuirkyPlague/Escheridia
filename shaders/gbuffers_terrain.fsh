@@ -97,15 +97,16 @@ void main() {
     float faceNdl = dot(mappedNormal.rgb, normalize(smoothPos));
 
     vec3 normalOffset = vec3(0.0);
-			if (any(greaterThan(abs(geoNormal.rgb), vec3(1.0e-6))))
-				normalOffset = 1.0 * (geoNormal.rgb);
+			if (any(greaterThan(abs(normal.rgb), vec3(1.0e-6))))
+				normalOffset = 1.0 * (normal.rgb);
 
 			#if FLOODFILL_NORMAL_STRENGTH > 0
 				vec3 texNormalOffset = -normalOffset + 5.0 *  mappedNormal.rgb;
 				normalOffset = mix(normalOffset, texNormalOffset, (FLOODFILL_NORMAL_STRENGTH*0.01));
 			#endif
-      
-    vec3 samplePos = smoothPos + 2.5 * mappedNormal.rgb;
+      bool normalShouldBeGeo = mappedNormal.r < 1e-6 && mappedNormal.g < 1e-6;
+      vec3 normalVal = mix(mappedNormal.rgb, geoNormal.rgb, float(normalShouldBeGeo));
+    vec3 samplePos = smoothPos - 0.5 * normal + 3.0 * mappedNormal;
     ivec3 doubleBufferWrite = mod(frameCounter,2) == 0 ? ivec3(0,VOXEL_AREA, 0) : ivec3(0);
     vec3 voxelColorLight = vec3(0.0);
     voxelColorLight = samplePos + vec3(doubleBufferWrite);
