@@ -33,7 +33,7 @@ const bool colortex14Clear = false;
 #define VOXEL_RADIUS (VOXEL_AREA / 2.0)
 #define VISUALIZED_DATA 5 //[0 1 2 3 4 5]
 #define MAX_FLOODFILL_INTENSITY 1.0 //[0.1 0.2 0.3 0.4 0.5 0.6 0.7 0.8 0.9 1.0 1.1 1.2 1.3 1.4 1.5 1.6 1.7 1.8 1.9 2.0 2.1 2.2 2.3 2.4 2.5 2.6 2.7 2.8 2.9 3.0]
-#define FLOODFILL_NORMAL_STRENGTH 15.0 
+#define FLOODFILL_NORMAL_STRENGTH 15 
 
 //shadows
 #define SHADOW_SAMPLES 8 //[4 8 12 16 20 24 28 32]

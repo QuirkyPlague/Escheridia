@@ -377,8 +377,8 @@ void main() {
         float sampleViewDepth = gbufferProjectionInverse[3].z / (gbufferProjectionInverse[2].w * sampleNDCDepth + gbufferProjectionInverse[3].w);
       float prevViewZ = projectAndDivide(gbufferProjectionInverse, vec3(prevCoord, prevDepth) * 2.0 - 1.0).z;
       float depthDelta = abs(depth - prevViewZ);
-      float depthThreshold = max(0.09, abs(prevViewZ) * 0.09);
-      float depthConfidence = pow(clamp(1.0 - depthDelta / depthThreshold, 0, 1), .0);
+      float depthThreshold = max(0.01, abs(depth) * 0.01);
+      float depthConfidence = pow(clamp(1.0 - depthDelta / depthThreshold, 0, 1), 2.0);
       float response = pow(roughness, 2.0) * reflDist;
       float reflLum = luminance(reflectedColor);
       
@@ -394,11 +394,11 @@ void main() {
       
       float historyWeight = factor * float(!historyRejection) * float(!rejectHistory) * depthConfidence  ;
       
-      //reflectedColor = mix(reflectedColor, historyColor.rgb, historyWeight);
+      reflectedColor = mix(reflectedColor, historyColor.rgb, historyWeight);
       if (any(isnan(reflectedColor))) reflectedColor = vec3(0.0);
         
   }
-  //history.rgb = reflectedColor;
+  history.rgb = reflectedColor;
   #endif
   reflectedColor *= karisAverage(reflectedColor);
 

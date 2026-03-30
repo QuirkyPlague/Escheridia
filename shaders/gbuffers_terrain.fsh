@@ -101,12 +101,12 @@ void main() {
 				normalOffset = 1.0 * (normal.rgb);
 
 			#if FLOODFILL_NORMAL_STRENGTH > 0
-				vec3 texNormalOffset = -normalOffset + 5.0 *  mappedNormal.rgb;
+				vec3 texNormalOffset = -normalOffset + 15.0 *  mappedNormal.rgb;
 				normalOffset = mix(normalOffset, texNormalOffset, (FLOODFILL_NORMAL_STRENGTH*0.01));
 			#endif
       bool normalShouldBeGeo = mappedNormal.r < 1e-6 && mappedNormal.g < 1e-6;
       vec3 normalVal = mix(mappedNormal.rgb, geoNormal.rgb, float(normalShouldBeGeo));
-    vec3 samplePos = smoothPos - 0.5 * normal + 3.0 * mappedNormal;
+    vec3 samplePos = smoothPos + normalOffset;
     ivec3 doubleBufferWrite = mod(frameCounter,2) == 0 ? ivec3(0,VOXEL_AREA, 0) : ivec3(0);
     vec3 voxelColorLight = vec3(0.0);
     voxelColorLight = samplePos + vec3(doubleBufferWrite);

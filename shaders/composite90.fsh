@@ -78,7 +78,7 @@ void main() {
   historyColor.rgb = clamp(historyColor.rgb, neighborhoodMin, neighborhoodMax);
   float factor = TA_FACTOR;
   if(depth <= handDepth) factor = 0.0;
-  float historyWeight = factor * float(!historyRejection) ;
+  float historyWeight = factor * float(!historyRejection)  ;
   
   color = mix(color, historyColor, historyWeight);
   #elif SCREENSHOT_MODE == 1

@@ -252,9 +252,9 @@ void main(){
         float sampleViewDepth = gbufferProjectionInverse[3].z / (gbufferProjectionInverse[2].w * sampleNDCDepth + gbufferProjectionInverse[3].w);
       float prevViewZ = projectAndDivide(gbufferProjectionInverse, vec3(prevCoord, prevDepth) * 2.0 - 1.0).z;
       float depthDelta = abs(depth - prevViewZ);
-      float depthThreshold = max(0.01, abs(prevViewZ) * 0.01);
+      float depthThreshold = max(0.01, abs(sampleViewDepth) * 0.01);
       float depthConfidence = pow(clamp(1.0 - depthDelta / depthThreshold, 0, 1), 1.0);
-            float factor = 0.65;
+            float factor = 0.35;
              bool rejectHistory = false;
             if(depthCheck <= 0.56 )rejectHistory = true; 
          if(prevDepth <= 0.56 )rejectHistory = true;

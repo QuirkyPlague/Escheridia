@@ -11,6 +11,7 @@
 const vec4 sunlightColor = vec4(1.0, 0.860, 0.692, 1.18);
 const vec4 noonSunlightColor = vec4(0.6824, 0.6824, 0.6824, 1.0);
 const vec4 morningSunlightColor = vec4(1.0, 0.73, 0.4033, 2.45);
+const vec4 morningSunlightColor1 = vec4(1.0, 0.43, 0.1033, 2.45);
 const vec4 eveningSunlightColor = vec4(0.9569, 0.4745, 0.2333, 1.0);
 const vec4 moonlightColor = vec4(0.4039, 0.4863, 0.7608, 1.35);
 
@@ -44,7 +45,7 @@ vec3 getLighting(
   
    
     float t = fract(worldTime / 24000.0);
-    const int keys = 7;
+    const int keys = 8;
     const float keyFrames[keys] = float[keys](
         0.0, //sunrise
         0.0417, //day
@@ -52,8 +53,8 @@ vec3 getLighting(
         0.5122, //sunset
         0.5417, //night
         0.9527, //midnight
-        1.0 //sunrise
-    );
+        0.9827, //early sunrise
+        1.0); //sunrise;
         //sunlight Keyframes
         const vec4 sunCol[keys] = vec4[keys](
             morningSunlightColor,
@@ -62,6 +63,7 @@ vec3 getLighting(
             eveningSunlightColor,
             moonlightColor,
             moonlightColor,
+            morningSunlightColor1,
             morningSunlightColor);
 
         const vec4 skyCol[keys] = vec4[keys](
@@ -71,6 +73,7 @@ vec3 getLighting(
             eveningSkylightColor,
             nightSkylightColor,
             nightSkylightColor,
+            morningSkylightColor,
             morningSkylightColor);
 
         const float rainLight[keys] = float[keys](
@@ -80,6 +83,7 @@ vec3 getLighting(
             0.075,
             0.33,
             0.33,
+            0.15,
             0.15);
 
         int i = 0;
@@ -196,7 +200,7 @@ vec3 getLighting(
 
     vec3 currentSunColor(vec3 color) {
         float t = fract(worldTime / 24000.0);
-        const int keys = 7;
+        const int keys = 8;
         const float keyFrames[keys] = float[keys](
             0.0, //sunrise
             0.0417, //day
@@ -204,6 +208,7 @@ vec3 getLighting(
             0.5122, //sunset
             0.5417, //night
             0.9527, //midnight
+            0.9827, //early sunrise
             1.0); //sunrise;
 
             //sunlight Keyframes
@@ -214,7 +219,8 @@ vec3 getLighting(
                 eveningSunlightColor,
                 moonlightColor * 1.3,
                 moonlightColor * 1.3,
-                morningSunlightColor );
+                morningSunlightColor1,
+                morningSunlightColor);
 
             int i = 0;
             //assings the keyframes
