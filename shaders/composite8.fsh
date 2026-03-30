@@ -83,8 +83,8 @@ void main(){
         1.0,
         1.0,
         0.65,
-        1.65,
-        1.65,
+        0.35,
+        0.35,
         0.65
     );
     
@@ -135,12 +135,14 @@ void main(){
     
     vec3 sunCol=currentSunColor(vec3(0.));
     sunCol = mix(sunCol, sunCol * jungleTint, jungleSmooth);
-    
+  
+    jungleCol = pow(jungleCol, vec3(2.2));
+    jungleCol *= 22;
     fogCol = mix(fogCol, jungleCol, jungleSmooth);
     fogCol = pow(fogCol, vec3(2.2));
-    fogCol *= 230;
+    fogCol *= 430;
     float fogLum = luminance(fogCol * skyIntensity);
-   
+    fogCol *= fogLum;
 
     if(inWater)
     {

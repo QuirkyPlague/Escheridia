@@ -308,7 +308,7 @@ void main() {
     ) ;
     sky = mix(albedo,sky, smoothLightmap);
    float roughMask = step(0.0, roughness);
-   sky *= mix(1.0, max(exp(4.32 * (0.101 - roughness)), 0.0), roughMask);
+   sky *= mix(1.0, max(exp(6.32 * (0.101 - roughness)), 0.0), roughMask);
    
     if (reflectionHit) {
     if (canReflect || isMetal || isWater) {
@@ -382,7 +382,7 @@ void main() {
       float response = pow(roughness, 2.0) * reflDist;
       float reflLum = luminance(reflectedColor);
       
-      float factor = 0.85;
+      float factor = 0.55;
       #ifndef ROUGH_REFLECTION
       factor = 0.0;
       #endif

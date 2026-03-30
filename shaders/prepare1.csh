@@ -48,7 +48,7 @@ void main()
     vec4 voxel_data2=unpackUnorm4x8(integerValue2);
     
    
-    vec3 lightRGB2 = voxel_data2.g*vec3(1.5, 0.9412, 0.4392) * 0.5 + voxel_data2.r*vec3(0.349, 0.0, 1.0) +voxel_data2.b*vec3(0.8157, 1.2706, 0.8588) * 0.5;
+    vec3 lightRGB2 = voxel_data2.g*vec3(1.25, 0.9412, 0.4392) * 0.5 + voxel_data2.r*vec3(0.349, 0.0, 1.0) +voxel_data2.b*vec3(0.8157, 1.2706, 0.8588) * 0.5;
 
     ivec3 neighbor=ivec3(1.,0.,0.);
     vec3 totalLight=vec3(0.);

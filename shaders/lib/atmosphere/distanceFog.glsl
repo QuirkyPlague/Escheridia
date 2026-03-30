@@ -55,7 +55,7 @@ float getFogDensity(vec3 pos)
     #endif
     float morningFog = smoothstep(0.3, 0.1, worldLightVector.y);
     density = mix(density, density * 2.5, morningFog);
-    density = mix(density, density * 2.5, jungleSmooth);
+    density = mix(density, density * 1.15, jungleSmooth);
    
     density *= totalDensity * height;
     density += baseDensity * height;
