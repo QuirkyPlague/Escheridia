@@ -81,7 +81,7 @@ vec3 brdf(
   float dist = length(L);
   float attenuation = 1.0 / (dist * dist);
 
-  currentSunlight *= 12.0;
+  currentSunlight *= 6.0;
   vec3 radiance = currentSunlight * shadow * attenuation;
 
   
@@ -96,20 +96,20 @@ vec3 brdf(
   // cook-torrance brdf
   float NdotH2 = getNoHSquared(NdotL, NdotV, VdotL,sunAngularRadius);
   float alpha = max(1e-3,roughness);
-  float NDF = DistributionGGX(N, H, alpha);
-  float G = GeometrySmith(N, V, L, alpha);
+  float NDF = DistributionGGX(N, H, roughness);
+  float G = GeometrySmith(N, V, L, roughness);
 
   vec3 numerator = NDF * G * F ;
-  float denominator = 2.0 * NdotV * NdotL + 0.001;
+  float denominator = 4.0 * NdotV * NdotL + 0.0001;
   vec3 spec = numerator / denominator;
   
- spec = min(spec, vec3(25.0));
+ 
  if(isMetal) spec = min(spec, vec3(2.6));
  
  
   float diff = BurleyFrostbite(roughness, NdotL,NdotV, VdotH);
 
-  diff /= PI;
+ 
   vec3 kS = F;
   vec3 kD = vec3(1.0) - kS;
 
@@ -124,7 +124,8 @@ vec3 brdf(
   // add to outgoing radiance Lo
  indirect *= albedo / PI;
  
-  Lo = (kD * albedo  + spec) * diff * radiance * NdotL + indirect;
+  Lo = (kD * albedo ) * diff * radiance * NdotL + indirect;
+  Lo = mix(Lo, spec *radiance, F);
   vec3 diffuse = (kD * albedo) * diff  * radiance * NdotL + indirect;
   vec3 metalLighting = mix(spec * radiance, diffuse * 0.5, alpha);
  if(isMetal) Lo = metalLighting;

@@ -132,7 +132,7 @@ void main() {
   } else {
     f0 = vec3(SpecMap.g);
   }
-
+  if(SpecMap.g == 0) f0 = vec3(0.04);
   float ambientOcclusion = 1.0;
   #if AO_METHOD == 1
    ambientOcclusion = texture(colortex12, texcoord).r;

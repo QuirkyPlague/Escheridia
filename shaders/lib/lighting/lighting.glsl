@@ -8,20 +8,20 @@
 #include "/lib/tonemapping.glsl"
 
 //Sun/moon
-const vec4 sunlightColor = vec4(1.0, 0.860, 0.692, 1.18);
-const vec4 noonSunlightColor = vec4(0.6824, 0.6824, 0.6824, 1.0);
+const vec4 sunlightColor = vec4(1.0, 0.860, 0.692, 1.78);
+const vec4 noonSunlightColor = vec4(0.993, 0.751, 0.5824, 2.16);
 const vec4 morningSunlightColor = vec4(1.0, 0.73, 0.4033, 2.45);
 const vec4 morningSunlightColor1 = vec4(1.0, 0.43, 0.1033, 2.45);
 const vec4 eveningSunlightColor = vec4(0.9569, 0.4745, 0.2333, 1.0);
 const vec4 moonlightColor = vec4(0.4039, 0.4863, 0.7608, 1.35);
 
-const vec4 skylightColor = vec4(0.6902, 0.8196, 0.9961, 1.0);
+const vec4 skylightColor = vec4(0.7402, 0.8196, 0.9961, 1.2);
 const vec4 morningSkylightColor = vec4(0.7137, 0.8235, 0.9569, 0.991);
 const vec4 eveningSkylightColor = vec4(0.6353, 0.7333, 0.851, 0.731);
 const vec4 nightSkylightColor = vec4(0.4784, 0.4784, 0.741, 1.72);
 
 const vec4 blocklightColor = vec4(1.7, 0.8, 0.5843, 1.4);
-const vec4 ambientColor = vec4(0.005);
+const vec4 ambientColor = vec4(0.015);
  vec4 caveAmbient = vec4(0.3255, 0.3804, 0.4314, 1.0);
 const vec3 rainTint = vec3(0.6122, 0.5549, 0.4627);
 
