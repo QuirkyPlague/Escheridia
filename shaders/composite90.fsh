@@ -55,7 +55,7 @@ void main() {
   float depthDelta = abs(currentViewDepth - prevViewZ);
 
   // threshold scales with distance to avoid far-plane flicker
-  float depthThreshold = max(0.01, abs(currentViewDepth) * 0.01);
+  float depthThreshold = max(far, abs(currentViewDepth) * 0.001);
 
   float depthConfidence = clamp(1.0 - depthDelta / depthThreshold, 0, 1);
 
@@ -78,7 +78,7 @@ void main() {
   historyColor.rgb = clamp(historyColor.rgb, neighborhoodMin, neighborhoodMax);
   float factor = TA_FACTOR;
   if(depth <= handDepth) factor = 0.0;
-  float historyWeight = factor * float(!historyRejection)  ;
+  float historyWeight = factor * float(!historyRejection) * depthConfidence; 
   
   color = mix(color, historyColor, historyWeight);
   #elif SCREENSHOT_MODE == 1

@@ -34,4 +34,19 @@ vec3 CSB(vec3 color, float brt, float sat, float con) {
 
   return conColor;
 }
+
+vec3 chromaticAberration(vec2 uv, sampler2D bufferSampler) {
+    vec2 center = vec2(0.5, 0.5);
+    vec2 dist = uv - center;
+    if(clamp(uv, 0.0, 1.0) != uv) return texture(bufferSampler, uv).rgb; // Avoid sampling outside the texture
+    // Amount increases as we move further from the center
+    float amount = 0.01 * length(dist);
+    
+    float r = texture(bufferSampler, uv + dist * amount).r;
+    float g = texture(bufferSampler , uv).g;
+    float b = texture(bufferSampler,  uv - dist * amount).b;
+    vec3 chroma = vec3(r, g, b);
+    
+    return chroma;
+}
 #endif

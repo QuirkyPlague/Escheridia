@@ -57,6 +57,7 @@ uniform sampler2D fogTex;
 uniform sampler2D clouds;
 uniform sampler2D cloudBase;
 uniform sampler2D detail;
+uniform sampler2D lensDirt;
 
 //custom images
 uniform usampler3D voxelMap;

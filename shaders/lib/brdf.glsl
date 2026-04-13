@@ -104,7 +104,7 @@ vec3 brdf(
   vec3 spec = numerator / denominator;
   
  
- if(isMetal) spec = min(spec, vec3(2.6));
+ if(isMetal) spec = min(spec, vec3(35.6));
  
  
   float diff = BurleyFrostbite(roughness, NdotL,NdotV, VdotH);

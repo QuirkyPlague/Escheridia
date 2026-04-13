@@ -55,7 +55,7 @@ void main() {
     mask = vec4(0.0, 0.0, 0.0, 1.0);
   }
  vec3 emissive = vec3(0.0);
- vec3 greyAlbedo = CSB(color.rgb,1.0, 0.0,2.915);
+ vec3 greyAlbedo = CSB(color.rgb,1.0, 0.0,2.815);
   #ifdef HC_EMISSION
   
 
@@ -63,7 +63,7 @@ void main() {
     
     emissive = color.rgb * emission ;
     emissive += max(luminance(greyAlbedo ), float(greyAlbedo));
-    emissive *= max(0.85 * pow(emissive, vec3(1.3528)), 0.0);
+    emissive *= max(1.85 * pow(emissive, vec3(0.02528)), 0.0);
 
     emissive = CSB(emissive, 1.0, 0.95, 1.0);
     
@@ -73,7 +73,7 @@ void main() {
   {
      emissive = color.rgb * emission ;
     emissive += max(luminance(greyAlbedo ), float(greyAlbedo));
-    emissive *= max(0.85 * pow(emissive, vec3(1.3528)), 0.0);
+    emissive *= max(2.85 * pow(emissive, vec3(0.02528)), 0.0);
 
     emissive = CSB(emissive, 1.0, 0.95, 1.0);
   }
@@ -98,7 +98,7 @@ void main() {
 
     vec3 normalOffset = vec3(0.0);
 			if (any(greaterThan(abs(normal.rgb), vec3(1.0e-6))))
-				normalOffset = 1.0 * (normal.rgb);
+				normalOffset = 3.0 * (normal.rgb);
 
 			#if FLOODFILL_NORMAL_STRENGTH > 0
 				vec3 texNormalOffset = -normalOffset + 15.0 *  mappedNormal.rgb;

@@ -14,7 +14,7 @@ vec3 uncharted2Tonemap(vec3 x) {
 }
 
 vec3 uncharted2(vec3 v) {
-  float exposure_bias = 1.0f;
+  float exposure_bias = 3.0f;
   vec3 curr = uncharted2Tonemap(v * exposure_bias);
 
   vec3 W = vec3(65.2f);

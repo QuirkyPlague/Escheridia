@@ -214,7 +214,7 @@ vec3 skyScattering(vec3 pos) {
   vec3 sunColor = currentSunColor(vec3(0.0)); 
   
 
-  vec3 moonMieScatterColor = vec3(0.0941, 0.0941, 0.2196);
+  vec3 moonMieScatterColor = vec3(0.1041, 0.1141, 0.1296);
   vec3 mieScat = mix(mieColor[i].rgb, mieColor[i + 1].rgb, timeInterp);
   mieScat = mix(mieScat, vec3(0.0), wetness);
   moonMieScatterColor = mix(moonMieScatterColor, vec3(0.0), wetness);
@@ -227,7 +227,7 @@ vec3 skyScattering(vec3 pos) {
   vec3 mieColors = mieScat * miePhase * 0.95;
 
   float moonPhase = CS(0.915, mVoL);
-  vec3 mieNight = moonMieScatterColor * moonPhase * 0.17;
+  vec3 mieNight = moonMieScatterColor * moonPhase * 0.0;
 
   vec3 finalMie = mieColors + mieNight ;
   float sunHeightFactor = smoothstep(groundBlend, groundBlend + 0.041, dir.y);
