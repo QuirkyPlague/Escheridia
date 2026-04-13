@@ -110,7 +110,7 @@ void main(){
     
     float phaseIncFactor=smoothstep(225,0,eyeBrightnessSmooth.y);
     float scatterReduce=smoothstep(0,185,eyeBrightnessSmooth.y);
-    vec3 lightScattering=vec3(12.) * PHASE_MULTIPLIER;
+    vec3 lightScattering=vec3(7.) * PHASE_MULTIPLIER;
     
     
     
@@ -139,8 +139,8 @@ void main(){
     jungleCol = pow(jungleCol, vec3(2.2));
     jungleCol *= 22;
     fogCol = mix(fogCol, jungleCol, jungleSmooth);
-    fogCol = pow(fogCol, vec3(2.2));
-    fogCol *= 430;
+  
+    fogCol *= 7;
     float fogLum = luminance(fogCol * skyIntensity);
     fogCol *= fogLum;
 
@@ -270,6 +270,7 @@ void main(){
         // write history buffer (colortex13) for next frame
     history = vec4(fogCol,0.0);
     #endif
+    
      color.rgb=mix(color.rgb,fogCol,1.-clamp(transmittance,0,1));
      float inWaterMask = float(inWater);
      color.rgb *= mix(vec3(1.0), fogCol + 1.0 - clamp(transmittance, 0, 1), inWaterMask);

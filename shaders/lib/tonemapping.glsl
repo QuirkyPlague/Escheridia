@@ -91,7 +91,7 @@ const float AgxMaxEv = AGX_MAX_EV;
 
 // 0: Default, 1: Golden, 2: Punchy
 #ifndef AGX_LOOK
-#define AGX_LOOK 0
+#define AGX_LOOK 2
 #endif
 
 vec3 agxAscCdl(vec3 color, vec3 slope, vec3 offset, vec3 power, float sat) {
@@ -191,7 +191,7 @@ vec3 TonemapGeneric(vec3 rgb) {
 }
 
 vec3 hejlBurgessTonemap(vec3 v) {
-  v /= 6.0;
+  v /= 3.0;
   vec3 x = max(v - 0.004, 0);
   return x * (6.2 * x + 0.5) / (x * (6.2 * x + 1.7) + 0.06);
 }

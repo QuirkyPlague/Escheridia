@@ -98,7 +98,7 @@ vec3 cloudRaymarch(vec3 worldPos,vec3 noise, vec3 color)
     const float _StepSize=8.4;
     const float _NoiseOffset=16.65;
     const float MULTI_SCATTER_GAIN=1.09;
-    const float MULTI_SCATTER_DECAY=.93;
+    const float MULTI_SCATTER_DECAY=.73;
     const float liningIntensity = 1.0;
     const float liningSpread = 0.426;
   
@@ -130,7 +130,7 @@ vec3 cloudRaymarch(vec3 worldPos,vec3 noise, vec3 color)
     vec3 sunCol=currentSunColor(vec3(0.));
    
     
-     fogCol *= 4.5;
+     fogCol *= 12.5;
     vec3 multiScatterEnergy=vec3(0.);
     vec3 clouds=vec3(0.0);
     while(distTravelled<distLimit)
@@ -143,7 +143,7 @@ vec3 cloudRaymarch(vec3 worldPos,vec3 noise, vec3 color)
             transmission *= exp(-absCoeff * density * _StepSize);
        //calculate phase
         vec3 lightDir=worldLightVector;
-        float phase=  henyeyGreensteinPhase(dot(rayDir,lightDir), .75) +  henyeyGreensteinPhase(dot(rayDir,lightDir), -.45);
+        float phase=  henyeyGreensteinPhase(dot(rayDir,lightDir), .75) * 0.4 +  henyeyGreensteinPhase(dot(rayDir,lightDir), -.45);
        //currently unused
         float silverLining = max(henyeyGreensteinPhase(dot(rayDir,lightDir), .65), liningIntensity * henyeyGreensteinPhase(dot(rayDir,lightDir), 0.99 - liningSpread));
        phase += silverLining;
@@ -155,7 +155,6 @@ vec3 cloudRaymarch(vec3 worldPos,vec3 noise, vec3 color)
       clamp(1.0 - exp(-density * 2 * vec3(1.0)),0,1);
       float scattering = 1.0 * density;
         vec3 singleScatter=
-          
         energy*
         scatter * (sunCol*
         lightScattering);
@@ -170,9 +169,9 @@ vec3 cloudRaymarch(vec3 worldPos,vec3 noise, vec3 color)
         vec3 multiScatter=
         multiScatterEnergy*
         msPhase*
-        scatter *  mix(2.0 * powder, vec3(1.0), dot(rayDir, lightDir) * 0.5 + 0.5);
+        scatter;
 
-        float extinctionCoeff = 3.3 * density;
+        float extinctionCoeff = density;
          vec3 sampleExtinction = ( fogCol + absCoeff ) * extinctionCoeff;
         float sampleTransmittance = exp(-_StepSize * 1.0);
     

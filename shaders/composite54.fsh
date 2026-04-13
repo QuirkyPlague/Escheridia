@@ -10,7 +10,8 @@ layout(location = 0) out vec4 color;
 
 void main() {
   color = texture(colortex0, texcoord);
-  
+  #ifdef DO_CHROMATIC_ABERRATION
   color.rgb = chromaticAberration(texcoord, colortex0);
-
+  #endif
+  
 }

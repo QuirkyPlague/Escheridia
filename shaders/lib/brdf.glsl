@@ -104,7 +104,7 @@ vec3 brdf(
   vec3 spec = numerator / denominator;
   
  
- if(isMetal) spec = min(spec, vec3(35.6));
+ if(isMetal) spec = min(spec, vec3(2.6));
  
  
   float diff = BurleyFrostbite(roughness, NdotL,NdotV, VdotH);
@@ -124,8 +124,8 @@ vec3 brdf(
   // add to outgoing radiance Lo
  indirect *= albedo / PI;
  
-  Lo = (kD * albedo ) * diff * radiance * NdotL + indirect;
-  Lo = mix(Lo, spec *radiance, F);
+  Lo = (kD * albedo ) * diff * radiance * NdotL;
+  Lo = mix(Lo, spec *radiance, F) + indirect;
   vec3 diffuse = (kD * albedo) * diff  * radiance * NdotL + indirect;
   vec3 metalLighting = mix(spec * radiance, diffuse * 0.5, alpha);
  if(isMetal) Lo = metalLighting;

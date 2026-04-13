@@ -13,12 +13,12 @@ const vec4 noonSunlightColor = vec4(0.993, 0.751, 0.5824, 2.16);
 const vec4 morningSunlightColor = vec4(1.0, 0.73, 0.4033, 2.45);
 const vec4 morningSunlightColor1 = vec4(1.0, 0.43, 0.1033, 2.45);
 const vec4 eveningSunlightColor = vec4(0.9569, 0.4745, 0.2333, 1.0);
-const vec4 moonlightColor = vec4(0.4039, 0.4863, 0.7608, 1.35);
+const vec4 moonlightColor = vec4(0.4039, 0.4863, 0.7408, 1.35);
 
-const vec4 skylightColor = vec4(0.7402, 0.8196, 0.9961, 1.2);
-const vec4 morningSkylightColor = vec4(0.7137, 0.8235, 0.9569, 0.991);
+const vec4 skylightColor = vec4(0.6549, 0.7569, 1.0, 0.97);
+const vec4 morningSkylightColor = vec4(0.5922, 0.7333, 1.0, 0.621);
 const vec4 eveningSkylightColor = vec4(0.6353, 0.7333, 0.851, 0.731);
-const vec4 nightSkylightColor = vec4(0.4784, 0.4784, 0.741, 1.72);
+const vec4 nightSkylightColor = vec4(0.2157, 0.2157, 0.8118, 0.92);
 
 const vec4 blocklightColor = vec4(1.7, 0.8, 0.5843, 1.4);
 const vec4 ambientColor = vec4(0.015);
@@ -123,8 +123,8 @@ vec3 getLighting(
         float skyIntensity = mix(skyCol[i].a, skyCol[i + 1].a, timeInterp);
         float skyLum = luminance(skylight * skyIntensity);
         skylight *= skyLum;
-        skylight *= max(1.95 * pow(skylight, vec3(2.55)), 0.0);
-        skylight += min(1.7 * pow(skylight, vec3(1.25)), 1.9);
+        skylight *= max(4.59 * pow(skylight, vec3(0.835)), 0.0);
+        skylight += min(0.57 * pow(skylight, vec3(1.45)), 1.9);
 
         
         vec3 blocklight = blocklightCol;
@@ -176,7 +176,7 @@ vec3 getLighting(
         bool noSky = lightmap.g < smoothstep(0.0, 0.682, lightmap.g);
         vec3 metalIndirect = mix(indirect * 0.0,indirect  * 0 , smoothLightmap);
        // indirect = mix(indirect, metalIndirect, metalMask);
-        vec3 metalAmbient = mix(ambientLight* 5, ambientLight  * 3, smoothLightmap);
+        vec3 metalAmbient = mix(ambientLight * 3, ambientLight, smoothLightmap);
         ambientLight = mix(ambientLight, metalAmbient, metalMask);
         vec3 specular = brdf(
             color,

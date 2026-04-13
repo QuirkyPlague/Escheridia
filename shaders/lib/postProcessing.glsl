@@ -40,8 +40,8 @@ vec3 chromaticAberration(vec2 uv, sampler2D bufferSampler) {
     vec2 dist = uv - center;
     if(clamp(uv, 0.0, 1.0) != uv) return texture(bufferSampler, uv).rgb; // Avoid sampling outside the texture
     // Amount increases as we move further from the center
-    float amount = 0.01 * length(dist);
-    
+    float amount = CHROMATIC_ABERRATION_INTENSITY * length(dist);
+    amount = pow(amount, CHROMATIC_ABERRATION_POWER); 
     float r = texture(bufferSampler, uv + dist * amount).r;
     float g = texture(bufferSampler , uv).g;
     float b = texture(bufferSampler,  uv - dist * amount).b;

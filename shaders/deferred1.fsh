@@ -128,7 +128,7 @@ void main() {
   
   vec3 f0 = vec3(0.0);
   if (isMetal) {
-    f0 = albedo * 45;
+    f0 = albedo ;
   } else {
     f0 = vec3(SpecMap.g);
   }

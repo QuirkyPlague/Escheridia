@@ -38,7 +38,7 @@ const vec3 nightHorCol = vec3(NIGHT_HORIZON_COLOR_R, NIGHT_HORIZON_COLOR_G, NIGH
 const vec3 nightGrndCol = vec3(NIGHT_GROUND_COLOR_R, NIGHT_GROUND_COLOR_G, NIGHT_GROUND_COLOR_B);
 
 
-const vec4 sunriseScatter = vec4(0.3294, 0.2196, 0.1725, 0.753);
+const vec4 sunriseScatter = vec4(0.7647, 0.2314, 0.0, 0.753);
 const vec4 eveningScatter = vec4(0.8745, 0.3961, 0.1765, 0.83);
 const vec4 dayScatter = vec4(0.6588, 0.4275, 0.1569, 0.755);
 const vec4 noonScatter = vec4(0.3725, 0.2706, 0.1294, 0.805);
@@ -91,7 +91,7 @@ vec3 skyScattering(vec3 pos) {
   vec3 dir = normalize(pos);
  float VoL = dot(dir, worldSunDir);
   float rayleigh =
-    Rayleigh(VoL) * 15.1;
+    Rayleigh(VoL) * 10.1;
 
   float upPos = clamp(dir.y, 0, 1);
   float downPos = clamp(dir.y, -1, 0);
@@ -201,16 +201,16 @@ vec3 skyScattering(vec3 pos) {
   horizonCol = mix(horizonCol, rainHorCol * weatherStrength, wetness * hotBiomeSmooth);
   groundCol = mix(groundCol, rainGrndCol * weatherStrength, wetness * hotBiomeSmooth);
 
-  float zenithBlend = clamp(pow(upPos, 0.45), 0, 1);
-  float horizonBlend = clamp(pow(negatedMidPos, 4.5), 0, 1);
+  float zenithBlend = clamp(pow(upPos, 0.65), 0, 1);
+  float horizonBlend = clamp(pow(negatedMidPos, 3.5), 0, 1);
   float groundBlend = clamp(pow(negatedDownPos, 0.55), 0, 1);
 
-  zenithCol *= rayleigh * zenithBlend;
-  horizonCol *= rayleigh * horizonBlend;
-  groundCol *= rayleigh * groundBlend;
+  zenithCol *=  zenithBlend;
+  horizonCol *= horizonBlend;
+  groundCol *=  groundBlend;
 
   vec3 sky = zenithCol + horizonCol + groundCol;
-
+  sky *= rayleigh;
   vec3 sunColor = currentSunColor(vec3(0.0)); 
   
 
@@ -226,15 +226,15 @@ vec3 skyScattering(vec3 pos) {
   float miePhase = CS(mieScale, sVoL);
   vec3 mieColors = mieScat * miePhase * 0.95;
 
-  float moonPhase = CS(0.915, mVoL);
-  vec3 mieNight = moonMieScatterColor * moonPhase * 0.0;
+  float moonPhase = CS(0.815, mVoL);
+  vec3 mieNight = moonMieScatterColor * moonPhase * 0.4;
 
   vec3 finalMie = mieColors + mieNight ;
   float sunHeightFactor = smoothstep(groundBlend, groundBlend + 0.041, dir.y);
   finalMie *=sunHeightFactor;
 
     vec3 color = sky + finalMie;
-   color = pow(color, vec3(2.2));
+  
   return color;
 }
 
