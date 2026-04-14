@@ -122,7 +122,7 @@ vec3 brdf(
   }
   
   // add to outgoing radiance Lo
- indirect *= albedo / PI;
+ indirect *= albedo;
  
   Lo = (kD * albedo ) * diff * radiance * NdotL;
   Lo = mix(Lo, spec *radiance, F) + indirect;

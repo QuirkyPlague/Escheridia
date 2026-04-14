@@ -130,15 +130,15 @@ void main(){
     
  
     
-    vec3 jungleTint = vec3(0.7412, 0.9333, 0.702) ;
+    vec3 jungleTint = vec3(0.7412, 0.9333, 0.642) * 1.45 ;
     vec3 fogCol=computeSkyColoring(vec3(0.))  / (4 * PI);
     
     vec3 sunCol=currentSunColor(vec3(0.));
     sunCol = mix(sunCol, sunCol * jungleTint, jungleSmooth);
   
    
-    jungleCol *= 12;
-    fogCol = mix(fogCol, jungleCol, jungleSmooth);
+    
+    fogCol = mix(fogCol, jungleCol * 0.9, jungleSmooth);
   
     fogCol *= 12;
     float fogLum = luminance(fogCol * skyIntensity);

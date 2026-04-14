@@ -8,19 +8,19 @@
 #include "/lib/tonemapping.glsl"
 
 //Sun/moon
-const vec4 sunlightColor = vec4(1.0, 0.860, 0.692, 1.78);
-const vec4 noonSunlightColor = vec4(0.993, 0.751, 0.5824, 2.16);
+const vec4 sunlightColor = vec4(1.0, 0.910, 0.732, 1.78);
+const vec4 noonSunlightColor = vec4(0.993, 0.901, 0.8824, 1.46);
 const vec4 morningSunlightColor = vec4(1.0, 0.73, 0.4033, 2.45);
 const vec4 morningSunlightColor1 = vec4(1.0, 0.43, 0.1033, 2.45);
 const vec4 eveningSunlightColor = vec4(0.9569, 0.4745, 0.2333, 1.0);
 const vec4 moonlightColor = vec4(0.4039, 0.4863, 0.7408, 1.35);
 
-const vec4 skylightColor = vec4(0.6549, 0.7569, 1.0, 0.97);
+const vec4 skylightColor = vec4(0.4549, 0.5569, 1.0, 1.07);
 const vec4 morningSkylightColor = vec4(0.5922, 0.7333, 1.0, 0.621);
 const vec4 eveningSkylightColor = vec4(0.6353, 0.7333, 0.851, 0.731);
 const vec4 nightSkylightColor = vec4(0.2157, 0.2157, 0.8118, 0.92);
 
-const vec4 blocklightColor = vec4(1.7, 0.8, 0.5843, 1.4);
+const vec4 blocklightColor = vec4(1.7, 0.8, 0.5843, 0.75);
 const vec4 ambientColor = vec4(0.015);
  vec4 caveAmbient = vec4(0.3255, 0.3804, 0.4314, 1.0);
 const vec3 rainTint = vec3(0.6122, 0.5549, 0.4627);
@@ -124,7 +124,7 @@ vec3 getLighting(
         float skyLum = luminance(skylight * skyIntensity);
         skylight *= skyLum;
         skylight *= max(4.59 * pow(skylight, vec3(0.835)), 0.0);
-        skylight += min(0.57 * pow(skylight, vec3(1.45)), 1.9);
+        skylight += min(0.57 * pow(skylight, vec3(0.55)), 1.9);
 
         
         vec3 blocklight = blocklightCol;
@@ -176,7 +176,7 @@ vec3 getLighting(
         bool noSky = lightmap.g < smoothstep(0.0, 0.682, lightmap.g);
         vec3 metalIndirect = mix(indirect * 0.0,indirect  * 0 , smoothLightmap);
        // indirect = mix(indirect, metalIndirect, metalMask);
-        vec3 metalAmbient = mix(ambientLight * 3, ambientLight, smoothLightmap);
+        vec3 metalAmbient = mix(ambientLight * 9, ambientLight * 3, smoothLightmap);
         ambientLight = mix(ambientLight, metalAmbient, metalMask);
         vec3 specular = brdf(
             color,
