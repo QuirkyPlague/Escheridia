@@ -34,7 +34,7 @@ layout(location = 5) out vec4 mask;
 
 void main() {
   color = texture(colortex0, texcoord) * glcolor;
-  
+  color = pow(color, vec4(2.2));
   vec3 normalMaps = texture(normals, texcoord, 0).rgb;
   normalMaps = normalMaps * 2.0 - 1.0;
   normalMaps.xy /= 254.0 / 255.0;
@@ -116,15 +116,16 @@ void main() {
     float faceNdl = dot(mappedNormal.rgb, normalize(smoothPos));
 
     vec3 normalOffset = vec3(0.0);
-			if (any(greaterThan(abs(geoNormal.rgb), vec3(1.0e-6))))
-				normalOffset = 1.0 * (geoNormal.rgb);
+			if (any(greaterThan(abs(normal.rgb), vec3(1.0e-6))))
+				normalOffset = 3.0 * (normal.rgb);
 
 			#if FLOODFILL_NORMAL_STRENGTH > 0
-				vec3 texNormalOffset = -normalOffset + 5.0 *  mappedNormal.rgb;
+				vec3 texNormalOffset = -normalOffset + 15.0 *  mappedNormal.rgb;
 				normalOffset = mix(normalOffset, texNormalOffset, (FLOODFILL_NORMAL_STRENGTH*0.01));
 			#endif
-      
-    vec3 samplePos = smoothPos + 2.5 * mappedNormal.rgb;
+      bool normalShouldBeGeo = mappedNormal.r < 1e-6 && mappedNormal.g < 1e-6;
+      vec3 normalVal = mix(mappedNormal.rgb, geoNormal.rgb, float(normalShouldBeGeo));
+    vec3 samplePos = smoothPos + normalOffset;
     ivec3 doubleBufferWrite = mod(frameCounter,2) == 0 ? ivec3(0,VOXEL_AREA, 0) : ivec3(0);
     vec3 voxelColorLight = vec3(0.0);
     voxelColorLight = samplePos + vec3(doubleBufferWrite);
@@ -180,7 +181,7 @@ blocklight.rgb =  vec3(1.0, 0.8, 0.5843) * lightmap.r ;
       VdotL,
       isMetal,
       ao,
-      geoNormal.rgb,
+      normal,
       blocklight
     ) +
     emissive;

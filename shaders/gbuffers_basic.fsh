@@ -109,7 +109,7 @@ void main() {
     vec3 samplePos = smoothPos + 2.5 * mappedNormal.rgb;
     ivec3 doubleBufferWrite = mod(frameCounter,2) == 0 ? ivec3(0,VOXEL_AREA, 0) : ivec3(0);
     vec3 voxelColorLight = vec3(0.0);
-    voxelColorLight = samplePos + vec3(doubleBufferWrite);
+    voxelColorLight = smoothPos + vec3(doubleBufferWrite);
  
     bytes = texture(voxelFloodfill,vec3(voxelColorLight) / vec3(VOXEL_AREA, 2 * VOXEL_AREA, VOXEL_AREA)) * lightmap.r  ;
     bytes2 = texture(voxelFloodfill2,vec3(voxelColorLight) / vec3(VOXEL_AREA, 2 * VOXEL_AREA, VOXEL_AREA) ) * lightmap.r  ;

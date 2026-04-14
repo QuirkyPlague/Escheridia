@@ -96,7 +96,7 @@ void main() {
    float ambientOcclusion = 1.0;
    
   vec3 blocklight = vec3(0.0);
- #ifdef FLOODFILL
+  #ifdef FLOODFILL
   ivec3 voxel_pos = ivec3(feetPlayerPos-normal*.1+fract(cameraPosition)+VOXEL_RADIUS);
   //check if in voxel range
 	if( clamp(voxel_pos,0,VOXEL_AREA) == voxel_pos )
@@ -112,15 +112,16 @@ void main() {
     float faceNdl = dot(mappedNormal.rgb, normalize(smoothPos));
 
     vec3 normalOffset = vec3(0.0);
-			if (any(greaterThan(abs(geoNormal.rgb), vec3(1.0e-6))))
-				normalOffset = 1.0 * (geoNormal.rgb);
+			if (any(greaterThan(abs(normal.rgb), vec3(1.0e-6))))
+				normalOffset = 3.0 * (normal.rgb);
 
 			#if FLOODFILL_NORMAL_STRENGTH > 0
-				vec3 texNormalOffset = -normalOffset + 5.0 *  mappedNormal.rgb;
+				vec3 texNormalOffset = -normalOffset + 15.0 *  mappedNormal.rgb;
 				normalOffset = mix(normalOffset, texNormalOffset, (FLOODFILL_NORMAL_STRENGTH*0.01));
 			#endif
-      
-    vec3 samplePos = smoothPos ;
+      bool normalShouldBeGeo = mappedNormal.r < 1e-6 && mappedNormal.g < 1e-6;
+      vec3 normalVal = mix(mappedNormal.rgb, geoNormal.rgb, float(normalShouldBeGeo));
+    vec3 samplePos = smoothPos;
     ivec3 doubleBufferWrite = mod(frameCounter,2) == 0 ? ivec3(0,VOXEL_AREA, 0) : ivec3(0);
     vec3 voxelColorLight = vec3(0.0);
     voxelColorLight = samplePos + vec3(doubleBufferWrite);
@@ -146,7 +147,7 @@ void main() {
     const float VOXEL_FADE_END = VOXEL_RADIUS;
     float dist = length(viewPos);
     float fade = smoothstep(VOXEL_FADE_START, VOXEL_FADE_END, dist);
-    blocklight.rgb = mix(combinedLight , defaultBlocklight * lightmap.r, fade);
+    blocklight.rgb = mix(combinedLight * 0.13 , defaultBlocklight * lightmap.r, fade);
    
  
    
@@ -165,7 +166,7 @@ blocklight.rgb =  vec3(1.0, 0.8, 0.5843) * lightmap.r ;
   vec3 lighting = getLighting(
       color.rgb,
       lightmap.xy,
-      geoNormal.rgb,
+      normal,
       shadow,
       H,
       f0,
@@ -176,7 +177,7 @@ blocklight.rgb =  vec3(1.0, 0.8, 0.5843) * lightmap.r ;
       VdotL,
       isMetal,
       ao,
-      geoNormal.rgb,
+      normal,
       blocklight
     ) +
     emissive;

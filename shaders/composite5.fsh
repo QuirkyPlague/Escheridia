@@ -210,7 +210,7 @@ void main() {
   // --- F0 and roughness
   vec3 f0 = vec3(SpecMap.g);
   f0 = mix(f0, vec3(0.02), float(isWater));
-  f0 = mix(f0, albedo * 7, float(isMetal));
+  f0 = mix(f0, albedo * 34, float(isMetal));
   f0 = mix(f0, vec3(1.0), float(inWater && isWater));
   
   f0 = mix(f0, vec3(0.02), rainFactor);
@@ -308,7 +308,7 @@ void main() {
     ) ;
     sky = mix(albedo,sky, smoothLightmap);
    float roughMask = step(0.0, roughness);
-   sky *= mix(1.5, max(exp(6.32 * (0.301 - roughness)), 0.0), roughMask * float(!isWater));
+   sky *= mix(1.0, max(exp(8.32 * (0.141 - roughness)), 0.0), roughMask * float(!isWater));
    
     if (reflectionHit) {
     if (canReflect || isMetal || isWater) {
@@ -328,7 +328,7 @@ void main() {
          
       if (any(isnan(reflectedColor))) reflectedColor = vec3(0.0);
       float roughMask2 = step(0.0, roughness);
-      reflectedColor *= mix(1.0, max(exp(12.02 * (0.061 - roughness)), 0.0), roughMask2);
+      reflectedColor *= mix(1.0, max(exp(12.02 * (0.061 - roughness)), 0.0), roughMask2 * float(!isWater));
       
     }
   }
@@ -382,7 +382,7 @@ void main() {
       float response = pow(roughness, 2.0) * reflDist;
       float reflLum = luminance(reflectedColor);
       
-      float factor = 0.55;
+      float factor = 0.75;
       #ifndef ROUGH_REFLECTION
       factor = 0.0;
       #endif

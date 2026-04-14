@@ -46,7 +46,7 @@ void main()
     
  
     
-    vec3 lightRGB = voxel_data.r*vec3(1.614, 1.4745, 1.3373) * 0.5 + voxel_data.g*vec3(0.4627, 0.8275, 1.0)  + voxel_data.b*vec3(0.9137, 0.9686, 1.0);
+    vec3 lightRGB = voxel_data.r*vec3(1.214, 1.061, 0.83) * 0.7 + voxel_data.g*vec3(0.4627, 0.8275, 1.0)  + voxel_data.b*vec3(0.9137, 0.9686, 1.0);
   
 
     ivec3 neighbor=ivec3(1.,0.,0.);

@@ -127,7 +127,7 @@ vec3 brdf(
   Lo = (kD * albedo ) * diff * radiance * NdotL;
   Lo = mix(Lo, spec *radiance, F) + indirect;
   vec3 diffuse = (kD * albedo) * diff  * radiance * NdotL + indirect;
-  vec3 metalLighting = mix(spec * radiance, diffuse * 0.5, alpha);
+  vec3 metalLighting = mix(spec * radiance, diffuse * 0.15, alpha);
  if(isMetal) Lo = metalLighting;
 
   return Lo;

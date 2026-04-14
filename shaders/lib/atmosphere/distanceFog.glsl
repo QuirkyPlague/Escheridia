@@ -54,9 +54,9 @@ float getFogDensity(vec3 pos)
     density = 0.325;
     #endif
     float morningFog = smoothstep(0.3, 0.1, worldLightVector.y);
-    density = mix(density, density * 2.5, morningFog);
+    density = mix(density, density * 2.15, morningFog);
     density = mix(density, density * 1.15, jungleSmooth);
-   
+    baseDensity = mix(baseDensity, baseDensity * 2.15, morningFog);
     density *= totalDensity * height;
     density += baseDensity * height;
     }
@@ -64,7 +64,7 @@ float getFogDensity(vec3 pos)
     {
         density = 0.04;
     }
-    if(inWater) density = 0.04;
+    if(inWater) density = 0.05;
      if(pos.y < 55 && eyeBrightness.y < 0.2 && !inWater) density = 0;
       density = mix(density, density * 1.15, wetness);
     return density;

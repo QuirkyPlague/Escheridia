@@ -168,7 +168,7 @@ vec3 getLighting(
         //ao *= ao * (1.0 - float(shadow));
         float metalMask = isMetal ? 1.0 : 0.0;
         caveAmbient = mix(caveAmbient, caveAmbient *0.25, metalMask);
-        vec3 ambientLight = (mix(ambientColor.rgb,caveAmbient.rgb * 0.095, ambientFactor)* ao * materialAo) * color  ;
+        vec3 ambientLight = (mix(ambientColor.rgb,caveAmbient.rgb * 0.075, ambientFactor)* ao * materialAo) * color  ;
         ambientLight = mix(ambientLight, ambientLight * rain, wetness * hotBiomeSmooth);
         
         vec3 indirect = (skylight + blocklight) * ao * materialAo;
