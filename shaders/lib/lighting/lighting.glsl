@@ -20,7 +20,7 @@ const vec4 morningSkylightColor = vec4(0.5922, 0.7333, 1.0, 0.621);
 const vec4 eveningSkylightColor = vec4(0.6353, 0.7333, 0.851, 0.731);
 const vec4 nightSkylightColor = vec4(0.2157, 0.2157, 0.8118, 0.92);
 
-const vec4 blocklightColor = vec4(1.7, 0.8, 0.5843, 0.75);
+const vec4 blocklightColor = vec4(1.7, 0.8, 0.5843, 2.05);
 const vec4 ambientColor = vec4(0.015);
  vec4 caveAmbient = vec4(0.3255, 0.3804, 0.4314, 1.0);
 const vec3 rainTint = vec3(0.6122, 0.5549, 0.4627);
@@ -130,9 +130,9 @@ vec3 getLighting(
         vec3 blocklight = blocklightCol;
         float blocklightIntensity = blocklightColor.a;
         float blocklightLum = luminance(blocklight * blocklightIntensity);
-        blocklight *= blocklightIntensity;
-        blocklight *= max(16.59 * pow(blocklight, vec3(0.135)), 0.0);
-        blocklight += min(0.57 * pow(blocklight, vec3(1.25)), 6.9);
+        blocklight *= blocklightLum;
+        blocklight *= max(7.59 * pow(blocklight, vec3(0.935)), 0.0);
+        blocklight += min(0.37 * pow(blocklight, vec3(0.55)), 1.9);
          
 
         
@@ -176,7 +176,7 @@ vec3 getLighting(
         bool noSky = lightmap.g < smoothstep(0.0, 0.682, lightmap.g);
         vec3 metalIndirect = mix(indirect * 0.0,indirect  * 0 , smoothLightmap);
        // indirect = mix(indirect, metalIndirect, metalMask);
-        vec3 metalAmbient = mix(ambientLight * 9, ambientLight * 3, smoothLightmap);
+        vec3 metalAmbient = mix(ambientLight, ambientLight * 3, ambientFactor);
         ambientLight = mix(ambientLight, metalAmbient, metalMask);
         vec3 specular = brdf(
             color,

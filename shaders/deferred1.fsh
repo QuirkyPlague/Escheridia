@@ -115,9 +115,9 @@ void main() {
   vec3 emissive = vec3(0.0);
   #ifndef HC_EMISSION
   if (emission < 1.0) {
-    emission = min(emission, 0.85);
+    emission = min(emission, 0.95);
     emissive += color.rgb * emission;
-    emissive += max(15.25 * pow(emissive, vec3(2.58)), 0.0);
+    emissive += max(32.25 * pow(emissive, vec3(1.78)), 0.0);
       
     emissive = CSB(emissive, 1.0, 0.95, 1.0);
     //emissive = pow(emissive, vec3(2.2));
@@ -141,7 +141,7 @@ void main() {
   color.rgb *= 1.0 - 0.5 * noise * porosity;
 
   vec3 blocklight = texture(colortex9, texcoord).rgb;
-  blocklight = pow(blocklight, vec3(2.2));
+  
 
   color.rgb =
     getLighting(

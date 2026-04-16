@@ -177,6 +177,9 @@ vec3 computeBloomMix(vec2 texcoord, float depth, bool isMetal) {
   blurredDirt = vec3(0.0);
   #endif
   
+  // Add lens flare to bloom
+    // adjust intensity
+  
   hdr = mix(
     hdr,
     blm,
