@@ -8,7 +8,7 @@
 #include "/lib/tonemapping.glsl"
 
 //Sun/moon
-const vec4 sunlightColor = vec4(1.0, 0.910, 0.732, 1.78);
+const vec4 sunlightColor = vec4(1.0, 0.910, 0.732, 1.248);
 const vec4 noonSunlightColor = vec4(0.993, 0.901, 0.8824, 1.46);
 const vec4 morningSunlightColor = vec4(1.0, 0.73, 0.4033, 2.45);
 const vec4 morningSunlightColor1 = vec4(1.0, 0.43, 0.1033, 2.45);

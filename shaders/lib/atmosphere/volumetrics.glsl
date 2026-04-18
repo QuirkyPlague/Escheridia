@@ -265,7 +265,7 @@ vec3 traceFog(vec3 worldPos, vec3 color, inout vec4 history, vec2 texcoord)
 
     //Volumetric parameters
     float scatterReduce=smoothstep(0,185,eyeBrightnessSmooth.y);
-    vec3 lightScattering=vec3(16.) * PHASE_MULTIPLIER;
+    vec3 lightScattering=vec3(32.) * PHASE_MULTIPLIER;
     vec3 absCoeff = vec3(1.0, 1.0, 1.0);
     float transmittance= 1.0;
     vec3 multiScatterEnergy=vec3(0.);
@@ -277,7 +277,7 @@ vec3 traceFog(vec3 worldPos, vec3 color, inout vec4 history, vec2 texcoord)
     vec3 sunCol=currentSunColor(vec3(0.));
     sunCol = mix(sunCol, sunCol * jungleTint, jungleSmooth);
     fogCol = mix(fogCol, jungleCol * 0.9, jungleSmooth);
-    fogCol *= 21; //boost to ambient strength
+    fogCol *= 15; //boost to ambient strength
     float fogLum = luminance(fogCol * skyIntensity);
     fogCol *= fogLum;
     
@@ -316,7 +316,7 @@ vec3 traceFog(vec3 worldPos, vec3 color, inout vec4 history, vec2 texcoord)
         transmittance*= exp(float(-absCoeff) * density * _StepSize);
         //Calculate directional lighting for the fog
         vec3 lightDir=worldLightVector;
-        float phase=CS(phaseVal,dot(rayDir,lightDir)) + 0.13 * CS(-0.1,dot(rayDir,lightDir));
+        float phase=CS(phaseVal,dot(rayDir,lightDir)) + 0.3 * CS(-0.2,dot(rayDir,lightDir));
         phase = mix(phase,waterPhase(dot(rayDir,lightDir)),float(inWater));
         vec3 directLight=sunCol*shadow;
 

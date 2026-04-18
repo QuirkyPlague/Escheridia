@@ -10,7 +10,7 @@ const vec3 paleHorCol = vec3(0.7137, 0.7137, 0.7137);
 const vec3 paleGrndCol = vec3(0.4314, 0.4314, 0.4314);
 
 //rain
-const vec3 rainZenCol = vec3(0.3804, 0.3922, 0.4078);
+const vec3 rainZenCol = vec3(0.2804, 0.2922, 0.3078);
 const vec3 rainHorCol = vec3(0.3843, 0.3843, 0.3843);
 const vec3 rainGrndCol = vec3(0.1176, 0.1333, 0.149);
 
@@ -76,7 +76,7 @@ vec3 getSun(vec3 dir) {
   vec3 sunColor;
   sunColor = currentSunColor(sunColor);
 
-  vec3 fullSun = sun * sunColor * 700.0 * sunHeightFactor;
+  vec3 fullSun = sun * sunColor * 10700.0 * sunHeightFactor;
   fullSun *= mix(1.0, 0.001, wetness * hotBiomeSmooth);
   vec3 moonColor =  sunColor;
   vec3 fullmoon = moon * moonColor * 150.3 * sunHeightFactor;

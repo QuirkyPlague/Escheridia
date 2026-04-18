@@ -137,30 +137,7 @@ vec3 upSample(sampler2D srcTexture, vec2 texCoord) {
 }
 
 
-vec3 lensDirtGaussianBlur(vec2 texCoord) {
-vec3 result = vec3(0.0);
-float totalWeight = 3.0;
-float x = 1.0 / float(viewWidth * BLOOM_QUALITY);
-float y = 1.0 / float(viewHeight * BLOOM_QUALITY);
-vec2 offsets[9] = vec2[](
-    vec2(-x, y), vec2(0.0, y), vec2(x, y),
-    vec2(-x, 0.0), vec2(0.0, 0.0), vec2(x, 0.0),
-    vec2(-x, -y), vec2(0.0, -y), vec2(x, -y)
-);
-float kernel[9] = float[](
-    1.0, 2.0, 1.0,
-    2.0, 4.0, 2.0,
-    1.0, 2.0, 1.0
-);
-for (int i = 0; i < 9; i++) {
-    vec3 sampled = texture(lensDirt, texCoord + offsets[i]).rgb;
-    result += sampled * kernel[i];
-    totalWeight += kernel[i];
-}
-return result / totalWeight;
 
-  
-}
 
 vec3 computeBloomMix(vec2 texcoord, float depth, bool isMetal) {
   
@@ -169,22 +146,21 @@ vec3 computeBloomMix(vec2 texcoord, float depth, bool isMetal) {
   float rain = texture(colortex8, texcoord).r;
   float bloomStrength = BLOOM_STRENGTH;
   vec3 screenPos = vec3(texcoord, depth);
-  vec3 dirtTex = texture(lensDirt, screenPos.xy).rgb;
-  vec3 blurredDirt = lensDirtGaussianBlur(screenPos.xy);
-  blurredDirt *= BLOOM_LENS_DIRT_INTENSITY;
+  float dirtTex = texture(lensDirt, screenPos.xy).r;
+  
+  dirtTex *= BLOOM_LENS_DIRT_INTENSITY;
   
   #ifndef DO_LENS_DIRT
-  blurredDirt = vec3(0.0);
+  dirtTex = 0.0;
   #endif
   
-  // Add lens flare to bloom
-    // adjust intensity
-  
+
+ 
   hdr = mix(
     hdr,
     blm,
     clamp(
-      0.02 * bloomStrength + blurredDirt + rain * 0.12 + wetness * 0.025 * eyeBrightnessSmooth.y * 0.015 * hotBiomeSmooth,
+      0.006 * bloomStrength + dirtTex + rain * 0.042 + wetness * 0.025 * eyeBrightnessSmooth.y * 0.015 * hotBiomeSmooth,
       0,
       1
     )
