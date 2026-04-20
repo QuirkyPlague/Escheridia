@@ -216,5 +216,18 @@ float linearizeDepth(float depth)
     return (2.0 * near * far) / (far + near - z * (far - near));
 }
 
+//From AJ Fairfield @ Mojang https://gdcvault.com/play/1035685/Modernizing-the-Rendering-of-Minecraft
+vec3 getQuantizedWorldPosition(vec3 worldPos, float texelGridSize, float normalPrecision, vec3 surfaceNormal) {
+ vec3 approxSurfaceNormal = surfaceNormal;
+ // Rounding the surface normal helps guard against artifacts that result
+ // as imprecisions in the approximation of surface normal
+ approxSurfaceNormal = normalize(round(approxSurfaceNormal / normalPrecision) * normalPrecision);
+ // Quantize base world position
+ vec3 worldPosRemainder = mod(worldPos, texelGridSize);
+ // Remove anything in the normal direction from the quantized position
+ worldPosRemainder -= dot(worldPosRemainder, approxSurfaceNormal) * approxSurfaceNormal;
+ return worldPos - worldPosRemainder;
+}
+
 
 #endif //UTIL_GLSL

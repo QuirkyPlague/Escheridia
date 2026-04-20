@@ -8,6 +8,7 @@
 #include "/lib/tonemapping.glsl"
 #include "/lib/water/waves.glsl"
 #include "/lib/shadows/SSAO.glsl"
+#include "/lib/lighting/sphericalHarmonics.glsl"
 
 in vec2 texcoord;
 
@@ -141,7 +142,7 @@ void main() {
   color.rgb *= 1.0 - 0.5 * noise * porosity;
 
   vec3 blocklight = texture(colortex9, texcoord).rgb;
-  
+  vec3 SH = computeSkylight(normal);
 
   color.rgb =
     getLighting(
@@ -159,7 +160,8 @@ void main() {
       isMetal,
       ao,
       geoNormal,
-      blocklight
+      blocklight,
+      SH
     ) +
     emissive;
 

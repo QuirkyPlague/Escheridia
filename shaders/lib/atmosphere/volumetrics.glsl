@@ -277,7 +277,7 @@ vec3 traceFog(vec3 worldPos, vec3 color, inout vec4 history, vec2 texcoord)
     vec3 sunCol=currentSunColor(vec3(0.));
     sunCol = mix(sunCol, sunCol * jungleTint, jungleSmooth);
     fogCol = mix(fogCol, jungleCol * 0.9, jungleSmooth);
-    fogCol *= 15; //boost to ambient strength
+    fogCol *= 3.6; //boost to ambient strength
     float fogLum = luminance(fogCol * skyIntensity);
     fogCol *= fogLum;
     
@@ -291,6 +291,7 @@ vec3 traceFog(vec3 worldPos, vec3 color, inout vec4 history, vec2 texcoord)
         shadowMapPixelSize*1.,
     -.0003803515625);
     float sampleRadius=SHADOW_SOFTNESS*shadowMapPixelSize*.34;
+    vec3 fogScattering = vec3(0.0);
     while(distTravelled<distLimit)
     {
       vec3 rayPos=entryPoint+rayDir*distTravelled;
@@ -316,7 +317,7 @@ vec3 traceFog(vec3 worldPos, vec3 color, inout vec4 history, vec2 texcoord)
         transmittance*= exp(float(-absCoeff) * density * _StepSize);
         //Calculate directional lighting for the fog
         vec3 lightDir=worldLightVector;
-        float phase=CS(phaseVal,dot(rayDir,lightDir)) + 0.3 * CS(-0.2,dot(rayDir,lightDir));
+        float phase=CS(phaseVal,dot(rayDir,lightDir)) + 0.41 * CS(-0.2,dot(rayDir,lightDir)) ;
         phase = mix(phase,waterPhase(dot(rayDir,lightDir)),float(inWater));
         vec3 directLight=sunCol*shadow;
 
@@ -333,11 +334,11 @@ vec3 traceFog(vec3 worldPos, vec3 color, inout vec4 history, vec2 texcoord)
         multiScatterEnergy += singleScatter * MULTI_SCATTER_GAIN* density;
         multiScatterEnergy *= MULTI_SCATTER_DECAY;
         vec3 multiScatter=multiScatterEnergy*msPhase*scatter;
-        vec3 totalScattering = singleScatter + multiScatter;
+        vec3 totalScattering = singleScatter + multiScatter + fogCol;
 
         //Now calculate the scattering integral
         vec3 sampleExtinction = ( totalScattering + absCoeff );
-        fogCol += (totalScattering - totalScattering * transmittance) / sampleExtinction;
+        fogScattering += ( totalScattering - totalScattering * transmittance) / sampleExtinction;
          transmittance*=exp(-density*_StepSize);
         }
         distTravelled+=_StepSize;
@@ -384,14 +385,14 @@ vec3 traceFog(vec3 worldPos, vec3 color, inout vec4 history, vec2 texcoord)
            
             float historyWeight = factor * float(!historyRejection) * float(!rejectHistory) * depthConfidence;
             
-            fogCol = mix(fogCol, historyColor.rgb, historyWeight);
-            if (any(isnan(fogCol))) fogCol = vec3(0.0);
+            fogScattering = mix(fogScattering, historyColor.rgb, historyWeight);
+            if (any(isnan(fogScattering))) fogScattering = vec3(0.0);
         
     }
         // write history buffer (colortex13) for next frame
-    history = vec4(fogCol,0.0);
+    history = vec4(fogScattering,0.0);
     #endif
-      color = mix(color,fogCol,1.-clamp(transmittance,0,1));
+      color = mix(color,fogScattering,1.-clamp(transmittance,0,1));
       return color;
     }
 #endif //VOLUMETRICS_GLSL

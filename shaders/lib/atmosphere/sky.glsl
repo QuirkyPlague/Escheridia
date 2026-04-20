@@ -91,7 +91,7 @@ vec3 skyScattering(vec3 pos) {
   vec3 dir = normalize(pos);
  float VoL = dot(dir, worldSunDir);
   float rayleigh =
-    Rayleigh(VoL) * 13.1;
+    Rayleigh(VoL) * 15.1;
 
   float upPos = clamp(dir.y, 0, 1);
   float downPos = clamp(dir.y, -1, 0);
@@ -114,8 +114,8 @@ vec3 skyScattering(vec3 pos) {
 
     const vec3 zenithColors[keys] = vec3[keys](
     dawnZenCol * 1.25,
-    dayZenCol * 1.65,
-    dayZenCol* 1.65,
+    dayZenCol ,
+    dayZenCol,
     duskZenCol,
     nightZenCol,
     nightZenCol,
@@ -179,7 +179,7 @@ vec3 skyScattering(vec3 pos) {
   timeInterp = smoothstep(0.0, 1.0, timeInterp);
 
   vec3 zenithCol = mix(zenithColors[i], zenithColors[i + 1], timeInterp);
-  vec3 horizonCol = mix(horizonColors[i], horizonColors[i + 1], timeInterp);
+  vec3 horizonCol = mix(horizonColors[i], horizonColors[i + 1], timeInterp) * 0.55;
   vec3 groundCol = mix(groundColors[i], groundColors[i + 1], timeInterp);
 
   float weatherStrength = mix(
@@ -201,8 +201,8 @@ vec3 skyScattering(vec3 pos) {
   horizonCol = mix(horizonCol, rainHorCol * weatherStrength, wetness * hotBiomeSmooth);
   groundCol = mix(groundCol, rainGrndCol * weatherStrength, wetness * hotBiomeSmooth);
 
-  float zenithBlend = clamp(pow(upPos, 0.65), 0, 1);
-  float horizonBlend = clamp(pow(negatedMidPos, 3.5), 0, 1);
+  float zenithBlend = clamp(pow(upPos, 0.45), 0, 1);
+  float horizonBlend = clamp(pow(negatedMidPos, 5.5), 0, 1);
   float groundBlend = clamp(pow(negatedDownPos, 0.55), 0, 1);
 
   zenithCol *=  zenithBlend;

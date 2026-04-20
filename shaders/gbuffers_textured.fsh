@@ -7,6 +7,7 @@
 #include "/lib/blockID.glsl"
 #include "/lib/atmosphere/distanceFog.glsl"
 #include "/lib/shadows/SSAO.glsl"
+#include "/lib/lighting/sphericalHarmonics.glsl"
 uniform sampler2D gtexture;
 
 uniform float alphaTestRef;
@@ -96,7 +97,7 @@ void main() {
    float ambientOcclusion = 1.0;
    
   vec3 blocklight = vec3(0.0);
-   #ifdef FLOODFILL
+  #ifdef FLOODFILL
   ivec3 voxel_pos = ivec3(feetPlayerPos-normal*.1+fract(cameraPosition)+VOXEL_RADIUS);
   //check if in voxel range
 	if( clamp(voxel_pos,0,VOXEL_AREA) == voxel_pos )
@@ -163,6 +164,8 @@ else
 blocklight.rgb =  vec3(1.0, 0.8, 0.5843) * lightmap.r ;
 #endif
 
+  vec3 SH = computeSkylight(mappedNormal.xyz);
+
   vec3 lighting = getLighting(
       color.rgb,
       lightmap.xy,
@@ -178,7 +181,8 @@ blocklight.rgb =  vec3(1.0, 0.8, 0.5843) * lightmap.r ;
       isMetal,
       ao,
       normal,
-      blocklight
+      blocklight,
+      SH
     ) +
     emissive;
   

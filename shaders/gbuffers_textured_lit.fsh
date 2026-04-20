@@ -7,6 +7,7 @@
 #include "/lib/blockID.glsl"
 #include "/lib/atmosphere/distanceFog.glsl"
 #include "/lib/shadows/SSAO.glsl"
+#include "/lib/lighting/sphericalHarmonics.glsl"
 uniform sampler2D gtexture;
 
 uniform float alphaTestRef;
@@ -163,6 +164,8 @@ else
 blocklight.rgb =  vec3(1.0, 0.8, 0.5843) * lightmap.r ;
 #endif
 
+  vec3 SH = computeSkylight(mappedNormal.xyz);
+
   vec3 lighting = getLighting(
       color.rgb,
       lightmap.xy,
@@ -178,7 +181,8 @@ blocklight.rgb =  vec3(1.0, 0.8, 0.5843) * lightmap.r ;
       isMetal,
       ao,
       normal,
-      blocklight
+      blocklight,
+      SH
     ) +
     emissive;
   
