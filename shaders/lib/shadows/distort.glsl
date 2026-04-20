@@ -16,40 +16,7 @@ vec3 distortShadowClipPos(vec3 shadowClipPos) {
   return shadowClipPos;
 }
 
-float cubeLength(vec2 v) {
-  vec2 t = abs(pow(v, vec2(3.0)));
-  return pow(t.x + t.y, 1.0 / 3.0);
-}
 
-vec3 distort(vec3 pos) {
-  float factor =
-    cubeLength(pos.xy) * 0.85 + (1.0 - 0.85);
-  pos.xy /= factor;
-  pos.z /= 2.0;
-  return pos;
-}
-
-vec3 getShadowBias(vec3 pos, vec3 worldNormal, float faceNoL) {
-  float biasAdjust =
-    log2(max(4.0, shadowDistance - shadowMapResolution * 0.125)) * 0.5;
-
-  float factor =
-    cubeLength(pos.xy) * 0.85 + (1.0 - 0.85);
-
-  return mat3(shadowProjection) *
-  (mat3(shadowModelView) * worldNormal) *
-  factor *
-  biasAdjust;
-}
-
-vec3 getDistortedPos(vec3 pos) {
-    vec2 distortionCenter = vec2(0.0); // Any arbitrary point in NDC space
-    vec2 offset = pos.xy - distortionCenter;
-    vec2 delta  = sign(offset) - distortionCenter;
-    float distortionAmount = 0.85;
-    float factor = mix(1.0, length(offset / delta), distortionAmount); 
-    return vec3(distortionCenter + offset / factor, pos.z * 0.2);
-}
 
 
 

@@ -102,7 +102,7 @@ vec3 cloudRaymarch(vec3 worldPos,vec3 noise, vec3 color)
     const float liningIntensity = 1.0;
     const float liningSpread = 0.426;
   
-    vec3 lightScattering=vec3(1.0)*PHASE_MULTIPLIER;
+    vec3 lightScattering=vec3(5.0)*PHASE_MULTIPLIER;
     vec3 entryPoint=cameraPosition;
     vec3 viewDir=worldPos-cameraPosition;
     vec3 eyePos = viewDir - gbufferModelViewInverse[3].xyz;
@@ -130,7 +130,7 @@ vec3 cloudRaymarch(vec3 worldPos,vec3 noise, vec3 color)
     vec3 sunCol=currentSunColor(vec3(0.));
    
     
-     fogCol *= 12.5;
+     fogCol *= 5.5;
     vec3 multiScatterEnergy=vec3(0.);
     vec3 clouds=vec3(0.0);
     while(distTravelled<distLimit)
@@ -143,7 +143,7 @@ vec3 cloudRaymarch(vec3 worldPos,vec3 noise, vec3 color)
             transmission *= exp(-absCoeff * density * _StepSize);
        //calculate phase
         vec3 lightDir=worldLightVector;
-        float phase=  henyeyGreensteinPhase(dot(rayDir,lightDir), .75) * 0.4 +  henyeyGreensteinPhase(dot(rayDir,lightDir), -.45);
+        float phase=  henyeyGreensteinPhase(dot(rayDir,lightDir), .75)  +  henyeyGreensteinPhase(dot(rayDir,lightDir), -.45);
        //currently unused
         float silverLining = max(henyeyGreensteinPhase(dot(rayDir,lightDir), .65), liningIntensity * henyeyGreensteinPhase(dot(rayDir,lightDir), 0.99 - liningSpread));
        phase += silverLining;

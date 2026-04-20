@@ -164,7 +164,7 @@ else
 blocklight.rgb =  vec3(1.0, 0.8, 0.5843) * lightmap.r ;
 #endif
 
-  vec3 SH = computeSkylight(mappedNormal.xyz);
+  vec3 SH = computeSkylight(normal.xyz);
 
   vec3 lighting = getLighting(
       color.rgb,

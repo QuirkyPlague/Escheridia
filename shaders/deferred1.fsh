@@ -13,13 +13,15 @@
 in vec2 texcoord;
 
 
-
-
-
 /* RENDERTARGETS: 0 */
 layout(location = 0) out vec4 color;
 
 void main() {
+  
+  // Check sky early before expensive texture reads
+  float depth = texture(depthtex1, texcoord).r;
+  if (depth == 1) return; //return out of function to prevent lighting interating with sky
+
   //assign colortex buffers
   color = texture(colortex0, texcoord);
     color = pow(color, vec4(2.2));
@@ -27,17 +29,15 @@ void main() {
   
   vec2 lightmap = texture(colortex1, texcoord).rg;
   vec4 SpecMap = texture(colortex3, texcoord);
-  vec3 encodedNormal = texture(colortex2, texcoord).rgb;
+  vec4 normalData = texture(colortex2, texcoord);
+  vec3 encodedNormal = normalData.rgb;
+  float ao = normalData.a;
   vec3 normal = normalize((encodedNormal - 0.5) * 2.0);
   vec3 surfNorm = texture(colortex4, texcoord).rgb;
   vec3 geoNormal = normalize((surfNorm - 0.5) * 2.0);
  
-  float depth = texture(depthtex1, texcoord).r;
   vec4 mask = texture(colortex7, texcoord);
-  float ao = texture(colortex2, texcoord).a;
-
   int blockID = int(mask) + 103;
-  if (depth == 1) return; //return out of function to prevent lighting interating with sky
 
   //space conversions
   vec3 NDCPos = vec3(texcoord.xy, depth) * 2.0 - 1.0;
@@ -56,7 +56,8 @@ void main() {
   float VdotL = dot(normalize(feetPlayerPos), worldLightVector);
 
   vec2 noisePos = fract(worldPos.xz /128.0);
-  float noise = texture(puddleTex, noisePos).r;
+  float puddleNoise = texture(puddleTex, noisePos).r;
+  float noise = puddleNoise;
   noise *= wetness;
   noise *= clamp(dot(geoNormal, gbufferModelView[1].xyz),0,1);
   bool isMetal = SpecMap.g >= 230.0 / 255.0;
@@ -64,22 +65,12 @@ void main() {
   const float handDepth = MC_HAND_DEPTH * 0.5 + 0.5;
   float flatness = max(dot(normalize(geoNormal), vec3(0.0, 1.0, 0.0)), 0.0);
 
-
+  // Use cached puddle noise instead of reading again
   float rainFactor = 0.0;
-    if(depth > handDepth )
-    {
-      
-         rainFactor =
-    clamp(smoothstep(13.5 / 15.0, 14.5 / 15.0, lightmap.y),0,1) * wetness;
-      rainFactor *= smoothstep(
-    -0.45,
-    0.75,
-    texture(
-      puddleTex,
-      noisePos
-    ).r
-  ) * flatness * snowBiomeSmooth * hotBiomeSmooth;
-    }
+  float isNotHand = step(handDepth, depth);
+  rainFactor = isNotHand *
+    clamp(smoothstep(13.5 / 15.0, 14.5 / 15.0, lightmap.y),0,1) * wetness *
+    smoothstep(-0.45, 0.75, puddleNoise) * flatness * snowBiomeSmooth * hotBiomeSmooth;
   
   //PBR
   float roughness = pow(1.0 - SpecMap.r, 2.0);
@@ -99,16 +90,9 @@ void main() {
 
    float porosity = 0.0;
    #ifndef HC_SSS
-   if (SpecMap.b <= 64.0/255.0)
-   {
-    porosity = SpecMap.b * 6.0;
-    sss = 0.0;
-   }
-   else
-   {
-    sss = (SpecMap.b - 0.15) * 4.0 / 3.0;
-    porosity = 0.0;
-   }
+   float isLow = step(SpecMap.b, 64.0/255.0);
+   porosity = isLow * SpecMap.b * 6.0;
+   sss = (1.0 - isLow) * ((SpecMap.b - 0.15) * 4.0 / 3.0);
 #endif
 
   
@@ -119,21 +103,14 @@ void main() {
     emission = min(emission, 0.95);
     emissive += color.rgb * emission;
     emissive += max(32.25 * pow(emissive, vec3(1.78)), 0.0);
-      
     emissive = CSB(emissive, 1.0, 0.95, 1.0);
-    //emissive = pow(emissive, vec3(2.2));
   }
 #endif //HC_EMISSION
 
   vec3 shadow = getSoftShadow(shadowClipPos, geoNormal, sss);
   
-  vec3 f0 = vec3(0.0);
-  if (isMetal) {
-    f0 = albedo ;
-  } else {
-    f0 = vec3(SpecMap.g);
-  }
-  if(SpecMap.g == 0) f0 = vec3(0.04);
+  vec3 f0 = mix(vec3(SpecMap.g), albedo, float(isMetal));
+  f0 = mix(f0, vec3(0.04), step(SpecMap.g, 0.0));
   float ambientOcclusion = 1.0;
   #if AO_METHOD == 1
    ambientOcclusion = texture(colortex12, texcoord).r;

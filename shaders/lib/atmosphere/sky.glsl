@@ -4,15 +4,16 @@
 #include "/lib/util.glsl"
 #include "/lib/lighting/lighting.glsl"
 
+
 //Pale Garden
 const vec3 paleZenCol = vec3(1.0, 1.0, 1.0);
 const vec3 paleHorCol = vec3(0.7137, 0.7137, 0.7137);
 const vec3 paleGrndCol = vec3(0.4314, 0.4314, 0.4314);
 
 //rain
-const vec3 rainZenCol = vec3(0.2804, 0.2922, 0.3078);
-const vec3 rainHorCol = vec3(0.3843, 0.3843, 0.3843);
-const vec3 rainGrndCol = vec3(0.1176, 0.1333, 0.149);
+const vec3 rainZenCol = vec3(0.2667, 0.298, 0.3255);
+const vec3 rainHorCol = vec3(0.5725, 0.5725, 0.5725);
+const vec3 rainGrndCol = vec3(0.0314, 0.0353, 0.0392);
 
 //Day
 const vec3 dayZenCol = vec3(DAY_ZENITH_COLOR_R, DAY_ZENITH_COLOR_G, DAY_ZENITH_COLOR_B);
@@ -154,8 +155,8 @@ vec3 skyScattering(vec3 pos) {
     1.0,
     1.0,
     0.65,
-    0.25,
-    0.25,
+    0.075,
+    0.075,
     0.75
   );
      const float paleIntensity[keys] = float[keys](
@@ -179,7 +180,7 @@ vec3 skyScattering(vec3 pos) {
   timeInterp = smoothstep(0.0, 1.0, timeInterp);
 
   vec3 zenithCol = mix(zenithColors[i], zenithColors[i + 1], timeInterp);
-  vec3 horizonCol = mix(horizonColors[i], horizonColors[i + 1], timeInterp) * 0.55;
+  vec3 horizonCol = mix(horizonColors[i], horizonColors[i + 1], timeInterp) * 0.75;
   vec3 groundCol = mix(groundColors[i], groundColors[i + 1], timeInterp);
 
   float weatherStrength = mix(
@@ -201,7 +202,7 @@ vec3 skyScattering(vec3 pos) {
   horizonCol = mix(horizonCol, rainHorCol * weatherStrength, wetness * hotBiomeSmooth);
   groundCol = mix(groundCol, rainGrndCol * weatherStrength, wetness * hotBiomeSmooth);
 
-  float zenithBlend = clamp(pow(upPos, 0.45), 0, 1);
+  float zenithBlend = clamp(pow(upPos, 0.65), 0, 1);
   float horizonBlend = clamp(pow(negatedMidPos, 5.5), 0, 1);
   float groundBlend = clamp(pow(negatedDownPos, 0.55), 0, 1);
 

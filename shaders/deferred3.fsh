@@ -11,7 +11,7 @@ layout(location=0)out vec4 color;
 
 void main(){
     color=texture(colortex0,texcoord);
-     vec2 lightmap = texture(colortex1, texcoord).rg;
+    
   float depth = texture(depthtex0, texcoord).r;
   if (depth == 1.0) return;
   
