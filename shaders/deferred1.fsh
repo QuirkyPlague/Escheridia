@@ -31,6 +31,7 @@ void main() {
   vec4 SpecMap = texture(colortex3, texcoord);
   vec4 normalData = texture(colortex2, texcoord);
   vec3 encodedNormal = normalData.rgb;
+  
   float ao = normalData.a;
   vec3 normal = normalize((encodedNormal - 0.5) * 2.0);
   vec3 surfNorm = texture(colortex4, texcoord).rgb;
@@ -119,6 +120,7 @@ void main() {
   color.rgb *= 1.0 - 0.5 * noise * porosity;
 
   vec3 blocklight = texture(colortex9, texcoord).rgb;
+  if (encodedNormal == vec3(0.0)) normal = geoNormal;
   vec3 SH = computeSkylight(normal);
 
   color.rgb =
@@ -142,6 +144,7 @@ void main() {
     ) +
     emissive;
 
+ 
 
     
 }

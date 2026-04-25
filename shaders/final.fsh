@@ -11,12 +11,17 @@ layout(location = 0) out vec4 color;
 void main() {
   color = texture(colortex0, texcoord) ;
 
-  color.rgb = TonemapACES(color.rgb);
+  //color.rgb = TonemapACES(color.rgb);
   color.rgb = pow(color.rgb, vec3(1.0 / 2.2));
   color.rgb = CSB(color.rgb, BRIGHTNESS, SATURATION, CONTRAST);
 
  color.rgb += (blue_noise(gl_FragCoord.xy, frameCounter) - 0.5) * (1.0 / 255.0);
-   
+ vec4 normalData = texture(colortex2, texcoord);
+  vec3 encodedNormal = normalData.rgb;
+  
+  float ao = normalData.a;
+  vec3 normal = normalize((encodedNormal - 0.5) * 2.0);
+    color.rgb = encodedNormal;
 
   
 }

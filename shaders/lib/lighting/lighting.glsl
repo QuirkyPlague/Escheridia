@@ -16,13 +16,13 @@ const vec4 morningSunlightColor1 = vec4(1.0, 0.4902, 0.1961, 0.65);
 const vec4 eveningSunlightColor = vec4(0.9569, 0.4745, 0.2333, 0.3);
 const vec4 moonlightColor = vec4(0.4039, 0.4863, 0.7408, 0.35);
 
-const vec4 skylightColor = vec4(0.4549, 0.5569, 1.0, 0.47);
+const vec4 skylightColor = vec4(0.4549, 0.5569, 1.0, 0.17);
 const vec4 morningSkylightColor = vec4(0.5922, 0.7333, 1.0, 0.26);
 const vec4 eveningSkylightColor = vec4(0.6353, 0.7333, 0.851, 0.05);
-const vec4 nightSkylightColor = vec4(0.2157, 0.2157, 0.8118, 1.38);
+const vec4 nightSkylightColor = vec4(0.2157, 0.2157, 0.8118, 0.88);
 
 const vec4 blocklightColor = vec4(1.7, 0.8, 0.5843, 2.05);
-const vec4 ambientColor = vec4(0.015);
+const vec4 ambientColor = vec4(0.01);
  vec4 caveAmbient = vec4(0.3255, 0.3804, 0.4314, 1.0);
 const vec3 rainTint = vec3(0.6122, 0.5549, 0.4627);
 
@@ -125,9 +125,9 @@ vec3 getLighting(
         float skyIntensity = mix(skyCol[i].a, skyCol[i + 1].a, timeInterp);
         float skyLum = luminance(skylight + skyIntensity);
         skylight *= skyLum;
-        skylight *= max(8.59 * pow(skylight, vec3(1.35)), 0.0);
-        skylight += min(0.17 * pow(skylight, vec3(0.055)), 1.9);
-        skylight = CSB(skylight, 1.0, 0.45, 1.0);
+        skylight *= max(3.29 * pow(skylight, vec3(0.31)), 0.0);
+       
+        skylight = CSB(skylight, 1.0, 0.85, 1.0);
         
         vec3 blocklight = blocklightCol;
         float blocklightIntensity = blocklightColor.a;
@@ -195,7 +195,7 @@ vec3 getLighting(
 
         scatter *= color;
 
-        return specular + scatter + ambientLight ;
+        return specular + ambientLight + scatter ;
     }
 
     vec3 currentSunColor(vec3 color) {

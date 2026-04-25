@@ -180,7 +180,7 @@ vec3 skyScattering(vec3 pos) {
   timeInterp = smoothstep(0.0, 1.0, timeInterp);
 
   vec3 zenithCol = mix(zenithColors[i], zenithColors[i + 1], timeInterp);
-  vec3 horizonCol = mix(horizonColors[i], horizonColors[i + 1], timeInterp) * 0.75;
+  vec3 horizonCol = mix(horizonColors[i], horizonColors[i + 1], timeInterp);
   vec3 groundCol = mix(groundColors[i], groundColors[i + 1], timeInterp);
 
   float weatherStrength = mix(

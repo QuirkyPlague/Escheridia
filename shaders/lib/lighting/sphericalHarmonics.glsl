@@ -10,26 +10,27 @@ vec3 computeSkylight(vec3 n)
 
     // Build tangent basis
     vec3 right = normalize(cross(up, n));
-    vec3 forward = cross(n, right);
+    vec3 forward = normalize(cross(n, right));
 
-    vec3 result = vec3(0.0);
+    vec3 result = vec3(0.3);
 
     // Sample directions around the normal
-    vec3 dirs[5];
+    vec3 dirs[6];
     dirs[0] = normalize(n + vec3(0, 1, 0)); // straight up from surface
-    dirs[1] = normalize(n + right);
-    dirs[2] = normalize(n - right);
-    dirs[3] = normalize(n + forward);
-    dirs[4] = normalize(n - forward);
+    dirs[1] = normalize(n - vec3(0, -1, 0) + 0.5); // bottom facing surface
+    dirs[2] = normalize(n + right + 0.5);
+    dirs[3] = normalize(n - right - 0.5);
+    dirs[4] = normalize(n + forward + 0.5);
+    dirs[5] = normalize(n - forward - 0.5);
 
-    for (int i = 0; i < 5; i++)
+    for (int i = 0; i < 6; i++)
     {
         vec3 d = dirs[i];
         float w = max(dot(n, d), 0.0);
         result += skyScattering(d) * w;
     }
 
-    return result / 5.0;
+    return result / 6.0;
 }
 
 #endif
