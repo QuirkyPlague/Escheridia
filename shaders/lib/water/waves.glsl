@@ -84,8 +84,8 @@ float getwaves(vec2 position, int iterations) {
     sumOfWeights += weight;
 
     // modify next octave ;
-    weight = mix(weight, 0.0, 0.352);
-    frequency *= 1.34 * WAVE_FREQUENCY;
+    weight = mix(weight, 0.0, 0.452);
+    frequency *= 1.14 * WAVE_FREQUENCY;
     timeMultiplier *= 1.17 * WAVE_SPEED;
 
     // add some kind of random value to make next wave look random too

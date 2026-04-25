@@ -16,7 +16,7 @@ const vec4 morningSunlightColor1 = vec4(1.0, 0.4902, 0.1961, 0.65);
 const vec4 eveningSunlightColor = vec4(0.9569, 0.4745, 0.2333, 0.3);
 const vec4 moonlightColor = vec4(0.4039, 0.4863, 0.7408, 0.35);
 
-const vec4 skylightColor = vec4(0.4549, 0.5569, 1.0, 0.17);
+const vec4 skylightColor = vec4(0.4549, 0.5569, 1.0, 0.37);
 const vec4 morningSkylightColor = vec4(0.5922, 0.7333, 1.0, 0.26);
 const vec4 eveningSkylightColor = vec4(0.6353, 0.7333, 0.851, 0.05);
 const vec4 nightSkylightColor = vec4(0.2157, 0.2157, 0.8118, 0.88);
@@ -153,10 +153,10 @@ vec3 getLighting(
         scatter += baseScatter * 2.75 * (1.0 - sssFresnel)  ;
         scatter *= hasSSS;
         scatter *= sss ;
-        vec3 ambientSSS = skylight * 0.85 * sss;
+        vec3 ambientSSS = skylight * 2.35 * sss;
         vec3 blockSSS = blocklight * 4  * sss;
         vec3 indirectSSS = ambientSSS + blockSSS * ao  * uniformPhase;
-        indirectSSS = mix(indirectSSS * 0.03, indirectSSS, roughness);
+        indirectSSS = mix(indirectSSS * 0.33, indirectSSS, roughness);
         scatter += indirectSSS;
 
         float faceNdlMask = step(1e-6, faceNdl);

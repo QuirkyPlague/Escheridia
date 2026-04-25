@@ -120,7 +120,7 @@ void main() {
   color.rgb *= 1.0 - 0.5 * noise * porosity;
 
   vec3 blocklight = texture(colortex9, texcoord).rgb;
-  if (encodedNormal == vec3(0.0)) normal = geoNormal;
+  if (normal == vec3(0.0)) normal = geoNormal;
   vec3 SH = computeSkylight(normal);
 
   color.rgb =
@@ -144,7 +144,7 @@ void main() {
     ) +
     emissive;
 
- 
+
 
     
 }

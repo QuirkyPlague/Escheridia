@@ -114,22 +114,22 @@ vec3 skyScattering(vec3 pos) {
   );
 
     const vec3 zenithColors[keys] = vec3[keys](
-    dawnZenCol * 1.25,
+    dawnZenCol ,
     dayZenCol ,
     dayZenCol,
     duskZenCol,
     nightZenCol,
     nightZenCol,
-    dawnZenCol * 1.25
+    dawnZenCol
   );
   const vec3 horizonColors[keys] = vec3[keys](
-    dawnHorCol,
+    dawnHorCol * 1.3,
     dayHorCol,
     noonHorCol,
     duskHorCol,
     nightHorCol * 1.5,
     nightHorCol  *1.5,
-    dawnHorCol
+    dawnHorCol* 1.3
   );
   const vec3 groundColors[keys] = vec3[keys](
     dawnGrndCol,
@@ -244,7 +244,7 @@ vec3 computeSkyColoring(vec3 pos)
   vec3 dir = normalize(pos);
   float VoL = dot(dir, worldLightVector);
   float rayleigh =
-    Rayleigh(VoL) * 12.1;
+    Rayleigh(VoL) * 8.1;
   float t = fract(worldTime / 24000.0);
 
   const int keys = 7;

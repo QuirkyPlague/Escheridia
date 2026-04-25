@@ -70,7 +70,7 @@ vec3 waterExtinction(
   inscatteringAmount *= SCATTER_COEFF;
   inscatteringAmount *= fog;
 
-  inscatteringAmount = pow(inscatteringAmount, vec3(2.2));
+ 
   
    vec3 screenPos = vec3(texcoord.xy, depth);
   vec3 NDCPos = vec3(texcoord, depth) * 2.0 - 1.0;

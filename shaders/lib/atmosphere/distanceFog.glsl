@@ -23,7 +23,7 @@ float remap1(float value, float originalMin, float originalMax, float newMin, fl
 
 float getFogDensity(vec3 pos)
 {
-    const float totalDensity = 0.0195;
+    const float totalDensity = 0.0215;
     float jungleHeight = smoothstep(101, 85, pos.y);
     float height = smoothstep(mix(MAX_HEIGHT, MAX_HEIGHT + 30, wetness), mix(MIN_HEIGHT, MIN_HEIGHT + 30, wetness), pos.y);
 
@@ -34,8 +34,10 @@ float getFogDensity(vec3 pos)
     vec4 detail2 = vec4(0.0);
     float density = 0.0;
     
-    vec3 uvw = pos * NOISE_SCALE * 0.0001 + 1.0 * 0.1 * (frameTimeCounter * 0.006) * WIND_SPEED;
-    float baseDensity = 0.0043;
+    vec3 uvw = pos * NOISE_SCALE * 0.0001;
+    uvw.x +=  1.13 * 0.1 * (frameTimeCounter * 0.006) * WIND_SPEED;
+    uvw.z += 0.7 * 0.1 * (frameTimeCounter * 0.006) * WIND_SPEED;
+    float baseDensity = 0.0033;
     shape = texture(fogTex, uvw.xz);
     if(!inWater)
     {

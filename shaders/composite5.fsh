@@ -161,7 +161,7 @@ void main() {
       12.0 * WAVE_INTENSITY * (0.05 - waveFalloff)
     );
     float waveIntensity = 0.67 * WAVE_INTENSITY * waveIntensityRolloff;
-    float waveSoftness = 0.13 * WAVE_SOFTNESS;
+    float waveSoftness = 0.23 * WAVE_SOFTNESS;
 
     normal = waveNormal(
       feetPlayerPos.xz + cameraPosition.xz,
@@ -309,7 +309,7 @@ void main() {
     sky = mix(albedo,sky, smoothLightmap);
    float roughMask = step(0.0, roughness);
    sky *= mix(1.0, max(exp(8.32 * (0.141 - roughness)), 0.0), roughMask * float(!isWater));
-   
+   sky = mix(sky, sky * 1.45,  float(isWater));
     if (reflectionHit) {
     if (canReflect || isMetal || isWater) {
 

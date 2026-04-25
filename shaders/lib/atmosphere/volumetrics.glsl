@@ -83,8 +83,9 @@ vec3 traceFog(vec3 worldPos, vec3 color, inout vec4 history, vec2 texcoord)
 
     //Volumetric parameters
     float scatterReduce=smoothstep(0,185,eyeBrightnessSmooth.y);
-    vec3 lightScattering=vec3(7.) * PHASE_MULTIPLIER;
-    float absCoeff = 0.035;
+    vec3 lightScattering=vec3(64.) * PHASE_MULTIPLIER;
+    vec3 lightScatteringTint = vec3(0.9451, 0.8039, 0.5333);
+    float absCoeff = 0.045;
     float transmittance= 1.0;
     vec3 multiScatterEnergy=vec3(0.);
 
@@ -94,13 +95,14 @@ vec3 traceFog(vec3 worldPos, vec3 color, inout vec4 history, vec2 texcoord)
     vec3 fogCol=computeSkyColoring(vec3(0.))  / (4 * PI);
     vec3 sunCol=currentSunColor(vec3(0.));
     sunCol = mix(sunCol, sunCol * jungleTint, jungleSmooth);
+    
     fogCol = mix(fogCol, jungleCol * 0.9, jungleSmooth);
     fogCol *= 1.0; //boost to ambient strength
     float fogLum = luminance(fogCol * skyIntensity);
     fogCol *= fogLum;
     
-    fogCol = mix(fogCol, WATER_SCATTERING * 0.81, float(inWater));
-    absCoeff = mix(absCoeff, 0.3 * 4, float(inWater));
+    
+    absCoeff = mix(absCoeff,1.65, float(inWater));
 
    //Shadow filter radius and bias calculation
     const float shadowMapPixelSize=1./float(SHADOW_RESOLUTION);
@@ -110,6 +112,7 @@ vec3 traceFog(vec3 worldPos, vec3 color, inout vec4 history, vec2 texcoord)
     -.0003803515625);
     float sampleRadius=SHADOW_SOFTNESS*shadowMapPixelSize*.34;
     vec3 fogScattering = vec3(0.0);
+    
     while(distTravelled<distLimit)
     {
       vec3 rayPos=entryPoint+rayDir*distTravelled;
@@ -132,12 +135,12 @@ vec3 traceFog(vec3 worldPos, vec3 color, inout vec4 history, vec2 texcoord)
           }
         shadow/=float(3);
         //get the transmittance along the density
-        transmittance*= exp(float(-absCoeff) * density * _StepSize);
+        transmittance *= exp(-absCoeff * density * _StepSize);
         //Calculate directional lighting for the fog
         vec3 lightDir=worldLightVector;
         float phase=CS(phaseVal,dot(rayDir,lightDir)) * CS(-0.2,dot(rayDir,lightDir)) * 0.85 ;
-        phase = mix(phase,waterPhase(dot(rayDir,lightDir)),float(inWater));
-        vec3 directLight=sunCol*shadow;
+        phase = mix(phase,waterPhase(dot(rayDir,lightDir)) * 3,float(inWater));
+        vec3 directLight=sunCol* lightScatteringTint * shadow;
 
         //Calculate the energy falloff of the phase function per the density
         //We are also going to calculate the overall power of the scattering as well as set up the multiscatter phase
@@ -153,10 +156,12 @@ vec3 traceFog(vec3 worldPos, vec3 color, inout vec4 history, vec2 texcoord)
         multiScatterEnergy *= MULTI_SCATTER_DECAY;
         vec3 multiScatter=multiScatterEnergy*msPhase*scatter;
         vec3 totalScattering = singleScatter + multiScatter + fogCol;
+       totalScattering = mix(totalScattering, totalScattering * WATER_SCATTERING * 12.81, float(inWater));
         float extinctionCoeff = 0.6 * density;
         //Now calculate the scattering integral
         vec3 sampleExtinction = ( totalScattering + absCoeff );
         fogScattering += ( totalScattering - totalScattering * transmittance) / sampleExtinction;
+         
          transmittance*=exp(-density*_StepSize);
         }
         distTravelled+=_StepSize;
